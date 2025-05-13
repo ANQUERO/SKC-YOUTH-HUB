@@ -8,6 +8,7 @@ export const signupAdmin = async (req, res) => {
             last_name,
             email,
             organization,
+            position,
             password,
             role
         } = req.body;
@@ -16,6 +17,7 @@ export const signupAdmin = async (req, res) => {
             last_name,
             email,
             organization,
+            position,
             password,
             role].some(Boolean)) {
             return res.status(404).json({
@@ -40,25 +42,22 @@ export const signupAdmin = async (req, res) => {
 
         const user = await pool.query({
             text: `INSERT INTO sk_official_admin (
-            first_name,
-            last_name,
-            email,
-            organization,
-            password,
-            role
-            ) VALUES (
-            $1, 
-            $2, 
-            $3, 
-            $4, 
-            $5, 
-            $6
-            ) RETURNING * `,
+        first_name,
+        last_name,
+        email,
+        organization,
+        position,
+        "password",
+        role
+    ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7
+    ) RETURNING *`,
             values: [
                 first_name,
                 last_name,
                 email,
                 organization,
+                position,
                 hashedPassword,
                 role
             ],
@@ -133,4 +132,19 @@ export const signinAdmin = async (req, res) => {
         });
     };
 };
+
+export const logout = async (req, res) => {
+    try {
+    const {id} = req.params;
+
+    return res.status(200).json({
+        status: "success",
+        message: ""
+    })
+
+        
+    } catch (error) {
+        
+    }
+}
 
