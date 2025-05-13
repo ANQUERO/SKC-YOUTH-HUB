@@ -116,7 +116,7 @@ export const update = async (req, res) => {
 
 export const disable = async (req, res) => {
     const { admin_id } = req.params;
-    const { role } = req.body; 
+    const { role } = req.body;
 
     if (!admin_id) {
         return res.status(400).json({
@@ -177,6 +177,51 @@ export const disable = async (req, res) => {
         });
     }
 };
+
+export const enable = async (req, res) => {
+    const { admin_id } = req.params;
+    const { role } = req.body;
+
+    try {
+        if (!admin_id) {
+            return res.status(400).json({
+                status: "failed",
+                message: "Admin ID is required"
+            });
+        }
+
+        if (role !== 'super_sk_admin') {
+            return res.status(403).json({
+                status: "failed",
+                message: "You do not have permission to disable an admin account"
+            });
+        }
+
+        const updateResult = await pool.query(
+            `UPDATE sk_official_admin 
+             SET is_active = TRUE, updatedAT = CURRENT_TIMESTAMP 
+             WHERE admin_id = $1 
+             RETURNING *`,
+            [admin_id]
+        );
+
+        return res.status(200).json({
+            status: 'success',
+            message: 'Admin account Enabled successfully',
+            admin: updateResult.rows[0]
+        });
+
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            status: 'failed',
+            message: 'An error occurred while disabling the admin account',
+            error: error.message
+        });
+    }
+
+}
 
 
 
