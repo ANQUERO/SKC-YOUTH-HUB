@@ -1,4 +1,6 @@
 import { pool } from '../db/config.js';
+import { hashPassword } from '../lib/index.js'
+
 
 
 export const index = async (req, res) => {
@@ -22,71 +24,79 @@ export const index = async (req, res) => {
 }
 
 export const show = async (req, res) => {
-
     try {
-        const { id } = req.params;
+        const { admin_id } = req.params;
 
-        if (!id) {
-            return res.status(400).json({ error: "User id is required" });
+        if (!admin_id) {
+            return res.status(400).json({ error: "User ID is required" });
         }
 
         const result = await pool.query({
-            text: `SELECT * FROM sk_official_admin WHERE id  = $1`,
-            values: [email],
+            text: `SELECT * FROM sk_official_admin WHERE admin_id = $1`,
+            values: [admin_id],
         });
 
         const admin = result.rows[0];
 
-        if (!id) {
-            return res.status(401).json({
+        if (!admin) {
+            return res.status(404).json({
                 status: 'failed',
-                message: 'Admins not found'
+                message: 'Admin not found',
             });
         }
 
         res.status(200).json({
             status: 'success',
-            admin
+            admin,
         });
 
     } catch (error) {
         console.error(error);
         res.status(500).json({
-            status: "failed",
+            status: 'failed',
             message: error.message,
         });
     }
-}
+};
 
 export const update = async (req, res) => {
     try {
-        const { id } = req.params;
-        if (!id) {
+        const { admin_id } = req.params;
+        if (!admin_id) {
             return res.status(400).json({ error: "User id is required" });
         }
 
-        const allowedFields = ['first_name', 'last_name', 'email', 'organization', 'password'];
+        const allowedFields = ['first_name', 'last_name', 'email', 'organization', 'position', 'password'];
         const updates = [];
         const values = [];
 
-        allowedFields.forEach((field, index) => {
+        for (const field of allowedFields) {
             if (req.body[field] !== undefined) {
-                updates.push(`${field} = $${values, length + 1}`);
-                values.push(req.body[field]);
+                // Hash the password if it's present
+                if (field === 'password') {
+                    const hashedPassword = await hashPassword(req.body.password);
+                    updates.push(`${field} = $${values.length + 1}`);
+                    values.push(hashedPassword);
+                } else {
+                    updates.push(`${field} = $${values.length + 1}`);
+                    values.push(req.body[field]);
+                }
             }
-        });
+        }
 
         if (updates.length === 0) {
             return res.status(200).json({
                 status: "failed",
                 message: "No valid fields provided for update",
             });
-        };
+        }
 
-        values.push(id);
+        const adminIdPosition = values.length + 1;
+        values.push(admin_id);
 
         const result = await pool.query(
-            `UPDATE sk_official_admin SET ${updates.join(', ')} WHERE id = $${values.length} RETURNING *`
+            `UPDATE sk_official_admin SET ${updates.join(', ')} WHERE admin_id = $${adminIdPosition} RETURNING *`,
+            values
         );
 
         res.status(200).json({
@@ -101,24 +111,72 @@ export const update = async (req, res) => {
             status: 'failed',
             message: error.message,
         });
-
     }
-
-
-}
+};
 
 export const disable = async (req, res) => {
-    const { id } = req.params;
+    const { admin_id } = req.params;
+    const { role } = req.body; 
 
-    if (!id) {
-        return res.status(200).json({
+    if (!admin_id) {
+        return res.status(400).json({
             status: "failed",
-            message: "Super Admin ID is required"
+            message: "Admin ID is required"
         });
     }
 
-    
+    if (role !== 'super_sk_admin') {
+        return res.status(403).json({
+            status: "failed",
+            message: "You do not have permission to disable an admin account"
+        });
+    }
 
-}
+    try {
+        const result = await pool.query(
+            'SELECT * FROM sk_official_admin WHERE admin_id = $1',
+            [admin_id]
+        );
+
+        const admin = result.rows[0];
+
+        if (!admin) {
+            return res.status(404).json({
+                status: 'failed',
+                message: 'Admin not found'
+            });
+        }
+
+        if (admin.role === 'super_sk_admin') {
+            return res.status(400).json({
+                status: 'failed',
+                message: 'You cannot disable another super admin'
+            });
+        }
+
+        const updateResult = await pool.query(
+            `UPDATE sk_official_admin 
+             SET is_active = FALSE, updatedAT = CURRENT_TIMESTAMP 
+             WHERE admin_id = $1 
+             RETURNING *`,
+            [admin_id]
+        );
+
+        return res.status(200).json({
+            status: 'success',
+            message: 'Admin account disabled successfully',
+            admin: updateResult.rows[0]
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            status: 'failed',
+            message: 'An error occurred while disabling the admin account',
+            error: error.message
+        });
+    }
+};
+
 
 
