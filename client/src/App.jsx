@@ -1,10 +1,10 @@
-import AdminAuth from "@pages/AdminAuth/auth"
+import AdminAuth from "@pages/AdminAuth/index.jsx"
 
 function App() {
 
   return (
     <>
-     <AdminAuth/>
+    <AdminAuth/>
     </>
   )
 }
