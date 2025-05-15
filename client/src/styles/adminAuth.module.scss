@@ -6,16 +6,16 @@ $border-color: #8C8C8C;
 .container {
     display: flex;
     min-height: 100vh;
+    flex-wrap: wrap;
 
     // Left pane
     .left {
         background-color: $right;
-        color: #fff;
+        color: $white;
         width: 40%;
         display: flex;
         align-items: center;
         justify-content: center;
-
 
         .text {
             display: flex;
@@ -32,7 +32,6 @@ $border-color: #8C8C8C;
             .title {
                 font-size: 50px;
                 font-weight: bold;
-
             }
 
             .tagline {
@@ -40,25 +39,57 @@ $border-color: #8C8C8C;
                 font-weight: normal;
                 line-height: 1.7;
             }
-
-            .link {
-                font-size: 20px;
-                line-height: 1.7;
-            }
-
         }
 
-        @media (max-width: 768px) {
-            width: 100%;
-            justify-content: center;
-
+        // MEDIA QUERIES FOR TEXT SIZES
+        @media (max-width: 1540px) {
             .text {
-                padding: 0 20px;
-                text-align: left;
+                .logo {
+                    font-size: 30px;
+                }
+
+                .title {
+                    font-size: 25px;
+                }
+
+                .tagline {
+                    font-size: 20px;
+                }
             }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 1024px) {
+            .text {
+                .logo {
+                    font-size: 18px;
+                }
+
+                .title {
+                    font-size: 20px;
+                }
+
+                .tagline {
+                    font-size: 15px;
+                }
+            }
+        }
+
+        @media (max-width: 992px) {
+            .text {
+
+                .title,
+                .tagline {
+                    display: none;
+                }
+
+                .logo {
+                    font-size: 25px;
+                }
+            }
+        }
+
+        // HIDE LEFT PANEL ON SMALL DEVICES
+        @media (max-width: 768px) {
             display: none;
         }
     }
@@ -74,11 +105,11 @@ $border-color: #8C8C8C;
         .box {
             width: 100%;
             max-width: 500px;
-            padding: 0 20px;
+            padding: 30px 20px;
 
             .title {
                 font-size: 32px;
-                font-weight: 800px;
+                font-weight: normal;
                 margin-bottom: 30px;
                 text-align: left;
             }
@@ -90,21 +121,27 @@ $border-color: #8C8C8C;
                 .form-group {
                     display: flex;
                     flex-direction: column;
-                    margin-bottom: 20px; // spacing between fields
+                    margin-bottom: 20px;
                 }
 
-                .group1 {
-                    display: flex;
-                    align-items: center;
-                    flex-direction: row;
-                    justify-content: space-between;
-                    gap: 16px;
-                }
-
+                .group1,
                 .group2 {
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
+                    gap: 16px;
+                    margin-bottom: 20px;
+
+                    input,
+                    select {
+                        flex-grow: 1;
+                        min-width: 0;
+                    }
+
+                    @media (max-width: 480px) {
+                        flex-direction: column;
+                        align-items: stretch;
+                    }
                 }
 
                 label {
@@ -112,7 +149,8 @@ $border-color: #8C8C8C;
                     margin-bottom: 8px;
                 }
 
-                input {
+                input,
+                select {
                     height: 46px;
                     padding: 0 15px;
                     border: 1px solid $border-color;
@@ -124,6 +162,11 @@ $border-color: #8C8C8C;
                         outline: none;
                         border-color: darken($border-color, 15%);
                     }
+                }
+
+                select {
+                    appearance: none;
+                    cursor: pointer;
                 }
 
                 .button {
@@ -141,9 +184,21 @@ $border-color: #8C8C8C;
                         background-color: darken($right, 5%);
                     }
                 }
+
+                .link {
+                    margin-top: 10px;
+                    font-size: 18px;
+                    text-align: center;
+
+                    .login {
+                        cursor: pointer;
+
+                        &:hover {
+                            text-decoration: underline;
+                        }
+                    }
+                }
             }
-
-
 
             .changeAuthentication {
                 text-align: center;
@@ -160,16 +215,15 @@ $border-color: #8C8C8C;
             }
         }
 
+        // Responsive box padding
         @media (max-width: 768px) {
             width: 100%;
             min-height: 100vh;
             padding: 20px;
-        }
-    }
 
-    @media (max-width: 480px) {
-        .left {
-            display: none;
+            .box {
+                padding: 20px 15px;
+            }
         }
     }
 }
