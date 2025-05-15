@@ -31,58 +31,69 @@ const AdminAuth = () => {
           <h2 className={style.title}> Personal Details </h2>
 
           <form>
-
             <div className={style.group1}>
-              <input
-                type="text"
-                name="name"
-                autoComplete="off"
-                placeholder="Username"
-              />
-              <input
-                type="email"
-                name="email"
-                autoComplete="off"
-                placeholder="Email"
-              />
+              <div className={style['form-group']}>
+                <label htmlFor="first_name">First Name</label>
+                <input
+                  type="text"
+                  name="first_name"
+                  id="first_name"
+                  autoComplete="off"
+                  placeholder="First Name"
+                />
+              </div>
+
+              <div className={style['form-group']}>
+                <label htmlFor="last_name">Last Name</label>
+                <input
+                  type="text"
+                  name="last_name"
+                  id="last_name"
+                  autoComplete="off"
+                  placeholder="Last Name"
+                />
+              </div>
             </div>
 
             <div className={style.group2}>
-              <input
-                type="password"
-                name="password"
-                autoComplete="off"
-                placeholder="Password"
-              />
+              <div className={style['form-group']}>
+                <label htmlFor="position">Position</label>
+                <input
+                  type="position"
+                  name="position"
+                  id="position"
+                  autoComplete="off"
+                  placeholder="position"
+                />
+              </div>
 
-              <input
-                type="password"
-                name="password"
-                autoComplete="off"
-                placeholder="Password"
-              />
-
+              <div className={style['form-group']}>
+                <label htmlFor="confirm_password">Confirm Password</label>
+                <input
+                  type="password"
+                  name="confirm_password"
+                  id="confirm_password"
+                  autoComplete="off"
+                  placeholder="Confirm Password"
+                />
+              </div>
             </div>
 
-            <input
-              type="password"
-              name="password"
-              autoComplete="off"
-              placeholder="Password"
-            />
+            <div className={style['form-group']}>
+              <label htmlFor="admin_code">Admin Code</label>
+              <input
+                type="password"
+                name="admin_code"
+                id="admin_code"
+                autoComplete="off"
+                placeholder="Admin Code"
+              />
+            </div>
 
             <button type="submit" className={style.button}>
-              Sign up
+              Next
             </button>
           </form>
-
-          <p className={style.changeAuthentication}>
-            Already have an account?
-            <span
-              className={style.span}>
-              Sign in
-            </span>
-          </p>
 
         </div>
       </div>

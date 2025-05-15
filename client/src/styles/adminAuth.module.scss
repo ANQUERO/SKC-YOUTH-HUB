@@ -2,7 +2,6 @@
 $right: #31578B;
 $white: #fff;
 $border-color: #8C8C8C;
-$text-color: #333;
 
 .container {
     display: flex;
@@ -11,6 +10,7 @@ $text-color: #333;
     // Left pane
     .left {
         background-color: $right;
+        color: #fff;
         width: 40%;
         display: flex;
         align-items: center;
@@ -29,9 +29,20 @@ $text-color: #333;
                 margin-bottom: 50px;
             }
 
-            .tagline {
-                font-size: 36px;
+            .title {
+                font-size: 50px;
                 font-weight: bold;
+
+            }
+
+            .tagline {
+                font-size: 30px;
+                font-weight: normal;
+                line-height: 1.7;
+            }
+
+            .link {
+                font-size: 20px;
                 line-height: 1.7;
             }
 
@@ -46,6 +57,7 @@ $text-color: #333;
                 text-align: left;
             }
         }
+
         @media (max-width: 480px) {
             display: none;
         }
@@ -61,19 +73,39 @@ $text-color: #333;
 
         .box {
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
             padding: 0 20px;
 
             .title {
                 font-size: 32px;
-                font-weight: bold;
+                font-weight: 800px;
                 margin-bottom: 30px;
-                text-align: center;
+                text-align: left;
             }
 
             form {
                 display: flex;
                 flex-direction: column;
+
+                .form-group {
+                    display: flex;
+                    flex-direction: column;
+                    margin-bottom: 20px; // spacing between fields
+                }
+
+                .group1 {
+                    display: flex;
+                    align-items: center;
+                    flex-direction: row;
+                    justify-content: space-between;
+                    gap: 16px;
+                }
+
+                .group2 {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                }
 
                 label {
                     font-size: 15px;
@@ -85,7 +117,6 @@ $text-color: #333;
                     padding: 0 15px;
                     border: 1px solid $border-color;
                     border-radius: 10px;
-                    margin-bottom: 20px;
                     font-size: 16px;
                     background-color: transparent;
 
@@ -98,6 +129,7 @@ $text-color: #333;
                 .button {
                     height: 46px;
                     background-color: $right;
+                    color: $white;
                     border: 1px solid $right;
                     border-radius: 10px;
                     font-size: 16px;
@@ -110,6 +142,8 @@ $text-color: #333;
                     }
                 }
             }
+
+
 
             .changeAuthentication {
                 text-align: center;
