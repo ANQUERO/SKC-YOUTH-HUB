@@ -7,11 +7,18 @@ const AdminAuth = () => {
 
       {/* Left panel */}
       <div className={style.left}>
+
         <div className={style.text}>
-          <h1 className={style.logo}>ANQUERO</h1>
+
+          <img src="" alt="Logo" className={style.logo} />
+          <h1 className={style.title}>Admins Registration Form</h1>
           <h2 className={style.tagline}>
-            Simple task <br /> management
+            Please fill then required information given.
           </h2>
+          <p className={style.link}>
+            Already have and account?
+            <span>Login</span>
+          </p>
         </div>
 
       </div>
@@ -21,25 +28,41 @@ const AdminAuth = () => {
       <div className={style.right}>
         <div className={style.box}>
 
-          <h2 className={style.title}> Sign up</h2>
+          <h2 className={style.title}> Personal Details </h2>
 
           <form>
 
-          
+            <div className={style.group1}>
               <input
                 type="text"
                 name="name"
                 autoComplete="off"
                 placeholder="Username"
               />
-        
+              <input
+                type="email"
+                name="email"
+                autoComplete="off"
+                placeholder="Email"
+              />
+            </div>
 
-            <input
-              type="email"
-              name="email"
-              autoComplete="off"
-              placeholder="Email"
-            />
+            <div className={style.group2}>
+              <input
+                type="password"
+                name="password"
+                autoComplete="off"
+                placeholder="Password"
+              />
+
+              <input
+                type="password"
+                name="password"
+                autoComplete="off"
+                placeholder="Password"
+              />
+
+            </div>
 
             <input
               type="password"
@@ -54,10 +77,10 @@ const AdminAuth = () => {
           </form>
 
           <p className={style.changeAuthentication}>
-              Already have an account? 
-            <span 
+            Already have an account?
+            <span
               className={style.span}>
-               Sign in
+              Sign in
             </span>
           </p>
 

@@ -1,6 +1,6 @@
 // Variables
+$right: #31578B;
 $white: #fff;
-$light-gray: #E2E2E2;
 $border-color: #8C8C8C;
 $text-color: #333;
 
@@ -10,13 +10,18 @@ $text-color: #333;
 
     // Left pane
     .left {
-        background-color: $white;
-        width: 50%;
+        background-color: $right;
+        width: 40%;
         display: flex;
         align-items: center;
+        justify-content: center;
+
 
         .text {
-            padding-left: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
 
             .logo {
                 font-size: 25px;
@@ -41,8 +46,6 @@ $text-color: #333;
                 text-align: left;
             }
         }
-
-
         @media (max-width: 480px) {
             display: none;
         }
@@ -50,8 +53,8 @@ $text-color: #333;
 
     // Right pane
     .right {
-        background-color: $light-gray;
-        width: 50%;
+        background-color: $white;
+        width: 60%;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -94,8 +97,8 @@ $text-color: #333;
 
                 .button {
                     height: 46px;
-                    background-color: $white;
-                    border: 1px solid $white;
+                    background-color: $right;
+                    border: 1px solid $right;
                     border-radius: 10px;
                     font-size: 16px;
                     font-weight: 600;
@@ -103,7 +106,7 @@ $text-color: #333;
                     transition: background-color 0.2s;
 
                     &:hover {
-                        background-color: darken($white, 5%);
+                        background-color: darken($right, 5%);
                     }
                 }
             }
