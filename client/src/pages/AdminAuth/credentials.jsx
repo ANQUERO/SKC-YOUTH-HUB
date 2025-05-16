@@ -1,4 +1,5 @@
 import React from 'react';
+import style from '@styles/adminAuth.module.scss'
 
 const Credentials = ({ prev, handleChange, data }) => {
   const handleSubmit = () => {
@@ -6,8 +7,8 @@ const Credentials = ({ prev, handleChange, data }) => {
   };
 
   return (
-    <div>
-      <h2>Sign Up</h2>
+    <div className={style.credentials}>
+      <h2 className={style.signupTitle}>Sign Up</h2>
       <input
         type="password"
         placeholder="Password"
@@ -20,11 +21,11 @@ const Credentials = ({ prev, handleChange, data }) => {
         value={data.confirmPassword}
         onChange={(e) => handleChange("confirmPassword", e.target.value)}
       />
-      <label>
-        <input type="checkbox" /> I accept the terms of service.
+      <label className={style.terms}>
+        <input type="checkbox" className={style.check}/> I accept the terms of service.
       </label>
-      <button onClick={prev}>Back</button>
       <button onClick={handleSubmit}>Sign Up</button>
+      <button onClick={prev} className={style.back}>Back</button>
     </div>
   );
 };

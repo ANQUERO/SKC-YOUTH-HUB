@@ -234,7 +234,7 @@ $border-color: #8C8C8C;
 .emailBox {
     display: flex;
     flex-direction: column;
-    gap: 15px; // Adds spacing between elements
+    gap: 15px;
 
     .emailTitle {
         font-size: 32px;
@@ -250,7 +250,7 @@ $border-color: #8C8C8C;
         border-radius: 10px;
         font-size: 16px;
         background-color: transparent;
-        
+
         &:focus {
             outline: none;
             border-color: darken($border-color, 15%);
@@ -265,7 +265,7 @@ $border-color: #8C8C8C;
 
     .buttonContainer {
         display: flex;
-        justify-content: flex-end; 
+        justify-content: flex-end;
         gap: 15px;
     }
 
@@ -279,13 +279,13 @@ $border-color: #8C8C8C;
         font-weight: 600;
         cursor: pointer;
         transition: background-color 0.2s;
-        
+
         &:hover {
             background-color: darken($right, 5%);
         }
     }
 
-    .back{
+    .back {
         height: 46px;
         background-color: $white;
         color: $right;
@@ -295,11 +295,93 @@ $border-color: #8C8C8C;
         font-weight: 600;
         cursor: pointer;
         transition: background-color 0.2s;
-        
+
         &:hover {
             background-color: darken($white, 5%);
         }
     }
 
+}
 
+//Credentials
+
+.credentials {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    .signupTitle {
+        text-align: center;
+    }
+
+    input {
+        height: 46px;
+        padding: 0 15px;
+        border: 1px solid $border-color;
+        border-radius: 10px;
+        font-size: 16px;
+        background-color: transparent;
+
+        &:focus {
+            outline: none;
+            border-color: darken($border-color, 15%);
+        }
+    }
+
+    .terms{
+        display: flex;
+        flex-direction: row;
+        gap: 5px;
+        align-items: center;
+    }
+
+     button {
+        height: 46px;
+        background-color: $right;
+        color: $white;
+        border: 1px solid $right;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: darken($right, 5%);
+        }
+    }
+
+    .back {
+        height: 46px;
+        background-color: $white;
+        color: $right;
+        border: 1px solid $right;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: darken($white, 5%);
+        }
+    }
+}
+
+@media (max-width: 600px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .left, .right {
+        width: 100%;
+    }
+
+    .box {
+        padding: 15px;
+    }
+    
+    .form-group {
+        flex-direction: column;
+    }
 }
