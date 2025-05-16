@@ -227,3 +227,79 @@ $border-color: #8C8C8C;
         }
     }
 }
+
+
+
+//Email
+.emailBox {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; // Adds spacing between elements
+
+    .emailTitle {
+        font-size: 32px;
+        font-weight: normal;
+        margin-bottom: 30px;
+        text-align: left;
+    }
+
+    input {
+        height: 46px;
+        padding: 0 15px;
+        border: 1px solid $border-color;
+        border-radius: 10px;
+        font-size: 16px;
+        background-color: transparent;
+        
+        &:focus {
+            outline: none;
+            border-color: darken($border-color, 15%);
+        }
+    }
+
+    .emailDesc {
+        font-size: 15px;
+        font-weight: normal;
+        color: gray;
+    }
+
+    .buttonContainer {
+        display: flex;
+        justify-content: flex-end; 
+        gap: 15px;
+    }
+
+    button {
+        height: 46px;
+        background-color: $right;
+        color: $white;
+        border: 1px solid $right;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        
+        &:hover {
+            background-color: darken($right, 5%);
+        }
+    }
+
+    .back{
+        height: 46px;
+        background-color: $white;
+        color: $right;
+        border: 1px solid $right;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        
+        &:hover {
+            background-color: darken($white, 5%);
+        }
+    }
+
+
+}
