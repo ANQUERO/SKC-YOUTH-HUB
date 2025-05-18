@@ -1,11 +1,13 @@
 import React from 'react'
-import Hero from '/@ '
+import Navbar from "@components/Navbar.jsx"
+import Hero from './sections/hero.jsx'
 
 
 const LandingPage = () => {
   return (
    <>
-
+   <Navbar/>
+   <Hero/>
    </>
   )
 }

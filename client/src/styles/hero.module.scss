@@ -1,0 +1,217 @@
+//Main Hero Positioning
+.main {
+    position: relative;
+    max-width: 91.66;
+    height: 100vh;
+    margin-left: auto;
+    margin-right: auto;
+    overflow: hidden;
+    border-radius: 0.75rem;
+
+    .foreground {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        height: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        color: white;
+    }
+
+    @media (min-width: 768px) {
+        .foreground {
+            padding-left: 3rem;
+            padding-right: 3rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .foreground {
+            padding-left: 5rem;
+            padding-right: 5rem;
+        }
+    }
+
+    .taglineButtons {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    @media (min-width: 640px) {
+        .taglineButtons {
+            flex-direction: row;
+        }
+    }
+
+
+}
+
+
+//Tagline Component css
+.title {
+    font-size: 5rem;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 1rem;
+}
+
+/* For screens larger than 768px */
+@media (max-width: 768px) {
+    .title {
+        font-size: 4rem;
+    }
+}
+
+/* For screens larger than 640px */
+@media (max-width: 640px) {
+    .title {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 3rem;
+    }
+}
+
+.block {
+    display: block;
+    font-weight: 700;
+}
+
+
+
+//Parachraph Component css
+.paragraphs {
+    max-width: 40rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    color: white;
+    font-weight: 300;
+}
+
+/* For screens less than 640px wide */
+@media (max-width: 640px) {
+    .paragraphs {
+        font-size: 2rem;
+        text-align: center;
+    }
+}
+
+
+ //Tagline Buttons css
+ .button1 {
+    background-color: #B8336A;
+    color: white;
+    font-weight: bold;
+    font-size: large;
+    padding: 1rem 3rem;
+    border-radius: 1rem;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: none; 
+    border: none;
+    transition: background-color 0.3s, color 0.3s;
+
+    &:hover {
+        background-color: white;
+        color: #B8336A;
+    }
+
+    /* Make the button smaller on smaller screens */
+    @media (max-width: 768px) {
+        font-size: medium;
+        padding: 0.8rem 2rem;
+        width: 100%; /* Full width on smaller screens */
+    }
+
+    @media (max-width: 480px) {
+        font-size: small;
+        padding: 0.5rem 1.5rem;
+        width: 100%; /* Full width on very small screens */
+    }
+}
+
+.button2 {
+    background-color: white;
+    color: black;
+    font-weight: bold;
+    font-size: large;
+    padding: 1rem 3rem;
+    border-radius: 1rem;
+    transition: background-color 0.3s, color 0.3s;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: none; 
+    border: none;
+
+    &:hover {
+        background-color: #B8336A;
+        color: white;
+    }
+
+    /* Make the button smaller on smaller screens */
+    @media (max-width: 768px) {
+        font-size: medium;
+        padding: 0.8rem 2rem;
+    }
+
+    @media (max-width: 480px) {
+        font-size: small;
+        padding: 0.5rem 1.5rem;
+    }
+}
+
+
+
+
+//Hero Background css
+.background {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    .backgroundImage {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    .transparent {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+
+    .left {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: linear-gradient(to right, rgba(177, 8, 42, 0.33), transparent);
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: linear-gradient(to right, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.1));
+        backdrop-filter: brightness(100%);
+    }
+}
