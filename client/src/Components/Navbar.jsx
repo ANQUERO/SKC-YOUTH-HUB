@@ -1,6 +1,7 @@
 import style from '@styles/navbar.module.scss';
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Logo = () => (
     <div className={style.logo}>
@@ -23,17 +24,28 @@ const NavLinks = ({ links, onLinkClick }) => (
     <ul className={style.nav_links}>
         {links.map((link, key) => (
             <li key={key}>
-                <a
-                    href={link.href}
-                    onClick={onLinkClick}
-                    className={style.link}
-                >
-                    {link.text}
-                </a>
+                {link.external ? (
+                    <a
+                        href={link.to}
+                        onClick={onLinkClick}
+                        className={style.link}
+                    >
+                        {link.text}
+                    </a>
+                ) : (
+                    <Link
+                        to={link.to}
+                        onClick={onLinkClick}
+                        className={style.link}
+                    >
+                        {link.text}
+                    </Link>
+                )}
             </li>
         ))}
     </ul>
 );
+
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -51,7 +63,7 @@ export default function Navbar() {
         { href: '#about', text: 'About' },
         { href: '#officials', text: 'Officials' },
         { href: '#discover', text: 'Discover' },
-        { href: '/signup', text: 'Sign Up' },
+        { to: '/adminAuth', text: 'Sign Up', external: false},
     ];
 
     const handleLinkClick = () => {

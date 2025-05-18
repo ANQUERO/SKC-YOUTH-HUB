@@ -6,8 +6,6 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import './index.css'
 import App from './App.jsx'
 
-
-
 import AdminAuth from '@pages/AdminAuth/index.jsx';
 import NotFound from '@pages/NotFound/index.jsx';
 
