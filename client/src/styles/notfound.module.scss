@@ -1,45 +1,82 @@
 .container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 1.25rem;
-    height: 100vh;
-    background-color: #31578B;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: #31578B;
+  overflow: hidden;
+  padding: 1rem;
+}
 
-    @media (max-width: 1024px) {
-        .container {
-            flex-direction: row;
-            row-gap: 0;
-            column-gap: 1.25rem;
-        }
-    }
+.backgroundLogo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 70vw;
+  max-width: 700px;
+  opacity: 0.08;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 50%;
+
+  @media (max-width: 768px) {
+    width: 90vw;
+  }
+
+  @media (min-width: 1440px) {
+    max-width: 1000px;
+  }
 }
 
 .errorcontainer {
-    display: flex;
-    flex-direction: column;
-    width: 20rem;
-    gap: 1.25rem;
-    text-align: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  text-align: center;
+  z-index: 1;
+  width: 100%;
+  max-width: 30rem;
+  padding: 2rem;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 1rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 
-    @media (min-width: 1024px) {
-        .errorcontainer {
-            width: 33.333333%;
-            text-align: left;
-        }
+  @media (min-width: 1024px) {
+    text-align: left;
+    padding: 3rem;
+  }
 
-    }
+  @media (max-width: 480px) {
+    padding: 1.5rem;
+    gap: 1rem;
+  }
 }
 
 .errortitle {
-    font-size: 4rem;
-    font-weight: bold;
-    color: #ffffff;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: bold;
+  color: #ffffff;
+  line-height: 1.2;
 }
 
 .message {
-    font-size: medium;
-    font-weight: normal;
-    color: #d5d2d2;
+  font-size: clamp(1rem, 2.5vw, 1.125rem);
+  font-weight: normal;
+  color: #d5d2d2;
+  line-height: 1.5;
+}
+
+.link {
+  text-decoration: none;
+  color: white;
+  font-weight: 500;
+  font-size: 1rem;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }

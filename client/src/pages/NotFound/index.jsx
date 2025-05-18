@@ -1,5 +1,7 @@
 import React from 'react'
 import style from '@styles/notfound.module.scss';
+import { Link } from 'react-router-dom';
+import Logo from '@images/logo.jpg'
 
 const Container = ({ children }) => (<div className={style.container}>{children}</div>);
 const ErrorContainer = ({ children }) => (<div className={style.errorcontainer}>{children}</div>);
@@ -9,6 +11,12 @@ const ErrorTitle = ({ children }) => (<div className={style.errortitle}>{childre
 const NotFound = () => {
     return (
         <Container>
+            {/* Background logo */}
+            <img
+                src={Logo}
+                alt="Logo"
+                className={style.backgroundLogo}
+            />
             <ErrorContainer>
 
                 <ErrorTitle>
@@ -27,7 +35,9 @@ const NotFound = () => {
 
                 <div>
                     <sl-button variant="primary">
+                        <Link to={"/"} className={style.link}>
                         Go back to the homepage
+                        </Link>
                     </sl-button>
                 </div>
             </ErrorContainer>
