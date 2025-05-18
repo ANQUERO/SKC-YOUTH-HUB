@@ -1,6 +1,6 @@
-// components/AdminAuth.jsx
 import style from '@styles/adminAuth.module.scss';
 import StepWrapper from './wrapper.jsx';
+import Logo from '@images/logo.jpg'
 
 const AdminAuth = () => {
   return (
@@ -8,7 +8,7 @@ const AdminAuth = () => {
       {/* Left panel */}
       <div className={style.left}>
         <div className={style.text}>
-          <img src="" alt="Logo" className={style.logo} />
+          <img src={Logo} alt="Logo" className={style.logo} />
           <h1 className={style.title}>Admins Registration Form</h1>
           <h2 className={style.tagline}>
             Please fill the required information given.
