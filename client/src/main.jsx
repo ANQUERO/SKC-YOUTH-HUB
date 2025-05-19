@@ -8,10 +8,12 @@ import App from './App.jsx'
 
 import AdminAuth from '@pages/AdminAuth/index.jsx';
 import NotFound from '@pages/NotFound/index.jsx';
+import Signin from '@pages/Signin/index.jsx';
 
 const router = createBrowserRouter([
   {path:"/", element:<App/>},
   {path:"/adminAuth", element:<AdminAuth/>},
+  {path:"/signin", element:<Signin/>},
   {path:"*", element:<NotFound/>},
 
 ]);

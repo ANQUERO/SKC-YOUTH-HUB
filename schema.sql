@@ -19,7 +19,7 @@ CREATE TABLE posts (
     description TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP DEFAULT NULL -- soft delete column
+    deleted_at TIMESTAMP DEFAULT NULL 
 );
 
 CREATE TABLE post_reactions (
@@ -29,7 +29,7 @@ CREATE TABLE post_reactions (
     user_id INTEGER NOT NULL, 
     type VARCHAR(10) NOT NULL CHECK (type IN ('like', 'heart', 'wow')),
     reacted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP DEFAULT NULL -- soft delete column
+    deleted_at TIMESTAMP DEFAULT NULL 
 );
 
 CREATE TABLE post_comments (
@@ -42,5 +42,5 @@ CREATE TABLE post_comments (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     is_edited BOOLEAN DEFAULT FALSE,
-    deleted_at TIMESTAMP DEFAULT NULL -- soft delete column
+    deleted_at TIMESTAMP DEFAULT NULL
 );

@@ -94,7 +94,7 @@ $border-color: #8C8C8C;
         }
     }
 
-    // Right pane
+    // Right panel
     .right {
         background-color: $white;
         width: 60%;
@@ -189,6 +189,8 @@ $border-color: #8C8C8C;
                     margin-top: 10px;
                     font-size: 18px;
                     text-align: center;
+                    text-decoration: none;
+                    color: black;
 
                     .login {
                         cursor: pointer;

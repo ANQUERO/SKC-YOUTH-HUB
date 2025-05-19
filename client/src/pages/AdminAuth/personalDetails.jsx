@@ -1,4 +1,5 @@
 import style from '@styles/adminAuth.module.scss';
+import {Link} from 'react-router-dom';
 
 const PersonalDetails = ({ next, handleChange, data }) => {
   const handleSubmit = (e) => {
@@ -81,9 +82,9 @@ const PersonalDetails = ({ next, handleChange, data }) => {
         Next
       </button>
 
-      <p className={style.link}>
-        Already have an account? <span className={style.login}>Login</span>
-      </p>
+        <Link to='/signin' className={style.link}>
+          Already have an account? <span className={style.login}>Login</span>
+        </Link>
     </form>
   );
 };

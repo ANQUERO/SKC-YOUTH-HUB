@@ -1,9 +1,14 @@
 import React from 'react';
 import style from '@styles/adminAuth.module.scss'
+import { useNavigate } from 'react-router-dom'
 
 const Credentials = ({ prev, handleChange, data }) => {
-  const handleSubmit = () => {
-    alert("Registration complete!\n" + JSON.stringify(data, null, 2));
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    navigate('/signin')
   };
 
   return (
@@ -22,9 +27,12 @@ const Credentials = ({ prev, handleChange, data }) => {
         onChange={(e) => handleChange("confirmPassword", e.target.value)}
       />
       <label className={style.terms}>
-        <input type="checkbox" className={style.check}/> I accept the terms of service.
+        <input type="checkbox" className={style.check} /> I accept the terms of service.
       </label>
-      <button onClick={handleSubmit}>Sign Up</button>
+      <button onClick={handleSubmit} className={style.button}>
+        Sign Up
+      </button>
+
       <button onClick={prev} className={style.back}>Back</button>
     </div>
   );

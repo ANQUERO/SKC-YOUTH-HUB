@@ -1,6 +1,7 @@
 import React from 'react'
 import style from '@styles/hero.module.scss'
 import HeroImage from '@images/Hero.jpg'
+import { Link } from 'react-router-dom'
 
 const Tagline = ({ text1, text2 }) => (
     <h1 className={style.title}>
@@ -15,7 +16,9 @@ const Description = ({ paragraph }) => (
 
 const Button1 = ({ text }) => (
     <button className={style.button1}>
-        <span className={style.buttonBlock}>{text}</span>
+        <Link to="/signin" className={style.link}>
+            <span className={style.buttonBlock}>{text}</span>
+        </Link>
     </button>
 )
 
