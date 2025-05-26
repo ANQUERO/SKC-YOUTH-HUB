@@ -1,12 +1,9 @@
-import LandingPage from "@pages/LandingPage/index.jsx"
+import Authenticated from "@pages/Authenticated/index.jsx";
 
 function App() {
-
   return (
-    <>
-    <LandingPage/>
-    </>
-  )
+      <Authenticated />
+  );
 }
 
-export default App
+export default App;
