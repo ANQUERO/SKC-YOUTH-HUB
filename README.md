@@ -2,6 +2,9 @@
 
 A vibrant web platform designed to connect and empower the youth community. This project aims to provide resources, events, and interactive features for young people to engage, share, and grow together.
 
+# PERN Stack Application 
+This is PERN application that uses PostgresSQL, Express, React(with Vite), and Node.js.
+
 ## 🚀 Getting Started
 
 Follow these instructions to set up the project locally:
@@ -9,11 +12,12 @@ Follow these instructions to set up the project locally:
 ### 📦 Clone the Repository
 
 ```bash
-git clone <https://github.com/ANQUERO/Capstone.git>
+git clone <repository-url>
+cd <repository-directory>
 ```
 ### 📁 Install Dependencies
 
-#### For the server
+#### For the backend
 ```bash
 cd server 
 npm install
@@ -29,9 +33,33 @@ npm install
 Create a .env file in the project root directory and add the following variables. Modify the values as needed.
 
 ```bash
+DATABASE_URI=
 NODE_ENV=development
-PORT=...
-JWT_SECRET=...
+PORT = 
+JWT_SECRET =  
+```
+
+
+## Run the Application in development mode
+
+Start both the backend and frontend servers.
+
+### Backend
+
+Navigate to the project root directory and start the backend server.
+
+```sh
+cd backend/
+npm run dev
+```
+
+### Frontend
+
+Navigate to the `client` directory and start the frontend server.
+
+```sh
+cd client/
+npm run dev
 ```
 
 
