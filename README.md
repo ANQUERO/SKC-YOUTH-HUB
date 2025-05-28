@@ -32,9 +32,7 @@ Create a .env file in the project root directory and add the following variables
 NODE_ENV=development
 PORT=...
 JWT_SECRET=...
-MONGO_DB_URI=...
 ```
 
 
 
-![Architecture](https://github.com/user-attachments/assets/0b4ce105-8cd7-4103-8b6b-a5dbbfd7c3ff)
