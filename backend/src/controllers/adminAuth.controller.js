@@ -1,8 +1,19 @@
 import { pool } from '../db/config.js';
+import { validationResult } from 'express-validator'
 import { comparePassword, hashPassword, createToken } from '../lib/index.js'
 
 export const signupAdmin = async (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            status: "failed",
+            errors: errors.array()
+        });
+    }
+
     try {
+
         const {
             first_name,
             last_name,
@@ -13,34 +24,37 @@ export const signupAdmin = async (req, res) => {
             role
         } = req.body;
 
-        if (![first_name,
-            last_name,
-            email,
-            organization,
-            position,
-            password,
-            role].some(Boolean)) {
-            return res.status(404).json({
+        if (!first_name || !last_name || !email || !organization || !position || !password || !role) {
+            return res.status(400).json({
                 status: "failed",
                 message: "Provide Required Fields!",
             });
         }
 
+        const allowedRoles = ["super_sk_admin", "natural_sk_admin"];
+        if (!allowedRoles.includes(role)) {
+            console.log("Invalid role: ", role, "Allowed: ", allowedRoles);
+            return res.status(409),json({
+                status: "failed",
+                message: `Invalid role. Allowed roles are: ${allowedRoles.join(", ")}`
+            });
+        }
+
         const adminExist = await pool.query({
-            text: `SELECT EXISTS (SELECT * FROM sk_official_admin WHERE email = $1)`,
-            values: [email],
+            text: `SELECT EXISTS (SELECT * FROM sk_official_admin WHERE email = $1) AS exists`,
+            values: [email]
         });
 
-        if (adminExist.rows[0].adminExist) {
+        if (adminExist.rows[0].exists) {
             return res.status(409).json({
                 status: "failed",
-                message: "Email Address already taken",
+                message: "Email Address already taken"
             });
-        };
+        }
 
         const hashedPassword = await hashPassword(password);
 
-        const user = await pool.query({
+        const result = await pool.query({
             text: `INSERT INTO sk_official_admin (
         first_name,
         last_name,
@@ -63,24 +77,27 @@ export const signupAdmin = async (req, res) => {
             ],
         });
 
-        user.rows[0].password = undefined
+        const newUser = result.rows[0];
+        delete newUser.password;
 
         res.status(201).json({
             status: "success",
             message: "Admin account created successfully",
-            user: user.rows[0],
+            user: newUser
         });
 
     } catch (error) {
-        console.log(error);
+        console.log("Signup error.", error);
         res.status(500).json({
             status: "failed",
-            message: error.message
+            message: "An error occurred while creating admin account",
+            error: error.message
         });
     };
 };
 
 export const signinAdmin = async (req, res) => {
+    
     try {
         const { email, password } = req.body;
 
@@ -135,16 +152,16 @@ export const signinAdmin = async (req, res) => {
 
 export const logout = async (req, res) => {
     try {
-    const {id} = req.params;
+        const { id } = req.params;
 
-    return res.status(200).json({
-        status: "success",
-        message: ""
-    })
+        return res.status(200).json({
+            status: "success",
+            message: ""
+        })
 
-        
+
     } catch (error) {
-        
+
     }
 }
 

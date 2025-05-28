@@ -1,8 +1,6 @@
 import { pool } from '../db/config.js';
 import { hashPassword } from '../lib/index.js'
 
-
-
 export const index = async (req, res) => {
     try {
         const result = await pool.query(
@@ -61,12 +59,14 @@ export const show = async (req, res) => {
 
 export const update = async (req, res) => {
     try {
+
         const { admin_id } = req.params;
+
         if (!admin_id) {
             return res.status(400).json({ error: "User id is required" });
         }
 
-        const allowedFields = ['first_name', 'last_name', 'email', 'organization', 'position', 'password'];
+        const allowedFields = ['first_name', 'last_name', 'email', 'role', 'position', 'password'];
         const updates = [];
         const values = [];
 
@@ -115,6 +115,7 @@ export const update = async (req, res) => {
 };
 
 export const disable = async (req, res) => {
+
     const { admin_id } = req.params;
     const { role } = req.body;
 
@@ -150,14 +151,14 @@ export const disable = async (req, res) => {
         if (admin.role === 'super_sk_admin') {
             return res.status(400).json({
                 status: 'failed',
-                message: 'You cannot disable another super admin'
+                message: 'You cannot disable another admin if you are not a super admin'
             });
         }
 
         const updateResult = await pool.query(
             `UPDATE sk_official_admin 
-             SET is_active = FALSE, updatedAT = CURRENT_TIMESTAMP 
-             WHERE admin_id = $1 
+            SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP 
+            WHERE admin_id = $1 
              RETURNING *`,
             [admin_id]
         );
@@ -199,7 +200,7 @@ export const enable = async (req, res) => {
 
         const updateResult = await pool.query(
             `UPDATE sk_official_admin 
-             SET is_active = TRUE, updatedAT = CURRENT_TIMESTAMP 
+             SET is_active = TRUE, updated_at = CURRENT_TIMESTAMP 
              WHERE admin_id = $1 
              RETURNING *`,
             [admin_id]
