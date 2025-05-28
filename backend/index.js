@@ -23,7 +23,7 @@ app.use(express.urlencoded({
     extended: true
 }));
 
-
+//Api Routes
 app.use('/api', router);
 
 const startServer = () => {

@@ -3,7 +3,12 @@
 A vibrant web platform designed to connect and empower the youth community. This project aims to provide resources, events, and interactive features for young people to engage, share, and grow together.
 
 # PERN Stack Application 
-This is PERN application that uses PostgresSQL, Express, React(with Vite), and Node.js.
+This is PERN application that uses PostgreSQL, Express, React(with Vite), and Node.js.
+
+# Tools and State Management
+Rexud
+Axios
+Sass
 
 ## 🚀 Getting Started
 
