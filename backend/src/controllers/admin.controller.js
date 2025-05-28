@@ -11,7 +11,7 @@ export const index = async (req, res) => {
             admins: result.rows,
         });
 
-    } catch (error) {
+    } catch (error) { 
         console.error(error);
         res.status(500).json({
             status: 'failed',
@@ -200,8 +200,8 @@ export const enable = async (req, res) => {
 
         const updateResult = await pool.query(
             `UPDATE sk_official_admin 
-             SET is_active = TRUE, updated_at = CURRENT_TIMESTAMP 
-             WHERE admin_id = $1 
+            SET is_active = TRUE, updated_at = CURRENT_TIMESTAMP 
+            WHERE admin_id = $1 
              RETURNING *`,
             [admin_id]
         );

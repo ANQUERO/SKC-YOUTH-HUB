@@ -13,7 +13,6 @@ export const signupAdmin = async (req, res) => {
     }
 
     try {
-
         const {
             first_name,
             last_name,

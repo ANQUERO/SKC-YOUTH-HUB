@@ -15,7 +15,7 @@ CREATE TABLE sk_official_admin (
 
 -- Posts
 CREATE TABLE posts (
-    id SERIAL PRIMARY KEY,
+    post_id SERIAL PRIMARY KEY,
     admin_id INTEGER NOT NULL REFERENCES sk_official_admin(admin_id),
     title VARCHAR(55) NOT NULL,
     description TEXT NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE posts (
 -- Post Reactions
 CREATE TABLE post_reactions (
     reaction_id SERIAL PRIMARY KEY,
-    post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    post_id INTEGER NOT NULL REFERENCES posts(post_id) ON DELETE CASCADE,
     user_type VARCHAR(10) NOT NULL CHECK (user_type IN ('admin', 'user')),
     user_id INTEGER NOT NULL,
     type VARCHAR(10) NOT NULL CHECK (type IN ('like', 'heart', 'wow')),
@@ -38,7 +38,7 @@ CREATE TABLE post_reactions (
 -- Post Comments
 CREATE TABLE post_comments (
     comment_id SERIAL PRIMARY KEY,
-    post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    post_id INTEGER NOT NULL REFERENCES posts(post_id) ON DELETE CASCADE,
     user_type VARCHAR(10) NOT NULL CHECK (user_type IN ('admin', 'user')),
     user_id INTEGER NOT NULL,
     content TEXT NOT NULL,
@@ -54,6 +54,7 @@ CREATE TABLE sk_youth (
     youth_id SERIAL PRIMARY KEY,
     username VARCHAR(100) NOT NULL UNIQUE,
     password TEXT NOT NULL,
+    verified BOOLEAN DEFAULT false,
     is_active BOOLEAN DEFAULT TRUE,
     comment_status BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -68,7 +69,10 @@ CREATE TABLE sk_youth_name (
     first_name VARCHAR(55) NOT NULL,
     middle_name VARCHAR(55),
     last_name VARCHAR(55) NOT NULL,
-    suffix VARCHAR(10)
+    suffix VARCHAR(10),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
 );
 
 -- Youth Location
@@ -99,7 +103,6 @@ CREATE TABLE sk_youth_gender (
 CREATE TABLE sk_youth_info (
     info_id SERIAL PRIMARY KEY,
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
-    gender_id INTEGER REFERENCES sk_youth_gender(gender_id),
     age INT NOT NULL,
     contact VARCHAR(15) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
@@ -117,7 +120,10 @@ CREATE TABLE sk_youth_demographics (
     youth_age_gap VARCHAR(55) NOT NULL,
     youth_classification VARCHAR(55) NOT NULL,
     educational_background VARCHAR(55) NOT NULL,
-    work_status VARCHAR(55) NOT NULL
+    work_status VARCHAR(55) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
 );
 
 -- Youth Survey
@@ -126,7 +132,10 @@ CREATE TABLE sk_youth_survey (
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
     registered_voter VARCHAR(45) NOT NULL CHECK(registered_voter IN ('yes', 'no')),
     registered_national_voter VARCHAR(45) NOT NULL CHECK(registered_national_voter IN ('yes', 'no')),
-    vote_last_election VARCHAR(45) NOT NULL CHECK(vote_last_election IN ('yes', 'no'))
+    vote_last_election VARCHAR(45) NOT NULL CHECK(vote_last_election IN ('yes', 'no')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
 );
 
 -- Youth Meeting Survey
@@ -135,7 +144,10 @@ CREATE TABLE sk_youth_meeting_survey (
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
     attended BOOLEAN NOT NULL,
     times_attended INT,
-    reason_not_attend TEXT
+    reason_not_attend TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
 );
 
 -- Youth Attachments
@@ -145,6 +157,67 @@ CREATE TABLE sk_youth_attachments (
     file_name VARCHAR(255) NOT NULL,
     file_type VARCHAR(100) NOT NULL,
     file_url TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
 );
+
+-- Youth House Hold
+CREATE TABLE sk_youth_household (
+    household_id SERIAL PRIMARY KEY NOT NULL,
+	youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
+    household VARCHAR(55) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
+);
+
+
+
+--
+
+
+
+--Triggering Event or Stored procedure
+
+CREATE OR REPLACE FUNCTION validate_user_for_post_activity()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Case 1: Youth
+    IF NEW.user_type = 'youth' THEN
+        IF NOT EXISTS (
+            SELECT 1 FROM sk_youth WHERE youth_id = NEW.user_id
+        ) THEN
+            RAISE EXCEPTION 'Invalid youth ID: %', NEW.user_id;
+        END IF;
+
+    -- Case 2: Admins (super or natural)
+    ELSIF NEW.user_type IN ('super_sk_admin', 'natural_sk_admin') THEN
+        IF NOT EXISTS (
+            SELECT 1 FROM sk_official_admin
+            WHERE admin_id = NEW.user_id AND role = NEW.user_type
+        ) THEN
+            RAISE EXCEPTION 'Invalid admin ID % for role %', NEW.user_id, NEW.user_type;
+        END IF;
+
+    -- Invalid user_type fallback
+    ELSE
+        RAISE EXCEPTION 'Invalid user_type: %', NEW.user_type;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger for post_comments
+CREATE TRIGGER trigger_validate_user_post_comments
+BEFORE INSERT ON post_comments
+FOR EACH ROW
+EXECUTE FUNCTION validate_user_for_post_activity();
+
+-- Trigger for post_reactions
+CREATE TRIGGER trigger_validate_user_post_reactions
+BEFORE INSERT ON post_reactions
+FOR EACH ROW
+EXECUTE FUNCTION validate_user_for_post_activity();
+
