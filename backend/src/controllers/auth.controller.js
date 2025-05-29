@@ -47,15 +47,6 @@ export const signup = async (req, res) => {
             household,
         } = req.body;
 
-        const allowedGender = ["male", "female"];
-        if (!allowedGender.includes(gender)) {
-            console.log("Invalid gender", gender, "Allowed: ", allowedGender);
-            return res.status(409).json({
-                status: "failed",
-                message: `Invalid gender. Allowed gender areL ${allowedGender.join(", ")}`
-            });
-        }
-
         const existingUser = await client.query('SELECT * FROM sk_youth WHERE username = $1', [username]);
         if (existingUser.rows.length > 0) {
             return res.status(409).json({
@@ -66,22 +57,45 @@ export const signup = async (req, res) => {
 
         const existingEmail = await client.query('SELECT * FROM sk_youth_info WHERE email = $1', [email])
         if (existingEmail.rows.length > 0) {
-            return res, status(409).json({
+            return res.status(409).json({
                 status: "failed",
                 message: "Email already exists"
-
             })
+        }
+
+        const allowedGender = ["male", "female"];
+        if (!allowedGender.includes(gender.toLowerCase())) {
+            console.log("Invalid gender:", gender, "Allowed:", allowedGender);
+            return res.status(409).json({
+                status: "failed",
+                message: `Invalid gender. Allowed values are: ${allowedGender.join(", ")}.`
+            });
+        }
+
+        const minAge = 16;
+        const maxAge = 30;
+        if (age < minAge || age > maxAge) {
+            console.log(`Invalid age. Allowed age must be between ${minAge} and ${maxAge}`);
+            return res.status(409).json({
+                status: "failed",
+                message: `Invalid age. Allowed age must be between ${minAge} and ${maxAge}`
+            });
         }
 
         //Yes or No survey questions
         const yesNo = ["yes", "no"];
-        if (![registered_voter,
+        const yesNoFields = {
+            registered_voter,
             registered_national_voter,
-            vote_last_election].every(val => yesNo.includes(val.lowerCase()))) {
-            return res.status(409).json({
-                status: "failed",
-                message: "Invalid yes/no answers"
-            });
+            vote_last_election
+        };
+        for (const [key, value] of Object.entries(yesNoFields)) {
+            if (!yesNo.includes(value.toLowerCase())) {
+                return res.status(409).json({
+                    status: "failed",
+                    message: `Invalid value for ${key}. Must be 'yes' or 'no'.`
+                });
+            }
         }
 
         //hash password
@@ -134,7 +148,7 @@ export const signup = async (req, res) => {
         await client.query(`
         INSERT INTO sk_youth_gender (youth_id, gender)
         VALUES ($1, $2)
-        `, [youthId, gender.lowerCase()]);
+        `, [youthId, gender.toLowerCase()]);
 
         //Insert into sk_youth_info
         await client.query(`
@@ -326,19 +340,14 @@ export const signin = async (req, res) => {
             message: "Server error during signin"
         });
     }
-}
+};
 
-export const logout = async () => {
-
+export const logout = async (req, res) => {
     try {
-
-
-
         res.status(200).json({
             status: "Success",
-            message: "Log out successfully"
+            message: "Logged out successfully"
         });
-
     } catch (error) {
         console.log(error);
         res.status(500).json({

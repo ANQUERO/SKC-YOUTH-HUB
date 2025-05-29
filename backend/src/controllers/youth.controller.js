@@ -124,3 +124,53 @@ export const show = async (req, res) => {
     }
 }
 
+
+export const update = async (req, res) => {
+    const { youth_id } = req.params;
+    const fieldsToUpdate = req.body;
+
+    try {
+        if (!youth_id) {
+            return res.status(400).json({
+                status: 'failed',
+                message: 'Youth ID is required',
+            });
+        }
+
+        const keys = Object.keys(fieldsToUpdate);
+        if (keys.length === 0) {
+            return res.status(400).json({
+                status: 'failed',
+                message: 'No fields provided to update',
+            });
+        }
+
+        const setClause = keys.map((key, idx) => `${key} = $${idx + 1}`).join(', ');
+        const values = Object.values(fieldsToUpdate);
+
+        const result = await pool.query(
+            `UPDATE sk_youth SET ${setClause} WHERE youth_id = $${keys.length + 1} AND deleted_at IS NULL RETURNING *`,
+            [...values, youth_id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                status: 'failed',
+                message: 'Youth not found or has been deleted',
+            });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            updated: result.rows[0],
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            status: 'failed',
+            message: error.message,
+        });
+    }
+};
+

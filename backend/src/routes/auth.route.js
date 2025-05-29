@@ -1,4 +1,5 @@
 import express from "express";
+import { signupValidator } from '../lib/signupValidator.js'
 
 import {
     signup,
@@ -7,7 +8,7 @@ import {
 
 const router = express.Router();
 
-router.post("/signup", signup);
+router.post("/signup", signupValidator, signup);
 router.post("/signin", signin);
 
 export default router;

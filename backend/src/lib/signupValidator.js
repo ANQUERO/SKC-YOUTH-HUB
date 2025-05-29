@@ -55,7 +55,8 @@ export const signupValidator = [
         .notEmpty().withMessage('Vote last election is required')
         .isIn(['yes', 'no']).withMessage('Value must be yes or no'),
 
-    body('attended').isBoolean().withMessage('Attended must be true or false'),
+    body('attended')
+        .isBoolean().withMessage('Attended must be true or false'),
 
     body('times_attended')
         .optional()
