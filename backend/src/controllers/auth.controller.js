@@ -58,15 +58,15 @@ export const signup = async (req, res) => {
 
         const existingUser = await client.query('SELECT * FROM sk_youth WHERE username = $1', [username]);
         if (existingUser.rows.length > 0) {
-            return res.status(409).json({ 
-                status: "failed", 
-                message: "Username already exists" 
+            return res.status(409).json({
+                status: "failed",
+                message: "Username already exists"
             });
         }
 
         const existingEmail = await client.query('SELECT * FROM sk_youth_info WHERE email = $1', [email])
         if (existingEmail.rows.length > 0) {
-            return res,status(409).json({
+            return res, status(409).json({
                 status: "failed",
                 message: "Email already exists"
 
@@ -224,45 +224,126 @@ export const signup = async (req, res) => {
 };
 
 export const signin = async (req, res) => {
-    const {username, password} = req.body;
+    const { usernameOrEmail, password, account_type } = req.body;
+
+    if (!usernameOrEmail || !password || !account_type) {
+        return res.status(400).json({
+            status: "failed",
+            message: "Please provide username/email, password and account_type"
+        });
+    }
 
     try {
-        const result = await pool.query('SELECT youth_id, username, password FROM sk_youth WHERE username = $1', [username]);
+        let user;
+        let isMatch;
+        let token;
+        let userType;
+        let userId;
 
-        if (!result.rows.length === 0) {
-            return res.status(401).json({
+        if (account_type === 'admin') {
+            const result = await pool.query(
+                'SELECT * FROM sk_official_admin WHERE email = $1',
+                [usernameOrEmail]
+            );
+
+            user = result.rows[0];
+
+            if (!user) {
+                return res.status(401).json({
+                    status: "failed",
+                    message: "Invalid email or username"
+                });
+            }
+
+            isMatch = await comparePassword(password, user.password);
+            if (!isMatch) {
+                return res.status(401).json({
+                    status: "failed",
+                    message: "Invalid password"
+                });
+            }
+
+            token = createToken({
+                id: user.admin_id,
+                type: 'admin'
+            });
+            userId = user.admin_id;
+            delete user.password;
+            userType = 'admin';
+
+        } else if (account_type === 'youth') {
+            const result = await pool.query(
+                'SELECT youth_id, username, password FROM sk_youth WHERE username = $1',
+                [usernameOrEmail]
+            );
+
+            user = result.rows[0];
+
+            if (!user) {
+                return res.status(401).json({
+                    status: "failed",
+                    message: "Invalid Username or Password"
+                });
+            }
+
+            isMatch = await comparePassword(password, user.password);
+            if (!isMatch) {
+                return res.status(401).json({
+                    status: "failed",
+                    message: "Invalid Username or Password",
+                });
+            }
+
+            token = createToken({
+                id: user.youth_id,
+                type: 'youth'
+            });
+            userId = user.youth_id;
+            userType = 'youth';
+            delete user.password;
+
+        } else {
+            return res.status(400).json({
                 status: "failed",
-                message: "Invalid Credentials"
+                message: "Invalid account type. Must be 'admin' or 'youtn'. "
             });
         }
 
-        const valid = await comparePassword(password, 
-            result.rows[0].password
-        );
-        if (!valid) {
-            return res.status(401).json({
-                status: "failed",
-                message: "Invalid Credentials"
-            })
-        }
-
-        const token = createToken({
-            id: result.rows[0].youth_id, 
-            type: 'youth'
-        });
-
-        res.status(200).json({
-            status: "Success",
-            message: "Signin successful",
+        return res.status(200).json({
+            status: "success",
+            message: "Signin successfully",
             token,
-            youth_id: result.rows[0].youth_id
+            userType,
+            userId,
+            user
         });
-        
+
+
     } catch (error) {
         console.error("Signin error", error);
         res.status(500).json({
             status: "failed",
             message: "Server error during signin"
+        });
+    }
+}
+
+export const logout = async () => {
+
+    try {
+
+
+
+        res.status(200).json({
+            status: "Success",
+            message: "Log out successfully"
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: "Error",
+            message: "Something went wrong during logout"
         });
     }
 }

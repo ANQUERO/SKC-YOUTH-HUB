@@ -10,7 +10,7 @@ const app = express();
 app.use(helmet());
 
 app.use(cors({
-    origin: 'https://localhost:6556',
+    origin: '*',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'X-Project-ID']
@@ -24,6 +24,9 @@ app.use(express.urlencoded({
     limit: '10mb'
 }));
 
+//Api Routes
+app.use('/api', router);
+
 app.use((req, res, next) => {
     res.status(404).json({ error: 'Not Found' });
 });
@@ -32,8 +35,5 @@ app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ error: 'Internal Server Error' });
 });
-
-//Api Routes
-app.use('/api', router);
 
 export default app;
