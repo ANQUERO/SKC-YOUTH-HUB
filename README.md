@@ -6,7 +6,7 @@ A vibrant web platform designed to connect and empower the youth community. This
 This is PERN application that uses PostgreSQL, Express, React(with Vite), and Node.js.
 
 # Tools and State Management
-Rexud
+Redux
 Axios
 Sass
 
