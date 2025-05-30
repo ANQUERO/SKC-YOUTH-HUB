@@ -6,16 +6,16 @@ import {
     restore,
     disable,
     enable 
-} from '../controllers/adminFeatures.controller';
+} from '../controllers/adminFeatures.controller.js';
 
 const router = express.Router();
 
 router.get('/youths', index);
-router.get('/youths', create);
-router.get('/youths/:youth_id', destroy);
-router.get('/youths/:youth_id/restore', restore);
-router.get('/youths/:youth_id/disable_comment', disable);
-router.get('/youths/:youth_id/enable_comment', enable);
+router.post('/youths', create);
+router.delete('/youths/:youth_id', destroy);
+router.put('/youths/:youth_id/restore', restore);
+router.put('/youths/:youth_id/disable_comment', disable);
+router.put('/youths/:youth_id/enable_comment', enable);
 
 export default router;
 

@@ -14,7 +14,7 @@ export const index = async (req, res) => {
         }
 
         // Optional: Validate admin_id from an `admins` table or role check
- 
+
         const [
             youth,
             name,
@@ -100,14 +100,14 @@ export const create = async (req, res) => {
         // sk_youth_name
         await client.query(
             `INSERT INTO sk_youth_name (youth_id, first_name, middle_name, last_name, suffix)
-             VALUES ($1, $2, $3, $4, $5)`,
+            VALUES ($1, $2, $3, $4, $5)`,
             [youth_id, name.first_name, name.middle_name, name.last_name, name.suffix]
         );
 
         // sk_youth_location
         await client.query(
             `INSERT INTO sk_youth_location (youth_id, region, province, municipality, barangay, purok)
-             VALUES ($1, $2, $3, $4, $5, $6)`,
+            VALUES ($1, $2, $3, $4, $5, $6)`,
             [youth_id, location.region, location.province, location.municipality, location.barangay, location.purok]
         );
 
@@ -120,14 +120,14 @@ export const create = async (req, res) => {
         // sk_youth_info
         await client.query(
             `INSERT INTO sk_youth_info (youth_id, age, contact, email, birthday)
-             VALUES ($1, $2, $3, $4, $5)`,
+            VALUES ($1, $2, $3, $4, $5)`,
             [youth_id, info.age, info.contact, info.email, info.birthday]
         );
 
         // sk_youth_demographics
         await client.query(
             `INSERT INTO sk_youth_demographics (youth_id, civil_status, youth_age_gap, youth_classification, educational_background, work_status)
-             VALUES ($1, $2, $3, $4, $5, $6)`,
+            VALUES ($1, $2, $3, $4, $5, $6)`,
             [
                 youth_id,
                 demographics.civil_status,
@@ -141,7 +141,7 @@ export const create = async (req, res) => {
         // sk_youth_survey
         await client.query(
             `INSERT INTO sk_youth_survey (youth_id, registered_voter, registered_national_voter, vote_last_election)
-             VALUES ($1, $2, $3, $4)`,
+            VALUES ($1, $2, $3, $4)`,
             [
                 youth_id,
                 survey.registered_voter,
@@ -153,7 +153,7 @@ export const create = async (req, res) => {
         // sk_youth_meeting_survey
         await client.query(
             `INSERT INTO sk_youth_meeting_survey (youth_id, attended, times_attended, reason_not_attend)
-             VALUES ($1, $2, $3, $4)`,
+            VALUES ($1, $2, $3, $4)`,
             [
                 youth_id,
                 meetingSurvey.attended,
@@ -165,7 +165,7 @@ export const create = async (req, res) => {
         // sk_youth_household
         await client.query(
             `INSERT INTO sk_youth_household (youth_id, household)
-             VALUES ($1, $2)`,
+            VALUES ($1, $2)`,
             [youth_id, household]
         );
 
@@ -295,7 +295,6 @@ export const restore = async (req, res) => {
         });
     }
 };
-
 
 export const disable = async (req, res) => {
     const { admin_id } = req.body; 
