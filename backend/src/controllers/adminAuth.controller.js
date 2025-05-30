@@ -95,18 +95,3 @@ export const signupAdmin = async (req, res) => {
     };
 };
 
-export const logout = async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        return res.status(200).json({
-            status: "success",
-            message: ""
-        })
-
-
-    } catch (error) {
-
-    }
-}
-

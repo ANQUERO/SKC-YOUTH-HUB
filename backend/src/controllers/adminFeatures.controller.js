@@ -295,3 +295,105 @@ export const restore = async (req, res) => {
         });
     }
 };
+
+
+export const disable = async (req, res) => {
+    const { admin_id } = req.body; 
+    const { youth_id } = req.params; 
+
+    try {
+        if (!admin_id) {
+            return res.status(403).json({
+                status: "failed",
+                message: "Access denied. Only admins can perform this action."
+            });
+        }
+
+        if (!youth_id) {
+            return res.status(400).json({
+                status: "failed",
+                message: "Youth ID is required."
+            });
+        }
+
+        const result = await pool.query(
+            `UPDATE sk_youth
+            SET comment_status = FALSE, 
+            updated_at = CURRENT_TIMESTAMP
+            WHERE youth_id = $1 AND deleted_at IS NULL 
+            RETURNING youth_id, comment_status`,
+            [youth_id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                status: "failed",
+                message: "Youth not found or already deleted."
+            });
+        }
+
+        res.status(200).json({
+            status: "success",
+            message: "Comment status deactivated successfully.",
+            youth: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            status: "failed",
+            message: error.message,
+        }); 
+    }
+};
+
+export const enable = async (req, res) => {
+    const { admin_id } = req.body; 
+    const { youth_id } = req.params; 
+
+    try {
+        if (!admin_id) {
+            return res.status(403).json({
+                status: "failed",
+                message: "Access denied. Only admins can perform this action."
+            });
+        }
+
+        if (!youth_id) {
+            return res.status(400).json({
+                status: "failed",
+                message: "Youth ID is required."
+            });
+        }
+
+        const result = await pool.query(
+            `UPDATE sk_youth
+            SET comment_status = TRUE, 
+            updated_at = CURRENT_TIMESTAMP
+            WHERE youth_id = $1 AND deleted_at IS NULL 
+            RETURNING youth_id, comment_status`,
+            [youth_id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                status: "failed",
+                message: "Youth not found or already deleted."
+            });
+        }
+
+        res.status(200).json({
+            status: "success",
+            message: "Comment status deactivated successfully.",
+            youth: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            status: "failed",
+            message: error.message,
+        }); 
+    }
+};
+
