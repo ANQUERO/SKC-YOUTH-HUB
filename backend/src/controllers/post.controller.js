@@ -29,7 +29,7 @@ export const createPost = async (req, res) => {
     }
 };
 
-export const getPosts = async (_req, res) => {
+export const getPosts = async (req, res) => {
     try {
         const result = await pool.query(`SELECT * FROM posts WHERE deleted_at IS NULL ORDER BY created_at DESC`);
         res.status(200).json({ status: 'success', posts: result.rows });
