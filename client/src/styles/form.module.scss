@@ -4,37 +4,37 @@
     padding: 20px;
     font-family: Arial, sans-serif;
 
-   h2 {
-    margin-top: 20px;
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #1e4784;
-    border-bottom: 2px solid #ccc;
-    padding-bottom: 5px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-    transition: color 0.3s ease, text-shadow 0.3s ease;
-    position: relative;
-}
+    h2 {
+        margin-top: 20px;
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #1e4784;
+        border-bottom: 2px solid #ccc;
+        padding-bottom: 5px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        transition: color 0.3s ease, text-shadow 0.3s ease;
+        position: relative;
+    }
 
-h2::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -2px;
-    width: 0;
-    height: 2px;
-    background-color: #1e4784;
-    transition: width 0.3s ease;
-}
+    h2::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -2px;
+        width: 0;
+        height: 2px;
+        background-color: #1e4784;
+        transition: width 0.3s ease;
+    }
 
-h2:hover {
-    color: #14325d;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-}
+    h2:hover {
+        color: #14325d;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
 
-h2:hover::after {
-    width: 100%;
-}
+    h2:hover::after {
+        width: 100%;
+    }
 
     .section {
         display: flex;
@@ -50,6 +50,14 @@ h2:hover::after {
                 font-weight: 600;
                 font-size: 1rem;
                 margin-bottom: 5px;
+                color: #1e4784;
+                position: relative;
+                transition: color 0.3s ease, text-shadow 0.3s ease;
+
+                &:hover {
+                    color: #14325d;
+                    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+                }
             }
 
             .contact {
@@ -64,14 +72,25 @@ h2:hover::after {
                     border: 1px solid #ccc;
                     border-radius: 8px;
                     outline: none;
-                    transition: border-color 0.2s;
+                    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+                    &:hover {
+                        border-color: #1e4784;
+                        box-shadow: 0 0 0 3px rgba(30, 71, 132, 0.1);
+                    }
 
                     &:focus {
-                        border-color: #007bff;
+                        border-color: #1e4784;
+                        box-shadow: 0 0 0 3px rgba(30, 71, 132, 0.25);
                     }
 
                     &::placeholder {
                         color: #999;
+                        transition: color 0.3s ease;
+                    }
+
+                    &:focus::placeholder {
+                        color: #666;
                     }
                 }
 
@@ -87,7 +106,6 @@ h2:hover::after {
                     grid-template-columns: 1fr;
                 }
             }
-
         }
 
         .name,
@@ -101,7 +119,6 @@ h2:hover::after {
             }
         }
 
-
         input[type="text"],
         input[type="email"],
         input[type="date"] {
@@ -109,10 +126,16 @@ h2:hover::after {
             font-size: 0.95rem;
             border: 1px solid #bbb;
             border-radius: 6px;
-            transition: border 0.3s ease;
+            transition: border 0.3s ease, box-shadow 0.3s ease;
+
+            &:hover {
+                border-color: #1e4784;
+                box-shadow: 0 0 0 3px rgba(30, 71, 132, 0.1);
+            }
 
             &:focus {
                 border-color: #1e4784;
+                box-shadow: 0 0 0 3px rgba(30, 71, 132, 0.25);
                 outline: none;
             }
         }
@@ -149,6 +172,17 @@ h2:hover::after {
 
             legend {
                 font-weight: bold;
+                cursor: default;
+                animation: legendFadeSlideUp 0.6s ease forwards;
+                transition: color 0.3s ease, text-shadow 0.3s ease;
+                color: #1e4784;
+                position: relative;
+
+                &:hover {
+                    color: #14325d;
+                    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
+                    animation: none;
+                }
             }
 
             label {
@@ -166,7 +200,17 @@ h2:hover::after {
 
                 legend {
                     font-weight: bold;
-                    margin-bottom: 10px;
+                    cursor: default;
+                    animation: legendFadeSlideUp 0.6s ease forwards;
+                    transition: color 0.3s ease, text-shadow 0.3s ease;
+                    color: #1e4784;
+                    position: relative;
+
+                    &:hover {
+                        color: #14325d;
+                        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
+                        animation: none;
+                    }
                 }
             }
 
@@ -201,6 +245,11 @@ h2:hover::after {
                     width: 100%;
                     outline: none;
                     transition: all 0.3s ease;
+
+                    &:hover {
+                        border-color: #1e4784;
+                        box-shadow: 0 0 0 3px rgba(30, 71, 132, 0.1);
+                    }
 
                     &:focus {
                         background-color: #fff;
@@ -238,9 +287,11 @@ h2:hover::after {
         margin-top: 20px;
         cursor: pointer;
         width: 100%;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
 
         &:hover {
             background-color: #1e4784e3;
+            box-shadow: 0 4px 10px rgba(30, 71, 132, 0.2);
         }
     }
 }
