@@ -191,7 +191,7 @@ export const create = async (req, res) => {
 // 🗑️ Function para sa pag-soft delete sa youth record
 export const destroy = async (req, res) => {
     const { youth_id } = req.params;
-    const { admin_id } = req.body;
+    const { admin_id } = req.body;D
 
     try {
         if (!youth_id || !admin_id) {

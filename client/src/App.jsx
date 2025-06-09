@@ -1,8 +1,8 @@
-import Authenticated from "@pages/Authenticated/index.jsx";
+import Signup from "@pages/Signup/index.jsx";
 
 function App() {
   return (
-      <Authenticated />
+      <Signup />
   );
 }
 
