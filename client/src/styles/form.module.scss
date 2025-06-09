@@ -4,14 +4,37 @@
     padding: 20px;
     font-family: Arial, sans-serif;
 
-    h2 {
-        margin-top: 20px;
-        font-size: 1.8rem;
-        font-weight: bold;
-        color: #1e4784;
-        border-bottom: 2px solid #ccc;
-        padding-bottom: 5px;
-    }
+   h2 {
+    margin-top: 20px;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #1e4784;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 5px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+    position: relative;
+}
+
+h2::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 2px;
+    background-color: #1e4784;
+    transition: width 0.3s ease;
+}
+
+h2:hover {
+    color: #14325d;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+h2:hover::after {
+    width: 100%;
+}
 
     .section {
         display: flex;
@@ -23,11 +46,48 @@
             flex-direction: column;
             gap: 10px;
 
-            label{
-                   font-weight: 600;
-        font-size: 1rem;
-        margin-bottom: 5px;
+            label {
+                font-weight: 600;
+                font-size: 1rem;
+                margin-bottom: 5px;
             }
+
+            .contact {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 16px 24px;
+
+                input,
+                textarea {
+                    padding: 10px 12px;
+                    font-size: 14px;
+                    border: 1px solid #ccc;
+                    border-radius: 8px;
+                    outline: none;
+                    transition: border-color 0.2s;
+
+                    &:focus {
+                        border-color: #007bff;
+                    }
+
+                    &::placeholder {
+                        color: #999;
+                    }
+                }
+
+                @media (max-width: 1200px) {
+                    grid-template-columns: repeat(3, 1fr);
+                }
+
+                @media (max-width: 900px) {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+
+                @media (max-width: 600px) {
+                    grid-template-columns: 1fr;
+                }
+            }
+
         }
 
         .name,
@@ -36,52 +96,52 @@
             flex-wrap: wrap;
             gap: 10px;
 
-            input{
+            input {
                 flex: 1 1 180px;
             }
         }
 
-      
-      input[type="text"],
-      input[type="email"],
-      input[type="date"] {
-        padding: 10px;
-        font-size: 0.95rem;
-        border: 1px solid #bbb;
-        border-radius: 6px;
-        transition: border 0.3s ease;
 
-        &:focus {
-          border-color: #1e4784;
-          outline: none;
-        }
-      }
+        input[type="text"],
+        input[type="email"],
+        input[type="date"] {
+            padding: 10px;
+            font-size: 0.95rem;
+            border: 1px solid #bbb;
+            border-radius: 6px;
+            transition: border 0.3s ease;
 
-       .inputGroup {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-
-      label {
-        font-weight: 600;
-        margin-bottom: 4px;
-      }
-
-      .inlineOptions{
-        display: flex;
-        gap: 20px;
-
-        label{
-            display: flex;
-            align-items: center;
-            font-weight: 400;
-
-            input {
-                margin-right: 6px;
+            &:focus {
+                border-color: #1e4784;
+                outline: none;
             }
         }
-      }
-    }
+
+        .inputGroup {
+            display: flex;
+            gap: 10px;
+
+            label {
+                font-weight: 600;
+                margin-bottom: 4px;
+            }
+
+            .inlineOptions {
+                display: flex;
+                gap: 20px;
+
+                label {
+                    display: flex;
+                    align-items: center;
+                    font-weight: 400;
+
+                    input {
+                        margin-right: 6px;
+                    }
+                }
+            }
+        }
+
         fieldset {
             border: 1px solid #ccc;
             padding: 10px;
@@ -117,26 +177,44 @@
             }
 
             .voterField {
-                flex: 1 1 45%;
-                min-width: 250px;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                margin-bottom: 20px;
 
                 label {
-                    display: block;
-                    margin-bottom: 5px;
+                    font-size: 15px;
+                    font-weight: 600;
+                    color: #2c3e50;
+                    margin-bottom: 4px;
                 }
 
-                input[type="text"],
-                input[type="number"] {
+                textarea {
+                    padding: 12px 14px;
+                    font-size: 14px;
+                    color: #2c3e50;
+                    background-color: #f9f9f9;
+                    border: 1px solid #dcdfe6;
+                    border-radius: 10px;
+                    resize: vertical;
+                    min-height: 120px;
                     width: 100%;
-                    padding: 8px;
-                    border-radius: 5px;
-                    border: 1px solid #ccc;
-                    margin-top: 5px;
+                    outline: none;
+                    transition: all 0.3s ease;
+
+                    &:focus {
+                        background-color: #fff;
+                        border-color: #409eff;
+                        box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.2);
+                    }
+
+                    &::placeholder {
+                        color: #b0b8c1;
+                    }
                 }
             }
         }
 
-        /* Flex container for the demographic fieldsets */
         .flexFields {
             display: flex;
             flex-wrap: wrap;
@@ -144,7 +222,7 @@
             margin-bottom: 20px;
 
             fieldset {
-                flex: 1 1 250px; // Adjust each fieldset's width as needed
+                flex: 1 1 250px;
                 min-width: 250px;
             }
         }
@@ -153,12 +231,16 @@
     .submitBtn {
         background-color: #1e4784;
         color: white;
-        padding: 15px 20px;
+        padding: 12px 15px;
         border: none;
         border-radius: 8px;
-        font-size: 1.2rem;
+        font-size: 1rem;
         margin-top: 20px;
         cursor: pointer;
         width: 100%;
+
+        &:hover {
+            background-color: #1e4784e3;
+        }
     }
 }

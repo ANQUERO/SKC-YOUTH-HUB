@@ -1,7 +1,10 @@
 import React from 'react';
 import styles from '@styles/form.module.scss';
 
+
+
 const Form = () => {
+
     return (
         <form className={styles.form}>
 
@@ -30,6 +33,7 @@ const Form = () => {
                 </div>
 
                 <div className={styles.row}>
+
                     <div className={styles.inputGroup}>
                         <label>Sex Assigned at Birth:</label>
                         <div className={styles.inlineOptions}>
@@ -37,11 +41,16 @@ const Form = () => {
                             <label><input type="radio" name="sex" value="female" /> Female</label>
                         </div>
                     </div>
-                    <input type="text" placeholder="Age" />
-                    <input type="date" placeholder="Birthday" />
-                    <input type="text" placeholder="Contact Number" />
-                    <input type="email" placeholder="Email Address" />
+                    <div className={styles.contact}>
+                        <input type="text" placeholder="Age" />
+                        <input type="date" placeholder="Birthday" />
+                        <input type="text" placeholder="Contact Number" />
+                        <input type="email" placeholder="Email Address" />
+
+                    </div>
+
                 </div>
+
             </section>
 
 
@@ -67,15 +76,16 @@ const Form = () => {
 
                     <fieldset>
                         <legend>Youth age group</legend>
-                        <label>
-                            <input type="checkbox" /> Child Youth (15–17 years old)
-                        </label>
-                        <label>
-                            <input type="checkbox" /> Core Youth (18–24 years old)
-                        </label>
-                        <label>
-                            <input type="checkbox" /> Young Adult (25–30 years old)
-                        </label>
+                        {[
+                            "Child Youth (15–17 years old)",
+                            "Core Youth (18–24 years old)",
+                            "oung Adult (25–30 years old)",
+                        ].map(group => (
+                            <label key={group}>
+                                <input type="checkbox" /> {group}
+                            </label>
+                        ))}
+
                     </fieldset>
 
                     <fieldset>
@@ -136,6 +146,7 @@ const Form = () => {
                     <fieldset>
                         <legend>Voter Information</legend>
                         <div className={styles.voterGrid}>
+
                             <div className={styles.voterField}>
                                 <label>Registered SK Voter:</label>
                                 <label><input type="radio" name="sk_voter" value="yes" /> Yes</label>
@@ -164,10 +175,14 @@ const Form = () => {
                                 <label>If yes, how many times?</label>
                                 <input type="number" name="sk_meeting_count" min="0" placeholder="e.g. 3" />
                             </div>
-
                             <div className={styles.voterField}>
-                                <label>If no, why not?</label>
-                                <input type="text" name="sk_meeting_reason" placeholder="Reason for not attending" />
+                                <label htmlFor="sk_meeting_reason">If no, why not?</label>
+                                <textarea
+                                    id="sk_meeting_reason"
+                                    name="sk_meeting_reason"
+                                    placeholder="Reason for not attending"
+                                    rows={4}
+                                />
                             </div>
                         </div>
                     </fieldset>
