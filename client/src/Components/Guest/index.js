@@ -6,4 +6,4 @@ const Guest = () => {
   )
 }
 
-export default Guesti
+export default Guest
