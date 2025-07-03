@@ -1,76 +1,57 @@
-import React from 'react'
-import style from '@styles/hero.module.scss'
-import HeroImage from '@images/Hero.jpg'
-import { Link } from 'react-router-dom'
+import React from 'react';
+import style from '@styles/landingpage.module.scss';
+import HeroImage from '@images/Hero.jpg';
+import { Link } from 'react-router-dom';
 
 const Tagline = ({ text1, text2 }) => (
     <h1 className={style.title}>
         <span className={style.block}>{text1}</span>
         <span className={style.block}>{text2}</span>
     </h1>
-)
+);
 
 const Description = ({ paragraph }) => (
     <p className={style.paragraphs}>{paragraph}</p>
 );
 
-const Button1 = ({ text }) => (
-    <button className={style.button1}>
-        <Link to="/signin" className={style.link}>
-            <span className={style.buttonBlock}>{text}</span>
-        </Link>
-    </button>
-)
+const ButtonPrimary = ({ text }) => (
+    <Link to="/signin" className={style.login}>
+        {text}
+    </Link>
+);
 
-const Button2 = ({ text }) => (
-    <button className={style.button2}>
-        <span className={style.buttonBlock}>{text}</span>
-    </button>
-)
 
-const BackGround = () => (
+const HeroBackground = () => (
     <div className={style.background}>
-        <img
-            src={HeroImage}
-            alt="Background"
-            className={style.backgroundImage}
-        />
+        <img src={HeroImage} alt="Business Hero" className={style.backgroundImage} />
         <div className={style.transparent}>
             <div className={style.left}></div>
             <div className={style.overlay}></div>
+            <div className={style.gradient}></div>
         </div>
     </div>
-
 );
 
 const Hero = () => {
     return (
-        <main id='home' className={style.main}>
-            <BackGround />
-            <div className={style.foreground}>
-
-                <Tagline
-                    text1="Empowered Youth,"
-                    text2="Empowered Democracy."
-                />
-
-                <Description
-                    paragraph="Know your rights, demand transparent leadership."
-                />
-
-
-                <div className={style.taglineButtons}>
-
-                    <Button1
-                        text="Login"
+        <section id="home" className={style.section}>
+            <div className={style.hero}>
+                <HeroBackground />
+                <div className={style.foreground}>
+                    <Tagline
+                        text1="Empowered Youth,"
+                        text2="Empowered Democracy."
                     />
-                    <Button2
-                        text="Location"
+                    <Description
+                        paragraph="Know your rights, demand transparent leadership."
                     />
+
+                    <ButtonPrimary text="Login" />
+
                 </div>
             </div>
-        </main>
+        </section>
     );
 };
 
-export default Hero
+export default Hero;

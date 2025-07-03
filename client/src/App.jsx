@@ -1,8 +1,11 @@
-import Signup from "@pages/Signup/index.jsx";
+import LandingPage from "@pages/LandingPage";
 
 function App() {
   return (
-      <Signup />
+    <>
+      <LandingPage />
+
+    </>
   );
 }
 

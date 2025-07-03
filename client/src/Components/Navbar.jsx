@@ -26,9 +26,9 @@ const NavLinks = ({ links, onLinkClick }) => (
             <li key={key}>
                 {link.external ? (
                     <a
-                        href={link.to}
+                        id={link.to}
                         onClick={onLinkClick}
-                        className={style.link}
+                        className={`${style.link} ${link.text === 'Sign Up' ? style.sign_up : ''}`}
                     >
                         {link.text}
                     </a>
@@ -36,14 +36,14 @@ const NavLinks = ({ links, onLinkClick }) => (
                     <Link
                         to={link.to}
                         onClick={onLinkClick}
-                        className={style.link}
+                        className={`${style.link} ${link.text === 'Sign Up' ? style.sign_up : ''}`}
                     >
                         {link.text}
                     </Link>
                 )}
             </li>
         ))}
-    </ul>
+    </ul >
 );
 
 
@@ -60,10 +60,23 @@ export default function Navbar() {
     }, []);
 
     const links = [
-        { href: '#about', text: 'About' },
-        { href: '#officials', text: 'Officials' },
-        { href: '#discover', text: 'Discover' },
-        { to: '/adminAuth', text: 'Sign Up', external: false},
+        {
+            id: '/about',
+            text: 'About'
+        },
+        {
+            id: '/officials',
+            text: 'Officials'
+        },
+        {
+            id: '/discover',
+            text: 'Discover'
+        },
+        {
+            to: '/adminAuth',
+            text: 'Sign Up',
+            external: false
+        },
     ];
 
     const handleLinkClick = () => {
@@ -75,9 +88,11 @@ export default function Navbar() {
             <nav className={`${style.nav} ${isScrolled ? style.scrolled : ''}`}>
                 <Logo />
                 <MenuButton isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
+
                 <div className={`${style.menu} ${isMenuOpen ? style.open : ''}`}>
                     <NavLinks links={links} onLinkClick={handleLinkClick} />
                 </div>
+
             </nav>
         </header>
     );

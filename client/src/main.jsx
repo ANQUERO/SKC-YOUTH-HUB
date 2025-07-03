@@ -11,15 +11,14 @@ import NotFound from '@pages/NotFound/index.jsx';
 import Signin from '@pages/Signin/index.jsx';
 
 const router = createBrowserRouter([
-  {path:"/", element:<App/>},
-  {path:"/adminAuth", element:<AdminAuth/>},
-  {path:"/signin", element:<Signin/>},
-  {path:"*", element:<NotFound/>},
-
+  { path: "/", element: <App /> },
+  { path: "/adminAuth", element: <AdminAuth /> },
+  { path: "/signin", element: <Signin /> },
+  { path: "*", element: <NotFound /> },
 ]);
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RouterProvider router={router}/>
+    <RouterProvider router={router} />
   </StrictMode>
 )

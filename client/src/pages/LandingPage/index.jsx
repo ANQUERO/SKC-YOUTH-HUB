@@ -5,10 +5,14 @@ import Hero from './sections/hero.jsx'
 
 const LandingPage = () => {
   return (
-   <>
-   <Navbar/>
-   <Hero/>
-   </>
+    <>
+      <main className='background_color'>
+        <Navbar />
+        <Hero />
+
+      </main>
+
+    </>
   )
 }
 
