@@ -34,7 +34,7 @@ const HeroBackground = () => (
 
 const Hero = () => {
     return (
-        <section id="home" className={style.section}>
+        <section id="home" className={style.home}>
             <div className={style.hero}>
                 <HeroBackground />
                 <div className={style.foreground}>
@@ -47,7 +47,6 @@ const Hero = () => {
                     />
 
                     <ButtonPrimary text="Login" />
-
                 </div>
             </div>
         </section>
