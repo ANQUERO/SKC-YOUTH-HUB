@@ -73,7 +73,7 @@ export default function Navbar() {
             text: 'Discover'
         },
         {
-            to: '/adminAuth',
+            to: '/signup',
             text: 'Sign Up',
             external: false
         },

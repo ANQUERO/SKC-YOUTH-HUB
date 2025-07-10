@@ -85,7 +85,7 @@
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 2rem;
 
     @media (min-width: 768px) {
         display: flex;
@@ -97,7 +97,7 @@
 .link {
     color: #cbd5e1;
     text-decoration: none;
-    font-size: 1.3rem;
+    font-size: 1rem;
     transition: color 0.3s ease;
 
     &:hover {
@@ -108,7 +108,7 @@
 .sign_up {
   background-color: #B8336A;
   color: white;
-  padding: 0.6rem 2rem;
+  padding: 0.5rem 2rem;
   border: none;
   border-radius: 1.5rem;
   text-align: center;
@@ -119,4 +119,5 @@
     background-color: #ffff;
     color: #B8336A;
   }
+
 }
