@@ -1,6 +1,6 @@
 import React from 'react';
 import style from '@styles/landingpage.module.scss';
-import aboutImage from '@images/about.png'
+import aboutImage from '@images/about.png';
 
 const AboutUs = () => {
     return (
@@ -11,15 +11,17 @@ const AboutUs = () => {
                     {/* Image Column */}
                     <div className={style.image_wrapper}>
                         <div className={style.image_container}>
-                            <img src={aboutImage} alt="sample" />
+                            <img src={aboutImage} alt="Team collaboration illustration" />
                         </div>
                     </div>
 
                     {/* Text Column */}
                     <div className={style.text_wrapper}>
-                        <h1>Headline</h1>
-                        <p>Description goes here in 2–4 lines to give just a brief outline</p>
-                        <button className={style.cta_button}>CTA</button>
+                        <h1>Know your rights, demand transparent leadership.</h1>
+                        <p>When empowered with knowledge and opportunities,
+                            young people drive a stronger, more inclusive
+                            democracy fueled by passion and innovation.</p>
+                        <button className={style.cta_button}>Get to Know Us</button>
                     </div>
 
                 </div>

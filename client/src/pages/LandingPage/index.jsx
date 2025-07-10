@@ -2,6 +2,8 @@ import React from 'react'
 import Navbar from "@components/Navbar.jsx"
 import Hero from './sections/hero.jsx'
 import About from './sections/about.jsx'
+import Officials from './sections/officials.jsx'
+import Footer from './sections/footer.jsx'
 
 
 const LandingPage = () => {
@@ -11,6 +13,8 @@ const LandingPage = () => {
         <Navbar />
         <Hero />
         <About />
+        <Officials />
+        <Footer />
 
       </main>
 
