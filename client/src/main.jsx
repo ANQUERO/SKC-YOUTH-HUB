@@ -11,12 +11,20 @@ import NotFound from '@pages/NotFound/index.jsx';
 import Signin from '@pages/Signin/index.jsx';
 import Signup from '@pages/Signup/index.jsx'
 
+//Feed
+
+import NewsFeed from '@pages/NewsFeed';
+
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
   { path: "/adminAuth", element: <AdminAuth /> },
   { path: "/signin", element: <Signin /> },
   { path: "/signup", element: <Signup /> },
   { path: "*", element: <NotFound /> },
+
+  {
+    path: "/feed", element: <NewsFeed />
+  }
 ]);
 
 createRoot(document.getElementById('root')).render(

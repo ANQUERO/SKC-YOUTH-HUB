@@ -1,6 +1,7 @@
 import React from 'react';
 import Logo from '@images/logo.jpg';
 import style from '@styles/signin.module.scss';
+import { Link } from 'react-router-dom'
 
 const Signin = () => {
   return (
@@ -53,7 +54,7 @@ const Signin = () => {
           </button>
 
           <p className={style.signupLink}>
-            Don’t have an account? <a href="#">Create an account</a>
+            Don’t have an account? <Link to='/signup'>Create an account</Link>
           </p>
         </form>
       </div>

@@ -1,14 +1,16 @@
 import React from 'react'
 
-import Navbar from '@components/NavbarFeed.jsx'
+import { Navbar } from '@components/NavbarFeed.jsx'
+import { NewsFeed } from './newsFeed'
 
-import  styles  from '@styles/newsFeed.module.scss'
-
-const NewsFeed = () => {
+const Feed = () => {
   return (
-   <Navbar/>
-   
+    <>
+      <Navbar />
+      <NewsFeed />
+    </>
+
   )
 }
 
-export default NewsFeed
+export default Feed
