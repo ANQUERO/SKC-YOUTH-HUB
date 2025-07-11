@@ -1,17 +1,18 @@
 .feed {
     max-width: 1200px;
-    margin: 2rem auto;
+    margin: auto;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    padding: 0 1rem;
+    padding: 1rem 1rem 2rem;
+    background-color: #fff;
 }
 
 .createPost {
     background: #fff;
     border-radius: 12px;
     padding: 1rem;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: 10px 10px 10px 10px rgba(1, 2, 1, 0.05);
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
@@ -49,6 +50,12 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+
+        .files {
+            display: flex;
+            flex-direction: row;
+            gap: 1rem;
+        }
 
         label {
             display: flex;
@@ -94,12 +101,22 @@
         align-items: center;
         justify-content: space-between;
 
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 0.75rem;
+        .author {
+            display: flex;
+            justify-content: space-between;
+
+            .avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                object-fit: cover;
+                margin-right: 0.75rem;
+            }
+
+            .official {
+                display: flex;
+                flex-direction: column;
+            }
         }
 
         h4 {
@@ -124,6 +141,17 @@
         line-height: 1.5;
     }
 
+    // Updated media styling for both images and videos
+    .postMedia {
+        margin-top: 0.75rem;
+        width: 100%;
+        height: 300px; // Fixed height
+        border-radius: 10px;
+        object-fit: cover;
+        display: block;
+    }
+
+    // Keep the old class for backward compatibility
     .postImage {
         margin-top: 0.75rem;
         width: 100%;

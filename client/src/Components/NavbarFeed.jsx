@@ -2,11 +2,16 @@ import React, { useState } from 'react';
 import style from '@styles/navbarFeed.module.scss';
 import Logo from '@images/logo.jpg';
 import Avatar from '@images/hero.jpg';
-import { Bell, Settings, Menu, X } from 'lucide-react';
+import {
+  Bell,
+  House,
+  Megaphone,
+  CalendarRange,
+  MessageCircle
+} from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 export const Navbar = () => {
-  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isNotifOpen, setNotifOpen] = useState(false);
   const [isProfileOpen, setProfileOpen] = useState(false);
 
@@ -22,21 +27,12 @@ export const Navbar = () => {
         />
       </div>
 
-      {/* Mobile Menu Toggle */}
-      <button
-        className={style.menuToggle}
-        onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
-        aria-label="Toggle navigation menu"
-      >
-        {isMobileMenuOpen ? <X /> : <Menu />}
-      </button>
-
-      {/* Navigation Links */}
-      <ul className={`${style.navLinks} ${isMobileMenuOpen ? style.mobileOpen : ''}`}>
-        <li><NavLink to="/posts" className={style.navLink}>All post</NavLink></li>
-        <li><NavLink to="/announcements" className={style.navLink}>Announcement</NavLink></li>
-        <li><NavLink to="/activities" className={style.navLink}>Activities</NavLink></li>
-        <li><NavLink to="/feedback" className={style.navLink}>Feedback/Suggestion</NavLink></li>
+      {/* Navigation Links - Desktop */}
+      <ul className={style.navLinks}>
+        <li><NavLink to="/feed" className={style.navLink}><House /></NavLink></li>
+        <li><NavLink to="/announcements" className={style.navLink}><Megaphone /></NavLink></li>
+        <li><NavLink to="/activities" className={style.navLink}><CalendarRange /></NavLink></li>
+        <li><NavLink to="/feedback" className={style.navLink}><MessageCircle /></NavLink></li>
       </ul>
 
       {/* Icons & Profile */}
@@ -57,7 +53,6 @@ export const Navbar = () => {
           )}
         </div>
 
-
         <div className={style.profileWrapper} onClick={() => setProfileOpen(!isProfileOpen)}>
           <img src={Avatar} alt="Profile" className={style.avatar} />
           {isProfileOpen && (
@@ -71,6 +66,14 @@ export const Navbar = () => {
           )}
         </div>
       </div>
+
+      {/* Mobile Navigation Links - Bottom */}
+      <ul className={style.mobileNavLinks}>
+        <li><NavLink to="/posts" className={style.mobileNavLink}><House /></NavLink></li>
+        <li><NavLink to="/announcements" className={style.mobileNavLink}><Megaphone /></NavLink></li>
+        <li><NavLink to="/activities" className={style.mobileNavLink}><CalendarRange /></NavLink></li>
+        <li><NavLink to="/feedback" className={style.mobileNavLink}><MessageCircle /></NavLink></li>
+      </ul>
     </nav>
   );
 };

@@ -12,6 +12,7 @@
   padding: 0;
   box-sizing: border-box;
   font-family: "Mulish", sans-serif;
+  scroll-behavior: smooth;
 }
 
 html, body{
@@ -22,5 +23,10 @@ html, body{
 
 .background_color{
     background-color: #31578b;
+}
+
+.newsFeed{
+  background-color: #DFE3EE;
+  height: auto;
 }
 

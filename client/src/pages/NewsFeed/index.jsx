@@ -5,10 +5,10 @@ import { NewsFeed } from './newsFeed'
 
 const Feed = () => {
   return (
-    <>
+    <main className='newsFeed'>
       <Navbar />
       <NewsFeed />
-    </>
+    </main >
 
   )
 }
