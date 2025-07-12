@@ -1,170 +1,129 @@
-import { pool } from '../db/config.js';
-import { hashPassword } from '../lib/index.js'
+import supabase from '../db/config.js';
+import { hashPassword } from '../lib/index.js';
 
+// ✅ Get all youth data
 export const index = async (req, res) => {
-
     try {
-        const [
-            youth,
-            name,
-            location,
-            gender,
-            info,
-            demographics,
-            survey,
-            meetingSurvey,
-            household
-        ] = await Promise.all([
-            pool.query('SELECT * FROM sk_youth'),
-            pool.query('SELECT * FROM sk_youth_name'),
-            pool.query('SELECT * FROM sk_youth_location'),
-            pool.query('SELECT * FROM sk_youth_gender'),
-            pool.query('SELECT * FROM sk_youth_info'),
-            pool.query('SELECT * FROM sk_youth_demographics'),
-            pool.query('SELECT * FROM sk_youth_survey'),
-            pool.query('SELECT * FROM sk_youth_meeting_survey'),
-            pool.query('SELECT * FROM sk_youth_household'),
-        ]);
+        const tables = [
+            'sk_youth',
+            'sk_youth_name',
+            'sk_youth_location',
+            'sk_youth_gender',
+            'sk_youth_info',
+            'sk_youth_demographics',
+            'sk_youth_survey',
+            'sk_youth_meeting_survey',
+            'sk_youth_household',
+        ];
+
+        const results = await Promise.all(
+            tables.map(table => supabase.from(table).select('*'))
+        );
+
+        const [youth, name, location, gender, info, demographics, survey, meetingSurvey, household] = results.map(r => r.data);
 
         res.status(200).json({
             status: 'success',
-            youths: {
-                youth: youth.rows,
-                name: name.rows,
-                location: location.rows,
-                gender: gender.rows,
-                info: info.rows,
-                demographics: demographics.rows,
-                survey: survey.rows,
-                meetingSurvey: meetingSurvey.rows,
-                household: household.rows,
-            }
+            youths: { youth, name, location, gender, info, demographics, survey, meetingSurvey, household },
         });
-
     } catch (error) {
         console.error(error);
-        res.status(500).json({
-            status: 'failed',
-            message: error.message,
-        });
+        res.status(500).json({ status: 'failed', message: error.message });
     }
-}
+};
 
-
+// ✅ Get one youth record
 export const show = async (req, res) => {
+    const { youth_id } = req.params;
+
+    if (!youth_id) {
+        return res.status(400).json({ status: 'failed', message: 'User ID is required' });
+    }
 
     try {
-        const { youth_id } = req.params;
+        const check = await supabase.from('sk_youth').select('*').eq('youth_id', youth_id).single();
 
-        if (!youth_id) {
-            return res.status(400).json({
-                status: "failed",
-                message: "User ID is required"
-            });
+        if (!check.data) {
+            return res.status(404).json({ status: 'failed', message: 'Youth not found' });
         }
 
-        const youth_acc = await pool.query({
-            text: `SELECT * FROM sk_youth WHERE youth_id = $1`,
-            values: [youth_id]
-        });
+        const tables = [
+            'sk_youth',
+            'sk_youth_name',
+            'sk_youth_location',
+            'sk_youth_gender',
+            'sk_youth_info',
+            'sk_youth_demographics',
+            'sk_youth_survey',
+            'sk_youth_meeting_survey',
+            'sk_youth_household',
+        ];
 
-        const youthAccount = youth_acc.rows[0];
+        const results = await Promise.all(
+            tables.map(table =>
+                supabase.from(table).select('*').eq('youth_id', youth_id).single()
+            )
+        );
 
-        if (!youthAccount) {
-            return res.status(404).json({
-                status: "failed",
-                message: "Youth not found"
-            });
-        }
-
-        const [
-            youth,
-            name,
-            location,
-            gender,
-            info,
-            demographics,
-            survey,
-            meetingSurvey,
-            household
-        ] = await Promise.all([
-            pool.query('SELECT * FROM sk_youth WHERE youth_id = $1', [youth_id]),
-            pool.query('SELECT * FROM sk_youth_name WHERE youth_id = $1', [youth_id]),
-            pool.query('SELECT * FROM sk_youth_location WHERE youth_id = $1', [youth_id]),
-            pool.query('SELECT * FROM sk_youth_gender WHERE youth_id = $1', [youth_id]),
-            pool.query('SELECT * FROM sk_youth_info WHERE youth_id = $1', [youth_id]),
-            pool.query('SELECT * FROM sk_youth_demographics WHERE youth_id = $1', [youth_id]),
-            pool.query('SELECT * FROM sk_youth_survey WHERE youth_id = $1', [youth_id]),
-            pool.query('SELECT * FROM sk_youth_meeting_survey WHERE youth_id = $1', [youth_id]),
-            pool.query('SELECT * FROM sk_youth_household WHERE youth_id = $1', [youth_id]),
-        ]);
+        const [youth, name, location, gender, info, demographics, survey, meetingSurvey, household] = results.map(r => r.data);
 
         res.status(200).json({
             status: 'success',
-            youth: {
-                youth: youth.rows[0],
-                name: name.rows[0],
-                location: location.rows[0],
-                gender: gender.rows[0],
-                info: info.rows[0],
-                demographics: demographics.rows[0],
-                survey: survey.rows[0],
-                meetingSurvey: meetingSurvey.rows[0],
-                household: household.rows[0],
-            }
+            youth: { youth, name, location, gender, info, demographics, survey, meetingSurvey, household },
         });
-
     } catch (error) {
         console.error(error);
-        res.status(500).json({
-            status: 'failed',
-            message: error.message,
-        });
-
+        res.status(500).json({ status: 'failed', message: error.message });
     }
-}
+};
 
-
+// ✅ Update user data (including hashed password if provided)
 export const update = async (req, res) => {
     const { youth_id } = req.params;
     const fieldsToUpdate = req.body;
 
+    if (!youth_id) {
+        return res.status(400).json({
+            status: 'failed',
+            message: 'Youth ID is required',
+        });
+    }
+
+    if (Object.keys(fieldsToUpdate).length === 0) {
+        return res.status(400).json({
+            status: 'failed',
+            message: 'No fields provided to update',
+        });
+    }
+
     try {
-        if (!youth_id) {
-            return res.status(400).json({
-                status: 'failed',
-                message: 'Youth ID is required',
-            });
+        const updateData = { ...fieldsToUpdate };
+
+        // ✅ If password is being updated, hash it
+        if (updateData.password) {
+            updateData.password = await hashPassword(updateData.password);
         }
 
-        const keys = Object.keys(fieldsToUpdate);
-        if (keys.length === 0) {
-            return res.status(400).json({
-                status: 'failed',
-                message: 'No fields provided to update',
-            });
-        }
+        const { data, error } = await supabase
+            .from('sk_youth')
+            .update(updateData)
+            .eq('youth_id', youth_id)
+            .is('deleted_at', null)
+            .select()
+            .single();
 
-        const setClause = keys.map((key, idx) => `${key} = $${idx + 1}`).join(', ');
-        const values = Object.values(fieldsToUpdate);
-
-        const result = await pool.query(
-            `UPDATE sk_youth SET ${setClause} WHERE youth_id = $${keys.length + 1} AND deleted_at IS NULL RETURNING *`,
-            [...values, youth_id]
-        );
-
-        if (result.rows.length === 0) {
+        if (error || !data) {
             return res.status(404).json({
                 status: 'failed',
-                message: 'Youth not found or has been deleted',
+                message: 'Youth not found or update failed',
+                error: error?.message,
             });
         }
 
         res.status(200).json({
             status: 'success',
-            updated: result.rows[0],
+            updated: data,
         });
-
     } catch (error) {
         console.error(error);
         res.status(500).json({
@@ -173,4 +132,3 @@ export const update = async (req, res) => {
         });
     }
 };
-

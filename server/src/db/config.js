@@ -1,32 +1,28 @@
-import pg from 'pg';
+import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const { Pool } = pg;
+// Initialize Supabase 
+const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_KEY
+);
 
-if (!process.env.DATABASE_URI) {
-    throw new Error('DATABASE_URI is not defined in the enviroment virables');
-}
-
-export const pool = new Pool({
-
-    connectionString: process.env.DATABASE_URI,
-    ssl: {
-        rejectUnauthorized: false,
-    },
-});
-
+//Test the connection
 export const initDB = async () => {
     try {
-        const client = await pool.connect();
-        console.log('✅ Connected to the PostgreSQL database');
-        client.release();
+        const { data, error } = await supabase.rpc('check_connection');
+
+        if (error) {
+            throw error;
+        }
+
+        console.log('✅ Connected to Supabase and queried successfully');
     } catch (err) {
-        console.error('❌ PostgreSQL connection error:', err.stack);
+        console.error('❌ Supabase connection error:', err.message);
         throw err;
     }
 };
 
-
-
+export default supabase;
