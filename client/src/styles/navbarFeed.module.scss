@@ -252,3 +252,27 @@
   }
 
 }
+
+.navLink.active,
+.mobileNavLink.active {
+  color: #007bff;
+  font-weight: bold;
+  border-bottom: 2px solid #007bff;
+}
+
+.postTypeSelect {
+  font-size: 0.75rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: white;
+  margin-right: auto;
+  color: #333;
+  cursor: pointer;
+}
+
+.topBar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
+}

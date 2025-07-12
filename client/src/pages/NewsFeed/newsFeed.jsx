@@ -1,19 +1,16 @@
 import React, { useState } from 'react';
 import style from '@styles/newsFeed.module.scss';
-
-import { CreatePost } from './createPost';
-import { PostCard } from './postCard';
+import { usePostContext } from '@context/PostContext';
+import { CreatePost } from './feedComponents/createPost';
+import { PostCard } from './feedComponents/postCard';
 
 export const NewsFeed = () => {
-    const [posts, setPosts] = useState([]);
-
-    const addPost = (newPost) => {
-        setPosts([newPost, ...posts]);
-    };
+    const { posts } = usePostContext();
+    const post = posts.filter(post => post.type === 'post')
 
     return (
         <section className={style.feed}>
-            <CreatePost onPost={addPost} />
+            <CreatePost />
             {posts.map((post) => (
                 <PostCard key={post.id} post={post} />
             ))}

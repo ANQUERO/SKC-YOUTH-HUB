@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import style from '@styles/newsFeed.module.scss';
 import Avatar from '@images/about.png';
-import { Image, Paperclip, Send, Video } from 'lucide-react';
+import { Image, Send, Video } from 'lucide-react';
+import { usePostContext } from '@context/PostContext';
 
-export const CreatePost = ({ onPost }) => {
+export const CreatePost = () => {
     const [content, setContent] = useState('');
     const [image, setImage] = useState(null);
     const [video, setVideo] = useState(null);
+    const [type, setType] = useState('post');
+    const { addPost } = usePostContext();
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -36,12 +39,14 @@ export const CreatePost = ({ onPost }) => {
             content,
             image,
             video,
+            type,
         };
 
-        onPost(newPost);
+        addPost(newPost);
         setContent('');
         setImage(null);
         setVideo(null);
+        setType('post');
     };
 
     return (
@@ -52,10 +57,23 @@ export const CreatePost = ({ onPost }) => {
                     <strong>SK Chairman, Lester Q. Cruspero</strong>
                     <p>Official</p>
                 </div>
+
+                <div className={style.topBar}>
+                    <select
+                        className={style.postTypeSelect}
+                        value={type}
+                        onChange={(e) => setType(e.target.value)}
+                    >
+                        <option value="post">Post</option>
+                        <option value="announcement">Announcement</option>
+                        <option value="activity">Activity</option>
+                    </select>
+                </div>
+
             </div>
 
             <textarea
-                placeholder="What's your announcement...."
+                placeholder="What's your announcement..."
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
             />

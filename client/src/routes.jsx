@@ -1,34 +1,27 @@
 import { Route, Routes } from 'react-router-dom';
 
-
 import NotFound from '@pages/NotFound';
 
 //Guest Routes
 import LandingPage from '@pages/LandingPage';
-import Signin from '@pages/Signin/index.jsx';
-import Signup from '@pages/Signup/index.jsx';
+import Signin from '@pages/Signin';
+import Signup from '@pages/Signup';
 
-import NewsFeed from '@pages/NewsFeed/index';
-
-
-
+import NewsFeedRoutes from '@pages/NewsFeed/index';
 
 export default function AppRoutes() {
-
     return (
         <Routes>
             {/* Public Routes */}
-            <Route path='*' element={<NotFound />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/signin" element={<Signin />} />
+            <Route path="/signup" element={<Signup />} />
+
+            <Route path="/feed/*" element={<NewsFeedRoutes />} />
 
 
-            <Route path='/' element={<LandingPage />} />
-            <Route path='/signin' element={<Signin />} />
-            <Route path='/signup' element={<Signup />} />
 
-            <Route path='/feed' element={<NewsFeed />} />
-
-
+            <Route path="*" element={<NotFound />} />
         </Routes>
-    )
-
+    );
 }

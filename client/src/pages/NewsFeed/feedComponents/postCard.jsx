@@ -7,7 +7,7 @@ export const PostCard = ({ post }) => {
             <div className={style.header}>
                 <div className={style.author}>
                     <img src={post.avatar} alt="Author" className={style.avatar} />
-                    <div className={style.official}>
+                    <div>
                         <h4>{post.author}</h4>
                         <p>{post.role}</p>
                     </div>
@@ -15,28 +15,11 @@ export const PostCard = ({ post }) => {
                 <span className={style.time}>{post.time}</span>
             </div>
 
+            <p className={style.typeTag}>{post.type.toUpperCase()}</p>
             <p className={style.content}>{post.content}</p>
 
-            {post.image && (
-                <img
-                    src={post.image}
-                    alt="Post visual"
-                    className={style.postMedia}
-                />
-            )}
-
-            {post.video && (
-                <video
-                    src={post.video}
-                    className={style.postMedia}
-                    controls
-                    preload="metadata"
-                >
-                    Your browser does not support the video tag.
-                </video>
-            )}
-
-            <button className={style.cta}>Click</button>
+            {post.image && <img src={post.image} alt="Post visual" className={style.postMedia} />}
+            {post.video && <video src={post.video} controls className={style.postMedia} />}
         </div>
     );
 };

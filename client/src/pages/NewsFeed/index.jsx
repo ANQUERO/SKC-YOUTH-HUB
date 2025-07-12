@@ -1,16 +1,30 @@
-import React from 'react'
+import React from 'react';
+import { Routes, Route, Outlet } from 'react-router-dom';
+import { Navbar } from '@components/NavbarFeed';
 
-import { Navbar } from '@components/NavbarFeed.jsx'
-import { NewsFeed } from './newsFeed'
+import { NewsFeed } from './newsFeed';
+import { Announcement } from './announcements.jsx';
+import { Activities } from './activities.jsx';
 
-const Feed = () => {
+const NewsFeedLayout = () => {
   return (
-    <main className='newsFeed'>
+    <main>
       <Navbar />
-      <NewsFeed />
-    </main >
+      <section className="pageContent">
+        <Outlet />
+      </section>
+    </main>
+  );
+};
 
-  )
+export default function NewsFeedRoutes() {
+  return (
+    <Routes>
+      <Route element={<NewsFeedLayout />}>
+        <Route index element={<NewsFeed />} />
+        <Route path="announcements" element={<Announcement />} />
+        <Route path="activities" element={<Activities />} />
+      </Route>
+    </Routes>
+  );
 }
-
-export default Feed
