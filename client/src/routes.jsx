@@ -14,7 +14,7 @@ export default function AppRoutes() {
         <Routes>
             {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
-            <Route path="/signin" element={<Signin />} />
+            <Route path="/signin" element={<Signin />} />   
             <Route path="/signup" element={<Signup />} />
 
             <Route path="/feed/*" element={<NewsFeedRoutes />} />
