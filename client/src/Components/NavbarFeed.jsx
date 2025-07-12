@@ -19,7 +19,9 @@ export const Navbar = () => {
     <nav className={style.nav}>
       {/* Logo and Search */}
       <div className={style.logoWrapper}>
-        <img src={Logo} alt="App Logo" />
+        <NavLink to={'/'}>
+          <img src={Logo} alt="App Logo" />
+        </NavLink>
         <input
           type="search"
           className={style.searchInput}
@@ -65,6 +67,7 @@ export const Navbar = () => {
             </div>
           )}
         </div>
+
       </div>
 
       {/* Mobile Navigation Links - Bottom */}

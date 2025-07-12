@@ -12,7 +12,7 @@ export const CreatePost = ({ onPost }) => {
         const file = e.target.files[0];
         if (file) {
             setImage(URL.createObjectURL(file));
-            setVideo(null); // Clear video if image is selected
+            setVideo(null);
         }
     };
 
@@ -20,7 +20,7 @@ export const CreatePost = ({ onPost }) => {
         const file = e.target.files[0];
         if (file) {
             setVideo(URL.createObjectURL(file));
-            setImage(null); // Clear image if video is selected
+            setImage(null);
         }
     };
 
