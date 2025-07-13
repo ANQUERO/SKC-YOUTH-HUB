@@ -1,6 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 //Routes
 import router from "./src/routes/index.js";
@@ -10,16 +13,17 @@ const app = express();
 app.use(helmet());
 
 app.use(cors({
-    origin: '*',
+    origin: process.env.APP_URL,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'X-Project-ID']
 }));
 
-app.use(express.json({ 
-    limit: "10mb"}
+app.use(express.json({
+    limit: "10mb"
+}
 ));
-app.use(express.urlencoded({ 
+app.use(express.urlencoded({
     extended: true,
     limit: '10mb'
 }));

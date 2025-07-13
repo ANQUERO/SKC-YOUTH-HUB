@@ -1,27 +1,20 @@
-// components/AuthSteps/StepWrapper.jsx
 import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { updateField } from "reducers/useLogin.js";
 import Step1 from "./personalDetails.jsx";
 import Step2 from "./email.jsx";
 import Step3 from "./credentials.jsx";
 
 const StepWrapper = () => {
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
-    first_name: "",
-    last_name: "",
-    organization: "",
-    position: "",
-    role: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const formData = useSelector((state) => state.adminAuth);
+  const dispatch = useDispatch();
 
   const nextStep = () => setStep(prev => prev + 1);
   const prevStep = () => setStep(prev => prev - 1);
 
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    dispatch(updateField({ field, value }));
   };
 
   switch (step) {

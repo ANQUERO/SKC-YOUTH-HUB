@@ -1,8 +1,6 @@
-// Import sa mga dependencies (mga library nga gamiton)
-import supabse from '../db/config.js';
+import supabase from '../db/config.js';
 import { validationResult } from 'express-validator'
 import { hashPassword, createToken, comparePassword } from '../lib/index.js'
-
 
 //Signup
 export const signup = async (req, res) => {
@@ -69,7 +67,6 @@ export const signup = async (req, res) => {
 
         const hashedPassword = await hashPassword(password);
 
-        // Insert into sk_youth
         const { data: userInsert, error: userError } = await supabase
             .from('sk_youth')
             .insert({ username, password: hashedPassword })
@@ -80,7 +77,6 @@ export const signup = async (req, res) => {
 
         const youthId = userInsert.youth_id;
 
-        // Batch insert data to other tables
         const insertTasks = [
             supabase.from('sk_youth_name').insert({ youth_id: youthId, first_name, middle_name, last_name, suffix }),
             supabase.from('sk_youth_location').insert({ youth_id: youthId, region, province, municipality, barangay, purok }),

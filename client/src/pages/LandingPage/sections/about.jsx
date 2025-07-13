@@ -1,6 +1,7 @@
 import React from 'react';
 import style from '@styles/landingpage.module.scss';
 import aboutImage from '@images/about.png';
+import { Link } from 'react-router-dom'
 
 const AboutUs = () => {
     return (
@@ -21,7 +22,9 @@ const AboutUs = () => {
                         <p>When empowered with knowledge and opportunities,
                             young people drive a stronger, more inclusive
                             democracy fueled by passion and innovation.</p>
-                        <button className={style.cta_button}>Get to Know Us</button>
+                        <button className={style.cta_button}>
+                            <Link to='/adminAuth'>Get to Know Us</Link>
+                        </button>
                     </div>
 
                 </div>

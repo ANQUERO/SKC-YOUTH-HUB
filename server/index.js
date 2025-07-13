@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 4300;
 const startServer = () => {
     console.log('Starting Server')
     app.listen(PORT, () => {
-        console.log(`Server is running on port https://localhost:${PORT}`);
+        console.log(`Server is running on port http://localhost:${PORT}`);
     }).on('error', (error) => {
         console.error('Error starting server:', error);
         process.exit(1);

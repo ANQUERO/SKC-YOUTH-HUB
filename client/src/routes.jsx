@@ -7,6 +7,8 @@ import LandingPage from '@pages/LandingPage';
 import Signin from '@pages/Signin';
 import Signup from '@pages/Signup';
 
+import AdminAuth from '@pages/AdminAuth';
+
 import NewsFeedRoutes from '@pages/NewsFeed/index';
 
 export default function AppRoutes() {
@@ -14,8 +16,11 @@ export default function AppRoutes() {
         <Routes>
             {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
-            <Route path="/signin" element={<Signin />} />   
+            <Route path="/signin" element={<Signin />} />
             <Route path="/signup" element={<Signup />} />
+
+            <Route path="/adminAuth" element={<AdminAuth />} />
+
 
             <Route path="/feed/*" element={<NewsFeedRoutes />} />
 
