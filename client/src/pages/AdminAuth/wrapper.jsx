@@ -1,14 +1,12 @@
 import { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { updateField } from "reducers/useLogin.js";
 import Step1 from "./personalDetails.jsx";
 import Step2 from "./email.jsx";
 import Step3 from "./credentials.jsx";
 
+const data = [];
+
 const StepWrapper = () => {
   const [step, setStep] = useState(1);
-  const formData = useSelector((state) => state.adminAuth);
-  const dispatch = useDispatch();
 
   const nextStep = () => setStep(prev => prev + 1);
   const prevStep = () => setStep(prev => prev - 1);
@@ -19,11 +17,11 @@ const StepWrapper = () => {
 
   switch (step) {
     case 1:
-      return <Step1 next={nextStep} handleChange={handleChange} data={formData} />;
+      return <Step1 next={nextStep} handleChange={handleChange} data={data} />;
     case 2:
-      return <Step2 next={nextStep} prev={prevStep} handleChange={handleChange} data={formData} />;
+      return <Step2 next={nextStep} prev={prevStep} handleChange={handleChange} data={data} />;
     case 3:
-      return <Step3 prev={prevStep} handleChange={handleChange} data={formData} />;
+      return <Step3 prev={prevStep} handleChange={handleChange} data={data} />;
     default:
       return <div>Completed!</div>;
   }

@@ -11,6 +11,7 @@ import AdminAuth from '@pages/AdminAuth';
 
 import NewsFeedRoutes from '@pages/NewsFeed/index';
 
+
 export default function AppRoutes() {
     return (
         <Routes>
@@ -23,6 +24,7 @@ export default function AppRoutes() {
 
 
             <Route path="/feed/*" element={<NewsFeedRoutes />} />
+
 
 
 
