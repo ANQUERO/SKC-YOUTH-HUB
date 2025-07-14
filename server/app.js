@@ -5,9 +5,6 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-//Routes
-import router from "./src/routes/index.js";
-
 const app = express();
 
 app.use(helmet());
@@ -29,7 +26,7 @@ app.use(express.urlencoded({
 }));
 
 //Api Routes
-app.use('/api', router);
+// app.use('/api', router);
 
 app.use((req, res, next) => {
     res.status(404).json({ error: 'Not Found' });
