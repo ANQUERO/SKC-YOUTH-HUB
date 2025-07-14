@@ -1,10 +1,11 @@
+CREATE DATABASE catarman_youth_hub;
+
 -- Admin Table
 CREATE TABLE sk_official_admin (
     admin_id SERIAL PRIMARY KEY,
     first_name VARCHAR(55) NOT NULL,
     last_name VARCHAR(55) NOT NULL,
     email VARCHAR(55) UNIQUE NOT NULL,
-    organization VARCHAR(55) NOT NULL,
     position VARCHAR(55) NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
     password TEXT UNIQUE NOT NULL,
