@@ -1,9 +1,11 @@
 import dotenv from 'dotenv';
 import app from './app.js'
+import { initDB } from './src/db/config.js';
 
 console.log("Starting server initialization...");
 
 dotenv.config();
+
 console.log("Enviroment loaded, NODE_ENV:", process.env.NODE_ENV);
 
 const PORT = process.env.PORT || 4300;
@@ -17,3 +19,19 @@ const startServer = () => {
         process.exit(1);
     });
 };
+
+const init = async () => {
+    console.log("Initializing application...");
+    try {
+        await initDB();
+        startServer();
+    } catch (error) {
+        console.error('Failed to connect to the database');
+        process.exit(1);
+    }
+};
+
+init().catch(error => {
+    console.error('Fatal error during initialization: ', error);
+    process.exit(1);
+})
