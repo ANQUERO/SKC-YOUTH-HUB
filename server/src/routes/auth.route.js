@@ -3,8 +3,8 @@ import {
     signup,
     login,
     logout
-} from '../controller/admin_auth.controller'
-import { signupAdminValidator, loginValidator } from '../utils/validators'
+} from '../controller/auth.controller.js'
+import { signupAdminValidator, loginValidator } from '../utils/validators.js'
 
 const router = express.Router();
 

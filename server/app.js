@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import authRouter from './src/routes/auth.route.js';
 
 
 dotenv.config();
@@ -27,7 +28,7 @@ app.use(express.urlencoded({
 }));
 
 //Api Routes
-// app.use('/api', router);
+app.use('/api', authRouter);
 
 app.use((req, res, next) => {
     res.status(404).json({ error: 'Not Found' });

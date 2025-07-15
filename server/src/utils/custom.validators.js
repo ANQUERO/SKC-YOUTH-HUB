@@ -7,10 +7,13 @@ export const isLastName = value => {
     return /^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$/.test(value);
 };
 
-// Email format check
 export const isEmail = value => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 };
+
+export const isRole = value => {
+    return value === "super_sk_admin" || value === "natural_sk_admin";
+}
 
 // Password: 8 characters, at least 1 number, 1 special character, rest letters
 export const isPassword = value => {

@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
-import { generateTokenAndSetCookies } from "../utils/jwt";
-import { validationErrors } from "../utils/validators";
+import { generateTokenAndSetCookies } from "../utils/jwt.js";
+import { validationErrors } from "../utils/validators.js";
 import { validationResult } from "express-validator";
 import { pool } from '../db/config.js'
 
@@ -22,7 +22,7 @@ export const signup = async (req, res) => {
 
         // Check if email already exists
         const existing = await pool.query(
-            'SELECT id FROM sk_official_admin WHERE email = $1',
+            'SELECT admin_id FROM sk_official_admin WHERE email = $1',
             [email]
         );
 
@@ -38,7 +38,7 @@ export const signup = async (req, res) => {
         const insertQuery = `
       INSERT INTO sk_official_admin (first_name, last_name, email, position, password, role)
       VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING id, first_name, last_name, email, position, role
+      RETURNING admin_id, first_name, last_name, email, position, role
     `;
 
         const result = await pool.query(insertQuery, [
@@ -71,8 +71,12 @@ export const userSignup = async (req, res) => {
             fist_name,
             last_name,
             middle_name,
-            
-
+            suffix,
+            region,
+            province,
+            municipality,
+            barangay,
+            purok
         ] = req.body;
 
     } catch (error) {
@@ -119,7 +123,7 @@ export const login = async (req, res) => {
         return res.status(200).json({
             message: "Login successful",
             admin: {
-                id: admin.id,
+                id: admin.admin_id,
                 first_name: admin.first_name,
                 last_name: admin.last_name,
                 email: admin.email,

@@ -3,8 +3,9 @@ import {
     isFirstName,
     isLastName,
     isEmail,
-    isPassword
-} from './custom.validators';
+    isPassword,
+    isRole
+} from './custom.validators.js';
 
 
 export const validationErrors = (errors) => {
@@ -30,10 +31,14 @@ export const signupAdminValidator = [
         .custom(isPassword).withMessage(
             "Password must be exactly 8 characters, include at least 1 number, 1 special character, and at least 6 letters"
         ),
+    body("role")
+        .custom(isRole).withMessage(
+            'Role must be either "super_sk_admin" or "natural_sk_admin"'
+        )
 ];
 
 export const signupUserValidator = [
-    
+
 ]
 
 export const loginValidator = [
