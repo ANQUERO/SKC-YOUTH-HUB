@@ -96,14 +96,7 @@ CREATE TABLE purok (
     name VARCHAR(55) UNIQUE NOT NULL
 );
 
-INSERT INTO purok (name)
-VALUES 
-('Purok 1'),
-('Purok 2'),
-('Purok 3'),
-('Purok 4'),
-('Purok 5'),
-('Purok 6');
+
 
 -- Youth Gender
 CREATE TABLE sk_youth_gender (
@@ -189,6 +182,14 @@ CREATE TABLE sk_youth_household (
 
 
 
+INSERT INTO purok (name)
+VALUES 
+('Purok 1'),
+('Purok 2'),
+('Purok 3'),
+('Purok 4'),
+('Purok 5'),
+('Purok 6');
 --
 
 

@@ -162,7 +162,6 @@ export const signup = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-
     try {
         const { email, password } = req.body;
         const errors = validationResult(req);
@@ -171,50 +170,90 @@ export const login = async (req, res) => {
             return res.status(400).json(validationErrors(errors));
         }
 
-        const result = await pool.query(
+        // Try admin table first
+        let result = await pool.query(
             "SELECT * FROM sk_official_admin WHERE email = $1",
             [email]
         );
 
-        if (result.rows.length === 0) {
+        let user = null;
+        let userType = null;
+        let idField = null;
+
+        if (result.rows.length > 0) {
+            user = result.rows[0];
+            userType = "admin";
+            idField = "admin_id";
+        } else {
+            // Try youth table
+            result = await pool.query(
+                "SELECT * FROM sk_youth WHERE email = $1 AND deleted_at IS NULL",
+                [email]
+            );
+
+            if (result.rows.length > 0) {
+                user = result.rows[0];
+                userType = "youth";
+                idField = "youth_id";
+            }
+        }
+
+        // If no user found
+        if (!user) {
             return res.status(401).json({
                 errors: {
-                    email: "Invalid credetials"
+                    email: "Invalid credentials"
                 }
             });
         }
 
-        const admin = result.rows[0]
-
-        const isMatch = await bcrypt.compare(password, admin.password);
+        const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(401).json({
-                error: {
-                    password: "Invalid Credentials"
+                errors: {
+                    password: "Invalid credentials"
                 }
             });
         }
 
-        generateTokenAndSetCookies(admin, res);
+        // Generate token
+        generateTokenAndSetCookies(user, res, userType);
+
+        // Construct response
+        const responseUser = {
+            id: user[idField],
+            email: user.email,
+            userType
+        };
+
+        if (userType === "admin") {
+            Object.assign(responseUser, {
+                first_name: user.first_name,
+                last_name: user.last_name,
+                position: user.position,
+                role: user.role
+            });
+        } else if (userType === "youth") {
+            Object.assign(responseUser, {
+                verified: user.verified,
+                is_active: user.is_active,
+                comment_status: user.comment_status
+            });
+        }
 
         return res.status(200).json({
             message: "Login successful",
-            admin: {
-                id: admin.admin_id,
-                first_name: admin.first_name,
-                last_name: admin.last_name,
-                email: admin.email,
-                position: admin.position,
-                role: admin.role
-            },
+            user: responseUser
         });
+
     } catch (error) {
         console.error("Login error:", error);
-        return res.status(500), json({
+        return res.status(500).json({
             error: "Server error"
         });
     }
-}
+};
+
 
 export const logout = (req, res) => {
     res.clearCookie("jwt", {
