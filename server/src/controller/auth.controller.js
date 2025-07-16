@@ -4,7 +4,7 @@ import { validationErrors } from "../utils/validators.js";
 import { validationResult } from "express-validator";
 import { pool } from '../db/config.js'
 
-export const signup = async (req, res) => {
+export const signupAdmin = async (req, res) => {
     try {
         const {
             first_name,
@@ -65,24 +65,101 @@ export const signup = async (req, res) => {
     }
 };
 
-export const userSignup = async (req, res) => {
+export const signup = async (req, res) => {
+    const client = await pool.connect();
     try {
-        const [
-            fist_name,
-            last_name,
-            middle_name,
-            suffix,
-            region,
-            province,
-            municipality,
-            barangay,
-            purok
-        ] = req.body;
+        await client.query('BEGIN');
+
+        const {
+            email, password,
+            first_name, middle_name, last_name, suffix,
+            region, province, municipality, barangay, purok_id,
+            gender, age, contact, birthday,
+            civil_status, youth_age_gap, youth_classification, educational_background, work_status,
+            registered_voter, registered_national_voter, vote_last_election,
+            attended, times_attended, reason_not_attend,
+            household
+        } = req.body;
+
+        const file = req.file;
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Insert into sk_youth
+        const youthResult = await client.query(`
+      INSERT INTO sk_youth (email, password)
+      VALUES ($1, $2) RETURNING youth_id;
+    `, [email, hashedPassword]);
+
+        const youth_id = youthResult.rows[0].youth_id;
+
+        // Insert name
+        await client.query(`
+      INSERT INTO sk_youth_name (youth_id, first_name, middle_name, last_name, suffix)
+      VALUES ($1, $2, $3, $4, $5);
+    `, [youth_id, first_name, middle_name, last_name, suffix]);
+
+        // Location
+        await client.query(`
+      INSERT INTO sk_youth_location (youth_id, region, province, municipality, barangay, purok_id)
+      VALUES ($1, $2, $3, $4, $5, $6);
+    `, [youth_id, region, province, municipality, barangay, purok_id]);
+
+        // Gender
+        await client.query(`
+      INSERT INTO sk_youth_gender (youth_id, gender)
+      VALUES ($1, $2);
+    `, [youth_id, gender]);
+
+        // Info
+        await client.query(`
+      INSERT INTO sk_youth_info (youth_id, age, contact, birthday)
+      VALUES ($1, $2, $3, $4);
+    `, [youth_id, age, contact, birthday]);
+
+        // Demographics
+        await client.query(`
+      INSERT INTO sk_youth_demographics (youth_id, civil_status, youth_age_gap, youth_classification, educational_background, work_status)
+      VALUES ($1, $2, $3, $4, $5, $6);
+    `, [youth_id, civil_status, youth_age_gap, youth_classification, educational_background, work_status]);
+
+        // Voter survey
+        await client.query(`
+      INSERT INTO sk_youth_survey (youth_id, registered_voter, registered_national_voter, vote_last_election)
+      VALUES ($1, $2, $3, $4);
+    `, [youth_id, registered_voter, registered_national_voter, vote_last_election]);
+
+        // Meeting attendance
+        await client.query(`
+      INSERT INTO sk_youth_meeting_survey (youth_id, attended, times_attended, reason_not_attend)
+      VALUES ($1, $2, $3, $4);
+    `, [youth_id, attended, times_attended, reason_not_attend]);
+
+        // Household
+        await client.query(`
+      INSERT INTO sk_youth_household (youth_id, household)
+      VALUES ($1, $2);
+    `, [youth_id, household]);
+
+        // Attachment (if provided)
+        if (file) {
+            await client.query(`
+        INSERT INTO sk_youth_attachments (youth_id, file_name, file_type, file_url)
+        VALUES ($1, $2, $3, $4);
+      `, [youth_id, file.originalname, file.mimetype, `/uploads/${file.filename}`]);
+        }
+
+        await client.query('COMMIT');
+        res.status(201).json({ message: 'Signup completed successfully', youth_id });
 
     } catch (error) {
-
+        await client.query('ROLLBACK');
+        console.error('Signup error:', error);
+        res.status(500).json({ message: 'Signup failed' });
+    } finally {
+        client.release();
     }
-}
+};
 
 export const login = async (req, res) => {
 

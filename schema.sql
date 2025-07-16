@@ -53,7 +53,7 @@ CREATE TABLE post_comments (
 -- Youth Account
 CREATE TABLE sk_youth (
     youth_id SERIAL PRIMARY KEY,
-    username VARCHAR(100) NOT NULL UNIQUE,
+    email VARCHAR(55) UNIQUE NOT NULL,
     password TEXT NOT NULL,
     verified BOOLEAN DEFAULT false,
     is_active BOOLEAN DEFAULT TRUE,
@@ -84,11 +84,26 @@ CREATE TABLE sk_youth_location (
     province VARCHAR(55) NOT NULL,
     municipality VARCHAR(55) NOT NULL,
     barangay VARCHAR(55) NOT NULL,
-    purok VARCHAR(55),
+    purok_id INTEGER REFERENCES purok(purok_id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
 );
+
+-- Purok
+CREATE TABLE purok (
+    purok_id SERIAL PRIMARY KEY,
+    name VARCHAR(55) UNIQUE NOT NULL
+);
+
+INSERT INTO purok (name)
+VALUES 
+('Purok 1'),
+('Purok 2'),
+('Purok 3'),
+('Purok 4'),
+('Purok 5'),
+('Purok 6');
 
 -- Youth Gender
 CREATE TABLE sk_youth_gender (
@@ -106,7 +121,6 @@ CREATE TABLE sk_youth_info (
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
     age INT NOT NULL,
     contact VARCHAR(15) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
     birthday DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
