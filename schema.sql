@@ -97,12 +97,11 @@ CREATE TABLE purok (
 );
 
 
-
 -- Youth Gender
 CREATE TABLE sk_youth_gender (
     gender_id SERIAL PRIMARY KEY,
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
-    gender VARCHAR(10) NOT NULL CHECK (gender IN ('male', 'female')),
+    gender VARCHAR(10) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP

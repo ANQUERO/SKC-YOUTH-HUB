@@ -6,13 +6,13 @@ dotenv.config();
 const getSecretKey = () => {
     const secret = process.env.JWT_SECRET;
     if (!secret) {
-        throw new error("JWT is not defined in enviroment variables");
+        throw new error("JWT is not defined in environment variables");
     }
     return secret;
 }
 
 const protectRoute = () => {
-    return (req, res, nexr) => {
+    return (req, res, next) => {
         console.log('Protect Route Middleware');
 
         try {
@@ -30,7 +30,7 @@ const protectRoute = () => {
                 return res.status(401).json({ message: 'Unauthorized - No token provided' });
             }
 
-            const secret = getJwtSecret();
+            const secret = getSecretKey();
             const decoded = jwt.verify(token, secret);
 
             if (!decoded) {

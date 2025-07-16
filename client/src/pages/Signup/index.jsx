@@ -45,7 +45,7 @@ const Form = () => {
                         <input type="text" placeholder="Age" />
                         <input type="date" placeholder="Birthday" />
                         <input type="text" placeholder="Contact Number" />
-                        <input type="email" placeholder="Email Address" />
+                        <input type="text" placeholder="House Hold" />
 
                     </div>
 

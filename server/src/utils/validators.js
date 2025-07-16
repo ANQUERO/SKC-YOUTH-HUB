@@ -2,9 +2,13 @@ import { body } from 'express-validator';
 import {
     isFirstName,
     isLastName,
+    isMiddleName,
     isEmail,
     isPassword,
-    isRole
+    isRole,
+    isSuffix,
+    isGender,
+    isLocation
 } from './custom.validators.js';
 
 
@@ -38,6 +42,23 @@ export const signupAdminValidator = [
 ];
 
 export const signupUserValidator = [
+    body("email")
+        .custom(isEmail).withMessage("Invalid Email"),
+    body("password")
+        .custom(isPassword).withMessage("Password must be exactly 8 characters, include at least 1 number, 1 special character, and at least 6 letters"),
+    body("first_name")
+        .custom(isFirstName).withMessage("Invalid first name"),
+    body("last_name")
+        .custom(isLastName).withMessage("Invalid last name"),
+    body("middle_name")
+        .custom(isMiddleName).withMessage("Invalid middle name"),
+    body("suffix")
+        .custom(isSuffix).withMessage("Invalid suffix"),
+    body("gender")
+        .custom(isGender).withMessage("Invalid gender"),
+    body("region")
+        .custom(isLocation).withMessage("Invalid region"),
+    body()
 
 ]
 
