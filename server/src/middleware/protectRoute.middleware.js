@@ -1,15 +1,5 @@
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const getSecretKey = () => {
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-        throw new error("JWT is not defined in environment variables");
-    }
-    return secret;
-}
+import { getSecretKey } from '../utils/jwt';
 
 const protectRoute = () => {
     return (req, res, next) => {

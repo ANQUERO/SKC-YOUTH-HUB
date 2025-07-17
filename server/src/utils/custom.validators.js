@@ -1,12 +1,3 @@
-import { pool } from '../db/config.js'
-
-//Acccepted Locations
-const knownLocations = [
-    "Region VII",
-    "Cebu",
-    "Cordova",
-    "Catarman"
-]
 
 export const isFirstName = value => {
     return /^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$/.test(value);
@@ -38,11 +29,13 @@ export const isRole = value => {
     return val === "super_sk_admin" || val === "natural_sk_admin";
 };
 
-export const isLocation = value => {
-    if (typeof value !== 'string') return false;
-    const locationStringOnly = value.trim().toLowerCase();
-    return knownLocations.includes(locationStringOnly);
-}
+const normalize = value =>
+    typeof value === 'string' ? value.trim().toLowerCase() : '';
+
+export const isRegion = value => normalize(value) === "region vii";
+export const isProvince = value => normalize(value) === "cebu";
+export const isMunicipality = value => normalize(value) === "cordova";
+export const isBarangay = value => normalize(value) === "catarman";
 
 // Password: 8 characters, at least 1 number, 1 special character, rest letters
 export const isPassword = value => {
@@ -53,3 +46,13 @@ export const isPassword = value => {
 
     return has8Chars && hasOneNumber && hasOneSpecial && lettersCount >= 6;
 };
+
+export const isContact = value => {
+    return /^(\+63|63|0)9\d{9}$/.text(value);
+}
+
+export const isAge = value => {
+    const age = Number(value);
+    return Number.isInteger(age) && age >= 16 && age <= 30;
+}
+

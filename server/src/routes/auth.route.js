@@ -5,12 +5,12 @@ import {
     login,
     logout
 } from '../controller/auth.controller.js'
-import { signupAdminValidator, loginValidator } from '../utils/validators.js'
+import { signupYouthValidator, signupAdminValidator, loginValidator } from '../utils/validators.js'
 import { upload, uploadCloudinary } from '../middleware/upload.middleware.js';
 
 const router = express.Router();
 
-router.post("/signup", upload, uploadCloudinary, signup);
+router.post("/signup", upload, uploadCloudinary, signupYouthValidator, signup);
 
 router.post("/adminSignup", signupAdminValidator, signupAdmin);
 
