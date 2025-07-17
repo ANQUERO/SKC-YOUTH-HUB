@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import authRouter from './src/routes/auth.route.js';
 import youthRouter from './src/routes/youth.route.js'
@@ -20,10 +21,10 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'X-Project-ID']
 }));
 
-app.use(express.json({
-    limit: "10mb"
-}
-));
+app.use(cookieParser());
+
+app.use(express.json());
+
 app.use(express.urlencoded({
     extended: true,
     limit: '10mb'

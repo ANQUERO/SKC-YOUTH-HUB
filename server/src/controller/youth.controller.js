@@ -1,14 +1,13 @@
-import { pool } from '../db/config.js'
-import bcrypt from "bcrypt";
+import { pool } from '../db/config.js';
 
 export const index = async (req, res) => {
-    const userId = req.user?.id;
+    const user = req.user;
 
-    if (!userId) {
-        return res.status(401).json({
+    if (!user || user.userType !== 'admin') {
+        return res.status(403).json({
             status: "Error",
-            message: "Unathorized"
-        })
+            message: "Forbidden - Only admins can access this resource"
+        });
     }
 
     try {
@@ -36,6 +35,14 @@ export const index = async (req, res) => {
             pool.query('SELECT * FROM sk_youth_household'),
         ]);
 
+        console.log('🧑‍💻 Full Youth Record:', {
+            youth: youth.rows[0],
+            name: name.rows,
+            location: location.rows,
+            gender: gender.rows,
+            info: info.rows,
+        });
+
         res.status(200).json({
             status: "Success",
             data: {
@@ -44,28 +51,28 @@ export const index = async (req, res) => {
                 location: location.rows,
                 gender: gender.rows,
                 info: info.rows,
-                demographics: demographics.rows,
-                survey: survey.rows,
-                meetingSurvey: meetingSurvey.rows,
-                attachments: attachments.rows,
-                household: household.rows
             }
         });
     } catch (error) {
         console.error('Database query failed:', error);
         res.status(500).json({
             status: 'Error',
-            message: 'Internal server error '
-        })
-
+            message: 'Internal server error'
+        });
     }
-}
+};
 
 export const show = async (req, res) => {
     const { id: youth_id } = req.params;
+    const user = req.user;
 
-    if (req.user.userType !== 'admin' && parseInt(youth_id) !== req.user.id) {
-        return res.status(403).json({ message: 'Forbidden - You cannot access this youth\'s data' });
+    const isSelf = user.userType === 'youth' && user.youth_id === parseInt(youth_id);
+    const isAdmin = user.userType === 'admin';
+
+    if (!isSelf && !isAdmin) {
+        return res.status(403).json({
+            message: 'Forbidden - You cannot access this youth\'s data'
+        });
     }
 
     try {
@@ -92,11 +99,23 @@ export const show = async (req, res) => {
             pool.query('SELECT * FROM sk_youth_attachments WHERE youth_id = $1', [youth_id]),
             pool.query('SELECT * FROM sk_youth_household WHERE youth_id = $1', [youth_id]),
         ]);
+        console.log('🧑‍💻 Full Youth Record:', {
+            youth: youth.rows[0],
+            name: name.rows,
+            location: location.rows,
+            gender: gender.rows,
+            info: info.rows,
+            demographics: demographics.rows,
+            survey: survey.rows,
+            meetingSurvey: meetingSurvey.rows,
+            attachments: attachments.rows,
+            household: household.rows
+        });
 
         if (youth.rows.length === 0) {
             return res.status(404).json({
                 status: 'Error',
-                message: 'Youth Not found'
+                message: 'Youth not found'
             });
         }
 
@@ -115,7 +134,6 @@ export const show = async (req, res) => {
                 household: household.rows
             }
         });
-
     } catch (error) {
         console.error('Failed to fetch youth data:', error);
         res.status(500).json({
@@ -124,5 +142,3 @@ export const show = async (req, res) => {
         });
     }
 };
-
-

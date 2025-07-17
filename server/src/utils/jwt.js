@@ -15,9 +15,15 @@ export const generateTokenAndSetCookies = (user, res, userType) => {
     const secret = getSecretKey();
 
     const payload = {
-        id: user[userType === 'admin' ? 'admin_id' : 'youth_id'],
         userType
     };
+
+    if (userType === 'admin') {
+        payload.admin_id = user.admin_id;
+        payload.role = user.role;
+    } else {
+        payload.youth_id = user.youth_id;
+    }
 
     const token = jwt.sign(payload, secret, {
         expiresIn: '15d'
