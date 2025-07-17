@@ -1,4 +1,3 @@
-
 export const isFirstName = value => {
     return /^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$/.test(value);
 };

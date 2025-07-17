@@ -198,28 +198,23 @@ export const login = async (req, res) => {
             }
         }
 
-        // If no user found
         if (!user) {
             return res.status(401).json({
-                errors: {
-                    email: "Invalid credentials"
-                }
+                errors: { email: "Invalid credentials" }
             });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(401).json({
-                errors: {
-                    password: "Invalid credentials"
-                }
+                errors: { password: "Invalid credentials" }
             });
         }
 
-        // Generate token
+        // Sign token and set cookie
         generateTokenAndSetCookies(user, res, userType);
 
-        // Construct response
+        // Return user data (safe)
         const responseUser = {
             id: user[idField],
             email: user.email,
@@ -248,9 +243,7 @@ export const login = async (req, res) => {
 
     } catch (error) {
         console.error("Login error:", error);
-        return res.status(500).json({
-            error: "Server error"
-        });
+        return res.status(500).json({ error: "Server error" });
     }
 };
 

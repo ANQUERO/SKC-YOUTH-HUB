@@ -77,7 +77,7 @@ const Form = () => {
                     <fieldset>
                         <legend>Youth age group</legend>
                         {[
-                            "Child Youth (15–17 years old)",
+                            "Child Youth (16–17 years old)",
                             "Core Youth (18–24 years old)",
                             "oung Adult (25–30 years old)",
                         ].map(group => (

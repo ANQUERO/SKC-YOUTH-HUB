@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { getSecretKey } from '../utils/jwt';
+import { getSecretKey } from '../utils/jwt.js';
 
 const protectRoute = () => {
     return (req, res, next) => {
