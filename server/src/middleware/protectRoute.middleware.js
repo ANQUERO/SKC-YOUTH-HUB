@@ -23,38 +23,53 @@ const protectRoute = (options = {}) => {
                 return res.status(401).json({ message: 'Unauthorized - Invalid token' });
             }
 
-            // Restructure decoded payload into req.user
+            // Set req.user from decoded JWT
             if (decoded.userType === 'admin') {
                 req.user = {
                     userType: 'admin',
                     admin_id: decoded.admin_id,
-                    role: decoded.role
+                    role: decoded.role,
                 };
             } else if (decoded.userType === 'youth') {
                 req.user = {
                     userType: 'youth',
-                    youth_id: decoded.youth_id
+                    youth_id: decoded.youth_id,
                 };
             } else {
                 return res.status(401).json({ message: 'Unauthorized - Invalid user type' });
             }
 
-            // Optional role check
-            if (options.allowedRoles && Array.isArray(options.allowedRoles)) {
-                const userRole = req.user.role;
-                const hasRole = options.allowedRoles.includes(userRole);
+            const { userType } = req.user;
 
-                if (!hasRole) {
-                    console.warn(`🚫 Role "${userRole}" not allowed. Expected: ${options.allowedRoles.join(', ')}`);
+            // Normalize roles (admin sub-roles)
+            const roleMap = {
+                natural_sk_admin: 'admin',
+                super_sk_admin: 'admin',
+            };
+            const rawRole = req.user.role;
+            const normalizedRole = roleMap[rawRole] || rawRole;
+
+            // Role-based access check
+            if (options.allowedRoles && Array.isArray(options.allowedRoles)) {
+                let hasAccess = false;
+
+                if (userType === 'admin') {
+                    hasAccess = options.allowedRoles.includes(normalizedRole);
+                } else if (userType === 'youth') {
+                    hasAccess = options.allowedRoles.includes('youth');
+                }
+
+                if (!hasAccess) {
+                    console.warn(`🚫 Role "${rawRole || userType}" not allowed. Expected: ${options.allowedRoles.join(', ')}`);
                     return res.status(403).json({
                         message: 'Forbidden - You do not have permission to access this resource',
                     });
                 }
             }
 
-            console.log(`✅ Authenticated as ${req.user.userType}`, req.user);
-
+            console.log(`✅ Authenticated as ${userType}${rawRole ? ` (role: ${rawRole})` : ''}`);
             next();
+
         } catch (err) {
             const isExpired = err.name === 'TokenExpiredError';
             console.error('❗ JWT Error:', isExpired ? 'Token expired' : err.message);

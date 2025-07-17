@@ -236,6 +236,8 @@ export const login = async (req, res) => {
             });
         }
 
+        console.log('User Data:', result.rows[0])
+
         return res.status(200).json({
             message: "Login successful",
             user: responseUser
