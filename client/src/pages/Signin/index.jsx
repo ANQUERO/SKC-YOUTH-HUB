@@ -1,7 +1,8 @@
 import React from 'react';
 import Logo from '@images/logo.jpg';
 import style from '@styles/signin.module.scss';
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import { FcGoogle } from "react-icons/fc";
 
 const Signin = () => {
   return (
@@ -26,8 +27,8 @@ const Signin = () => {
         </div>
 
         <form className={style.form}>
-          <label htmlFor="username">Username</label>
-          <input id="username" type="text" placeholder="Enter your username" />
+          <label htmlFor="username">Email</label>
+          <input id="email" type="email" placeholder="Enter your email" />
 
           <label htmlFor="password">Password</label>
           <input id="password" type="password" placeholder="Enter your password" />
@@ -36,25 +37,22 @@ const Signin = () => {
             <label>
               <input type="checkbox" /> Remember me
             </label>
-            <a href="#">Forgot password?</a>
+            <Link to="/forgot">Forgot password?</Link>
           </div>
 
           <button type="submit" className={style.loginBtn}>
-            Login →
+            Login
           </button>
 
           <div className={style.orDivider}>or</div>
 
           <button type="button" className={style.googleBtn}>
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png"
-              alt="Google"
-            />
-            Sign in with Google
+            <FcGoogle className={style.google} />
+            Signin with Google
           </button>
 
           <p className={style.signupLink}>
-            Don’t have an account? <Link to='/signup'>Create an account</Link>
+            Don’t have an account? <Link to="/signup">Create an account</Link>
           </p>
         </form>
       </div>

@@ -6,6 +6,7 @@ import NotFound from '@pages/NotFound';
 import LandingPage from '@pages/LandingPage';
 import Signin from '@pages/Signin';
 import Signup from '@pages/Signup';
+import ForgotPassword from '@pages/ForgotPasword/index.jsx';
 
 import AdminAuth from '@pages/AdminAuth';
 
@@ -19,6 +20,7 @@ export default function AppRoutes() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/signin" element={<Signin />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot" element={<ForgotPassword />} />
 
             <Route path="/adminAuth" element={<AdminAuth />} />
 

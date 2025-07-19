@@ -1,11 +1,12 @@
 // Variables
+@use "sass:color";
 $right: #31578B;
 $white: #fff;
 $border-color: #8C8C8C;
 
 .container {
     display: flex;
-    height: 100vh;
+    min-height: 100vh;
     flex-wrap: wrap;
 
     .left {
@@ -21,22 +22,25 @@ $border-color: #8C8C8C;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            padding: .1rem;
 
             .logo {
-                width: 20rem;
+                width: 15rem;
                 margin-bottom: 50px;
                 border-radius: 300px;
             }
 
             .title {
-                font-size: 40px;
+                font-size: 35px;
                 font-weight: bold;
+                text-align: center;
             }
 
             .tagline {
-                font-size: 20px;
+                font-size: 18px;
                 font-weight: normal;
                 line-height: 1.7;
+                text-align: center;
             }
         }
     }
@@ -48,22 +52,24 @@ $border-color: #8C8C8C;
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        padding: .5rem 1rem;
 
         .box {
             width: 100%;
             max-width: 500px;
-            padding: 30px 20px;
+            padding: 20px 15px;
 
             .title {
-                font-size: 32px;
+                font-size: 30px;
                 font-weight: normal;
-                margin-bottom: 30px;
+                margin-bottom: 15px;
                 text-align: left;
             }
 
             .tagline {
-                font-size: 1rem;
+                font-size: .9rem;
                 margin-bottom: 1rem;
+                color: #3d3d3d;
             }
         }
 
@@ -81,6 +87,7 @@ $border-color: #8C8C8C;
             }
 
             input[type="text"],
+            input[type="email"],
             input[type="password"] {
                 flex-grow: 1;
                 min-width: 0;
@@ -90,13 +97,12 @@ $border-color: #8C8C8C;
                 border-radius: 10px;
                 font-size: 16px;
                 background-color: transparent;
+                margin-bottom: 1rem;
 
                 &:focus {
                     outline: none;
-                    border-color: darken($border-color, 15%);
+                    border-color: color.adjust($border-color, $lightness: -15%);
                 }
-
-                margin-bottom: 1rem;
             }
 
             .formOptions {
@@ -119,7 +125,6 @@ $border-color: #8C8C8C;
                 border-radius: 4px;
                 font-size: 1rem;
                 cursor: pointer;
-                margin-bottom: 1rem;
             }
 
             .orDivider {
@@ -138,8 +143,9 @@ $border-color: #8C8C8C;
                 cursor: pointer;
                 background: white;
 
-                img {
-                    height: 20px;
+                .google {
+                    height: 28px; // increase size here
+                    width: 28px; // optionally add width for consistency
                     margin-right: 0.5rem;
                 }
             }
@@ -157,46 +163,31 @@ $border-color: #8C8C8C;
     }
 
     // Responsive Adjustments
-    @media (max-width: 1024px) {
-        flex-direction: column;
 
-        .left,
-        .right {
-            width: 100%;
-            height: auto;
+    @media (max-width: 1021px) {
+        .left {
+            display: none !important;
         }
 
-        .left {
+        .right {
+            width: 100%;
             padding: 2rem 1rem;
 
-            .text {
-                .logo {
-                    width: 12rem;
-                }
-
+            .box {
                 .title {
-                    font-size: 22px;
+                    font-size: 24px;
+                    text-align: center;
                 }
 
                 .tagline {
-                    font-size: 14px;
+                    font-size: 0.95rem;
                     text-align: center;
                 }
             }
-        }
-
-        .right {
-            padding: 2rem 1rem;
-
-            .box .title {
-                font-size: 24px;
-            }
-
-            .box .tagline {
-                font-size: 0.95rem;
-            }
 
             .form {
+                padding: 0;
+
                 input {
                     font-size: 15px;
                     padding: 12px;
@@ -217,13 +208,60 @@ $border-color: #8C8C8C;
     }
 
     @media (max-width: 768px) {
-        .left {
-            display: none !important;
-        }
-
         .right {
-            width: 100%;
             padding: 2rem 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .right {
+            padding: 1.5rem 1rem;
+
+            .box {
+                padding: 20px 10px;
+
+                .title {
+                    font-size: 20px;
+                    text-align: center;
+                }
+
+                .tagline {
+                    font-size: 0.9rem;
+                    text-align: center;
+                }
+            }
+
+            .form {
+                label {
+                    font-size: 14px;
+                }
+
+                input[type="text"],
+                input[type="password"] {
+                    font-size: 14px;
+                    height: 42px;
+                    padding: 10px;
+                }
+
+                .loginBtn,
+                .googleBtn {
+                    font-size: 0.9rem;
+                    padding: 0.6rem;
+                }
+
+                .formOptions {
+                    flex-direction: column;
+                    align-items: flex-start;
+
+                    a {
+                        margin-top: 0.5rem;
+                    }
+                }
+
+                .signupLink {
+                    font-size: 0.85rem;
+                }
+            }
         }
     }
 }

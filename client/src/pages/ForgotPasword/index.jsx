@@ -9,9 +9,8 @@ const ForgotPassword = () => {
 
 
 
-
         </section>
-    ); 
+    );
 }
 
 export default ForgotPassword
