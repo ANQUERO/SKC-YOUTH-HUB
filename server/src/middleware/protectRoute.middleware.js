@@ -12,7 +12,9 @@ const protectRoute = (options = {}) => {
 
             if (!token) {
                 console.warn('🚫 No token found');
-                return res.status(401).json({ message: 'Unauthorized - No token provided' });
+                return res.status(401).json({
+                    message: 'Unauthorized - No token provided'
+                });
             }
 
             const secret = getSecretKey();
@@ -20,7 +22,9 @@ const protectRoute = (options = {}) => {
 
             if (!decoded || typeof decoded !== 'object') {
                 console.warn('❌ Invalid token payload');
-                return res.status(401).json({ message: 'Unauthorized - Invalid token' });
+                return res.status(401).json({
+                    message: 'Unauthorized - Invalid token'
+                });
             }
 
             // Set req.user from decoded JWT
@@ -36,7 +40,9 @@ const protectRoute = (options = {}) => {
                     youth_id: decoded.youth_id,
                 };
             } else {
-                return res.status(401).json({ message: 'Unauthorized - Invalid user type' });
+                return res.status(401).json({
+                    message: 'Unauthorized - Invalid user type'
+                });
             }
 
             const { userType } = req.user;
