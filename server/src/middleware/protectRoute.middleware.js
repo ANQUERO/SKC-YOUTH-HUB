@@ -27,12 +27,22 @@ const protectRoute = (options = {}) => {
                 });
             }
 
-            // Set req.user from decoded JWT
+            // Normalize role(s)
+            let rawRoles = decoded.role;
+            if (!Array.isArray(rawRoles)) rawRoles = [rawRoles];
+
+            const roleMap = {
+                natural_sk_admin: 'admin',
+                super_sk_admin: 'admin',
+            };
+            const normalizedRoles = rawRoles.map(role => roleMap[role] || role);
+
+            // Set req.user
             if (decoded.userType === 'admin') {
                 req.user = {
                     userType: 'admin',
                     admin_id: decoded.admin_id,
-                    role: decoded.role,
+                    role: rawRoles,
                 };
             } else if (decoded.userType === 'youth') {
                 req.user = {
@@ -45,35 +55,22 @@ const protectRoute = (options = {}) => {
                 });
             }
 
-            const { userType } = req.user;
-
-            // Normalize roles (admin sub-roles)
-            const roleMap = {
-                natural_sk_admin: 'admin',
-                super_sk_admin: 'admin',
-            };
-            const rawRole = req.user.role;
-            const normalizedRole = roleMap[rawRole] || rawRole;
-
             // Role-based access check
             if (options.allowedRoles && Array.isArray(options.allowedRoles)) {
-                let hasAccess = false;
-
-                if (userType === 'admin') {
-                    hasAccess = options.allowedRoles.includes(normalizedRole);
-                } else if (userType === 'youth') {
-                    hasAccess = options.allowedRoles.includes('youth');
-                }
+                const hasAccess =
+                    req.user.userType === 'admin'
+                        ? normalizedRoles.some(role => options.allowedRoles.includes(role))
+                        : options.allowedRoles.includes('youth');
 
                 if (!hasAccess) {
-                    console.warn(`🚫 Role "${rawRole || userType}" not allowed. Expected: ${options.allowedRoles.join(', ')}`);
+                    console.warn(`🚫 Access denied. User roles: ${rawRoles.join(', ')}. Allowed: ${options.allowedRoles.join(', ')}`);
                     return res.status(403).json({
                         message: 'Forbidden - You do not have permission to access this resource',
                     });
                 }
             }
 
-            console.log(`✅ Authenticated as ${userType}${rawRole ? ` (role: ${rawRole})` : ''}`);
+            console.log(`✅ Authenticated as ${decoded.userType} (${rawRoles.join(', ')})`);
             next();
 
         } catch (err) {

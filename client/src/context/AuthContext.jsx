@@ -1,8 +1,8 @@
-import Reac, {
-    Children,
+import React, {
     createContext,
     useContext,
     useEffect,
+    useMemo,
     useState
 } from 'react'
 
@@ -12,67 +12,66 @@ export const useAuthContext = () => {
     const context = useContext(AuthContext);
 
     if (!context) {
-        throw new error('useAuthContext must be used with in and AuthContextProvider');
+        throw new Error('useAuthContext must be used within an AuthContextProvider');
     };
 
     return context;
 };
 
-export const AuthContextProvider = ({ Children }) => {
-    const [authUser, setAuthUser] = useState(() => {
-        try {
-            const sessuionUser = sessionStorage.getItem("auth-user");
-            const localUser = localStorage.getItem("auth-user");
+const loadInitialAuthUser = () => {
+    try {
+        const sessionUser = sessionStorage.getItem("auth-user");
+        const localUser = localStorage.getItem("auth-user");
 
-
-            if (sessuionUser) {
-                return JSON.parse(sessuionUser);
-            }
-
-            if (localUser) {
-                return JSON.parse(localUser);
-            }
-
-        } catch (error) {
-            console.error('Error reading auth state:', error);
-            sessionStorage.removeItem("auth-user")
-            localStorage.removeItem("auth-user")
-        }
+        return sessionStorage
+            ? JSON.parse(sessionUser)
+            : localUser
+                ? JSON.parse(localUser)
+                : null;
+    } catch (error) {
+        console.error('Error loading auth user:', error);
+        sessionStorage.removeItem("auth-user");
+        localStorage.removeItem("auth-user");
         return null;
-    });
+    }
+};
 
-    const [activeRole, setActiveRoleState] = useState(() => {
-        try {
-            const storedActiveRole = localStorage.getItem("active-role");
-            if (storedActiveRole) {
-                return storedActiveRole;
-            }
-        } catch (error) {
-            console.error('Error reading active role from localStorage:', error);
-            localStorage.removeItem('active-role');
-        }
+const getInitialActiveRole = (user) => {
+    try {
+        const stored = localStorage.getItem("active-role");
+        if (stored) return stored;
+    } catch (error) {
+        console.error('Error loading active role:', error);
+        localStorage.removeItem("active-role");
+    }
 
-        if (authUser && Array.isArray(authUser.role) && authUser.role.length > 0) {
-            return authUser.role[0];
-        }
+    return user?.role?.[0] ?? null;
+}
 
-        return null;
-    });
+export const AuthContextProvider = ({ children }) => {
+    const [authUser, setAuthUser] = useState(loadInitialAuthUser);
+    const [activeRole, setActiveRoleState] = useState(() => getInitialActiveRole(authUser));
+
+    const defaultRole = useMemo(() => {
+        return authUser?.role?.[0] ?? null;
+    }, [authUser]);
 
     useEffect(() => {
-        if (authUser && Array.isArray(authUser.role) && authUser.role.length > 0) {
-            if (activeRole && authUser.role.includes(activeRole)) {
-                return;
-            } else {
-                const newActiveRole = authUser.role[0];
-                setActiveRoleState(newActiveRole);
-                localStorage.setItem("active-role", newActiveRole);
+        if (!authUser?.role?.length) {
+            if (activeRole !== null) {
+                setActiveRoleState(null);
+                localStorage.removeItem("active-role");
             }
-        } else {
-            setActiveRoleState(null);
-            localStorage.removeItem("active-role");
+            return;
         }
-    }, [authUser, activeRole]);
+
+        if (!activeRole || !authUser.role.includes(activeRole)) {
+            const newRole = defaultRole;
+            setActiveRoleState(newRole);
+            localStorage.setItem("active-role", newRole);
+        }
+
+    }, [authUser, activeRole, defaultRole]);
 
     const updateAuthUser = (user) => {
         setAuthUser(user);
@@ -80,8 +79,8 @@ export const AuthContextProvider = ({ Children }) => {
 
     const setActiveRole = (role) => {
         setActiveRoleState(role);
-        localStorage.setItem("active-role", role)
-    };
+        localStorage.setItem("active-role", role);
+    }
 
     return (
         <AuthContext.Provider

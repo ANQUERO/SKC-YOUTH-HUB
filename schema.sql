@@ -9,7 +9,7 @@ CREATE TABLE sk_official_admin (
     position VARCHAR(55) NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
     password TEXT UNIQUE NOT NULL,
-    role VARCHAR(50) NOT NULL CHECK(role IN ('super_sk_admin', 'natural_sk_admin')),
+    role TEXT[] NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
