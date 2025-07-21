@@ -1,3 +1,5 @@
+@use "sass:color";
+
 // Variables
 $right: #31578B;
 $white: #fff;
@@ -76,7 +78,6 @@ $border-color: #8C8C8C;
 
         @media (max-width: 992px) {
             .text {
-
                 .title,
                 .tagline {
                     display: none;
@@ -160,7 +161,7 @@ $border-color: #8C8C8C;
 
                     &:focus {
                         outline: none;
-                        border-color: darken($border-color, 15%);
+                        border-color: color.adjust($border-color, $lightness: -15%);
                     }
                 }
 
@@ -181,7 +182,7 @@ $border-color: #8C8C8C;
                     transition: background-color 0.2s;
 
                     &:hover {
-                        background-color: darken($right, 5%);
+                        background-color: color.adjust($right, $lightness: -5%);
                     }
                 }
 
@@ -255,7 +256,7 @@ $border-color: #8C8C8C;
 
         &:focus {
             outline: none;
-            border-color: darken($border-color, 15%);
+            border-color: color.adjust($border-color, $lightness: -15%);
         }
     }
 
@@ -283,7 +284,7 @@ $border-color: #8C8C8C;
         transition: background-color 0.2s;
 
         &:hover {
-            background-color: darken($right, 5%);
+            background-color: color.adjust($right, $lightness: -5%);
         }
     }
 
@@ -299,10 +300,9 @@ $border-color: #8C8C8C;
         transition: background-color 0.2s;
 
         &:hover {
-            background-color: darken($white, 5%);
+            background-color: color.adjust($white, $lightness: -5%);
         }
     }
-
 }
 
 //Credentials
@@ -328,18 +328,18 @@ $border-color: #8C8C8C;
 
         &:focus {
             outline: none;
-            border-color: darken($border-color, 15%);
+            border-color: color.adjust($border-color, $lightness: -15%);
         }
     }
 
-    .terms{
+    .terms {
         display: flex;
         flex-direction: row;
         gap: 5px;
         align-items: center;
     }
 
-     button {
+    button {
         height: 46px;
         background-color: $right;
         color: $white;
@@ -351,7 +351,7 @@ $border-color: #8C8C8C;
         transition: background-color 0.2s;
 
         &:hover {
-            background-color: darken($right, 5%);
+            background-color: color.adjust($right, $lightness: -5%);
         }
     }
 
@@ -367,7 +367,7 @@ $border-color: #8C8C8C;
         transition: background-color 0.2s;
 
         &:hover {
-            background-color: darken($white, 5%);
+            background-color: color.adjust($white, $lightness: -5%);
         }
     }
 }
@@ -377,14 +377,15 @@ $border-color: #8C8C8C;
         flex-direction: column;
     }
 
-    .left, .right {
+    .left,
+    .right {
         width: 100%;
     }
 
     .box {
         padding: 15px;
     }
-    
+
     .form-group {
         flex-direction: column;
     }
