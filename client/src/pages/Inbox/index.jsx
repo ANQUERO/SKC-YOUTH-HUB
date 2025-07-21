@@ -2,7 +2,11 @@ import React from 'react'
 
 const Inbox = () => {
     return (
-        <div>Inbox</div>
+        <>
+            <h1>Inbox</h1>
+            <p>Manage your purok</p>
+
+        </>
     )
 }
 

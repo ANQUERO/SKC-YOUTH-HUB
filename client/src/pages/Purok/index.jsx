@@ -5,7 +5,11 @@ const Purok = () => {
 
 
     return (
-        <div>Purok</div>
+        <>
+            <h1>Purok</h1>
+            <p>Manage your purok</p>
+        </>
+
     )
 }
 

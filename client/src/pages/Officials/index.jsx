@@ -2,7 +2,10 @@ import React from 'react'
 
 const Officials = () => {
     return (
-        <div>Officials</div>
+        <>
+            <h1>SK Youth Officials</h1>
+        </>
+
     )
 }
 

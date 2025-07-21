@@ -2,7 +2,11 @@ import React from 'react'
 
 const Verification = () => {
     return (
-        <div>Verification</div>
+        <>
+            <h1>Verification</h1>
+            <p>Manage verification from signup</p>
+        </>
+
     )
 }
 

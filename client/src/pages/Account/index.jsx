@@ -2,7 +2,11 @@ import React from 'react'
 
 const Settings = () => {
     return (
-        <div>Settings</div>
+        <>
+            <h1>Account Settings</h1>
+            <p>Manage your personal information, security settings, and preferences.</p>
+        </>
+
     )
 }
 

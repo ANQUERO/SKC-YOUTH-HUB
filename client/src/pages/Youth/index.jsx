@@ -2,7 +2,11 @@ import React from 'react'
 
 const Youth = () => {
   return (
-    <div>Youth</div>
+    <>
+      <h1>Youths</h1>
+      <p>Manage your youths status and view their details.</p>
+    </>
+
   )
 }
 

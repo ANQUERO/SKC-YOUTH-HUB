@@ -13,6 +13,7 @@ import AdminAuth from '@pages/AdminAuth';
 import NewsFeedRoutes from '@pages/NewsFeed/index';
 
 import Authenticated from '@pages/Authenticated';
+import DashBoard from '@pages/Dashboard';
 import Youth from '@pages/Youth';
 import Purok from '@pages/Purok'
 import Inbox from '@pages/Inbox';
@@ -37,7 +38,7 @@ const ProtectedRoute = ({ children }) => {
     const isAuthenticated = Boolean(authUser?.verified);
 
     if (!isAuthenticated) {
-        return <Navigate to="/login" state={{
+        return <Navigate to="/signin" state={{
             from: location
         }} />
     };
@@ -81,74 +82,27 @@ export default function AppRoutes() {
                 }
             />
 
+            <Route path="/adminAuth" element={<AdminAuth />} />
+
+            {/* Protected Routes inside Layout */}
             <Route
-                path="/authenticated"
+                path="/"
                 element={
                     <GuestRoute>
                         <Authenticated />
                     </GuestRoute>
                 }
-            />
+            >
+                <Route index element={<DashBoard />} />
+                <Route path="youth" element={<Youth />} />
+                <Route path="purok" element={<Purok />} />
+                <Route path="inbox" element={<Inbox />} />
+                <Route path="verification" element={<Verification />} />
+                <Route path="officials" element={<Officials />} />
+                <Route path="account" element={<Settings />} />
+            </Route>
 
-            <Route
-                path="/youth"
-                element={
-                    <GuestRoute>
-                        <Youth />
-                    </GuestRoute>
-                }
-            />
-
-            <Route
-                path="/purok"
-                element={
-                    <GuestRoute>
-                        <Purok />
-                    </GuestRoute>
-                }
-            />
-
-
-            <Route
-                path="/inbox"
-                element={
-                    <GuestRoute>
-                        <Inbox />
-                    </GuestRoute>
-                }
-            />
-
-
-            <Route
-                path="/verification"
-                element={
-                    <GuestRoute>
-                        <Verification />
-                    </GuestRoute>
-                }
-            />
-
-            <Route
-                path="/officials"
-                element={
-                    <GuestRoute>
-                        <Officials />
-                    </GuestRoute>
-                }
-            />
-
-            <Route
-                path="/settings"
-                element={
-                    <GuestRoute>
-                        <Settings />
-                    </GuestRoute>
-                }
-            />
-
-            <Route path="/adminAuth" element={<AdminAuth />} />
-
-            {/* Protected Route */}
+            {/* Other Protected Routes */}
             <Route
                 path="/feed/*"
                 element={
@@ -160,5 +114,6 @@ export default function AppRoutes() {
 
             <Route path="*" element={<NotFound />} />
         </Routes>
+
     );
 }

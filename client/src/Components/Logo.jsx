@@ -16,19 +16,13 @@ const LogoImage = styled.img`
   object-fit: cover;
 `;
 
-const LogoText = styled.h1`
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #111827;
-`;
 
 const Logo = () => {
-    return (
-        <LogoWrapper>
-            <LogoImage src={ImageLogo} alt="Logo" />
-            <LogoText>SKC</LogoText>
-        </LogoWrapper>
-    );
+  return (
+    <LogoWrapper>
+      <LogoImage src={ImageLogo} alt="Logo" />
+    </LogoWrapper>
+  );
 };
 
 export default Logo;
