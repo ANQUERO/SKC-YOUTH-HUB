@@ -79,9 +79,9 @@ export default function AppRoutes() {
             <Route
                 path="/feed/*"
                 element={
-                    <ProtectedRoute>
+                    <GuestRoute>
                         <NewsFeedRoutes />
-                    </ProtectedRoute>
+                    </GuestRoute>
                 }
             />
 

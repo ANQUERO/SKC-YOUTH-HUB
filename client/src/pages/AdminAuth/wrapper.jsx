@@ -1,6 +1,5 @@
 import { useState } from "react";
 import Step1 from "./personalDetails.jsx";
-import Step2 from "./email.jsx";
 import Step3 from "./credentials.jsx";
 
 const data = [];
@@ -19,8 +18,6 @@ const StepWrapper = () => {
     case 1:
       return <Step1 next={nextStep} handleChange={handleChange} data={data} />;
     case 2:
-      return <Step2 next={nextStep} prev={prevStep} handleChange={handleChange} data={data} />;
-    case 3:
       return <Step3 prev={prevStep} handleChange={handleChange} data={data} />;
     default:
       return <div>Completed!</div>;

@@ -4,11 +4,29 @@ import { useNavigate } from 'react-router-dom';
 
 const Credentials = ({ prev, handleChange, handleSubmit, data }) => {
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const navigate = useNavigate();
+
+  const onSubmit = async () => {
+    if (data.password !== data.confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+
+    const success = await handleSubmit();
+    if (success) navigate('/login')
+  }
+
 
   return (
     <div className={style.credentials}>
       <h2 className={style.signupTitle}>Sign Up</h2>
 
+      <input
+        type="email"
+        placeholder="Email"
+        value={data.email}
+        onChange={(e) => handleChange("email", e.target.value)}
+      />
       <input
         type="password"
         placeholder="Password"
@@ -35,7 +53,7 @@ const Credentials = ({ prev, handleChange, handleSubmit, data }) => {
       <button
         onClick={() => {
           if (acceptTerms) {
-            handleSubmit();
+            onSubmit();
           } else {
             alert("Please accept the terms of service.");
           }
