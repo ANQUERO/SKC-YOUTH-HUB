@@ -8,6 +8,7 @@
       "@hooks/*": ["hooks/*"],
       "@images/*": ["Images/*"],
       "@context/*": ["context/*"],
+      "@lib/*": ["lib/*"],
     }
   }
 }
