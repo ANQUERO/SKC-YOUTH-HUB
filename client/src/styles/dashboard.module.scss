@@ -1,0 +1,45 @@
+.dashboard {
+  padding: 2rem;
+  background-color: #f3f4f6;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #1f2937;
+  }
+
+  p {
+    color: #4b5563;
+    margin-bottom: 2rem;
+  }
+
+  .charts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+
+   @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  }
+
+  .chart_card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+
+    h2 {
+      margin-bottom: 1rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #374151;
+    }
+  }
+}

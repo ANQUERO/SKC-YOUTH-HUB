@@ -55,7 +55,7 @@ export default function AppRoutes() {
     return (
         <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/landing" element={<LandingPage />} />
 
             <Route
                 path="/signin"
@@ -111,7 +111,6 @@ export default function AppRoutes() {
                     </GuestRoute>
                 }
             />
-
             <Route path="*" element={<NotFound />} />
         </Routes>
 

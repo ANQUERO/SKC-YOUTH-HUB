@@ -26,6 +26,7 @@ const MainContainer = styled.div`
   display: flex;
   min-height: 100vh;
   overflow: hidden;
+  background-color: #FBFCFA;
 `;
 
 const MenuContainer = styled.div`
@@ -44,7 +45,7 @@ const MenuContainer = styled.div`
   top: 0;
 
   @media (max-width: 640px) {
-    width: ${(props) => (props.$open ? '250px' : '0')};
+    width: ${(props) => (props.$open ? '100px' : '0')};
     padding: ${(props) => (props.$open ? '2rem 1.25rem' : '0')};
   }
 `;
@@ -77,7 +78,7 @@ const ContentContainer = styled.div`
 `;
 
 const TopContainer = styled.div`
-  background-color: #ffffff;
+  background-color: #FBFCFA;
   padding: 0.5rem;
   display: flex;
   flex-direction: column;
@@ -143,13 +144,13 @@ const SearchContainer = styled.input`
 const CreatePostLink = styled(NavLink)`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: ${(props) => (props.$collapsed ? '0' : '0.5rem')};
   background-color: #ffffff;
   color: #31578B;
   font-weight: 600;
   border: none;
   border-radius: 0.5rem;
-  padding: 0.75rem 1rem;
+  padding: .8rem 1rem;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
   text-decoration: none;
@@ -157,18 +158,14 @@ const CreatePostLink = styled(NavLink)`
   justify-content: ${(props) => (props.$collapsed ? 'center' : 'flex-start')};
   margin-bottom: 1.5rem;
 
-  &:hover {
-    background-color: #e0e7ff;
-    color: #1e3a8a;
-  }
-
   svg {
-    width: 1rem;
+    width: 2rem;
     height: 1rem;
   }
 
   span {
     display: ${(props) => (props.$collapsed ? 'none' : 'inline')};
+    font-size: 1rem;
   }
 `;
 
@@ -177,7 +174,7 @@ const CollapseToggle = styled.button`
   border: none;
   color: white;
   cursor: pointer;
-  margin-bottom: 1.5rem;
+  margin-bottom: .5rem;
   font-size: 1rem;
   display: flex;
   align-items: center;
@@ -196,16 +193,16 @@ const LogoWrapper = styled.div`
   display: flex;
   justify-content: ${(props) => (props.$collapsed ? 'center' : 'flex-start')};
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 
   img {
     height: 40px;
     width: auto;
-    max-width: ${(props) => (props.$collapsed ? '40px' : '150px')};
-    transition: max-width 0.3s ease;
+    max-width: 100%;
+    transition: all 0.3s ease;
+    ${(props) => props.$collapsed && 'max-width: 40px;'}
   }
 `;
-
 const Authenticated = () => {
   const [searchValue, setSearchValue] = useState('');
   const [collapsed, setCollapsed] = useState(false);
@@ -244,11 +241,6 @@ const Authenticated = () => {
 
       <MenuContainer $collapsed={collapsed} $open={isSidebarOpen}>
         <div>
-          <div className={style.top}>
-            <LogoWrapper $collapsed={collapsed}>
-              <Logo />
-            </LogoWrapper>
-          </div>
 
           <CollapseToggle
             onClick={() => setCollapsed((prev) => !prev)}
@@ -256,6 +248,12 @@ const Authenticated = () => {
           >
             {collapsed ? <ChevronsRight /> : <ChevronsLeft />}
           </CollapseToggle>
+
+          <div className={style.top}>
+            <LogoWrapper $collapsed={collapsed}>
+              <Logo />
+            </LogoWrapper>
+          </div>
 
           <CreatePostLink to="/feed" $collapsed={collapsed} title="Create Post">
             <Plus />

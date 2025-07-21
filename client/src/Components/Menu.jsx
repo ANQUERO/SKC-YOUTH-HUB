@@ -11,6 +11,7 @@ const MenuWrapper = styled.div`
 const StyledNavLink = styled(NavLink)`
   display: flex;
   align-items: center;
+  justify-content: ${(props) => (props.$collapsed ? 'center' : 'flex-start')};
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
   color: white;
@@ -21,12 +22,13 @@ const StyledNavLink = styled(NavLink)`
   position: relative;
 
   &.active {
-    color: #111827;
+    color: #31578B;
     background-color: #e5e7eb;
   }
 
   &:hover {
     background-color: #f3f4f6;
+    color: #31578B;
   }
 
   svg {
@@ -39,8 +41,10 @@ const StyledNavLink = styled(NavLink)`
   span {
     display: ${(props) => (props.$collapsed ? 'none' : 'inline')};
     white-space: nowrap;
+    font-size: 0.95rem;
   }
 `;
+
 
 const Menu = ({ menus, collapsed }) => {
   return (
