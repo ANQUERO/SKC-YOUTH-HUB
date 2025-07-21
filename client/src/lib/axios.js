@@ -46,8 +46,8 @@ axiosInstance.interceptors.response.use(
                 endpoint: error.config.url
             });
 
-            localStorage.removeItem('');
-            sessionStorage.removeItem('');
+            localStorage.removeItem('auth-user');
+            sessionStorage.removeItem('auth-user');
 
             return Promise.reject(error);
         }
