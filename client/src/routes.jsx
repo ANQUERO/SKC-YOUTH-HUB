@@ -12,6 +12,10 @@ import AdminAuth from '@pages/AdminAuth';
 
 import NewsFeedRoutes from '@pages/NewsFeed/index';
 
+import Authenticated from '@pages/Authenticated';
+import YouthProfile from '@pages/Youth';
+import Purok from '@pages/Purok'
+
 const GuestRoute = ({ children }) => {
     const { authUser } = useAuthContext();
     const isAuthenticated = Boolean(authUser?.verified && authUser?.role?.length > 0);
@@ -69,6 +73,33 @@ export default function AppRoutes() {
                 element={
                     <GuestRoute>
                         <ForgotPassword />
+                    </GuestRoute>
+                }
+            />
+
+            <Route
+                path="/authenticated"
+                element={
+                    <GuestRoute>
+                        <Authenticated />
+                    </GuestRoute>
+                }
+            />
+
+            <Route
+                path="/youth"
+                element={
+                    <GuestRoute>
+                        <YouthProfile />
+                    </GuestRoute>
+                }
+            />
+
+            <Route
+                path="/purok"
+                element={
+                    <GuestRoute>
+                        <Purok />
                     </GuestRoute>
                 }
             />
