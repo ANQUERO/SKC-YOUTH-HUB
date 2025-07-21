@@ -1,9 +1,9 @@
 import React from 'react'
 
-const YouthProfile = () => {
+const Youth = () => {
   return (
-    <div>YouthProfile</div>
+    <div>Youth</div>
   )
 }
 
-export default YouthProfile
+export default Youth
