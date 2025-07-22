@@ -23,6 +23,9 @@ const Signin = () => {
         alert("Unknown user type");
       }
     }
+
+    console.log("Logged in user:", user);
+    console.log("Default role:", user.role?.[0]);
   };
 
 

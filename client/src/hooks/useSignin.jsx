@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import axiosInstance from '@lib/axios.js';
-
+import { useAuthContext } from '@context/AuthContext';
 
 const useLogin = () => {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
-    const [user, setUser] = useState(null);
+    const { setAuthUser, setActiveRole } = useAuthContext();
 
     const login = async (email, password) => {
         setLoading(true);
@@ -13,7 +13,16 @@ const useLogin = () => {
         try {
             const res = await axiosInstance.post('/auth/login', { email, password });
             const loggedInUser = res.data.user;
-            setUser(loggedInUser);
+
+            localStorage.setItem("auth-user", JSON.stringify(loggedInUser));
+
+            setAuthUser(loggedInUser);
+
+            if (loggedInUser.role?.length > 0) {
+                setActiveRole(loggedInUser.role[0]);
+                localStorage.setItem("active-role", loggedInUser.role[0]);
+            }
+
             return { success: true, user: loggedInUser };
         } catch (err) {
             if (err.response?.status === 400 || err.response?.status === 401) {
@@ -27,7 +36,7 @@ const useLogin = () => {
         }
     };
 
-    return { login, loading, errors, user };
+    return { login, loading, errors };
 };
 
 export default useLogin;

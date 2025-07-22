@@ -1,51 +1,83 @@
-import { Route, Routes } from 'react-router-dom';
+// routes/index.js
+import LandingPage from "@pages/LandingPage";
+import Signin from "@pages/Signin";
+import Signup from "@pages/Signup";
+import ForgotPassword from "@pages/ForgotPasword";
+import AdminAuth from "@pages/AdminAuth";
 
-import NotFound from '@pages/NotFound';
+import NewsFeedRoutes from "@pages/NewsFeed";
+import Authenticated from "@pages/Authenticated";
+import Dashboard from "@pages/Dashboard";
+import Youth from "@pages/Youth";
+import Purok from "@pages/Purok";
+import Inbox from "@pages/Inbox";
+import Verification from "@pages/Verification";
+import Officials from "@pages/Officials";
+import Settings from "@pages/Account";
+import NotFound from "@pages/NotFound";
 
-import LandingPage from '@pages/LandingPage';
-import Signin from '@pages/Signin';
-import Signup from '@pages/Signup';
-import ForgotPassword from '@pages/ForgotPasword/index.jsx';
+import ProtectedRoute from "@lib/ProtectedRoute.jsx";
 
-import AdminAuth from '@pages/AdminAuth';
+export const routes = [
+    // Public Routes
+    {
+        path: "/",
+        element: <LandingPage />,
+    },
+    {
+        path: "/login",
+        element: <Signin />,
+    },
+    {
+        path: "/signup",
+        element: <Signup />,
+    },
+    {
+        path: "/forgot",
+        element: <ForgotPassword />,
+    },
 
-import NewsFeedRoutes from '@pages/NewsFeed/index';
+    // Shared Feed Route (for youth + admin roles)
+    {
+        path: "/feed/*",
+        element: (
+            <ProtectedRoute allowedRoles={["youth", "admin", "super_sk_admin", "natural_sk_admin"]}>
+                <NewsFeedRoutes />
+            </ProtectedRoute>
+        ),
+    },
 
-import Authenticated from '@pages/Authenticated';
-import DashBoard from '@pages/Dashboard';
-import Youth from '@pages/Youth';
-import Purok from '@pages/Purok';
-import Inbox from '@pages/Inbox';
-import Verification from '@pages/Verification';
-import Officials from '@pages/Officials';
-import Settings from '@pages/Account';
+    // Admin-only routes (admin + super/natural sk admin)
+    {
+        path: "/dashboard",
+        element: (
+            <ProtectedRoute allowedRoles={["admin", "super_sk_admin", "natural_sk_admin"]}>
+                <Authenticated />
+            </ProtectedRoute>
+        ),
+        children: [
+            { index: true, element: <Dashboard /> },
+            { path: "youth", element: <Youth /> },
+            { path: "purok", element: <Purok /> },
+            { path: "inbox", element: <Inbox /> },
+            { path: "verification", element: <Verification /> },
+            { path: "officials", element: <Officials /> },
 
-export default function AppRoutes() {
-    return (
-        <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<Signin />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/forgot" element={<ForgotPassword />} />
-            <Route path="/adminAuth" element={<AdminAuth />} />
+            // 👇 Settings parent route
+            {
+                path: "account",
+                element: <Settings />,
+                children: [
+                    // ✅ Nested route for /dashboard/account/signupAdmin
+                    { path: "signupAdmin", element: <AdminAuth /> },
+                ],
+            },
+        ],
+    },
 
-            {/* Admin Protected Routes */}
-            <Route path="/dashboard" element={<Authenticated />}>
-                <Route index element={<DashBoard />} />
-                <Route path="youth" element={<Youth />} />
-                <Route path="purok" element={<Purok />} />
-                <Route path="inbox" element={<Inbox />} />
-                <Route path="verification" element={<Verification />} />
-                <Route path="officials" element={<Officials />} />
-                <Route path="account" element={<Settings />} />
-            </Route>
-
-            {/* Youth Feed */}
-            <Route path="/feed/*" element={<NewsFeedRoutes />} />
-
-            {/* 404 Fallback */}
-            <Route path="*" element={<NotFound />} />
-        </Routes>
-    );
-}
+    // 404 fallback
+    {
+        path: "*",
+        element: <NotFound />,
+    },
+];

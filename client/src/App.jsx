@@ -1,9 +1,9 @@
-import AppRoutes from "./routes";
+import { useRoutes } from "react-router-dom";
+import { routes } from "./routes";
 
 function App() {
-  return (
-    <AppRoutes />
-  );
+  const routing = useRoutes(routes);
+  return routing;
 }
 
 export default App;
