@@ -15,7 +15,7 @@ const Description = ({ paragraph }) => (
 );
 
 const ButtonPrimary = ({ text }) => (
-    <Link to="/signin" className={style.login}>
+    <Link to="/login" className={style.login}>
         {text}
     </Link>
 );

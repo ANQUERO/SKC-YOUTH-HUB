@@ -20,11 +20,6 @@ const voterRegistrationData = [
     { name: 'Unregistered', value: 200 },
 ];
 
-const genderData = [
-    { name: 'Male', value: 200 },
-    { name: 'Female', value: 250 },
-];
-
 const purokPopulationData = [
     { name: 'Purok 1', value: 120 },
     { name: 'Purok 2', value: 180 },
@@ -74,30 +69,6 @@ const DashBoard = () => {
                                 label
                             >
                                 {voterRegistrationData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                            </Pie>
-                            <Tooltip />
-                            <Legend />
-                        </PieChart>
-                    </ResponsiveContainer>
-                </div>
-
-                {/* Gender Distribution */}
-                <div className={style.chart_card}>
-                    <h2>Gender Distribution</h2>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                            <Pie
-                                data={genderData}
-                                dataKey="value"
-                                nameKey="name"
-                                cx="50%"
-                                cy="50%"
-                                outerRadius={100}
-                                label
-                            >
-                                {genderData.map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                 ))}
                             </Pie>

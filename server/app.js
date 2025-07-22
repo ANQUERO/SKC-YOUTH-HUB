@@ -32,7 +32,7 @@ app.use(express.urlencoded({
 }));
 
 //Api Routes
-app.use('/api', authRouter);
+app.use('/api/auth', authRouter);
 app.use('/api', youthRouter);
 app.use('/api', adminRouter);
 app.use('/api', purokRouter);

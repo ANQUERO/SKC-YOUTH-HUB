@@ -52,7 +52,7 @@ axiosInstance.interceptors.response.use(
             return Promise.reject(error);
         }
 
-        const isLoginAttempt = error.congif?.url?.includes('auth/signin');
+        const isLoginAttempt = error.config?.url?.includes('auth/signin');
         if (error.response?.status === 400 && isLoginAttempt) {
             return Promise.reject(error)
         }

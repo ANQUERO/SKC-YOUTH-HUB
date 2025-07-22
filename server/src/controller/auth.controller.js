@@ -52,18 +52,20 @@ export const signupAdmin = async (req, res) => {
 
         const newAdmin = result.rows[0];
 
-        // Generate token and set cookies
-        generateTokenAndSetCookies(newAdmin, res);
+        // ✅ Corrected: Pass userId and userType
+        generateTokenAndSetCookies(newAdmin, res, 'admin');
 
         return res.status(201).json({
             message: "Admin registered successfully",
             admin: newAdmin
         });
+
     } catch (error) {
         console.error("Signup error:", error);
         return res.status(500).json({ error: "Server error" });
     }
 };
+
 
 export const signup = async (req, res) => {
     const client = await pool.connect();

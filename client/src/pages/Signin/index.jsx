@@ -1,9 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import Logo from '@images/logo.jpg';
 import style from '@styles/signin.module.scss';
-import { Link } from 'react-router-dom';
+import useLogin from '@hooks/useSignin'; // <- import the hook
 
 const Signin = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const { login, loading, errors, user } = useLogin();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const { success, user } = await login(email, password);
+
+    if (success && user) {
+      if (user.userType === 'admin') {
+        navigate('/dashboard');
+      } else if (user.userType === 'youth') {
+        navigate('/feed');
+      } else {
+        alert("Unknown user type");
+      }
+    }
+  };
+
+
   return (
     <div className={style.container}>
       <div className={style.left}>
@@ -25,12 +47,27 @@ const Signin = () => {
           </p>
         </div>
 
-        <form className={style.form}>
-          <label htmlFor="username">Email</label>
-          <input id="email" type="email" placeholder="Enter your email" />
+        <form className={style.form} onSubmit={handleSubmit}>
+          <label htmlFor="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          {errors?.email && <p className={style.error}>{errors.email}</p>}
 
           <label htmlFor="password">Password</label>
-          <input id="password" type="password" placeholder="Enter your password" />
+          <input
+            id="password"
+            type="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          {errors?.password && <p className={style.error}>{errors.password}</p>}
+          {errors?.general && <p className={style.error}>{errors.general}</p>}
 
           <div className={style.formOptions}>
             <label>
@@ -39,10 +76,9 @@ const Signin = () => {
             <Link to="/forgot">Forgot password?</Link>
           </div>
 
-          <button type="submit" className={style.loginBtn}>
-            Login
+          <button type="submit" className={style.loginBtn} disabled={loading}>
+            {loading ? 'Logging in...' : 'Login'}
           </button>
-
 
           <p className={style.signupLink}>
             Don’t have an account? <Link to="/signup">Create an account</Link>

@@ -1,5 +1,4 @@
 import { Route, Routes } from 'react-router-dom';
-import { useAuthContext } from '@context/AuthContext';
 
 import NotFound from '@pages/NotFound';
 
@@ -25,14 +24,14 @@ export default function AppRoutes() {
     return (
         <Routes>
             {/* Public Routes */}
-            <Route path="/landing" element={<LandingPage />} />
-            <Route path="/signin" element={<Signin />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Signin />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot" element={<ForgotPassword />} />
             <Route path="/adminAuth" element={<AdminAuth />} />
 
-            {/* Main App Routes (requires internal auth handling) */}
-            <Route path="/" element={<Authenticated />}>
+            {/* Admin Protected Routes */}
+            <Route path="/dashboard" element={<Authenticated />}>
                 <Route index element={<DashBoard />} />
                 <Route path="youth" element={<Youth />} />
                 <Route path="purok" element={<Purok />} />
@@ -42,10 +41,10 @@ export default function AppRoutes() {
                 <Route path="account" element={<Settings />} />
             </Route>
 
-            {/* Feed (also protected via context inside component) */}
+            {/* Youth Feed */}
             <Route path="/feed/*" element={<NewsFeedRoutes />} />
 
-            {/* 404 */}
+            {/* 404 Fallback */}
             <Route path="*" element={<NotFound />} />
         </Routes>
     );
