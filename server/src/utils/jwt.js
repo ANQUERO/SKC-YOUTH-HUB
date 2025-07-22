@@ -14,17 +14,20 @@ export const getSecretKey = () => {
 export const generateTokenAndSetCookies = (user, res, userType) => {
     const secret = getSecretKey();
 
-    const payload = {
-        userType
-    };
+    // Normalize userType just in case
+    const normalizedType = typeof userType === 'string' ? userType.trim().toLowerCase() : '';
 
-    if (userType === 'admin') {
+    const payload = { userType: normalizedType };
+
+    if (normalizedType === 'admin') {
         payload.admin_id = user.admin_id;
         payload.role = Array.isArray(user.role) ? user.role : [user.role];
-    } else if (userType === 'youth') {
+        payload.email = user.email;
+    } else if (normalizedType === 'youth') {
         payload.youth_id = user.youth_id;
+        payload.email = user.email;
     } else {
-        throw new Error("Unknown userType passed to token generator");
+        throw new Error(`Unknown userType passed to token generator: ${userType}`);
     }
 
     const token = jwt.sign(payload, secret, {

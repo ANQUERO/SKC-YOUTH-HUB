@@ -8,7 +8,7 @@ CREATE TABLE sk_official_admin (
     email VARCHAR(55) UNIQUE NOT NULL,
     position VARCHAR(55) NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
-    password TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
     role TEXT[] NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

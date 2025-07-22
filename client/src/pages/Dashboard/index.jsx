@@ -1,25 +1,29 @@
 import React from 'react';
 import {
     PieChart,
+    BarChart,
     Pie,
     Cell,
     ResponsiveContainer,
     Tooltip,
-    Legend
+    Legend,
+    CartesianGrid,
+    YAxis,
+    XAxis,
+    Bar
 } from 'recharts';
-import style from '@styles/dashboard.module.scss'
+import style from '@styles/dashboard.module.scss';
 
-
+// Data
 const voterRegistrationData = [
-    { name: 'Registered', value: 650 },
-    { name: 'Unregistered', value: 350 },
+    { name: 'Registered', value: 250 },
+    { name: 'Unregistered', value: 200 },
 ];
 
 const genderData = [
-    { name: 'Male', value: 500 },
-    { name: 'Female', value: 500 },
+    { name: 'Male', value: 200 },
+    { name: 'Female', value: 250 },
 ];
-
 
 const purokPopulationData = [
     { name: 'Purok 1', value: 120 },
@@ -30,7 +34,23 @@ const purokPopulationData = [
     { name: 'Purok 6', value: 165 },
 ];
 
+const totalYouths = [
+    { name: 'Youths', value: 450 }
+];
+
 const COLORS = ['#4ade80', '#f87171'];
+
+// Custom Tooltip for Bar Chart
+const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className={style.customTooltip}>
+                <p>{`${label}: ${payload[0].value}`}</p>
+            </div>
+        );
+    }
+    return null;
+};
 
 const DashBoard = () => {
     return (
@@ -39,6 +59,7 @@ const DashBoard = () => {
             <p>Keep voters engaged, post updates, and manage data with ease.</p>
 
             <div className={style.charts}>
+                {/* Voter Registration */}
                 <div className={style.chart_card}>
                     <h2>Voter Registration</h2>
                     <ResponsiveContainer width="100%" height={300}>
@@ -62,6 +83,7 @@ const DashBoard = () => {
                     </ResponsiveContainer>
                 </div>
 
+                {/* Gender Distribution */}
                 <div className={style.chart_card}>
                     <h2>Gender Distribution</h2>
                     <ResponsiveContainer width="100%" height={300}>
@@ -85,7 +107,8 @@ const DashBoard = () => {
                     </ResponsiveContainer>
                 </div>
 
-                <div className="chart-card">
+                {/* Population by Purok */}
+                <div className={style.chart_card}>
                     <h2>Population by Purok</h2>
                     <ResponsiveContainer width="100%" height={300}>
                         <PieChart>
@@ -107,8 +130,31 @@ const DashBoard = () => {
                         </PieChart>
                     </ResponsiveContainer>
                 </div>
+
+                {/* Total Youths */}
+                <div className={style.chart_card}>
+                    <h2>Total Youths</h2>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart
+                            data={totalYouths}
+                            margin={{
+                                top: 5,
+                                right: 30,
+                                left: 20,
+                                bottom: 5,
+                            }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Legend />
+                            <Bar dataKey="value" barSize={40} fill="#4f46e5" />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
             </div>
-        </div >
+        </div>
     );
 };
 
