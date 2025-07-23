@@ -2,244 +2,339 @@ import React, { useEffect, useState, useMemo } from "react";
 import styled from "styled-components";
 import useYouth from "@hooks/useYouth";
 
-// Styled Components
-const Container = styled.div`
-  width: 100%;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #fff;
+const YouthPage = () => {
+    const { youthData, fetchYouths } = useYouth();
+    const [selected, setSelected] = useState([]);
+    const [search, setSearch] = useState("");
+    const [filter, setFilter] = useState("all");
+    const [genderFilter, setGenderFilter] = useState("all");
+    const [purokFilter, setPurokFilter] = useState("all");
+    const [sortKey, setSortKey] = useState("name");
+    const [sortAsc, setSortAsc] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const perPage = 10;
+
+    useEffect(() => {
+        fetchYouths();
+    }, []);
+
+    const purokList = useMemo(() => {
+        const allPuroks = youthData?.purok?.map((p) => p.name).filter(Boolean) || [];
+        return [...new Set(allPuroks)];
+    }, [youthData]);
+
+    const rows = useMemo(() => {
+        if (!youthData?.youth) return [];
+
+        return youthData.youth.map((y) => {
+            const id = y.youth_id;
+            const n = youthData.name?.find((x) => x.youth_id === id);
+            const s = youthData.registered_voter?.find((x) => x.youth_id === id);
+            const g = youthData.gender?.find((x) => x.youth_id === id);
+            const p = youthData.purok?.find((x) => x.youth_id === id);
+
+            return {
+                id,
+                name: `${n?.first_name || ""} ${n?.middle_name || ""} ${n?.last_name || ""}`.trim(),
+                email: y.email,
+                registered: s?.registered_voter === "yes",
+                gender: g?.gender || "N/A",
+                purok: p?.name || "N/A",
+            };
+        });
+    }, [youthData]);
+
+    const filtered = useMemo(() => {
+        let r = [...rows];
+
+        if (search) {
+            r = r.filter((y) => y.name.toLowerCase().includes(search.toLowerCase()));
+        }
+
+        if (filter === "registered") {
+            r = r.filter((y) => y.registered);
+        } else if (filter === "unregistered") {
+            r = r.filter((y) => !y.registered);
+        }
+
+        if (genderFilter !== "all") {
+            r = r.filter((y) => y.gender.toLowerCase() === genderFilter);
+        }
+
+        if (purokFilter !== "all") {
+            r = r.filter((y) => y.purok === purokFilter);
+        }
+
+        r.sort((a, b) => {
+            const aVal = a[sortKey];
+            const bVal = b[sortKey];
+            if (aVal < bVal) return sortAsc ? -1 : 1;
+            if (aVal > bVal) return sortAsc ? 1 : -1;
+            return 0;
+        });
+
+        return r;
+    }, [rows, filter, genderFilter, purokFilter, search, sortKey, sortAsc]);
+
+    const totalPages = Math.ceil(filtered.length / perPage);
+    const paginated = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
+
+    const handleSelect = (id) => {
+        setSelected((prev) =>
+            prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+        );
+    };
+
+    const handleSort = (key) => {
+        if (key === sortKey) {
+            setSortAsc(!sortAsc);
+        } else {
+            setSortKey(key);
+            setSortAsc(true);
+        }
+    };
+
+    return (
+        <Layout>
+            <Sidebar>
+                <FilterTitle>Status</FilterTitle>
+                <FilterBtn onClick={() => setFilter("all")} $active={filter === "all"}>All</FilterBtn>
+                <FilterBtn onClick={() => setFilter("registered")} $active={filter === "registered"}>Registered</FilterBtn>
+                <FilterBtn onClick={() => setFilter("unregistered")} $active={filter === "unregistered"}>Unregistered</FilterBtn>
+
+                <FilterTitle>Gender</FilterTitle>
+                <FilterBtn onClick={() => setGenderFilter("all")} $active={genderFilter === "all"}>All</FilterBtn>
+                <FilterBtn onClick={() => setGenderFilter("male")} $active={genderFilter === "male"}>Male</FilterBtn>
+                <FilterBtn onClick={() => setGenderFilter("female")} $active={genderFilter === "female"}>Female</FilterBtn>
+
+                <FilterTitle>Purok</FilterTitle>
+                <FilterBtn onClick={() => setPurokFilter("all")} $active={purokFilter === "all"}>All</FilterBtn>
+                {purokList.map((p) => (
+                    <FilterBtn key={p} onClick={() => setPurokFilter(p)} $active={purokFilter === p}>{p}</FilterBtn>
+                ))}
+            </Sidebar>
+
+            <Main>
+                <TopBar>
+                    <SearchInput
+                        placeholder="Search youth..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                    <ActionGroup>
+                        <ActionBtn $primary onClick={() => alert("Add Youth")}>+ Add Youth</ActionBtn>
+                        <ActionBtn onClick={() => alert("Export")}>Export</ActionBtn>
+                        <ActionBtn disabled={selected.length === 0} onClick={() => alert("Delete selected")}>Delete</ActionBtn>
+                    </ActionGroup>
+                </TopBar>
+
+                <TableWrapper>
+                    <StyledTable>
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input
+                                        type="checkbox"
+                                        onChange={(e) =>
+                                            setSelected(
+                                                e.target.checked ? paginated.map((y) => y.id) : []
+                                            )
+                                        }
+                                        checked={
+                                            selected.length === paginated.length &&
+                                            paginated.length > 0
+                                        }
+                                    />
+                                </th>
+                                <th onClick={() => handleSort("name")}>Name {sortKey === "name" && (sortAsc ? "↑" : "↓")}</th>
+                                <th onClick={() => handleSort("email")}>Email {sortKey === "email" && (sortAsc ? "↑" : "↓")}</th>
+                                <th onClick={() => handleSort("registered")}>Voting Status {sortKey === "registered" && (sortAsc ? "↑" : "↓")}</th>
+                                <th onClick={() => handleSort("gender")}>Gender {sortKey === "gender" && (sortAsc ? "↑" : "↓")}</th>
+                                <th onClick={() => handleSort("purok")}>Purok {sortKey === "purok" && (sortAsc ? "↑" : "↓")}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {paginated.map((y) => (
+                                <tr key={y.id}>
+                                    <td>
+                                        <input
+                                            type="checkbox"
+                                            checked={selected.includes(y.id)}
+                                            onChange={() => handleSelect(y.id)}
+                                        />
+                                    </td>
+                                    <td>{y.name}</td>
+                                    <td>{y.email}</td>
+                                    <td>{y.registered ? "Yes" : "No"}</td>
+                                    <td>{y.gender}</td>
+                                    <td>{y.purok}</td>
+                                </tr>
+                            ))}
+                            {paginated.length === 0 && (
+                                <tr>
+                                    <td colSpan="6">No results found.</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </StyledTable>
+                </TableWrapper>
+
+                <Pagination>
+                    {Array.from({ length: totalPages }, (_, i) => (
+                        <PageBtn
+                            key={i}
+                            onClick={() => setCurrentPage(i + 1)}
+                            className={currentPage === i + 1 ? "active" : ""}
+                        >
+                            {i + 1}
+                        </PageBtn>
+                    ))}
+                </Pagination>
+            </Main>
+        </Layout>
+    );
+};
+
+export default YouthPage;
+
+
+
+const Layout = styled.div`
+    display: flex;
+    min-height: 100vh;
+    background: #f5f7fa;
 `;
 
-const FilterNav = styled.nav`
-  display: flex;
-  gap: 12px;
-  padding: 16px;
-  border-bottom: 1px solid #e5e7eb;
-  flex-wrap: wrap;
-  justify-content: flex-start;
+const Sidebar = styled.div`
+    width: 15rem;
+    padding: 1.5rem;
+    background: #fff;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 `;
 
-const FilterButton = styled.button`
-  padding: 8px 16px;
-  border-radius: 9999px;
-  font-weight: 500;
-  border: none;
-  background-color: ${({ active }) => (active ? "#2563eb" : "#f3f4f6")};
-  color: ${({ active }) => (active ? "#fff" : "#374151")};
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: ${({ active }) => (active ? "#1d4ed8" : "#e5e7eb")};
-  }
+const Main = styled.div`
+    flex: 1;
+    padding: 1rem;
 `;
 
-const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
+const TopBar = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
 `;
 
-const Thead = styled.thead`
-  background-color: #f3f4f6;
+const ActionGroup = styled.div`
+    display: flex;
+    gap: 0.5rem;
 `;
 
-const Th = styled.th`
-  text-align: left;
-  padding: 12px 16px;
-  font-weight: 600;
-  color: #374151;
-  cursor: pointer;
-  border-bottom: 1px solid #d1d5db;
+const ActionBtn = styled.button`
+    background: ${(p) => (p.$primary ? "#007bff" : "#eee")};
+    color: ${(p) => (p.$primary ? "white" : "#333")};
+    padding: 0.6rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    opacity: ${(p) => (p.disabled ? 0.5 : 1)};
+    pointer-events: ${(p) => (p.disabled ? "none" : "auto")};
+    font-weight: 500;
 
-  &:hover {
-    background-color: #e5e7eb;
-  }
+    &:hover {
+        background: ${(p) => (p.$primary ? "#0056b3" : "#ddd")};
+    }
 `;
 
-const Td = styled.td`
-  padding: 12px 16px;
-  border-bottom: 1px solid #e5e7eb;
-  color: #374151;
-  word-break: break-word;
+const SearchInput = styled.input`
+    padding: 0.5rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
 `;
 
-const Tr = styled.tr`
-  background-color: ${({ isEven }) => (isEven ? "#ffffff" : "#f9fafb")};
+const FilterTitle = styled.div`
+    font-weight: 600;
+    margin-top: 1rem;
 `;
 
-const ErrorText = styled.p`
-  color: #dc2626;
-  padding: 16px;
+const FilterBtn = styled.button`
+    background: ${(p) => (p.$active ? "#007bff" : "white")};
+    color: ${(p) => (p.$active ? "white" : "#333")};
+    border: 1px solid ${(p) => (p.$active ? "#007bff" : "#ccc")};
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 0.3rem;
+    text-align: left;
 `;
 
-const NoData = styled.div`
-  text-align: center;
-  padding: 24px;
-  color: #6b7280;
+const TableWrapper = styled.div`
+    width: 100%;
+    overflow-x: auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding-bottom: 1rem;
+
+    &::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: #ccc;
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background-color: #f1f1f1;
+    }
+`;
+
+const StyledTable = styled.table`
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+
+    th, td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    th {
+        background: #f8f8f8;
+        cursor: pointer;
+        font-weight: 600;
+        user-select: none;
+    }
+
+    tr:hover td {
+        background: #f1f9ff;
+    }
 `;
 
 const Pagination = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  padding: 16px;
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.3rem;
 `;
 
-const PageButton = styled.button`
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
-  background-color: ${({ active }) => (active ? "#2563eb" : "#fff")};
-  color: ${({ active }) => (active ? "#fff" : "#374151")};
-  cursor: pointer;
+const PageBtn = styled.button`
+    padding: 0.4rem 0.8rem;
+    border: 1px solid #ccc;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
 
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
+    &.active {
+        background: #007bff;
+        color: white;
+    }
 `;
-
-// Component
-const YouthTable = () => {
-  const { youthData, loading, error, fetchYouths } = useYouth();
-
-  const [sortField, setSortField] = useState("fullName");
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [filter, setFilter] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const itemsPerPage = 10;
-
-  useEffect(() => {
-    fetchYouths();
-  }, []);
-
-  const rows = useMemo(() => {
-    if (!youthData) return [];
-
-    const youth = youthData.youth || [];
-    const name = youthData.name || [];
-    const survey = youthData.survey || [];
-
-    let joined = youth.map((item) => {
-      const nameEntry = name.find((n) => n.youth_id === item.youth_id);
-      const surveyEntry = survey.find((s) => s.youth_id === item.youth_id);
-
-      const fullName = `${nameEntry?.first_name || ""} ${nameEntry?.middle_name || ""} ${nameEntry?.last_name || ""}`.trim();
-      const email = item.email;
-      const registeredVoter = surveyEntry?.registered_voter ? "Registered" : "Unregistered";
-      const nationalVoter = surveyEntry?.registered_national_voter ? "Registered" : "Unregistered";
-
-      return {
-        id: item.youth_id,
-        fullName,
-        email,
-        registeredVoter,
-        nationalVoter,
-      };
-    });
-
-    // Apply filter
-    if (filter === "registered") {
-      joined = joined.filter((y) => y.registeredVoter === "Registered");
-    } else if (filter === "unregistered") {
-      joined = joined.filter((y) => y.registeredVoter === "Unregistered");
-    }
-
-    // Sort logic
-    joined.sort((a, b) => {
-      const valA = a[sortField]?.toLowerCase?.() || "";
-      const valB = b[sortField]?.toLowerCase?.() || "";
-      if (valA < valB) return sortOrder === "asc" ? -1 : 1;
-      if (valA > valB) return sortOrder === "asc" ? 1 : -1;
-      return 0;
-    });
-
-    return joined;
-  }, [youthData, sortField, sortOrder, filter]);
-
-  // Pagination logic
-  const pageCount = Math.ceil(rows.length / itemsPerPage);
-  const paginatedRows = rows.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-  const handleSort = (field) => {
-    if (field === sortField) {
-      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
-    } else {
-      setSortField(field);
-      setSortOrder("asc");
-    }
-  };
-
-  if (loading) return <p style={{ padding: "16px" }}>Loading youth data...</p>;
-  if (error) return <ErrorText>Error: {error}</ErrorText>;
-
-  return (
-    <Container>
-      <FilterNav>
-        {["all", "registered", "unregistered"].map((value) => (
-          <FilterButton
-            key={value}
-            active={filter === value}
-            onClick={() => {
-              setFilter(value);
-              setCurrentPage(1);
-            }}
-          >
-            {value.charAt(0).toUpperCase() + value.slice(1)}
-          </FilterButton>
-        ))}
-      </FilterNav>
-
-      {rows.length === 0 ? (
-        <NoData>No youth data available.</NoData>
-      ) : (
-        <>
-          <Table>
-            <Thead>
-              <tr>
-                <Th onClick={() => handleSort("fullName")}>Full Name</Th>
-                <Th onClick={() => handleSort("email")}>Email</Th>
-                <Th onClick={() => handleSort("registeredVoter")}>Registered Voter</Th>
-                <Th onClick={() => handleSort("nationalVoter")}>National Voter</Th>
-              </tr>
-            </Thead>
-            <tbody>
-              {paginatedRows.map((youth, index) => (
-                <Tr key={youth.id} isEven={index % 2 === 0}>
-                  <Td>{youth.fullName}</Td>
-                  <Td>{youth.email}</Td>
-                  <Td>{youth.registeredVoter}</Td>
-                  <Td>{youth.nationalVoter}</Td>
-                </Tr>
-              ))}
-            </tbody>
-          </Table>
-
-          <Pagination>
-            <PageButton onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))} disabled={currentPage === 1}>
-              Prev
-            </PageButton>
-
-            {[...Array(pageCount)].map((_, i) => (
-              <PageButton
-                key={i}
-                active={currentPage === i + 1}
-                onClick={() => setCurrentPage(i + 1)}
-              >
-                {i + 1}
-              </PageButton>
-            ))}
-
-            <PageButton onClick={() => setCurrentPage((p) => Math.min(p + 1, pageCount))} disabled={currentPage === pageCount}>
-              Next
-            </PageButton>
-          </Pagination>
-        </>
-      )}
-    </Container>
-  );
-};
-
-export default YouthTable;

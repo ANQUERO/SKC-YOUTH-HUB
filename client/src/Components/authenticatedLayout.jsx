@@ -98,13 +98,12 @@ export const UserContainer = styled.div`
 `;
 
 export const Content = styled.div`
-  padding: 0.5rem;
+  padding: 3px;
   padding-bottom: 1rem;
   height: 100%;
   overflow-y: auto;
 
   @media (min-width: 1024px) {
-    padding: 2rem;
     padding-bottom: 2rem;
   }
 `;

@@ -8,7 +8,7 @@ import AdminAuth from "@pages/AdminAuth";
 import NewsFeedRoutes from "@pages/NewsFeed";
 import Authenticated from "@pages/Authenticated";
 import Dashboard from "@pages/Dashboard";
-import Youth from "@pages/Youth";
+import Youth from "@pages/Youth/";
 import Purok from "@pages/Purok";
 import Inbox from "@pages/Inbox";
 import Verification from "@pages/Verification";
@@ -57,7 +57,10 @@ export const routes = [
         ),
         children: [
             { index: true, element: <Dashboard /> },
-            { path: "youth", element: <Youth /> },
+            {
+                path: "youth",
+                element: <Youth />,
+            },
             { path: "purok", element: <Purok /> },
             { path: "inbox", element: <Inbox /> },
             { path: "verification", element: <Verification /> },

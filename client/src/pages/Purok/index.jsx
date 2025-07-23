@@ -3,108 +3,108 @@ import styled from 'styled-components';
 import usePurok from '@hooks/usePurok';
 
 const Purok = () => {
-    const {
-        puroks,
-        loading,
-        error,
-        fetchPuroks,
-        deletePurok,
-        createPurok,
-        updatePurok,
-    } = usePurok();
+  const {
+    puroks,
+    loading,
+    error,
+    fetchPuroks,
+    deletePurok,
+    createPurok,
+    updatePurok,
+  } = usePurok();
 
-    const [showModal, setShowModal] = useState(false);
-    const [newPurokName, setNewPurokName] = useState('');
-    const [editingPurok, setEditingPurok] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [newPurokName, setNewPurokName] = useState('');
+  const [editingPurok, setEditingPurok] = useState(null);
 
-    useEffect(() => {
-        fetchPuroks();
-    }, []);
+  useEffect(() => {
+    fetchPuroks();
+  }, []);
 
-    const handleDelete = async (purok_id) => {
-        if (confirm("Are you sure you want to delete this purok?")) {
-            await deletePurok(purok_id);
-        }
-    };
+  const handleDelete = async (purok_id) => {
+    if (confirm("Are you sure you want to delete this purok?")) {
+      await deletePurok(purok_id);
+    }
+  };
 
-    const handleSave = async () => {
-        if (!newPurokName.trim()) return;
+  const handleSave = async () => {
+    if (!newPurokName.trim()) return;
 
-        if (editingPurok) {
-            await updatePurok(editingPurok.purok_id, newPurokName);
-        } else {
-            await createPurok(newPurokName);
-        }
+    if (editingPurok) {
+      await updatePurok(editingPurok.purok_id, newPurokName);
+    } else {
+      await createPurok(newPurokName);
+    }
 
-        setNewPurokName('');
-        setEditingPurok(null);
-        setShowModal(false);
-    };
+    setNewPurokName('');
+    setEditingPurok(null);
+    setShowModal(false);
+  };
 
-    const handleEdit = (purok) => {
-        setEditingPurok(purok);
-        setNewPurokName(purok.name);
-        setShowModal(true);
-    };
+  const handleEdit = (purok) => {
+    setEditingPurok(purok);
+    setNewPurokName(purok.name);
+    setShowModal(true);
+  };
 
-    const handleCancel = () => {
-        setShowModal(false);
-        setNewPurokName('');
-        setEditingPurok(null);
-    };
+  const handleCancel = () => {
+    setShowModal(false);
+    setNewPurokName('');
+    setEditingPurok(null);
+  };
 
-    return (
-        <Wrapper>
-            <Title>Purok</Title>
-            <Subtitle>Manage your purok</Subtitle>
+  return (
+    <Wrapper>
+      <Title>Purok</Title>
+      <Subtitle>Manage your purok</Subtitle>
 
-            <TopBar>
-                <CreateButton onClick={() => {
-                    setShowModal(true);
-                    setEditingPurok(null);
-                    setNewPurokName('');
-                }}>
-                    + New Purok
-                </CreateButton>
-            </TopBar>
+      <TopBar>
+        <CreateButton onClick={() => {
+          setShowModal(true);
+          setEditingPurok(null);
+          setNewPurokName('');
+        }}>
+          + New Purok
+        </CreateButton>
+      </TopBar>
 
-            {loading && <Message>Loading...</Message>}
-            {error && <ErrorText>{error}</ErrorText>}
+      {loading && <Message>Loading...</Message>}
+      {error && <ErrorText>{error}</ErrorText>}
 
-            <List>
-                {puroks.map((purok) => (
-                    <ListItem key={purok.purok_id}>
-                        <span>{purok.name}</span>
-                        <ButtonGroup>
-                            <EditButton onClick={() => handleEdit(purok)}>Edit</EditButton>
-                            <DeleteButton onClick={() => handleDelete(purok.purok_id)}>Delete</DeleteButton>
-                        </ButtonGroup>
-                    </ListItem>
-                ))}
-            </List>
+      <List>
+        {puroks.map((purok) => (
+          <ListItem key={purok.purok_id}>
+            <span>{purok.name}</span>
+            <ButtonGroup>
+              <EditButton onClick={() => handleEdit(purok)}>Edit</EditButton>
+              <DeleteButton onClick={() => handleDelete(purok.purok_id)}>Delete</DeleteButton>
+            </ButtonGroup>
+          </ListItem>
+        ))}
+      </List>
 
-            {/* Modal */}
-            {showModal && (
-                <ModalOverlay>
-                    <ModalContent>
-                        <h3>{editingPurok ? 'Edit Purok' : 'Create New Purok'}</h3>
-                        <Input
-                            type="text"
-                            value={newPurokName}
-                            onChange={(e) => setNewPurokName(e.target.value)}
-                            placeholder="Enter purok name"
-                        />
-                        <ModalActions>
-                            <SaveButton onClick={handleSave}>
-                                {editingPurok ? 'Update' : 'Save'}
-                            </SaveButton>
-                            <CancelButton onClick={handleCancel}>Cancel</CancelButton>
-                        </ModalActions>
-                    </ModalContent>
-                </ModalOverlay>
-            )}
-        </Wrapper>
-    );
+      {/* Modal */}
+      {showModal && (
+        <ModalOverlay>
+          <ModalContent>
+            <h3>{editingPurok ? 'Edit Purok' : 'Create New Purok'}</h3>
+            <Input
+              type="text"
+              value={newPurokName}
+              onChange={(e) => setNewPurokName(e.target.value)}
+              placeholder="Enter purok name"
+            />
+            <ModalActions>
+              <SaveButton onClick={handleSave}>
+                {editingPurok ? 'Update' : 'Save'}
+              </SaveButton>
+              <CancelButton onClick={handleCancel}>Cancel</CancelButton>
+            </ModalActions>
+          </ModalContent>
+        </ModalOverlay>
+      )}
+    </Wrapper>
+  );
 };
 
 export default Purok;
