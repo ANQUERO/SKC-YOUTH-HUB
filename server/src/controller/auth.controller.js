@@ -52,7 +52,7 @@ export const signupAdmin = async (req, res) => {
 
         const newAdmin = result.rows[0];
 
-        // ✅ Corrected: Pass userId and userType
+       //Pass userId and userType
         generateTokenAndSetCookies(newAdmin, res, 'admin');
 
         return res.status(201).json({

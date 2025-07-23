@@ -1,15 +1,15 @@
 import React from 'react';
-import style from '@styles/forgot.module.scss';
+import styled from 'styled-components';
+
+const MainContainer = styled`
+
+`
 
 
 const ForgotPassword = () => {
     return (
-        <section className='container'>
-
-
-
-
-        </section>
+        <>
+        </>
     );
 }
 

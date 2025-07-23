@@ -189,7 +189,11 @@ VALUES
 ('Purok 4'),
 ('Purok 5'),
 ('Purok 6');
---
+
+
+ALTER TABLE sk_official_admin
+    DROP CONSTRAINT sk_official_admin_role_check,
+    ALTER COLUMN role TYPE TEXT[] USING ARRAY[role]::TEXT[];
 
 
 

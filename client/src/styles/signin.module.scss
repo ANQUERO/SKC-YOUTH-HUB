@@ -124,13 +124,17 @@ $input-bg: #f9f9f9;
           transition: color 0.2s;
 
           &:hover {
-            color: darken($primary, 10%);
+            color: color.adjust($primary, $lightness: -10%);
           }
         }
       }
 
       .loginBtn {
-        background: linear-gradient(135deg, $accent, $primary);
+        background: linear-gradient(
+          135deg,
+          $accent,
+          $primary
+        );
         color: $white;
         padding: 0.75rem;
         font-size: 1rem;
@@ -143,7 +147,11 @@ $input-bg: #f9f9f9;
 
         &:hover {
           transform: translateY(-2px);
-          background: linear-gradient(135deg, lighten($accent, 5%), lighten($primary, 5%));
+          background: linear-gradient(
+            135deg,
+            color.adjust($accent, $lightness: 5%),
+            color.adjust($primary, $lightness: 5%)
+          );
         }
 
         &:disabled {
