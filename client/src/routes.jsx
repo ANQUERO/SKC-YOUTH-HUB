@@ -19,7 +19,6 @@ import NotFound from "@pages/NotFound";
 import ProtectedRoute from "@lib/ProtectedRoute.jsx";
 
 export const routes = [
-    // Public Routes
     {
         path: "/",
         element: <LandingPage />,
@@ -37,7 +36,6 @@ export const routes = [
         element: <ForgotPassword />,
     },
 
-    // Shared Feed Route (for youth + admin roles)
     {
         path: "/feed/*",
         element: (
@@ -47,7 +45,6 @@ export const routes = [
         ),
     },
 
-    // Admin-only routes (admin + super/natural sk admin)
     {
         path: "/dashboard",
         element: (
@@ -66,19 +63,16 @@ export const routes = [
             { path: "verification", element: <Verification /> },
             { path: "officials", element: <Officials /> },
 
-            // 👇 Settings parent route
             {
                 path: "account",
                 element: <Settings />,
                 children: [
-                    // ✅ Nested route for /dashboard/account/signupAdmin
                     { path: "signupAdmin", element: <AdminAuth /> },
                 ],
             },
         ],
     },
 
-    // 404 fallback
     {
         path: "*",
         element: <NotFound />,

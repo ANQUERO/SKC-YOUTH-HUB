@@ -1,36 +1,108 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import {
+  TextField,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Typography,
+  Box,
+  Alert,
+  Link,
+  InputAdornment,
+  IconButton,
+  CircularProgress,
+} from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+
 import Logo from '@images/logo.jpg';
 import style from '@styles/signin.module.scss';
-import useLogin from '@hooks/useSignin'; // <- import the hook
+import useLogin from '@hooks/useSignin';
+
+const errorBoxStyles = {
+  mt: 0.5,
+  ml: 1,
+  backgroundColor: '#ffe6e6',
+  color: '#d32f2f',
+  px: 1.5,
+  py: 0.5,
+  borderRadius: '6px',
+  fontSize: '0.85rem',
+  maxWidth: '300px',
+  position: 'relative',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: '-5px',
+    left: '10px',
+    width: 0,
+    height: 0,
+    borderLeft: '6px solid transparent',
+    borderRight: '6px solid transparent',
+    borderBottom: '6px solid #ffe6e6',
+  },
+};
 
 const Signin = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const { login, loading, errors, user } = useLogin();
+  const [form, setForm] = useState({ email: '', password: '', remember: false });
+  const [showPassword, setShowPassword] = useState(false);
+
+  const { login, loading, errors, validateField } = useLogin();
   const navigate = useNavigate();
+
+  const handleChange = (field) => (e) => {
+    const value = field === 'remember' ? e.target.checked : e.target.value;
+    setForm((prev) => ({ ...prev, [field]: value }));
+    if (field !== 'remember') validateField(field, value);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { success, user } = await login(email, password);
+    const { success, user } = await login(form.email, form.password);
 
     if (success && user) {
-      if (user.userType === 'admin') {
-        navigate('/dashboard');
-      } else if (user.userType === 'youth') {
-        navigate('/feed');
-      } else {
-        alert("Unknown user type");
-      }
+      const route = user.userType === 'admin' ? '/dashboard' : user.userType === 'youth' ? '/feed' : '/';
+      navigate(route);
     }
-
-    console.log("Logged in user:", user);
-    console.log("Default role:", user.role?.[0]);
   };
 
+  const renderField = (label, field, type = 'text', showToggle = false) => (
+    <Box sx={{ mb: 2 }}>
+      <TextField
+        label={label}
+        type={showToggle ? (showPassword ? 'text' : 'password') : type}
+        fullWidth
+        required
+        size="small"
+        value={form[field]}
+        onChange={handleChange(field)}
+        error={Boolean(errors?.[field])}
+        autoComplete={field}
+        InputProps={
+          showToggle
+            ? {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    edge="end"
+                    size="small"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }
+            : undefined
+        }
+      />
+      {errors?.[field] && <Box sx={errorBoxStyles}>{errors[field]}</Box>}
+    </Box>
+  );
 
   return (
     <div className={style.container}>
+      {/* LEFT SIDE */}
       <div className={style.left}>
         <div className={style.text}>
           <img src={Logo} alt="SK Logo" className={style.logo} />
@@ -41,52 +113,62 @@ const Signin = () => {
         </div>
       </div>
 
+      {/* RIGHT SIDE */}
       <div className={style.right}>
-        <div className={style.box}>
-          <h2 className={style.title}>Welcome back</h2>
-          <p className={style.tagline}>
+        <Box sx={{ width: '100%', maxWidth: 400, mx: 'auto' }}>
+          <Typography variant="h3" gutterBottom>
+            Welcome back
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
             Through clear communication and engagement, we empower young voters to stay informed,
             participate, and shape their communities.
-          </p>
-        </div>
+          </Typography>
 
-        <form className={style.form} onSubmit={handleSubmit}>
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          {errors?.email && <p className={style.error}>{errors.email}</p>}
+          {errors?.general && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {errors.general}
+            </Alert>
+          )}
 
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          {errors?.password && <p className={style.error}>{errors.password}</p>}
-          {errors?.general && <p className={style.error}>{errors.general}</p>}
+          <form onSubmit={handleSubmit} noValidate>
+            {renderField('Email', 'email', 'email')}
+            {renderField('Password', 'password', 'password', true)}
 
-          <div className={style.formOptions}>
-            <label>
-              <input type="checkbox" /> Remember me
-            </label>
-            <Link to="/forgot">Forgot password?</Link>
-          </div>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={form.remember}
+                    onChange={handleChange('remember')}
+                    size="small"
+                  />
+                }
+                label="Remember me"
+              />
+              <Link component={RouterLink} to="/forgot" variant="body2">
+                Forgot password?
+              </Link>
+            </Box>
 
-          <button type="submit" className={style.loginBtn} disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{ mt: 3, mb: 1 }}
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={20} /> : 'Login'}
+            </Button>
 
-          <p className={style.signupLink}>
-            Don’t have an account? <Link to="/signup">Create an account</Link>
-          </p>
-        </form>
+            <Typography variant="body2" align="center">
+              Don’t have an account?{' '}
+              <Link component={RouterLink} to="/signup">
+                Signup
+              </Link>
+            </Typography>
+          </form>
+        </Box>
       </div>
     </div>
   );

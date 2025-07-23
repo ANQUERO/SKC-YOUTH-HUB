@@ -10,11 +10,9 @@ export const useLogout = () => {
         try {
             await axiosInstance.post("/auth/logout");
 
-            // Clear local and session storage
             localStorage.removeItem("auth-user");
             sessionStorage.removeItem("auth-user");
 
-            // Redirect to login or landing page
             navigate("/login");
         } catch (error) {
             console.error("Logout failed:", error);

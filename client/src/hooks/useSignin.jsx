@@ -1,34 +1,71 @@
 import { useState } from 'react';
+import validate from 'validate.js';
 import axiosInstance from '@lib/axios.js';
 import { useAuthContext } from '@context/AuthContext';
+
+const constraints = {
+    email: {
+        presence: { allowEmpty: false, message: '^A valid Email address is required' },
+        email: { message: '^Please enter a valid email address' },
+    },
+    password: {
+        presence: { allowEmpty: false, message: '^Password is required' },
+        length: {
+            minimum: 8,
+            message: '^Password must be at least 8 characters',
+        },
+    },
+};
 
 const useLogin = () => {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
     const { setAuthUser, setActiveRole } = useAuthContext();
 
+    const validateField = (fieldName, value) => {
+        const result = validate({ [fieldName]: value }, { [fieldName]: constraints[fieldName] });
+        if (result) {
+            setErrors((prev) => ({ ...prev, [fieldName]: result[fieldName][0] }));
+        } else {
+            setErrors((prev) => {
+                const updated = { ...prev };
+                delete updated[fieldName];
+                return updated;
+            });
+        }
+    };
+
     const login = async (email, password) => {
+        const validationErrors = validate({ email, password }, constraints);
+        if (validationErrors) {
+            const formattedErrors = Object.fromEntries(
+                Object.entries(validationErrors).map(([field, messages]) => [field, messages[0]])
+            );
+            setErrors(formattedErrors);
+            return { success: false, user: null };
+        }
+
         setLoading(true);
         setErrors({});
         try {
             const res = await axiosInstance.post('/auth/login', { email, password });
             const loggedInUser = res.data.user;
 
-            localStorage.setItem("auth-user", JSON.stringify(loggedInUser));
-
+            localStorage.setItem('auth-user', JSON.stringify(loggedInUser));
             setAuthUser(loggedInUser);
 
             if (loggedInUser.role?.length > 0) {
                 setActiveRole(loggedInUser.role[0]);
-                localStorage.setItem("active-role", loggedInUser.role[0]);
+                localStorage.setItem('active-role', loggedInUser.role[0]);
             }
 
             return { success: true, user: loggedInUser };
         } catch (err) {
+            console.error('Login error:', err);
             if (err.response?.status === 400 || err.response?.status === 401) {
-                setErrors(err.response.data.errors || { general: "Invalid credentials" });
+                setErrors(err.response.data.errors || { general: 'Invalid credentials' });
             } else {
-                setErrors({ general: "Something went wrong. Please try again." });
+                setErrors({ general: 'Something went wrong. Please try again.' });
             }
             return { success: false, user: null };
         } finally {
@@ -36,7 +73,7 @@ const useLogin = () => {
         }
     };
 
-    return { login, loading, errors };
+    return { login, loading, errors, validateField };
 };
 
 export default useLogin;

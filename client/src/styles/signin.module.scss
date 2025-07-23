@@ -20,6 +20,8 @@ $input-bg: #f9f9f9;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex:1;
+    padding: 2;
 
     .text {
       text-align: center;
@@ -53,7 +55,8 @@ $input-bg: #f9f9f9;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 2rem;
+    flex:1;
+    padding: 2;
 
     .box {
       width: 100%;
@@ -71,6 +74,8 @@ $input-bg: #f9f9f9;
         font-size: 0.95rem;
         color: #555;
       }
+
+      
     }
 
     .form {
@@ -223,3 +228,5 @@ $input-bg: #f9f9f9;
     }
   }
 }
+
+
