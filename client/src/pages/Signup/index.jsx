@@ -1,198 +1,105 @@
-import React from 'react';
-import styles from '@styles/form.module.scss';
+import React, { useState } from 'react'
+import styled from 'styled-components'
+import { Stepper, Step, StepLabel, Box, Button } from '@mui/material'
+import PersonalDetails from './profile.jsx'
+import DemographicsFile from './demoFile.jsx'
+import Credentials from './credentials.jsx'
 
+const Wrapper = styled.div`
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  background-color: #f8f8f8;
+`
 
+const MainContainer = styled.div`
+  width: 100%;
+  max-width: 800px;
+  padding: 2rem;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+`
 
-const Form = () => {
+const steps = ['Account Info', 'Personal Details', 'Confirmation']
+
+const Signup = () => {
+    const [activeStep, setActiveStep] = useState(0)
+
+    const handleNext = () => {
+        if (activeStep < steps.length - 1) {
+            setActiveStep((prev) => prev + 1)
+        } else {
+            alert('Form submitted!')
+        }
+    }
+
+    const handleBack = () => {
+        setActiveStep((prev) => Math.max(prev - 1, 0))
+    }
+
+    const renderStepContent = (step) => {
+        switch (step) {
+            case 0:
+                return <PersonalDetails />
+            case 1:
+                return <DemographicsFile />
+            case 2:
+                return <Credentials />
+            default:
+                return null
+        }
+    }
 
     return (
-        <form className={styles.form}>
-
-            <section className={styles.section}>
-                <h2>PROFILE</h2>
-
-                <div className={styles.row}>
-                    <label>Name of Respondent:</label>
-                    <div className={styles.name}>
-                        <input type="text" placeholder="First Name" />
-                        <input type="text" placeholder="Middle Name" />
-                        <input type="text" placeholder="Last Name" />
-                        <input type="text" placeholder="Suffix" />
-                    </div>
-                </div>
-
-                <div className={styles.row}>
-                    <label>Location:</label>
-                    <div className={styles.location}>
-                        <input type="text" placeholder="Region" />
-                        <input type="text" placeholder="Province" />
-                        <input type="text" placeholder="City/Municipality" />
-                        <input type="text" placeholder="Barangay" />
-                        <input type="text" placeholder="Purok" />
-                    </div>
-                </div>
-
-                <div className={styles.row}>
-
-                    <div className={styles.inputGroup}>
-                        <label>Sex Assigned at Birth:</label>
-                        <div className={styles.inlineOptions}>
-                            <label><input type="radio" name="sex" value="male" /> Male</label>
-                            <label><input type="radio" name="sex" value="female" /> Female</label>
-                        </div>
-                    </div>
-                    <div className={styles.contact}>
-                        <input type="text" placeholder="Age" />
-                        <input type="date" placeholder="Birthday" />
-                        <input type="text" placeholder="Contact Number" />
-                        <input type="text" placeholder="House Hold" />
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <section className={styles.section}>
-                <h2>DEMOGRAPHIC CHARACTERS</h2>
-
-                <div className={styles.flexFields}>
-                    <fieldset>
-                        <legend>Civil Status</legend>
-                        {["Single",
-                            "Married",
-                            "Widowed",
-                            "Divorced",
-                            "Separated",
-                            "Annulled",
-                            "Live-in",
-                            "Unknown"].map(status => (
-                                <label key={status}>
-                                    <input type="checkbox" /> {status}
-                                </label>
-                            ))}
-                    </fieldset>
-
-                    <fieldset>
-                        <legend>Youth age group</legend>
-                        {[
-                            "Child Youth (16–17 years old)",
-                            "Core Youth (18–24 years old)",
-                            "oung Adult (25–30 years old)",
-                        ].map(group => (
-                            <label key={group}>
-                                <input type="checkbox" /> {group}
-                            </label>
+        <Wrapper>
+            <MainContainer>
+                <Box sx={{ width: '100%' }}>
+                    <Stepper activeStep={activeStep}>
+                        {steps.map((label) => (
+                            <Step key={label}>
+                                <StepLabel>{label}</StepLabel>
+                            </Step>
                         ))}
+                    </Stepper>
+                </Box>
 
-                    </fieldset>
+                <Box sx={{ width: '100%', marginTop: '2rem' }}>
+                    {renderStepContent(activeStep)}
 
-                    <fieldset>
-                        <legend>Youth Classification</legend>
-                        {[
-                            "In school youth",
-                            "Out of school youth",
-                            "Working school youth",
-                            "Youth w/ Specific needs",
-                            "Person w/ Disability",
-                            "Children in Conflict w/ Law",
-                            "Indigenoues People"
-                        ].map(classification => (
-                            <label key={classification}>
-                                <input type="checkbox" /> {classification}
-                            </label>
-                        ))}
-                    </fieldset>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: { xs: 'column', sm: 'row' },
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            marginTop: '2rem',
+                            gap: 2,
+                        }}
+                    >
+                        <Button
+                            disabled={activeStep === 0}
+                            variant="outlined"
+                            onClick={handleBack}
+                            fullWidth={true}
+                        >
+                            Back
+                        </Button>
+                        <Button
+                            variant="contained"
+                            onClick={handleNext}
+                            fullWidth={true}
+                        >
+                            {activeStep === steps.length - 1 ? 'Submit' : 'Next'}
+                        </Button>
+                    </Box>
+                </Box>
+            </MainContainer>
+        </Wrapper>
+    )
+}
 
-                    <fieldset>
-                        <legend>Educational Background</legend>
-                        {[
-                            "Elementary Level",
-                            "Elementary Grad",
-                            "High School Level",
-                            "High School Grad",
-                            "Vocational Grad",
-                            "College Level",
-                            "College Grad",
-                            "Masters Level",
-                            "Masters Grad",
-                            "Doctorate Level",
-                            "Doctorate Graduate"
-                        ].map(level => (
-                            <label key={level}>
-                                <input type="checkbox" /> {level}
-                            </label>
-                        ))}
-                    </fieldset>
-
-                    <fieldset>
-                        <legend>Work Status</legend>
-                        {[
-                            "Employed",
-                            "Unemployed",
-                            "Self-Employed",
-                            "Currently looking for a job",
-                            "Not interested looking for a job"
-                        ].map(status => (
-                            <label key={status}>
-                                <input type="checkbox" /> {status}
-                            </label>
-                        ))}
-                    </fieldset>
-                </div>
-
-                <div className={styles.voterSection}>
-                    <fieldset>
-                        <legend>Voter Information</legend>
-                        <div className={styles.voterGrid}>
-
-                            <div className={styles.voterField}>
-                                <label>Registered SK Voter:</label>
-                                <label><input type="radio" name="sk_voter" value="yes" /> Yes</label>
-                                <label><input type="radio" name="sk_voter" value="no" /> No</label>
-                            </div>
-
-                            <div className={styles.voterField}>
-                                <label>Registered National Voter:</label>
-                                <label><input type="radio" name="nat_voter" value="yes" /> Yes</label>
-                                <label><input type="radio" name="nat_voter" value="no" /> No</label>
-                            </div>
-
-                            <div className={styles.voterField}>
-                                <label>Did you vote in the last SK election?</label>
-                                <label><input type="radio" name="voted_sk" value="yes" /> Yes</label>
-                                <label><input type="radio" name="voted_sk" value="no" /> No</label>
-                            </div>
-
-                            <div className={styles.voterField}>
-                                <label>Have you attended any SK meetings?</label>
-                                <label><input type="radio" name="attended_sk_meeting" value="yes" /> Yes</label>
-                                <label><input type="radio" name="attended_sk_meeting" value="no" /> No</label>
-                            </div>
-
-                            <div className={styles.voterField}>
-                                <label>If yes, how many times?</label>
-                                <input type="number" name="sk_meeting_count" min="0" placeholder="e.g. 3" />
-                            </div>
-                            <div className={styles.voterField}>
-                                <label htmlFor="sk_meeting_reason">If no, why not?</label>
-                                <textarea
-                                    id="sk_meeting_reason"
-                                    name="sk_meeting_reason"
-                                    placeholder="Reason for not attending"
-                                    rows={4}
-                                />
-                            </div>
-                        </div>
-                    </fieldset>
-                </div>
-
-            </section>
-
-            <button type="submit" className={styles.submitBtn}>Next</button>
-        </form>
-    );
-};
-
-export default Form;
+export default Signup
