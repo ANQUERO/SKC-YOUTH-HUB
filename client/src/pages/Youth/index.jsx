@@ -1,18 +1,68 @@
 import React, { useEffect, useState, useMemo } from "react";
-import styled from "styled-components";
 import useYouth from "@hooks/useYouth";
+import {
+    Box,
+    Paper,
+    Checkbox,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TableSortLabel,
+    TablePagination,
+    Toolbar,
+    Typography,
+    TextField,
+    Button,
+    IconButton,
+    FormControlLabel,
+    Switch,
+    Divider,
+    Stack,
+    Drawer,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import DownloadIcon from "@mui/icons-material/Download";
+import DeleteIcon from "@mui/icons-material/Delete";
+import MenuIcon from "@mui/icons-material/Menu";
+import { visuallyHidden } from "@mui/utils";
+import { saveAs } from "file-saver";
 
-const YouthPage = () => {
+const descendingComparator = (a, b, orderBy) => {
+    if (b[orderBy] < a[orderBy]) return -1;
+    if (b[orderBy] > a[orderBy]) return 1;
+    return 0;
+};
+
+const getComparator = (order, orderBy) =>
+    order === "desc"
+        ? (a, b) => descendingComparator(a, b, orderBy)
+        : (a, b) => -descendingComparator(a, b, orderBy);
+
+const headCells = [
+    { id: "name", label: "Name" },
+    { id: "email", label: "Email" },
+    { id: "registered", label: "Voting Status" },
+    { id: "gender", label: "Gender" },
+    { id: "purok", label: "Purok" },
+];
+
+function YouthPage() {
     const { youthData, fetchYouths } = useYouth();
-    const [selected, setSelected] = useState([]);
+
     const [search, setSearch] = useState("");
     const [filter, setFilter] = useState("all");
     const [genderFilter, setGenderFilter] = useState("all");
     const [purokFilter, setPurokFilter] = useState("all");
-    const [sortKey, setSortKey] = useState("name");
-    const [sortAsc, setSortAsc] = useState(true);
-    const [currentPage, setCurrentPage] = useState(1);
-    const perPage = 10;
+    const [selected, setSelected] = useState([]);
+    const [order, setOrder] = useState("asc");
+    const [orderBy, setOrderBy] = useState("name");
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [dense, setDense] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     useEffect(() => {
         fetchYouths();
@@ -25,316 +75,199 @@ const YouthPage = () => {
 
     const rows = useMemo(() => {
         if (!youthData?.youth) return [];
-
         return youthData.youth.map((y) => {
             const id = y.youth_id;
             const n = youthData.name?.find((x) => x.youth_id === id);
             const s = youthData.registered_voter?.find((x) => x.youth_id === id);
             const g = youthData.gender?.find((x) => x.youth_id === id);
             const p = youthData.purok?.find((x) => x.youth_id === id);
-
             return {
                 id,
                 name: `${n?.first_name || ""} ${n?.middle_name || ""} ${n?.last_name || ""}`.trim(),
                 email: y.email,
-                registered: s?.registered_voter === "yes",
+                registered: s?.registered_voter === "yes" ? "Yes" : "No",
                 gender: g?.gender || "N/A",
                 purok: p?.name || "N/A",
             };
         });
     }, [youthData]);
 
-    const filtered = useMemo(() => {
+    const filteredRows = useMemo(() => {
         let r = [...rows];
+        if (search) r = r.filter((y) => y.name.toLowerCase().includes(search.toLowerCase()));
+        if (filter === "registered") r = r.filter((y) => y.registered === "Yes");
+        else if (filter === "unregistered") r = r.filter((y) => y.registered === "No");
+        if (genderFilter !== "all") r = r.filter((y) => y.gender.toLowerCase() === genderFilter);
+        if (purokFilter !== "all") r = r.filter((y) => y.purok === purokFilter);
+        return r.sort(getComparator(order, orderBy));
+    }, [rows, search, filter, genderFilter, purokFilter, order, orderBy]);
 
-        if (search) {
-            r = r.filter((y) => y.name.toLowerCase().includes(search.toLowerCase()));
-        }
+    const handleSelectAllClick = (e) => {
+        if (e.target.checked) {
+            setSelected(filteredRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((n) => n.id));
+        } else setSelected([]);
+    };
 
-        if (filter === "registered") {
-            r = r.filter((y) => y.registered);
-        } else if (filter === "unregistered") {
-            r = r.filter((y) => !y.registered);
-        }
+    const handleClick = (id) => {
+        setSelected((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
+    };
 
-        if (genderFilter !== "all") {
-            r = r.filter((y) => y.gender.toLowerCase() === genderFilter);
-        }
+    const handleRequestSort = (_, property) => {
+        const isAsc = orderBy === property && order === "asc";
+        setOrder(isAsc ? "desc" : "asc");
+        setOrderBy(property);
+    };
 
-        if (purokFilter !== "all") {
-            r = r.filter((y) => y.purok === purokFilter);
-        }
+    const handleChangePage = (_, newPage) => setPage(newPage);
 
-        r.sort((a, b) => {
-            const aVal = a[sortKey];
-            const bVal = b[sortKey];
-            if (aVal < bVal) return sortAsc ? -1 : 1;
-            if (aVal > bVal) return sortAsc ? 1 : -1;
-            return 0;
+    const handleChangeRowsPerPage = (e) => {
+        setRowsPerPage(parseInt(e.target.value, 10));
+        setPage(0);
+    };
+
+    const exportToCSV = () => {
+        const headers = ["Name", "Email", "Voting Status", "Gender", "Purok"];
+        const csvRows = [headers.join(",")];
+        filteredRows.forEach((row) => {
+            csvRows.push([row.name, row.email, row.registered, row.gender, row.purok].join(","));
         });
-
-        return r;
-    }, [rows, filter, genderFilter, purokFilter, search, sortKey, sortAsc]);
-
-    const totalPages = Math.ceil(filtered.length / perPage);
-    const paginated = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
-
-    const handleSelect = (id) => {
-        setSelected((prev) =>
-            prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-        );
+        const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+        saveAs(blob, "youth_data.csv");
     };
 
-    const handleSort = (key) => {
-        if (key === sortKey) {
-            setSortAsc(!sortAsc);
-        } else {
-            setSortKey(key);
-            setSortAsc(true);
-        }
-    };
+    const paginatedRows = filteredRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    const isSelected = (id) => selected.includes(id);
+
+    const SidebarContent = (
+        <Box sx={{ width: 260, p: 2 }}>
+            <Typography variant="h6" gutterBottom>Status</Typography>
+            <Stack spacing={1}>
+                <Button variant={filter === "all" ? "contained" : "outlined"} onClick={() => setFilter("all")}>All</Button>
+                <Button variant={filter === "registered" ? "contained" : "outlined"} onClick={() => setFilter("registered")}>Registered</Button>
+                <Button variant={filter === "unregistered" ? "contained" : "outlined"} onClick={() => setFilter("unregistered")}>Unregistered</Button>
+            </Stack>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="h6" gutterBottom>Gender</Typography>
+            <Stack spacing={1}>
+                <Button variant={genderFilter === "all" ? "contained" : "outlined"} onClick={() => setGenderFilter("all")}>All</Button>
+                <Button variant={genderFilter === "male" ? "contained" : "outlined"} onClick={() => setGenderFilter("male")}>Male</Button>
+                <Button variant={genderFilter === "female" ? "contained" : "outlined"} onClick={() => setGenderFilter("female")}>Female</Button>
+            </Stack>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="h6" gutterBottom>Purok</Typography>
+            <Stack spacing={1}>
+                <Button variant={purokFilter === "all" ? "contained" : "outlined"} onClick={() => setPurokFilter("all")}>All</Button>
+                {purokList.map((p) => (
+                    <Button key={p} variant={purokFilter === p ? "contained" : "outlined"} onClick={() => setPurokFilter(p)}>{p}</Button>
+                ))}
+            </Stack>
+        </Box>
+    );
 
     return (
-        <Layout>
-            <Sidebar>
-                <FilterTitle>Status</FilterTitle>
-                <FilterBtn onClick={() => setFilter("all")} $active={filter === "all"}>All</FilterBtn>
-                <FilterBtn onClick={() => setFilter("registered")} $active={filter === "registered"}>Registered</FilterBtn>
-                <FilterBtn onClick={() => setFilter("unregistered")} $active={filter === "unregistered"}>Unregistered</FilterBtn>
+        <Box sx={{ display: "flex", height: "100vh" }}>
+            <Drawer anchor="left" open={sidebarOpen} onClose={() => setSidebarOpen(false)} sx={{ display: { sm: "none" } }}>
+                {SidebarContent}
+            </Drawer>
 
-                <FilterTitle>Gender</FilterTitle>
-                <FilterBtn onClick={() => setGenderFilter("all")} $active={genderFilter === "all"}>All</FilterBtn>
-                <FilterBtn onClick={() => setGenderFilter("male")} $active={genderFilter === "male"}>Male</FilterBtn>
-                <FilterBtn onClick={() => setGenderFilter("female")} $active={genderFilter === "female"}>Female</FilterBtn>
+            {/* Sidebar Desktop */}
+            <Box sx={{ width: { xs: 0, sm: 260 }, display: { xs: "none", sm: "block" }, borderRight: "1px solid #ddd", bgcolor: "#f9f9f9" }}>
+                {SidebarContent}
+            </Box>
 
-                <FilterTitle>Purok</FilterTitle>
-                <FilterBtn onClick={() => setPurokFilter("all")} $active={purokFilter === "all"}>All</FilterBtn>
-                {purokList.map((p) => (
-                    <FilterBtn key={p} onClick={() => setPurokFilter(p)} $active={purokFilter === p}>{p}</FilterBtn>
-                ))}
-            </Sidebar>
+            {/* Main Content */}
+            <Box sx={{ flex: 1, p: 2, minWidth: 0 }}>
+                <Paper sx={{ mb: 2 }}>
+                    <Toolbar sx={{ flexDirection: { xs: "column", sm: "row" }, gap: 2, alignItems: { xs: "stretch", sm: "center" }, justifyContent: "space-between" }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <IconButton sx={{ display: { sm: "none" } }} onClick={() => setSidebarOpen(true)}>
+                                <MenuIcon />
+                            </IconButton>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label="Search youth"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                sx={{ maxWidth: { xs: "100%", sm: 300 } }}
+                            />
+                        </Box>
+                        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 1, width: { xs: "100%", sm: "auto" } }}>
+                            <Button variant="contained" startIcon={<AddIcon />} onClick={() => alert("Add Youth")}>Add</Button>
+                            <Button variant="outlined" startIcon={<DownloadIcon />} onClick={exportToCSV}>Export</Button>
+                            <Button variant="outlined" color="error" startIcon={<DeleteIcon />} disabled={selected.length === 0} onClick={() => alert("Delete selected")}>Delete</Button>
+                        </Box>
+                    </Toolbar>
 
-            <Main>
-                <TopBar>
-                    <SearchInput
-                        placeholder="Search youth..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                    <ActionGroup>
-                        <ActionBtn $primary onClick={() => alert("Add Youth")}>+ Add Youth</ActionBtn>
-                        <ActionBtn onClick={() => alert("Export")}>Export</ActionBtn>
-                        <ActionBtn disabled={selected.length === 0} onClick={() => alert("Delete selected")}>Delete</ActionBtn>
-                    </ActionGroup>
-                </TopBar>
-
-                <TableWrapper>
-                    <StyledTable>
-                        <thead>
-                            <tr>
-                                <th>
-                                    <input
-                                        type="checkbox"
-                                        onChange={(e) =>
-                                            setSelected(
-                                                e.target.checked ? paginated.map((y) => y.id) : []
-                                            )
-                                        }
-                                        checked={
-                                            selected.length === paginated.length &&
-                                            paginated.length > 0
-                                        }
-                                    />
-                                </th>
-                                <th onClick={() => handleSort("name")}>Name {sortKey === "name" && (sortAsc ? "↑" : "↓")}</th>
-                                <th onClick={() => handleSort("email")}>Email {sortKey === "email" && (sortAsc ? "↑" : "↓")}</th>
-                                <th onClick={() => handleSort("registered")}>Voting Status {sortKey === "registered" && (sortAsc ? "↑" : "↓")}</th>
-                                <th onClick={() => handleSort("gender")}>Gender {sortKey === "gender" && (sortAsc ? "↑" : "↓")}</th>
-                                <th onClick={() => handleSort("purok")}>Purok {sortKey === "purok" && (sortAsc ? "↑" : "↓")}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {paginated.map((y) => (
-                                <tr key={y.id}>
-                                    <td>
-                                        <input
-                                            type="checkbox"
-                                            checked={selected.includes(y.id)}
-                                            onChange={() => handleSelect(y.id)}
+                    <TableContainer sx={{ overflowX: "auto" }}>
+                        <Table size={dense ? "small" : "medium"}>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell padding="checkbox">
+                                        <Checkbox
+                                            indeterminate={selected.length > 0 && selected.length < paginatedRows.length}
+                                            checked={paginatedRows.length > 0 && selected.length === paginatedRows.length}
+                                            onChange={handleSelectAllClick}
                                         />
-                                    </td>
-                                    <td>{y.name}</td>
-                                    <td>{y.email}</td>
-                                    <td>{y.registered ? "Yes" : "No"}</td>
-                                    <td>{y.gender}</td>
-                                    <td>{y.purok}</td>
-                                </tr>
-                            ))}
-                            {paginated.length === 0 && (
-                                <tr>
-                                    <td colSpan="6">No results found.</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </StyledTable>
-                </TableWrapper>
+                                    </TableCell>
+                                    {headCells.map((headCell) => (
+                                        <TableCell key={headCell.id} sortDirection={orderBy === headCell.id ? order : false}>
+                                            <TableSortLabel
+                                                active={orderBy === headCell.id}
+                                                direction={orderBy === headCell.id ? order : "asc"}
+                                                onClick={(e) => handleRequestSort(e, headCell.id)}
+                                            >
+                                                {headCell.label}
+                                                {orderBy === headCell.id ? (
+                                                    <Box component="span" sx={visuallyHidden}>
+                                                        {order === "desc" ? "sorted descending" : "sorted ascending"}
+                                                    </Box>
+                                                ) : null}
+                                            </TableSortLabel>
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {paginatedRows.map((row) => {
+                                    const isItemSelected = isSelected(row.id);
+                                    return (
+                                        <TableRow key={row.id} hover selected={isItemSelected} onClick={() => handleClick(row.id)}>
+                                            <TableCell padding="checkbox">
+                                                <Checkbox checked={isItemSelected} />
+                                            </TableCell>
+                                            <TableCell>{row.name}</TableCell>
+                                            <TableCell>{row.email}</TableCell>
+                                            <TableCell>{row.registered}</TableCell>
+                                            <TableCell>{row.gender}</TableCell>
+                                            <TableCell>{row.purok}</TableCell>
+                                        </TableRow>
+                                    );
+                                })}
+                                {paginatedRows.length === 0 && (
+                                    <TableRow>
+                                        <TableCell colSpan={6}>No results found.</TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
 
-                <Pagination>
-                    {Array.from({ length: totalPages }, (_, i) => (
-                        <PageBtn
-                            key={i}
-                            onClick={() => setCurrentPage(i + 1)}
-                            className={currentPage === i + 1 ? "active" : ""}
-                        >
-                            {i + 1}
-                        </PageBtn>
-                    ))}
-                </Pagination>
-            </Main>
-        </Layout>
+                    <TablePagination
+                        rowsPerPageOptions={[5, 10, 25]}
+                        component="div"
+                        count={filteredRows.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                    />
+                </Paper>
+
+                <FormControlLabel control={<Switch checked={dense} onChange={(e) => setDense(e.target.checked)} />} label="Dense padding" />
+            </Box>
+        </Box>
     );
-};
+}
 
 export default YouthPage;
-
-
-
-const Layout = styled.div`
-    display: flex;
-    min-height: 100vh;
-    background: #f5f7fa;
-`;
-
-const Sidebar = styled.div`
-    width: 15rem;
-    padding: 1.5rem;
-    background: #fff;
-    border-right: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-`;
-
-const Main = styled.div`
-    flex: 1;
-    padding: 1rem;
-`;
-
-const TopBar = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-`;
-
-const ActionGroup = styled.div`
-    display: flex;
-    gap: 0.5rem;
-`;
-
-const ActionBtn = styled.button`
-    background: ${(p) => (p.$primary ? "#007bff" : "#eee")};
-    color: ${(p) => (p.$primary ? "white" : "#333")};
-    padding: 0.6rem 1rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    opacity: ${(p) => (p.disabled ? 0.5 : 1)};
-    pointer-events: ${(p) => (p.disabled ? "none" : "auto")};
-    font-weight: 500;
-
-    &:hover {
-        background: ${(p) => (p.$primary ? "#0056b3" : "#ddd")};
-    }
-`;
-
-const SearchInput = styled.input`
-    padding: 0.5rem 1rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-`;
-
-const FilterTitle = styled.div`
-    font-weight: 600;
-    margin-top: 1rem;
-`;
-
-const FilterBtn = styled.button`
-    background: ${(p) => (p.$active ? "#007bff" : "white")};
-    color: ${(p) => (p.$active ? "white" : "#333")};
-    border: 1px solid ${(p) => (p.$active ? "#007bff" : "#ccc")};
-    padding: 0.4rem 0.6rem;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 0.3rem;
-    text-align: left;
-`;
-
-const TableWrapper = styled.div`
-    width: 100%;
-    overflow-x: auto;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    padding-bottom: 1rem;
-
-    &::-webkit-scrollbar {
-        height: 8px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-        background-color: #ccc;
-        border-radius: 4px;
-    }
-
-    &::-webkit-scrollbar-track {
-        background-color: #f1f1f1;
-    }
-`;
-
-const StyledTable = styled.table`
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 800px;
-
-    th, td {
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid #eee;
-        text-align: left;
-        white-space: nowrap;
-    }
-
-    th {
-        background: #f8f8f8;
-        cursor: pointer;
-        font-weight: 600;
-        user-select: none;
-    }
-
-    tr:hover td {
-        background: #f1f9ff;
-    }
-`;
-
-const Pagination = styled.div`
-    margin-top: 1.5rem;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 0.3rem;
-`;
-
-const PageBtn = styled.button`
-    padding: 0.4rem 0.8rem;
-    border: 1px solid #ccc;
-    background: white;
-    border-radius: 4px;
-    cursor: pointer;
-
-    &.active {
-        background: #007bff;
-        color: white;
-    }
-`;
