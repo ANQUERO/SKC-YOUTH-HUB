@@ -135,3 +135,158 @@ export const update = async (req, res) => {
     }
 };
 
+export const destroy = async (req, res) => {
+    const { id: admin_id } = req.params;
+    const user = req.user;
+
+    if (!user || user.userType !== 'admin') {
+        return res.status(403).json({
+            status: "Error",
+            message: "Forbidden - Only admins can access this resource"
+        });
+    }
+
+    try {
+        const result = await pool.query(
+            'UPDATE sk_official_admin SET is_active = false WHERE admin_id = $1 RETURNING *',
+            [admin_id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                status: "Error",
+                message: "Admin not found"
+            });
+        }
+
+        res.status(200).json({
+            status: "Success",
+            message: "Admin account disabled successfully",
+            data: result.rows[0]
+        });
+    } catch (error) {
+        console.error("Failed to disable admin account:", error);
+        res.status(500).json({
+            status: "Error",
+            message: "Internal server error"
+        });
+    }
+}
+
+export const enable = async (req, res) => {
+    const { id: admin_id } = req.params;
+    const user = req.user;
+
+    if (!user || user.userType !== 'admin') {
+        return res.status(403).json({
+            status: "Error",
+            message: "Forbidden - Only admins can access this resource"
+        });
+    }
+
+    try {
+        const result = await pool.query(
+            'UPDATE sk_official_admin SET is_active = true WHERE admin_id = $1 RETURNING *',
+            [admin_id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                status: "Error",
+                message: "Admin not found"
+            });
+        }
+
+        res.status(200).json({
+            status: "Success",
+            message: "Admin account enabled successfully",
+            data: result.rows[0]
+        });
+    } catch (error) {
+        console.error("Failed to enable admin account:", error);
+        res.status(500).json({
+            status: "Error",
+            message: "Internal server error"
+        });
+    }
+
+}
+
+export const disableComment = async (req, res) => {
+    const { id: admin_id } = req.params;
+    const user = req.user;
+
+    if (!user || user.userType !== 'admin') {
+        return res.status(403).json({
+            status: "Error",
+            message: "Forbidden - Only admins can access this resource"
+        });
+    }
+
+    try {
+        const result = await pool.query(
+            'UPDATE sk_official_admin SET comment_at = true WHERE admin_id = $1 RETURNING *',
+            [admin_id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                status: "Error",
+                message: "Admin not found"
+            });
+        }
+
+        res.status(200).json({
+            status: "Success",
+            message: "Admin comment disabled successfully",
+            data: result.rows[0]
+        });
+    } catch (error) {
+        console.error("Failed to disable admin comment:", error);
+        res.status(500).json({
+            status: "Error",
+            message: "Internal server error"
+        });
+    }
+
+
+}
+
+export const enableComment = async (req, res) => {
+    const { id: admin_id } = req.params;
+    const user = req.user;
+
+    if (!user || user.userType !== 'admin') {
+        return res.status(403).json({
+            status: "Error",
+            message: "Forbidden - Only admins can access this resource"
+        });
+    }
+
+    try {
+        const result = await pool.query(
+            'UPDATE sk_official_admin SET comment_at = false WHERE admin_id = $1 RETURNING *',
+            [admin_id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                status: "Error",
+                message: "Admin not found"
+            });
+        }
+
+        res.status(200).json({
+            status: "Success",
+            message: "Admin comment enabled successfully",
+            data: result.rows[0]
+        });
+    } catch (error) {
+        console.error("Failed to enable admin comment:", error);
+        res.status(500).json({
+            status: "Error",
+            message: "Internal server error"
+        });
+    }
+
+}
