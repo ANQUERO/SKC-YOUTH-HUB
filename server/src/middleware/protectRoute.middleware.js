@@ -3,7 +3,7 @@ import { getSecretKey } from '../utils/jwt.js';
 
 const protectRoute = (options = {}) => {
     return (req, res, next) => {
-        console.log('🔐 Protect Route Middleware');
+        console.log('Protect Route Middleware');
 
         try {
             const token =
@@ -11,7 +11,7 @@ const protectRoute = (options = {}) => {
                 (req.headers.authorization && req.headers.authorization.replace('Bearer ', ''));
 
             if (!token) {
-                console.warn('🚫 No token found');
+                console.warn(' No token found');
                 return res.status(401).json({
                     message: 'Unauthorized - No token provided'
                 });
@@ -21,13 +21,13 @@ const protectRoute = (options = {}) => {
             const decoded = jwt.verify(token, secret);
 
             if (!decoded || typeof decoded !== 'object') {
-                console.warn('❌ Invalid token payload');
+                console.warn(' Invalid token payload');
                 return res.status(401).json({
                     message: 'Unauthorized - Invalid token'
                 });
             }
 
-            // Normalize role(s)
+            // Normalize roles
             let rawRoles = decoded.role;
             if (!Array.isArray(rawRoles)) rawRoles = [rawRoles];
 
@@ -63,19 +63,19 @@ const protectRoute = (options = {}) => {
                         : options.allowedRoles.includes('youth');
 
                 if (!hasAccess) {
-                    console.warn(`🚫 Access denied. User roles: ${rawRoles.join(', ')}. Allowed: ${options.allowedRoles.join(', ')}`);
+                    console.warn(`Access denied. User roles: ${rawRoles.join(', ')}. Allowed: ${options.allowedRoles.join(', ')}`);
                     return res.status(403).json({
                         message: 'Forbidden - You do not have permission to access this resource',
                     });
                 }
             }
 
-            console.log(`✅ Authenticated as ${decoded.userType} (${rawRoles.join(', ')})`);
+            console.log(`Authenticated as ${decoded.userType} (${rawRoles.join(', ')})`);
             next();
 
         } catch (err) {
             const isExpired = err.name === 'TokenExpiredError';
-            console.error('❗ JWT Error:', isExpired ? 'Token expired' : err.message);
+            console.error('JWT Error:', isExpired ? 'Token expired' : err.message);
 
             return res.status(401).json({
                 message: isExpired

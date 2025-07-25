@@ -14,7 +14,6 @@ export const getSecretKey = () => {
 export const generateTokenAndSetCookies = (user, res, userType) => {
     const secret = getSecretKey();
 
-    // Normalize userType just in case
     const normalizedType = typeof userType === 'string' ? userType.trim().toLowerCase() : '';
 
     const payload = { userType: normalizedType };

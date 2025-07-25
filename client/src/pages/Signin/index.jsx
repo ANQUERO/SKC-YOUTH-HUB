@@ -19,30 +19,6 @@ import Logo from '@images/logo.jpg';
 import style from '@styles/signin.module.scss';
 import useLogin from '@hooks/useSignin';
 
-const errorBoxStyles = {
-  mt: 0.5,
-  ml: 1,
-  backgroundColor: '#ffe6e6',
-  color: '#d32f2f',
-  px: 1.5,
-  py: 0.5,
-  borderRadius: '6px',
-  fontSize: '0.85rem',
-  maxWidth: '300px',
-  position: 'relative',
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    top: '-5px',
-    left: '10px',
-    width: 0,
-    height: 0,
-    borderLeft: '6px solid transparent',
-    borderRight: '6px solid transparent',
-    borderBottom: '6px solid #ffe6e6',
-  },
-};
-
 const Signin = () => {
   const [form, setForm] = useState({ email: '', password: '', remember: false });
   const [showPassword, setShowPassword] = useState(false);
@@ -175,3 +151,28 @@ const Signin = () => {
 };
 
 export default Signin;
+
+
+const errorBoxStyles = {
+  mt: 0.5,
+  ml: 1,
+  backgroundColor: '#ffe6e6',
+  color: '#d32f2f',
+  px: 1.5,
+  py: 0.5,
+  borderRadius: '6px',
+  fontSize: '0.85rem',
+  maxWidth: '300px',
+  position: 'relative',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: '-5px',
+    left: '10px',
+    width: 0,
+    height: 0,
+    borderLeft: '6px solid transparent',
+    borderRight: '6px solid transparent',
+    borderBottom: '6px solid #ffe6e6',
+  },
+};

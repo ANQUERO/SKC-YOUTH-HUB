@@ -143,7 +143,7 @@ export const signup = async (req, res) => {
       VALUES ($1, $2);
     `, [youth_id, household]);
 
-        // Attachment (if provided)
+        // Attachment
         if (file) {
             await client.query(`
         INSERT INTO sk_youth_attachments (youth_id, file_name, file_type, file_url)

@@ -41,9 +41,8 @@ export const isPassword = value => {
     const has8Chars = value.length === 8;
     const hasOneNumber = /[0-9]/.test(value);
     const hasOneSpecial = /[^A-Za-z0-9]/.test(value);
-    const lettersCount = (value.match(/[A-Za-z]/g) || []).length;
-
-    return has8Chars && hasOneNumber && hasOneSpecial && lettersCount >= 6;
+    const onlyValidChars = /^[A-Za-z0-9\W]{8}$/.test(value);
+    return has8Chars && hasOneNumber && hasOneSpecial && onlyValidChars;
 };
 
 export const isContact = value => {
