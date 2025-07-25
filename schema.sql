@@ -11,44 +11,7 @@ CREATE TABLE sk_official_admin (
     password TEXT NOT NULL,
     role TEXT[] NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP.
-    comment_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-);
-
--- Posts
-CREATE TABLE posts (
-    post_id SERIAL PRIMARY KEY,
-    admin_id INTEGER NOT NULL REFERENCES sk_official_admin(admin_id),
-    title VARCHAR(55) NOT NULL,
-    description TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP
-);
-
--- Post Reactions
-CREATE TABLE post_reactions (
-    reaction_id SERIAL PRIMARY KEY,
-    post_id INTEGER NOT NULL REFERENCES posts(post_id) ON DELETE CASCADE,
-    user_type VARCHAR(10) NOT NULL CHECK (user_type IN ('admin', 'user')),
-    user_id INTEGER NOT NULL,
-    type VARCHAR(10) NOT NULL CHECK (type IN ('like', 'heart', 'wow')),
-    reacted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP
-);
-
--- Post Comments
-CREATE TABLE post_comments (
-    comment_id SERIAL PRIMARY KEY,
-    post_id INTEGER NOT NULL REFERENCES posts(post_id) ON DELETE CASCADE,
-    user_type VARCHAR(10) NOT NULL CHECK (user_type IN ('admin', 'user')),
-    user_id INTEGER NOT NULL,
-    content TEXT NOT NULL,
-    parent_comment_id INTEGER REFERENCES post_comments(comment_id) ON DELETE CASCADE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    is_edited BOOLEAN DEFAULT FALSE,
-    deleted_at TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Youth Account
@@ -195,6 +158,62 @@ VALUES
 ALTER TABLE sk_official_admin
     DROP CONSTRAINT sk_official_admin_role_check,
     ALTER COLUMN role TYPE TEXT[] USING ARRAY[role]::TEXT[];
+
+ALTER TABLE sk_official_admin
+ADD COLUMN comment_at BOOLEAN DEFAULT TRUE;
+
+
+CREATE TABLE sk_youth_deleted (
+    deleted_id SERIAL PRIMARY KEY,
+    youth_id INTEGER,
+    email VARCHAR(55),
+    deleted_reason TEXT,
+    deleted_by INTEGER, -- admin_id
+    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE sk_youth_deleted
+ADD CONSTRAINT fk_deleted_by_admin
+FOREIGN KEY (deleted_by) REFERENCES sk_official_admin(admin_id);
+
+
+---Posts table: supports image/video, description, title, and tracks posting admin
+CREATE TABLE posts (
+    post_id SERIAL PRIMARY KEY,
+    admin_id INTEGER NOT NULL REFERENCES sk_official_admin(admin_id),
+    title VARCHAR(100) NOT NULL,
+    description TEXT NOT NULL,
+    media_type VARCHAR(10) CHECK (media_type IN ('image', 'video')),
+    media_url TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Post Comments: admin and youth can comment
+CREATE TABLE post_comments (
+    comment_id SERIAL PRIMARY KEY,
+    parent_comment_id INTEGER REFERENCES post_comments(comment_id) ,
+    post_id INTEGER NOT NULL REFERENCES posts(post_id) ,
+    user_type VARCHAR(10) NOT NULL CHECK (user_type IN ('admin', 'youth')),
+    user_id INTEGER NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Post Reactions: admin and youth can react to posts
+CREATE TABLE post_reactions (
+    reaction_id SERIAL PRIMARY KEY,
+    post_id INTEGER NOT NULL REFERENCES posts(post_id) ,
+    user_type VARCHAR(10) NOT NULL CHECK (user_type IN ('admin', 'youth')),
+    user_id INTEGER NOT NULL,
+    type VARCHAR(10) NOT NULL CHECK (type IN ('like', 'heart', 'wow')),
+    reacted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 
 
 
