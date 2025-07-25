@@ -12,48 +12,28 @@ export const index = async (req, res) => {
     }
 
     try {
-        const [
-            youth,
-            name,
-            location,
-            gender,
-            info,
-            demographics,
-            survey,
-            meetingSurvey,
-            attachments,
-            household
-        ] = await Promise.all([
-            pool.query('SELECT * FROM sk_youth'),
-            pool.query('SELECT * FROM sk_youth_name'),
-            pool.query('SELECT * FROM sk_youth_location'),
-            pool.query('SELECT * FROM sk_youth_gender'),
-            pool.query('SELECT * FROM sk_youth_info'),
-            pool.query('SELECT * FROM sk_youth_demographics'),
-            pool.query('SELECT * FROM sk_youth_survey'),
-            pool.query('SELECT * FROM sk_youth_meeting_survey'),
-            pool.query('SELECT * FROM sk_youth_attachments'),
-            pool.query('SELECT * FROM sk_youth_household'),
-        ]);
+        const result = await pool.query(
+            `
+            SELECT 
+            y.youth_id,
+            y.youth_email,
+            y.verified,
+            CONCAT(yn.first_name, ' ', yn.middle_name, ' ', yn.last_name) AS full_name,
+            
+            
+            `
+        )
+
 
         console.log('🧑‍💻 Full Youth Record:', {
-            youth: youth.rows[0],
-            name: name.rows,
-            location: location.rows,
-            gender: gender.rows,
-            info: info.rows,
+            data: result.rows
         });
 
         res.status(200).json({
             status: "Success",
-            data: {
-                youth: youth.rows,
-                name: name.rows,
-                location: location.rows,
-                gender: gender.rows,
-                info: info.rows,
-            }
+            data: result.rows
         });
+
     } catch (error) {
         console.error('Database query failed:', error);
         res.status(500).json({
