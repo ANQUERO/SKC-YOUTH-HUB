@@ -53,7 +53,7 @@ export const unverified = async (req, res) => {
 
         res.status(200).json({
             status: 'Success',
-            data: result.rows
+            youth: result.rows
         });
     } catch (error) {
         console.error('Failed to fetch unverified youth data:', error);
