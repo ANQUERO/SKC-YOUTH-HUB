@@ -1,4 +1,3 @@
-// src/hooks/useYouth.js
 import { useState } from "react";
 import axiosInstance from "@lib/axios";
 import { useAuthContext } from "@context/AuthContext";
@@ -23,9 +22,9 @@ const useYouth = () => {
 
         try {
             const res = await axiosInstance.get("/youth");
-            setYouthData(res.data.data);
+            setYouthData({ youth: res.data.youth });
         } catch (err) {
-            console.error("❌ Fetch youth error:", err);
+            console.error("Fetch youth error:", err);
             setError(err.response?.data?.message || "Failed to fetch youth data");
         } finally {
             setLoading(false);

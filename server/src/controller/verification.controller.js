@@ -33,8 +33,10 @@ export const unverified = async (req, res) => {
                 yd.youth_classification,
                 yd.educational_background,
                 yd.work_status,
+                ys.registered_voter,
+                ys.registered_national_voter,
                 yh.household,
-                ya.file_name,
+                ya.file_name, 
                 ya.file_type,
                 ya.file_url
             FROM sk_youth y
@@ -45,6 +47,7 @@ export const unverified = async (req, res) => {
             LEFT JOIN sk_youth_demographics yd ON y.youth_id = yd.youth_id
             LEFT JOIN sk_youth_household yh ON y.youth_id = yh.youth_id
             LEFT JOIN sk_youth_attachments ya ON y.youth_id = ya.youth_id
+            LEFT JOIN sk_youth_survey ys ON y.youth_id = ys.youth_id
             WHERE y.verified = false AND y.deleted_at IS NULL;
         `);
 

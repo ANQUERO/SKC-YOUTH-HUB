@@ -45,6 +45,8 @@ const headCells = [
     { id: "name", label: "Name" },
     { id: "email", label: "Email" },
     { id: "registered", label: "Voting Status" },
+    { id: "verified", label: "Verified" },
+    { id: "age", label: "Age" },
     { id: "gender", label: "Gender" },
     { id: "purok", label: "Purok" },
 ];
@@ -54,6 +56,7 @@ function YouthPage() {
 
     const [search, setSearch] = useState("");
     const [filter, setFilter] = useState("all");
+    const [verifiedFilter, setVerifiedFilter] = useState("all");
     const [genderFilter, setGenderFilter] = useState("all");
     const [purokFilter, setPurokFilter] = useState("all");
     const [selected, setSelected] = useState([]);
@@ -69,42 +72,51 @@ function YouthPage() {
     }, []);
 
     const purokList = useMemo(() => {
-        const allPuroks = youthData?.purok?.map((p) => p.name).filter(Boolean) || [];
-        return [...new Set(allPuroks)];
+        if (!youthData?.youth) return [];
+        return [...new Set(youthData.youth.map((y) => y.purok?.name).filter(Boolean))];
     }, [youthData]);
 
     const rows = useMemo(() => {
         if (!youthData?.youth) return [];
-        return youthData.youth.map((y) => {
-            const id = y.youth_id;
-            const n = youthData.name?.find((x) => x.youth_id === id);
-            const s = youthData.registered_voter?.find((x) => x.youth_id === id);
-            const g = youthData.gender?.find((x) => x.youth_id === id);
-            const p = youthData.purok?.find((x) => x.youth_id === id);
-            return {
-                id,
-                name: `${n?.first_name || ""} ${n?.middle_name || ""} ${n?.last_name || ""}`.trim(),
-                email: y.email,
-                registered: s?.registered_voter === "yes" ? "Yes" : "No",
-                gender: g?.gender || "N/A",
-                purok: p?.name || "N/A",
-            };
-        });
+        return youthData.youth.map((y) => ({
+            id: y.youth_id,
+            name: y.full_name || "N/A",
+            email: y.email || "N/A",
+            registered: y.registered_voter === "yes" ? "Registered" : "Unregistered",
+            verified: y.verified ? "Yes" : "No",
+            age: y.age || "N/A",
+            gender: y.gender || "N/A",
+            purok: y.purok || "N/A",
+        }));
     }, [youthData]);
 
     const filteredRows = useMemo(() => {
         let r = [...rows];
-        if (search) r = r.filter((y) => y.name.toLowerCase().includes(search.toLowerCase()));
-        if (filter === "registered") r = r.filter((y) => y.registered === "Yes");
-        else if (filter === "unregistered") r = r.filter((y) => y.registered === "No");
-        if (genderFilter !== "all") r = r.filter((y) => y.gender.toLowerCase() === genderFilter);
-        if (purokFilter !== "all") r = r.filter((y) => y.purok === purokFilter);
+        if (search) {
+            r = r.filter((y) => y.name.toLowerCase().includes(search.toLowerCase()));
+        }
+        if (filter === "registered") {
+            r = r.filter((y) => y.registered === "Registered");
+        } else if (filter === "unregistered") {
+            r = r.filter((y) => y.registered === "Unregistered");
+        }
+        if (verifiedFilter !== "all") {
+            r = r.filter((y) => y.verified.toLowerCase() === verifiedFilter);
+        }
+        if (genderFilter !== "all") {
+            r = r.filter((y) => y.gender.toLowerCase() === genderFilter);
+        }
+        if (purokFilter !== "all") {
+            r = r.filter((y) => y.purok === purokFilter);
+        }
         return r.sort(getComparator(order, orderBy));
-    }, [rows, search, filter, genderFilter, purokFilter, order, orderBy]);
+    }, [rows, search, filter, verifiedFilter, genderFilter, purokFilter, order, orderBy]);
+
+    const paginatedRows = filteredRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
     const handleSelectAllClick = (e) => {
         if (e.target.checked) {
-            setSelected(filteredRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((n) => n.id));
+            setSelected(paginatedRows.map((n) => n.id));
         } else setSelected([]);
     };
 
@@ -126,16 +138,23 @@ function YouthPage() {
     };
 
     const exportToCSV = () => {
-        const headers = ["Name", "Email", "Voting Status", "Gender", "Purok"];
+        const headers = headCells.map((h) => h.label);
         const csvRows = [headers.join(",")];
         filteredRows.forEach((row) => {
-            csvRows.push([row.name, row.email, row.registered, row.gender, row.purok].join(","));
+            csvRows.push([
+                row.name,
+                row.email,
+                row.registered,
+                row.verified,
+                row.age,
+                row.gender,
+                row.purok,
+            ].join(","));
         });
         const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
         saveAs(blob, "youth_data.csv");
     };
 
-    const paginatedRows = filteredRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
     const isSelected = (id) => selected.includes(id);
 
     const SidebarContent = (
@@ -147,6 +166,13 @@ function YouthPage() {
                 <Button variant={filter === "unregistered" ? "contained" : "outlined"} onClick={() => setFilter("unregistered")}>Unregistered</Button>
             </Stack>
             <Divider sx={{ my: 2 }} />
+            <Typography variant="h6" gutterBottom>Verified</Typography>
+            <Stack spacing={1}>
+                <Button variant={verifiedFilter === "all" ? "contained" : "outlined"} onClick={() => setVerifiedFilter("all")}>All</Button>
+                <Button variant={verifiedFilter === "yes" ? "contained" : "outlined"} onClick={() => setVerifiedFilter("yes")}>Verified</Button>
+                <Button variant={verifiedFilter === "no" ? "contained" : "outlined"} onClick={() => setVerifiedFilter("no")}>Unverified</Button>
+            </Stack>
+            <Divider sx={{ my: 2 }} />
             <Typography variant="h6" gutterBottom>Gender</Typography>
             <Stack spacing={1}>
                 <Button variant={genderFilter === "all" ? "contained" : "outlined"} onClick={() => setGenderFilter("all")}>All</Button>
@@ -156,9 +182,17 @@ function YouthPage() {
             <Divider sx={{ my: 2 }} />
             <Typography variant="h6" gutterBottom>Purok</Typography>
             <Stack spacing={1}>
-                <Button variant={purokFilter === "all" ? "contained" : "outlined"} onClick={() => setPurokFilter("all")}>All</Button>
-                {purokList.map((p) => (
-                    <Button key={p} variant={purokFilter === p ? "contained" : "outlined"} onClick={() => setPurokFilter(p)}>{p}</Button>
+                <Button variant={purokFilter === "all" ? "contained" : "outlined"} onClick={() => setPurokFilter("all")}>
+                    All
+                </Button>
+                {["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Purok 5", "Purok 6"].map((p) => (
+                    <Button
+                        key={p}
+                        variant={purokFilter === p ? "contained" : "outlined"}
+                        onClick={() => setPurokFilter(p)}
+                    >
+                        {p}
+                    </Button>
                 ))}
             </Stack>
         </Box>
@@ -170,12 +204,10 @@ function YouthPage() {
                 {SidebarContent}
             </Drawer>
 
-            {/* Sidebar Desktop */}
             <Box sx={{ width: { xs: 0, sm: 260 }, display: { xs: "none", sm: "block" }, borderRight: "1px solid #ddd", bgcolor: "#f9f9f9" }}>
                 {SidebarContent}
             </Box>
 
-            {/* Main Content */}
             <Box sx={{ flex: 1, p: 2, minWidth: 0 }}>
                 <Paper sx={{ mb: 2 }}>
                     <Toolbar sx={{ flexDirection: { xs: "column", sm: "row" }, gap: 2, alignItems: { xs: "stretch", sm: "center" }, justifyContent: "space-between" }}>
@@ -218,11 +250,11 @@ function YouthPage() {
                                                 onClick={(e) => handleRequestSort(e, headCell.id)}
                                             >
                                                 {headCell.label}
-                                                {orderBy === headCell.id ? (
+                                                {orderBy === headCell.id && (
                                                     <Box component="span" sx={visuallyHidden}>
                                                         {order === "desc" ? "sorted descending" : "sorted ascending"}
                                                     </Box>
-                                                ) : null}
+                                                )}
                                             </TableSortLabel>
                                         </TableCell>
                                     ))}
@@ -239,6 +271,8 @@ function YouthPage() {
                                             <TableCell>{row.name}</TableCell>
                                             <TableCell>{row.email}</TableCell>
                                             <TableCell>{row.registered}</TableCell>
+                                            <TableCell>{row.verified}</TableCell>
+                                            <TableCell>{row.age}</TableCell>
                                             <TableCell>{row.gender}</TableCell>
                                             <TableCell>{row.purok}</TableCell>
                                         </TableRow>
@@ -246,7 +280,7 @@ function YouthPage() {
                                 })}
                                 {paginatedRows.length === 0 && (
                                     <TableRow>
-                                        <TableCell colSpan={6}>No results found.</TableCell>
+                                        <TableCell colSpan={8}>No results found.</TableCell>
                                     </TableRow>
                                 )}
                             </TableBody>

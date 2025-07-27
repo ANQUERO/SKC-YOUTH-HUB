@@ -12,26 +12,28 @@ export const index = async (req, res) => {
     }
 
     try {
-        const result = await pool.query(
-            `
+        const result = await pool.query(`
             SELECT 
-            y.youth_id,
-            y.youth_email,
-            y.verified,
-            CONCAT(yn.first_name, ' ', yn.middle_name, ' ', yn.last_name) AS full_name,
-            
-            
-            `
-        )
-
-
-        console.log('🧑‍💻 Full Youth Record:', {
-            data: result.rows
-        });
+                y.youth_id,
+                y.email,
+                y.verified,
+                CONCAT_WS(' ', yn.suffix, yn.first_name, yn.middle_name, yn.last_name) AS full_name,
+                yi.age,
+                yg.gender,
+                p.name AS purok,
+                ys.registered_voter
+            FROM sk_youth y
+            LEFT JOIN sk_youth_name yn ON y.youth_id = yn.youth_id
+            LEFT JOIN sk_youth_info yi ON y.youth_id = yi.youth_id
+            LEFT JOIN sk_youth_gender yg ON y.youth_id = yg.youth_id
+            LEFT JOIN sk_youth_survey ys ON y.youth_id = ys.youth_id
+            LEFT JOIN sk_youth_location yl ON y.youth_id = yl.youth_id
+            LEFT JOIN purok p ON yl.purok_id = p.purok_id
+        `);
 
         res.status(200).json({
             status: "Success",
-            data: result.rows
+            youth: result.rows
         });
 
     } catch (error) {
@@ -42,6 +44,7 @@ export const index = async (req, res) => {
         });
     }
 };
+
 
 export const show = async (req, res) => {
     const { id: youth_id } = req.params;
