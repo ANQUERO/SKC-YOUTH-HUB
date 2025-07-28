@@ -16,7 +16,7 @@ const Title = styled.h2`
 
 const Message = styled.div`
   color: ${({ type }) =>
-        type === 'error' ? '#dc2626' : type === 'loading' ? '#3b82f6' : '#6b7280'};
+    type === 'error' ? '#dc2626' : type === 'loading' ? '#3b82f6' : '#6b7280'};
   margin-bottom: 1rem;
 `;
 
@@ -71,8 +71,8 @@ const Button = styled.button`
   transition: background-color 0.2s;
 
   ${({ variant }) =>
-        variant === 'primary'
-            ? `
+    variant === 'primary'
+      ? `
     background-color: #22c55e;
     color: white;
 
@@ -80,7 +80,7 @@ const Button = styled.button`
       background-color: #16a34a;
     }
   `
-            : `
+      : `
     background-color: #e5e7eb;
     color: #1f2937;
 
@@ -91,54 +91,54 @@ const Button = styled.button`
 `;
 
 const Verification = () => {
-    const { youthData, loading, error, fetchYouthDetails } = useVerification();
+  const { youthData, loading, error, fetchUnverefiedYouths } = useVerification();
 
-    useEffect(() => {
-        fetchYouthDetails();
-    }, []);
+  useEffect(() => {
+    fetchUnverefiedYouths();
+  }, []);
 
-    return (
-        <Container>
-            <Title>Unverified Youth</Title>
+  return (
+    <Container>
+      <Title>Unverified Youth</Title>
 
-            {loading && <Message type="loading">Loading...</Message>}
-            {error && <Message type="error">{error}</Message>}
+      {loading && <Message type="loading">Loading...</Message>}
+      {error && <Message type="error">{error}</Message>}
 
-            {youthData?.youth?.length === 0 && !loading ? (
-                <Message>No unverified youth found.</Message>
-            ) : (
-                <Table>
-                    <Thead>
-                        <Tr>
-                            <Th><Checkbox /></Th>
-                            <Th>Name</Th>
-                            <Th>Email</Th>
-                            <Th>Age</Th>
-                            <Th>Gender</Th>
-                            <Th>Barangay</Th>
-                            <Th>Actions</Th>
-                        </Tr>
-                    </Thead>
-                    <Tbody>
-                        {youthData?.youth?.map((youth) => (
-                            <Tr key={youth.youth_id}>
-                                <Td><Checkbox /></Td>
-                                <Td>{youth.first_name} {youth.last_name}</Td>
-                                <Td>{youth.email}</Td>
-                                <Td>{youth.age}</Td>
-                                <Td>{youth.gender}</Td>
-                                <Td>{youth.barangay}</Td>
-                                <Td>
-                                    <Button variant="primary">Verify</Button>{' '}
-                                    <Button>View</Button>
-                                </Td>
-                            </Tr>
-                        ))}
-                    </Tbody>
-                </Table>
-            )}
-        </Container>
-    );
+      {youthData?.youth?.length === 0 && !loading ? (
+        <Message>No unverified youth found.</Message>
+      ) : (
+        <Table>
+          <Thead>
+            <Tr>
+              <Th><Checkbox /></Th>
+              <Th>Name</Th>
+              <Th>Email</Th>
+              <Th>Age</Th>
+              <Th>Gender</Th>
+              <Th>Barangay</Th>
+              <Th>Actions</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {youthData?.youth?.map((youth) => (
+              <Tr key={youth.youth_id}>
+                <Td><Checkbox /></Td>
+                <Td>{youth.first_name} {youth.last_name}</Td>
+                <Td>{youth.email}</Td>
+                <Td>{youth.age}</Td>
+                <Td>{youth.gender}</Td>
+                <Td>{youth.barangay}</Td>
+                <Td>
+                  <Button variant="primary">Verify</Button>{' '}
+                  <Button>View</Button>
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      )}
+    </Container>
+  );
 };
 
 export default Verification;

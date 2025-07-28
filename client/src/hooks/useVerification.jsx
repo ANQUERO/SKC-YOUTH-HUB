@@ -10,7 +10,7 @@ const useVerification = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null)
 
-    const fetchYouthDetails = async () => {
+    const fetchUnverefiedYouths = async () => {
         if (!isAuthorized) {
             setError("Unathorized access");
             return;
@@ -30,13 +30,12 @@ const useVerification = () => {
         }
     };
 
-
     return {
         youthData,
         setYouthData,
         loading,
         error,
-        fetchYouthDetails
+        fetchUnverefiedYouths
     };
 }
 export default useVerification;
