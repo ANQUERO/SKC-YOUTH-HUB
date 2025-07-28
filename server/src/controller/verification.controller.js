@@ -122,3 +122,23 @@ export const deleteSignup = async (req, res) => {
         });
     }
 };
+
+export const deletedSignup = async (req, res) => {
+    const { id: youth_id } = req.params;
+    const user = req.user;
+
+    if (!user || user.userType !== 'admin') {
+        return res.status(403).json({
+            status: "Error",
+            message: "Forbidden - Only admins can access this resource"
+        });
+    }
+
+    try {
+        
+
+    } catch (error) {
+
+    }
+
+}

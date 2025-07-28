@@ -3,6 +3,7 @@ import axiosInstance from '@lib/axios';
 import { useAuthContext } from '@context/AuthContext';
 
 const useVerification = () => {
+
     const { isSkAdmin, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
     const isAuthorized = isSkAdmin || isSkSuperAdmin || isSkNaturalAdmin;
     const [youthData, setYouthData] = useState([]);
@@ -54,7 +55,23 @@ const useVerification = () => {
 
     }
 
-  
+    const deleteSignup = async (youth_id) => {
+        if (!isAuthorized) {
+            setError("Unatorized access");
+        }
+
+
+    }
+
+    const deletedSignup = async () => {
+        if (!isAuthorized) {
+            setError("Unatorized access");
+        }
+
+
+    }
+
+
 
 
     return {
