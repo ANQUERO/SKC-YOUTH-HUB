@@ -30,12 +30,40 @@ const useVerification = () => {
         }
     };
 
+
+    const verifyYouth = async (youth_id) => {
+        if (!isAuthorized) {
+            setError("Unatorized access");
+        }
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            const res = await axiosInstance.post(`/verify/${youth_id}`)
+            setYotuh((prev) => ({
+                ...prev,
+                verified: true,
+            }));
+        } catch (error) {
+            console.error("Verification error", error);
+            setError();
+        } finally {
+            setLoading(false);
+        }
+
+    }
+
+  
+
+
     return {
         youthData,
         setYouthData,
         loading,
         error,
-        fetchUnverefiedYouths
+        fetchUnverefiedYouths,
+        verifyYouth
     };
 }
 export default useVerification;
