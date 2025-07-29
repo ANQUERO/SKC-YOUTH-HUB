@@ -4,7 +4,7 @@ import useVerification from '@hooks/useVerification';
 
 const Container = styled.div`
   padding: 1rem;
-  max-width: 1000px;
+  max-width: 100rem;
   margin: 0 auto;
 `;
 
@@ -89,6 +89,7 @@ const Button = styled.button`
     }
   `}
 `;
+
 
 const Verification = () => {
   const { youthData, loading, error, fetchUnverefiedYouths } = useVerification();
