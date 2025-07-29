@@ -71,11 +71,6 @@ function YouthPage() {
         fetchYouths();
     }, []);
 
-    const purokList = useMemo(() => {
-        if (!youthData?.youth) return [];
-        return [...new Set(youthData.youth.map((y) => y.purok?.name).filter(Boolean))];
-    }, [youthData]);
-
     const rows = useMemo(() => {
         if (!youthData?.youth) return [];
         return youthData.youth.map((y) => ({
@@ -200,6 +195,7 @@ function YouthPage() {
 
     return (
         <Box sx={{ display: "flex", height: "100vh" }}>
+
             <Drawer anchor="left" open={sidebarOpen} onClose={() => setSidebarOpen(false)} sx={{ display: { sm: "none" } }}>
                 {SidebarContent}
             </Drawer>
@@ -209,6 +205,15 @@ function YouthPage() {
             </Box>
 
             <Box sx={{ flex: 1, p: 2, minWidth: 0 }}>
+
+                <Typography variant="h2" sx={{ fontWeight: 'bold' }}>
+                    Youths
+                </Typography>
+                <Typography variant="h6" sx={{ fontWeight: '500 ' }}>
+                    Manage your youths status and view their details.
+                </Typography>
+
+
                 <Paper sx={{ mb: 2 }}>
                     <Toolbar sx={{ flexDirection: { xs: "column", sm: "row" }, gap: 2, alignItems: { xs: "stretch", sm: "center" }, justifyContent: "space-between" }}>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>

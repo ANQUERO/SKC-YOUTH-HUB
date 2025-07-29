@@ -59,7 +59,7 @@ export const ContentContainer = styled.div`
 
 export const TopContainer = styled.div`
   background-color: #FBFCFA;
-  padding: 0.5rem;
+  padding: 0.1rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -105,18 +105,6 @@ export const Content = styled.div`
 
   @media (min-width: 1024px) {
     padding-bottom: 2rem;
-  }
-`;
-
-export const SearchContainer = styled.input`
-  width: 100%;
-  border: none;
-  background-color: #f3f4f6;
-  border-radius: 9999px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-
-  @media (min-width: 1024px) {
-    width: 440px;
   }
 `;
 

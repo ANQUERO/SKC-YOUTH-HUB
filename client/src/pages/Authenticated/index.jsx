@@ -122,12 +122,6 @@ const Authenticated = () => {
               <MenuIcon />
             </ToggleSidebarButton>
           )}
-          <SearchContainer
-            type="text"
-            placeholder="Search..."
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-          />
           <UserContainer>
             <span>User</span>
           </UserContainer>

@@ -1,6 +1,6 @@
 import React from 'react';
 import Modal from 'react-modal';
-import { Typography, List, ListItem, ListItemText, Divider, Box, Button } from '@mui/material';
+import { Typography, List, ListItem, ListItemText, Box, Button } from '@mui/material';
 
 const YouthDetailModal = ({ isOpen, onRequestClose, youth }) => {
     return (
@@ -23,9 +23,11 @@ const YouthDetailModal = ({ isOpen, onRequestClose, youth }) => {
             {youth ? (
                 <Box>
                     <List dense>
+
                         <ListItem><ListItemText primary="Name" secondary={`${youth.suffix ? youth.suffix + '. ' : ''}${youth.first_name} ${youth.middle_name || ''} ${youth.last_name}`} /></ListItem>
                         <ListItem><ListItemText primary="Email" secondary={youth.email} /></ListItem>
                         <ListItem><ListItemText primary="Verified" secondary={youth.verified ? 'Yes' : 'No'} /></ListItem>
+
                         <ListItem><ListItemText primary="Joined" secondary={new Date(youth.created_at).toLocaleString()} /></ListItem>
                         <ListItem><ListItemText primary="Gender" secondary={youth.gender || 'N/A'} /></ListItem>
                         <ListItem><ListItemText primary="Birthday" secondary={youth.birthday ? new Date(youth.birthday).toLocaleDateString() : 'N/A'} /></ListItem>
