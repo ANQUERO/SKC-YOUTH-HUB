@@ -44,7 +44,7 @@ const useYouth = () => {
             const res = await axiosInstance.get(`/youth/${youth_id}`);
             setYouth(res.data.data);
         } catch (err) {
-            console.error("❌ Fetch youth detail error:", err);
+            console.error("Fetch youth detail error:", err);
             setError(err.response?.data?.message || "Failed to fetch youth details");
         } finally {
             setLoading(false);

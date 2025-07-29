@@ -107,12 +107,24 @@ const Purok = () => {
 
   return (
     <Box sx={{ width: '100%', p: 3 }}>
+
       <Typography variant="h4" gutterBottom>Purok Management</Typography>
-      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between' }}>
+
+      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'end', gap: '2px' }}>
+
         <Button variant="contained" onClick={() => setShowModal(true)}>+ New Purok</Button>
-        <Button color="error" onClick={handleBulkDelete} disabled={!selectedIds.length || actionLoading}>
-          Delete Selected
-        </Button>
+
+        {selectedIds.length > 0 && (
+          <Button
+            color="error"
+            sx={{ border: '1px solid red' }}
+            onClick={handleBulkDelete}
+            disabled={actionLoading}
+          >
+            Delete Selected
+          </Button>
+        )}
+
       </Box>
 
       {loading && <Typography>Loading...</Typography>}

@@ -1,36 +1,73 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import useVerification from '@hooks/useVerification';
+import Modal from 'react-modal';
 import { Ellipsis } from 'lucide-react';
+import useVerification from '@hooks/useVerification';
 
 const Verification = () => {
   const {
     youthData,
+    youthDetails,
     loading,
     error,
-    fetchUnverefiedYouths,
+    fetchUnverifiedYouths,
+    fetchYouthDetails,
     verifyYouth,
+    deleteSignup,
+    fetchDeletedYouths
   } = useVerification();
+
   const [openId, setOpenId] = useState(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [view, setView] = useState('unverified'); // "unverified" or "deleted"
 
   useEffect(() => {
-    fetchUnverefiedYouths();
-  }, []);
+    if (view === 'unverified') {
+      fetchUnverifiedYouths();
+    } else if (view === 'deleted') {
+      fetchDeletedYouths();
+    }
+  }, [view]);
 
   const handleVerify = async (id) => {
     await verifyYouth(id);
-    fetchUnverefiedYouths();
+    fetchUnverifiedYouths();
+  };
+
+  const handleDelete = async (id) => {
+    await deleteSignup(id);
+    fetchUnverifiedYouths();
+  };
+
+  const handleView = async (id) => {
+    await fetchYouthDetails(id);
+    setDetailModalOpen(true);
   };
 
   return (
     <Container>
-      <Title>Unverified Youth</Title>
+      <Title>{view === 'unverified' ? 'Unverified Youth' : 'Deleted Youth (Drafts)'}</Title>
+
+      <ButtonRow>
+        <ToggleButton
+          active={view === 'unverified'}
+          onClick={() => setView('unverified')}
+        >
+          Unverified
+        </ToggleButton>
+        <ToggleButton
+          active={view === 'deleted'}
+          onClick={() => setView('deleted')}
+        >
+          Drafts
+        </ToggleButton>
+      </ButtonRow>
 
       {loading && <Message type="loading">Loading...</Message>}
       {error && <Message type="error">{error}</Message>}
 
-      {youthData?.youth?.length === 0 && !loading ? (
-        <Message>No unverified youth found.</Message>
+      {youthData.length === 0 && !loading ? (
+        <Message>No {view === 'unverified' ? 'unverified' : 'deleted'} youth found.</Message>
       ) : (
         <Table>
           <Thead>
@@ -43,28 +80,33 @@ const Verification = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {youthData?.youth?.map((youth) => (
+            {youthData.map((youth) => (
               <Tr key={youth.youth_id}>
                 <Td><Checkbox /></Td>
-                <Td>{youth.suffix}. {youth.first_name} {youth.last_name} {youth.last_name}</Td>
+                <Td>
+                  {youth.suffix ? `${youth.suffix}. ` : ''}
+                  {youth.first_name} {youth.middle_name || ''} {youth.last_name}
+                </Td>
                 <Td>{youth.email}</Td>
-                <Td>{new Date(youth.created_at).toLocaleDateString(undefined, {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: 'numeric',
-                  minute: '2-digit',
-                  hour12: true
-                })}</Td>
+                <Td>{new Date(youth.created_at).toLocaleString()}</Td>
                 <Td>
                   <MenuWrapper>
                     <MenuButton onClick={() => setOpenId(youth.youth_id === openId ? null : youth.youth_id)}>
                       <Ellipsis />
                     </MenuButton>
                     <Dropdown open={youth.youth_id === openId}>
-                      <DropdownItem onClick={() => handleVerify(youth.youth_id)}>Verify</DropdownItem>
-                      <DropdownItem>View</DropdownItem>
-                      <DropdownItem>Delete</DropdownItem>
+                      {view === 'unverified' && (
+                        <>
+                          <DropdownItem onClick={() => handleVerify(youth.youth_id)}>Verify</DropdownItem>
+                          <DropdownItem onClick={() => handleView(youth.youth_id)}>View</DropdownItem>
+                          <DropdownItem onClick={() => handleDelete(youth.youth_id)}>Delete</DropdownItem>
+                        </>
+                      )}
+                      {view === 'deleted' && (
+                        <>
+                          <DropdownItem onClick={() => handleView(youth.youth_id)}>View</DropdownItem>
+                        </>
+                      )}
                     </Dropdown>
                   </MenuWrapper>
                 </Td>
@@ -73,6 +115,96 @@ const Verification = () => {
           </Tbody>
         </Table>
       )}
+
+      <Modal
+        isOpen={detailModalOpen}
+        onRequestClose={() => setDetailModalOpen(false)}
+        contentLabel="Youth Details"
+        style={{
+          content: {
+            maxWidth: '600px',
+            margin: 'auto',
+            borderRadius: '8px',
+            padding: '1.5rem'
+          }
+        }}
+      >
+        <h3 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Youth Details</h3>
+
+        {youthDetails ? (
+          <div>
+            <ul style={{ listStyle: 'none', padding: 0, lineHeight: '1.8' }}>
+              <li><strong>Name:</strong> {youthDetails.suffix ? `${youthDetails.suffix}. ` : ''}{youthDetails.first_name} {youthDetails.middle_name || ''} {youthDetails.last_name}</li>
+              <li><strong>Email:</strong> {youthDetails.email}</li>
+              <li><strong>Verified:</strong> {youthDetails.verified ? 'Yes' : 'No'}</li>
+              <li><strong>Joined:</strong> {new Date(youthDetails.created_at).toLocaleString()}</li>
+              <li><strong>Gender:</strong> {youthDetails.gender || 'N/A'}</li>
+              <li><strong>Birthday:</strong> {youthDetails.birthday ? new Date(youthDetails.birthday).toLocaleDateString() : 'N/A'}</li>
+              <li><strong>Age:</strong> {youthDetails.age ?? 'N/A'}</li>
+              <li><strong>Contact No.:</strong> {youthDetails.contact || 'N/A'}</li>
+              <li><strong>Region:</strong> {youthDetails.region}</li>
+              <li><strong>Province:</strong> {youthDetails.province}</li>
+              <li><strong>Municipality:</strong> {youthDetails.municipality}</li>
+              <li><strong>Barangay:</strong> {youthDetails.barangay}</li>
+              <li><strong>Purok:</strong> {youthDetails.purok || 'N/A'}</li>
+              <li><strong>Civil Status:</strong> {youthDetails.civil_status || 'N/A'}</li>
+              <li><strong>Youth Age Gap:</strong> {youthDetails.youth_age_gap || 'N/A'}</li>
+              <li><strong>Classification:</strong> {youthDetails.youth_classification || 'N/A'}</li>
+              <li><strong>Education:</strong> {youthDetails.educational_background || 'N/A'}</li>
+              <li><strong>Work Status:</strong> {youthDetails.work_status || 'N/A'}</li>
+              <li><strong>Registered Voter:</strong> {youthDetails.registered_voter}</li>
+              <li><strong>National Voter:</strong> {youthDetails.registered_national_voter}</li>
+              <li><strong>Voted Last Election:</strong> {youthDetails.vote_last_election}</li>
+              <li><strong>Attended Meetings:</strong> {youthDetails.attended ? 'Yes' : 'No'}</li>
+              <li><strong>Times Attended:</strong> {youthDetails.times_attended ?? 'N/A'}</li>
+              <li><strong>Reason for Not Attending:</strong> {youthDetails.reason_not_attend || 'N/A'}</li>
+            </ul>
+
+            {youthDetails.households?.length > 0 && (
+              <>
+                <h4 style={{ marginTop: '1rem' }}>Household(s)</h4>
+                <ul>
+                  {youthDetails.households.map((hh, i) => (
+                    <li key={i}>{hh.household}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+
+            {youthDetails.attachments?.length > 0 && (
+              <>
+                <h4 style={{ marginTop: '1rem' }}>Attachments</h4>
+                <ul>
+                  {youthDetails.attachments.map((file, i) => (
+                    <li key={i}>
+                      <a href={file.file_url} target="_blank" rel="noopener noreferrer">
+                        {file.file_name} ({file.file_type})
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
+        ) : (
+          <p>Loading details...</p>
+        )}
+
+        <button
+          onClick={() => setDetailModalOpen(false)}
+          style={{
+            marginTop: '1.5rem',
+            background: '#1d4ed8',
+            color: 'white',
+            border: 'none',
+            padding: '0.5rem 1rem',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Close
+        </button>
+      </Modal>
     </Container>
   );
 };
@@ -89,6 +221,20 @@ const Title = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1rem;
+`;
+
+const ButtonRow = styled.div`
+  margin-bottom: 1rem;
+`;
+
+const ToggleButton = styled.button`
+  margin-right: 1rem;
+  background: ${({ active }) => (active ? '#1d4ed8' : '#e5e7eb')};
+  color: ${({ active }) => (active ? 'white' : '#374151')};
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
 `;
 
 const Message = styled.div`
@@ -137,34 +283,6 @@ const Td = styled.td`
 const Checkbox = styled.input.attrs({ type: 'checkbox' })`
   width: 1rem;
   height: 1rem;
-`;
-
-const Button = styled.button`
-  font-size: 0.75rem;
-  padding: 0.3rem 0.6rem;
-  border-radius: 0.375rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  ${({ variant }) =>
-    variant === 'primary'
-      ? `
-    background-color: #22c55e;
-    color: white;
-
-    &:hover {
-      background-color: #16a34a;
-    }
-  `
-      : `
-    background-color: #e5e7eb;
-    color: #1f2937;
-
-    &:hover {
-      background-color: #d1d5db;
-    }
-  `}
 `;
 
 const MenuWrapper = styled.div`
