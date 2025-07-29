@@ -72,8 +72,6 @@ const useVerification = () => {
     }
 
 
-
-
     return {
         youthData,
         setYouthData,

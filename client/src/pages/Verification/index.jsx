@@ -3,6 +3,82 @@ import styled from 'styled-components';
 import useVerification from '@hooks/useVerification';
 import { Ellipsis } from 'lucide-react';
 
+const Verification = () => {
+  const {
+    youthData,
+    loading,
+    error,
+    fetchUnverefiedYouths,
+    verifyYouth,
+  } = useVerification();
+  const [openId, setOpenId] = useState(null);
+
+  useEffect(() => {
+    fetchUnverefiedYouths();
+  }, []);
+
+  const handleVerify = async (id) => {
+    await verifyYouth(id);
+    fetchUnverefiedYouths();
+  };
+
+  return (
+    <Container>
+      <Title>Unverified Youth</Title>
+
+      {loading && <Message type="loading">Loading...</Message>}
+      {error && <Message type="error">{error}</Message>}
+
+      {youthData?.youth?.length === 0 && !loading ? (
+        <Message>No unverified youth found.</Message>
+      ) : (
+        <Table>
+          <Thead>
+            <Tr>
+              <Th><Checkbox /></Th>
+              <Th>Name</Th>
+              <Th>Email</Th>
+              <Th>Joined</Th>
+              <Th>Actions</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {youthData?.youth?.map((youth) => (
+              <Tr key={youth.youth_id}>
+                <Td><Checkbox /></Td>
+                <Td>{youth.suffix}. {youth.first_name} {youth.last_name} {youth.last_name}</Td>
+                <Td>{youth.email}</Td>
+                <Td>{new Date(youth.created_at).toLocaleDateString(undefined, {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true
+                })}</Td>
+                <Td>
+                  <MenuWrapper>
+                    <MenuButton onClick={() => setOpenId(youth.youth_id === openId ? null : youth.youth_id)}>
+                      <Ellipsis />
+                    </MenuButton>
+                    <Dropdown open={youth.youth_id === openId}>
+                      <DropdownItem onClick={() => handleVerify(youth.youth_id)}>Verify</DropdownItem>
+                      <DropdownItem>View</DropdownItem>
+                      <DropdownItem>Delete</DropdownItem>
+                    </Dropdown>
+                  </MenuWrapper>
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      )}
+    </Container>
+  );
+};
+
+export default Verification;
+
 const Container = styled.div`
   padding: 1rem;
   max-width: 100rem;
@@ -137,80 +213,3 @@ const DropdownItem = styled.button`
     background-color: #f3f4f6;
   }
 `;
-
-
-const Verification = () => {
-  const {
-    youthData,
-    loading,
-    error,
-    fetchUnverefiedYouths,
-    verifyYouth,
-  } = useVerification();
-  const [openId, setOpenId] = useState(null);
-
-  useEffect(() => {
-    fetchUnverefiedYouths();
-  }, []);
-
-  const handleVerify = async (id) => {
-    await verifyYouth(id);
-    fetchUnverefiedYouths(); // Refresh list
-  };
-
-  return (
-    <Container>
-      <Title>Unverified Youth</Title>
-
-      {loading && <Message type="loading">Loading...</Message>}
-      {error && <Message type="error">{error}</Message>}
-
-      {youthData?.youth?.length === 0 && !loading ? (
-        <Message>No unverified youth found.</Message>
-      ) : (
-        <Table>
-          <Thead>
-            <Tr>
-              <Th><Checkbox /></Th>
-              <Th>Name</Th>
-              <Th>Email</Th>
-              <Th>Joined</Th> {/* ← previously missing */}
-              <Th>Actions</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {youthData?.youth?.map((youth) => (
-              <Tr key={youth.youth_id}>
-                <Td><Checkbox /></Td>
-                <Td>{youth.first_name} {youth.last_name}</Td>
-                <Td>{youth.email}</Td>
-                <Td>{new Date(youth.created_at).toLocaleDateString(undefined, {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: 'numeric',
-                  minute: '2-digit',
-                  hour12: true
-                })}</Td>
-                <Td>
-                  <MenuWrapper>
-                    <MenuButton onClick={() => setOpenId(youth.youth_id === openId ? null : youth.youth_id)}>
-                      <Ellipsis />
-                    </MenuButton>
-                    <Dropdown open={youth.youth_id === openId}>
-                      <DropdownItem onClick={() => handleVerify(youth.youth_id)}>Verify</DropdownItem>
-                      <DropdownItem>View</DropdownItem>
-                      <DropdownItem>Delete</DropdownItem>
-                    </Dropdown>
-                  </MenuWrapper>
-                </Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      )}
-    </Container>
-  );
-};
-
-export default Verification;
