@@ -4,10 +4,10 @@ import { Navigate, useLocation } from "react-router-dom";
 import LandingPage from "@pages/LandingPage";
 import Signin from "@pages/Signin";
 import Signup from "@pages/Signup";
-import ForgotPassword from "@pages/ForgotPasword"; // ✅ fixed typo
+import ForgotPassword from "@pages/ForgotPasword";
 import AdminAuth from "@pages/AdminAuth";
 
-import NewsFeedRoutes from "@pages/NewsFeed";
+import NewsFeed from "@pages/NewsFeed";
 import Authenticated from "@pages/Authenticated";
 import Dashboard from "@pages/Dashboard";
 import Youth from "@pages/Youth";
@@ -35,24 +35,43 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 };
 
 export const routes = [
-    { path: "/", element: <LandingPage /> },
-    { path: "/login", element: <Signin /> },
-    { path: "/signup", element: <Signup /> },
-    { path: "/forgot", element: <ForgotPassword /> },
-
+    {
+        path: "/",
+        element: <LandingPage />
+    },
+    {
+        path: "/login",
+        element: <Signin />
+    },
+    {
+        path: "/signup",
+        element: <Signup />
+    },
+    {
+        path: "/forgot",
+        element: <ForgotPassword />
+    },
     {
         path: "/feed/*",
         element: (
-            <ProtectedRoute allowedRoles={["youth", "admin", "super_sk_admin", "natural_sk_admin"]}>
-                <NewsFeedRoutes />
+            <ProtectedRoute allowedRoles={[
+                "youth",
+                "admin",
+                "super_sk_admin",
+                "natural_sk_admin"
+            ]}>
+                <NewsFeed />
             </ProtectedRoute>
         ),
     },
-
     {
         path: "/dashboard",
         element: (
-            <ProtectedRoute allowedRoles={["admin", "super_sk_admin", "natural_sk_admin"]}>
+            <ProtectedRoute allowedRoles={[
+                "admin",
+                "super_sk_admin",
+                "natural_sk_admin"
+            ]}>
                 <Authenticated />
             </ProtectedRoute>
         ),
@@ -64,7 +83,11 @@ export const routes = [
     {
         path: "/youth",
         element: (
-            <ProtectedRoute allowedRoles={["admin", "super_sk_admin", "natural_sk_admin"]}>
+            <ProtectedRoute allowedRoles={[
+                "admin",
+                "super_sk_admin",
+                "natural_sk_admin"
+            ]}>
                 <Authenticated />
             </ProtectedRoute>
         ),
@@ -73,7 +96,11 @@ export const routes = [
     {
         path: "/purok",
         element: (
-            <ProtectedRoute allowedRoles={["admin", "super_sk_admin", "natural_sk_admin"]}>
+            <ProtectedRoute allowedRoles={[
+                "admin",
+                "super_sk_admin",
+                "natural_sk_admin"
+            ]}>
                 <Authenticated />
             </ProtectedRoute>
         ),
@@ -82,7 +109,11 @@ export const routes = [
     {
         path: "/inbox",
         element: (
-            <ProtectedRoute allowedRoles={["admin", "super_sk_admin", "natural_sk_admin"]}>
+            <ProtectedRoute allowedRoles={[
+                "admin",
+                "super_sk_admin",
+                "natural_sk_admin"
+            ]}>
                 <Authenticated />
             </ProtectedRoute>
         ),
@@ -91,7 +122,11 @@ export const routes = [
     {
         path: "/verification",
         element: (
-            <ProtectedRoute allowedRoles={["admin", "super_sk_admin", "natural_sk_admin"]}>
+            <ProtectedRoute allowedRoles={[
+                "admin",
+                "super_sk_admin",
+                "natural_sk_admin"
+            ]}>
                 <Authenticated />
             </ProtectedRoute>
         ),
@@ -100,21 +135,44 @@ export const routes = [
     {
         path: "/officials",
         element: (
-            <ProtectedRoute allowedRoles={["admin", "super_sk_admin", "natural_sk_admin"]}>
+            <ProtectedRoute allowedRoles={[
+                "admin",
+                "super_sk_admin",
+                "natural_sk_admin"
+            ]}>
                 <Authenticated />
             </ProtectedRoute>
         ),
         children: [{ index: true, element: <Officials /> }],
     },
     {
-        path: "/settings",
+        path: "/account",
         element: (
-            <ProtectedRoute allowedRoles={["admin", "super_sk_admin", "natural_sk_admin"]}>
+            <ProtectedRoute allowedRoles={[
+                "admin",
+                "super_sk_admin",
+                "natural_sk_admin"
+            ]}>
                 <Authenticated />
             </ProtectedRoute>
         ),
         children: [{ index: true, elememt: <Settings /> }]
     },
-
-    { path: "*", element: <NotFound /> },
+    {
+        path: "/admin",
+        element: (
+            <ProtectedRoute allowedRoles={[
+                "admin",
+                "super_sk_admin",
+                "natural_sk_admin"
+            ]}>
+                <Authenticated />
+            </ProtectedRoute>
+        ),
+        children: [{ index: true, element: <AdminAuth /> }]
+    },
+    {
+        path: "*",
+        element: <NotFound />
+    },
 ];

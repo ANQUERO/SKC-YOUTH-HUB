@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { useLogout } from '@hooks/useLogout';
 import { useAuthContext } from '@context/AuthContext';
 
@@ -56,18 +56,48 @@ const Authenticated = () => {
   }, []);
 
   const menu = [
-    { title: "Dashboard", path: "/dashboard", visible: true, icon: <LayoutGrid /> },
-    { title: "Youth", path: "/youth", visible: true, icon: <User /> },
-    { title: "Purok", path: "/purok", visible: true, icon: <MapPinned /> },
-    { title: "Inbox", path: "/inbox", visible: true, icon: <InboxIcon /> },
-    { title: "Verification", path: "/verification", visible: true, icon: <IdCard /> },
-    { title: "Officials", path: "/officials", visible: true, icon: <Users /> }
+    {
+      title: "Dashboard",
+      path: "/dashboard",
+      visible: true,
+      icon: <LayoutGrid />
+    },
+    {
+      title: "Youth",
+      path: "/youth",
+      visible: true,
+      icon: <User />
+    },
+    {
+      title: "Purok",
+      path: "/purok",
+      visible: true,
+      icon: <MapPinned />
+    },
+    {
+      title: "Inbox",
+      path: "/inbox",
+      visible: true,
+      icon: <InboxIcon />
+    },
+    {
+      title: "Verification",
+      path: "/verification",
+      visible: true,
+      icon: <IdCard />
+    },
+    {
+      title: "Officials",
+      path: "/officials",
+      visible: true,
+      icon: <Users />
+    }
   ];
 
   const menusBottom = [
     {
       title: "Settings",
-      path: "/settings",
+      path: "/account",
       visible: true,
       icon: <SettingsIcon />,
     },

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from '@lib/axios.js';
 import { useAuthContext } from "@context/AuthContext";
 
-
 export const useLogout = () => {
     const navigate = useNavigate();
     const { setAuthUser } = useAuthContext();

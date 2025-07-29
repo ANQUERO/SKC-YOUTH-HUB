@@ -16,7 +16,6 @@ export const useAuthContext = () => {
     return context;
 };
 
-// Load user from localStorage
 const loadInitialAuthUser = () => {
     try {
         const stored = localStorage.getItem("auth-user");
@@ -28,7 +27,6 @@ const loadInitialAuthUser = () => {
     }
 };
 
-// Get active role, fallback to default role logic
 const getInitialActiveRole = (user) => {
     try {
         const stored = localStorage.getItem("active-role");
@@ -48,14 +46,12 @@ export const AuthContextProvider = ({ children }) => {
     const [activeRole, setActiveRoleState] = useState(() => getInitialActiveRole(authUser));
     const [loading, setLoading] = useState(true);
 
-    // Default role: fallback logic
     const defaultRole = useMemo(() => {
         if (!authUser) return null;
         if (authUser.userType === "youth") return "youth";
         return authUser?.role?.[0] ?? null;
     }, [authUser]);
 
-    // Sync role if user or auth state changes
     useEffect(() => {
         if (!authUser) {
             setActiveRoleState(null);
