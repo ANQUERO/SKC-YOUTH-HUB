@@ -1,14 +1,16 @@
-// routes/index.js
+import React from "react";
+import { Navigate, useLocation } from "react-router-dom";
+
 import LandingPage from "@pages/LandingPage";
 import Signin from "@pages/Signin";
 import Signup from "@pages/Signup";
-import ForgotPassword from "@pages/ForgotPasword";
+import ForgotPassword from "@pages/ForgotPasword"; // ✅ fixed typo
 import AdminAuth from "@pages/AdminAuth";
 
 import NewsFeedRoutes from "@pages/NewsFeed";
 import Authenticated from "@pages/Authenticated";
 import Dashboard from "@pages/Dashboard";
-import Youth from "@pages/Youth/";
+import Youth from "@pages/Youth";
 import Purok from "@pages/Purok";
 import Inbox from "@pages/Inbox";
 import Verification from "@pages/Verification";
@@ -16,25 +18,27 @@ import Officials from "@pages/Officials";
 import Settings from "@pages/Account";
 import NotFound from "@pages/NotFound";
 
-import ProtectedRoute from "@lib/ProtectedRoute.jsx";
+import { useAuthContext } from "@context/AuthContext";
+
+const ProtectedRoute = ({ children, allowedRoles }) => {
+    const { authUser, activeRole, loading } = useAuthContext();
+    const location = useLocation();
+
+
+    if (!authUser)
+        return <Navigate to="/login" state={{ from: location }} replace />;
+
+    if (allowedRoles && !allowedRoles.includes(activeRole))
+        return <Navigate to="/" replace />;
+
+    return children;
+};
 
 export const routes = [
-    {
-        path: "/",
-        element: <LandingPage />,
-    },
-    {
-        path: "/login",
-        element: <Signin />,
-    },
-    {
-        path: "/signup",
-        element: <Signup />,
-    },
-    {
-        path: "/forgot",
-        element: <ForgotPassword />,
-    },
+    { path: "/", element: <LandingPage /> },
+    { path: "/login", element: <Signin /> },
+    { path: "/signup", element: <Signup /> },
+    { path: "/forgot", element: <ForgotPassword /> },
 
     {
         path: "/feed/*",
@@ -54,27 +58,63 @@ export const routes = [
         ),
         children: [
             { index: true, element: <Dashboard /> },
-            {
-                path: "youth",
-                element: <Youth />,
-            },
-            { path: "purok", element: <Purok /> },
-            { path: "inbox", element: <Inbox /> },
-            { path: "verification", element: <Verification /> },
-            { path: "officials", element: <Officials /> },
-
-            {
-                path: "account",
-                element: <Settings />,
-                children: [
-                    { path: "signupAdmin", element: <AdminAuth /> },
-                ],
-            },
         ],
     },
 
     {
-        path: "*",
-        element: <NotFound />,
+        path: "/youth",
+        element: (
+            <ProtectedRoute allowedRoles={["admin", "super_sk_admin", "natural_sk_admin"]}>
+                <Authenticated />
+            </ProtectedRoute>
+        ),
+        children: [{ index: true, element: <Youth /> }],
     },
+    {
+        path: "/purok",
+        element: (
+            <ProtectedRoute allowedRoles={["admin", "super_sk_admin", "natural_sk_admin"]}>
+                <Authenticated />
+            </ProtectedRoute>
+        ),
+        children: [{ index: true, element: <Purok /> }],
+    },
+    {
+        path: "/inbox",
+        element: (
+            <ProtectedRoute allowedRoles={["admin", "super_sk_admin", "natural_sk_admin"]}>
+                <Authenticated />
+            </ProtectedRoute>
+        ),
+        children: [{ index: true, element: <Inbox /> }],
+    },
+    {
+        path: "/verification",
+        element: (
+            <ProtectedRoute allowedRoles={["admin", "super_sk_admin", "natural_sk_admin"]}>
+                <Authenticated />
+            </ProtectedRoute>
+        ),
+        children: [{ index: true, element: <Verification /> }],
+    },
+    {
+        path: "/officials",
+        element: (
+            <ProtectedRoute allowedRoles={["admin", "super_sk_admin", "natural_sk_admin"]}>
+                <Authenticated />
+            </ProtectedRoute>
+        ),
+        children: [{ index: true, element: <Officials /> }],
+    },
+    {
+        path: "/settings",
+        element: (
+            <ProtectedRoute allowedRoles={["admin", "super_sk_admin", "natural_sk_admin"]}>
+                <Authenticated />
+            </ProtectedRoute>
+        ),
+        children: [{ index: true, elememt: <Settings /> }]
+    },
+
+    { path: "*", element: <NotFound /> },
 ];

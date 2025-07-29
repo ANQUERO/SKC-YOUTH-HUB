@@ -8,102 +8,86 @@ const MenuWrapper = styled.div`
   gap: 0.25rem;
 `;
 
-const StyledNavLink = styled(NavLink)`
+const sharedStyles = `
   display: flex;
   align-items: center;
-  justify-content: ${(props) => (props.$collapsed ? 'center' : 'flex-start')};
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
-  color: white;
-  background-color: transparent;
   font-weight: 500;
-  text-decoration: none;
   transition: all 0.1s;
-  position: relative;
-
-  &.active {
-    color: #31578B;
-    background-color: #e5e7eb;
-  }
-
-  &:hover {
-    background-color: #f3f4f6;
-    color: #31578B;
-  }
+  text-decoration: none;
+  cursor: pointer;
 
   svg {
     flex-shrink: 0;
-    margin-right: ${(props) => (props.$collapsed ? '0' : '0.75rem')};
+    margin-right: ${({ $collapsed }) => ($collapsed ? "0" : "0.75rem")};
     width: 1.25rem;
     height: 1.25rem;
   }
 
   span {
-    display: ${(props) => (props.$collapsed ? 'none' : 'inline')};
+    display: ${({ $collapsed }) => ($collapsed ? "none" : "inline")};
     white-space: nowrap;
     font-size: 0.95rem;
+  }
+
+  &:hover {
+    background-color: #f3f4f6;
+    color: #31578b;
+  }
+`;
+
+const StyledNavLink = styled(NavLink)`
+  ${sharedStyles}
+  justify-content: ${({ $collapsed }) => ($collapsed ? "center" : "flex-start")};
+  color: white;
+  background-color: transparent;
+
+  &.active {
+    color: #31578b;
+    background-color: #e5e7eb;
   }
 `;
 
 const StyledButton = styled.button`
   all: unset;
-  display: flex;
-  align-items: center;
-  justify-content: ${(props) => (props.$collapsed ? 'center' : 'flex-start')};
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
+  ${sharedStyles}
+  justify-content: ${({ $collapsed }) => ($collapsed ? "center" : "flex-start")};
   color: white;
-  font-weight: 500;
-  transition: all 0.1s;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #f3f4f6;
-    color: #31578B;
-  }
-
-  svg {
-    flex-shrink: 0;
-    margin-right: ${(props) => (props.$collapsed ? '0' : '0.75rem')};
-    width: 1.25rem;
-    height: 1.25rem;
-  }
-
-  span {
-    display: ${(props) => (props.$collapsed ? 'none' : 'inline')};
-    white-space: nowrap;
-    font-size: 0.95rem;
-  }
 `;
 
 const Menu = ({ menus, collapsed }) => {
   return (
     <MenuWrapper>
-      {menus.map((item, idx) =>
-        item.visible ? (
-          item.onClick ? (
-            <StyledButton
-              key={idx}
-              onClick={item.onClick}
-              title={item.title}
-              $collapsed={collapsed}
-            >
-              {item.icon}
-              <span>{item.title}</span>
-            </StyledButton>
-          ) : (
-            <StyledNavLink
-              to={item.path}
-              key={idx}
-              title={item.title}
-              $collapsed={collapsed}
-            >
-              {item.icon}
-              <span>{item.title}</span>
-            </StyledNavLink>
-          )
-        ) : null
-      )}
+      {menus.map((item) => {
+        if (!item.visible) return null;
+
+        const key = item.path || item.title;
+
+        return item.onClick ? (
+          <StyledButton
+            key={key}
+            onClick={item.onClick}
+            title={item.title}
+            $collapsed={collapsed}
+            aria-label={item.title}
+          >
+            {item.icon}
+            <span>{item.title}</span>
+          </StyledButton>
+        ) : (
+          <StyledNavLink
+            key={key}
+            to={item.path}
+            title={item.title}
+            $collapsed={collapsed}
+            aria-label={item.title}
+          >
+            {item.icon}
+            <span>{item.title}</span>
+          </StyledNavLink>
+        );
+      })}
     </MenuWrapper>
   );
 };

@@ -46,6 +46,7 @@ const getInitialActiveRole = (user) => {
 export const AuthContextProvider = ({ children }) => {
     const [authUser, setAuthUser] = useState(loadInitialAuthUser);
     const [activeRole, setActiveRoleState] = useState(() => getInitialActiveRole(authUser));
+    const [loading, setLoading] = useState(true);
 
     // Default role: fallback logic
     const defaultRole = useMemo(() => {
@@ -69,6 +70,8 @@ export const AuthContextProvider = ({ children }) => {
             setActiveRoleState(newRole);
             localStorage.setItem("active-role", newRole);
         }
+
+        setLoading(false);
     }, [authUser, activeRole, defaultRole]);
 
     // Sync auth state across tabs
@@ -112,6 +115,7 @@ export const AuthContextProvider = ({ children }) => {
                 setAuthUser: updateAuthUser,
                 activeRole,
                 setActiveRole,
+                loading,
                 isSkYouth: activeRole === "youth",
                 isSkAdmin: activeRole === "admin",
                 isSkSuperAdmin: activeRole === "super_sk_admin",

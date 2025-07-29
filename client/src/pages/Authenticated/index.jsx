@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, NavLink } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { useLogout } from '@hooks/useLogout';
-import style from '@styles/authenticated.module.scss';
+import { useAuthContext } from '@context/AuthContext';
 
+import style from '@styles/authenticated.module.scss';
 import {
   MainContainer,
   MenuContainer,
@@ -22,10 +23,10 @@ import {
   LayoutGrid,
   User,
   MapPinned,
-  Inbox,
+  Inbox as InboxIcon,
   IdCard,
   Users,
-  Settings,
+  Settings as SettingsIcon,
   LogOut,
   Plus,
   PanelLeft,
@@ -33,16 +34,14 @@ import {
   Menu as MenuIcon
 } from 'lucide-react';
 
-
-
 import Logo from '@components/Logo.jsx';
 import Menu from '@components/Menu.jsx';
 
 const Authenticated = () => {
-  const [searchValue, setSearchValue] = useState('');
   const [collapsed, setCollapsed] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const logout = useLogout();
+  const { user } = useAuthContext();
 
   useEffect(() => {
     const handleResize = () => {
@@ -51,7 +50,6 @@ const Authenticated = () => {
         setIsSidebarOpen(false);
       }
     };
-
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -59,19 +57,19 @@ const Authenticated = () => {
 
   const menu = [
     { title: "Dashboard", path: "/dashboard", visible: true, icon: <LayoutGrid /> },
-    { title: "Youth", path: "/dashboard/youth", visible: true, icon: <User /> },
-    { title: "Purok", path: "/dashboard/purok", visible: true, icon: <MapPinned /> },
-    { title: "Inbox", path: "/dashboard/inbox", visible: true, icon: <Inbox /> },
-    { title: "Verification", path: "/dashboard/verification", visible: true, icon: <IdCard /> },
-    { title: "Officials", path: "/dashboard/officials", visible: true, icon: <Users /> }
+    { title: "Youth", path: "/youth", visible: true, icon: <User /> },
+    { title: "Purok", path: "/purok", visible: true, icon: <MapPinned /> },
+    { title: "Inbox", path: "/inbox", visible: true, icon: <InboxIcon /> },
+    { title: "Verification", path: "/verification", visible: true, icon: <IdCard /> },
+    { title: "Officials", path: "/officials", visible: true, icon: <Users /> }
   ];
 
   const menusBottom = [
     {
       title: "Settings",
-      path: "/dashboard/account",
+      path: "/settings",
       visible: true,
-      icon: <Settings />,
+      icon: <SettingsIcon />,
     },
     {
       title: "Logout",
@@ -87,11 +85,7 @@ const Authenticated = () => {
 
       <MenuContainer $collapsed={collapsed} $open={isSidebarOpen}>
         <div>
-
-          <CollapseToggle
-            onClick={() => setCollapsed((prev) => !prev)}
-            $collapsed={collapsed}
-          >
+          <CollapseToggle onClick={() => setCollapsed(prev => !prev)} $collapsed={collapsed}>
             {collapsed ? <PanelRight /> : <PanelLeft />}
           </CollapseToggle>
 
@@ -123,12 +117,12 @@ const Authenticated = () => {
             </ToggleSidebarButton>
           )}
           <UserContainer>
-            <span>User</span>
+            <span>{user?.name || "User"}</span>
           </UserContainer>
         </TopContainer>
 
         <Content>
-          <Outlet context={{ searchValue }} />
+          <Outlet />
         </Content>
       </ContentContainer>
     </MainContainer>

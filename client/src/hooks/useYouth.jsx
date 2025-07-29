@@ -49,7 +49,7 @@ const useYouth = () => {
         } finally {
             setLoading(false);
         }
-    };
+    };  
 
     return {
         youthData,

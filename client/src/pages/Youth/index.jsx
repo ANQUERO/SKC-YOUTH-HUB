@@ -206,7 +206,7 @@ function YouthPage() {
 
             <Box sx={{ flex: 1, p: 2, minWidth: 0 }}>
 
-                <Typography variant="h2" sx={{ fontWeight: 'bold' }}>
+                <Typography variant="h3" sx={{ fontWeight: 'bold' }}>
                     Youths
                 </Typography>
                 <Typography variant="h6" sx={{ fontWeight: '500 ' }}>
