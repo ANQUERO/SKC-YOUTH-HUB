@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import useVerification from '@hooks/useVerification';
+import { Ellipsis } from 'lucide-react';
 
 const Container = styled.div`
   padding: 1rem;
@@ -90,13 +91,72 @@ const Button = styled.button`
   `}
 `;
 
+const MenuWrapper = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+const MenuButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.25rem;
+  padding: 0.25rem;
+  line-height: 1;
+  color: #6b7280;
+
+  &:hover {
+    color: #374151;
+  }
+`;
+
+const Dropdown = styled.div`
+  position: absolute;
+  top: 1.8rem;
+  right: 0;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  z-index: 10;
+  display: ${({ open }) => (open ? 'block' : 'none')};
+`;
+
+const DropdownItem = styled.button`
+  display: block;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  text-align: left;
+  background: none;
+  border: none;
+  color: #374151;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f3f4f6;
+  }
+`;
+
 
 const Verification = () => {
-  const { youthData, loading, error, fetchUnverefiedYouths } = useVerification();
+  const {
+    youthData,
+    loading,
+    error,
+    fetchUnverefiedYouths,
+    verifyYouth,
+  } = useVerification();
+  const [openId, setOpenId] = useState(null);
 
   useEffect(() => {
     fetchUnverefiedYouths();
   }, []);
+
+  const handleVerify = async (id) => {
+    await verifyYouth(id);
+    fetchUnverefiedYouths(); // Refresh list
+  };
 
   return (
     <Container>
@@ -114,9 +174,7 @@ const Verification = () => {
               <Th><Checkbox /></Th>
               <Th>Name</Th>
               <Th>Email</Th>
-              <Th>Age</Th>
-              <Th>Gender</Th>
-              <Th>Barangay</Th>
+              <Th>Joined</Th> {/* ← previously missing */}
               <Th>Actions</Th>
             </Tr>
           </Thead>
@@ -126,12 +184,25 @@ const Verification = () => {
                 <Td><Checkbox /></Td>
                 <Td>{youth.first_name} {youth.last_name}</Td>
                 <Td>{youth.email}</Td>
-                <Td>{youth.age}</Td>
-                <Td>{youth.gender}</Td>
-                <Td>{youth.barangay}</Td>
+                <Td>{new Date(youth.created_at).toLocaleDateString(undefined, {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true
+                })}</Td>
                 <Td>
-                  <Button variant="primary">Verify</Button>{' '}
-                  <Button>View</Button>
+                  <MenuWrapper>
+                    <MenuButton onClick={() => setOpenId(youth.youth_id === openId ? null : youth.youth_id)}>
+                      <Ellipsis />
+                    </MenuButton>
+                    <Dropdown open={youth.youth_id === openId}>
+                      <DropdownItem onClick={() => handleVerify(youth.youth_id)}>Verify</DropdownItem>
+                      <DropdownItem>View</DropdownItem>
+                      <DropdownItem>Delete</DropdownItem>
+                    </Dropdown>
+                  </MenuWrapper>
                 </Td>
               </Tr>
             ))}

@@ -13,39 +13,18 @@ export const unverified = async (req, res) => {
     try {
         const result = await pool.query(`
             SELECT DISTINCT ON (y.youth_id)
-  y.youth_id,
-  y.email,
-  y.verified,
-  yn.first_name,
-  yn.middle_name,
-  yn.last_name,
-  yn.suffix,
-  yl.region,
-  yl.province,
-  yl.municipality,
-  yl.barangay,
-  yg.gender,
-  yi.age,
-  yi.contact,
-  yi.birthday,
-  yd.civil_status,
-  yd.youth_age_gap,
-  yd.youth_classification,
-  yd.educational_background,
-  yd.work_status,
-  ys.registered_voter,
-  ys.registered_national_voter,
-  yh.household,
-FROM sk_youth y
-LEFT JOIN sk_youth_name yn ON y.youth_id = yn.youth_id
-LEFT JOIN sk_youth_location yl ON y.youth_id = yl.youth_id
-LEFT JOIN sk_youth_gender yg ON y.youth_id = yg.youth_id
-LEFT JOIN sk_youth_info yi ON y.youth_id = yi.youth_id
-LEFT JOIN sk_youth_demographics yd ON y.youth_id = yd.youth_id
-LEFT JOIN sk_youth_household yh ON y.youth_id = yh.youth_id
-LEFT JOIN sk_youth_survey ys ON y.youth_id = ys.youth_id
-WHERE y.verified = false AND y.deleted_at IS NULL;
-
+                y.youth_id,
+                y.email,
+                y.verified,
+                y.created_at,
+                yn.first_name,
+                yn.middle_name,
+                yn.last_name,
+                yn.suffix
+            FROM sk_youth y
+            LEFT JOIN sk_youth_name yn ON y.youth_id = yn.youth_id
+            WHERE y.verified = false AND y.deleted_at IS NULL
+            ORDER BY y.youth_id, yn.created_at DESC;
         `);
 
         res.status(200).json({
