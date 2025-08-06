@@ -10,7 +10,7 @@ export const MainContainer = styled.div`
 `;
 
 export const MenuContainer = styled.div`
-  padding: 2rem 1.25rem;
+ padding: 2rem 1.25rem;
   background-color: #31578B;
   overflow: hidden;
   position: fixed;
@@ -18,14 +18,15 @@ export const MenuContainer = styled.div`
   z-index: 20;
   flex-direction: column;
   justify-content: space-between;
-  width: ${(props) => (props.$collapsed ? '80px' : '250px')};
-  transition: width 0.3s ease;
+  width: 250px;
+  transition: left 0.3s ease;
   display: flex;
   left: 0;
   top: 0;
 
   @media (max-width: 640px) {
-    width: ${(props) => (props.$open ? '100px' : '0')};
+    width: 250px;
+    left: ${(props) => (props.$open ? '0' : '-250px')};
     padding: ${(props) => (props.$open ? '2rem 1.25rem' : '0')};
   }
 `;
@@ -42,15 +43,12 @@ export const MobileOverlay = styled.div`
 `;
 
 export const ContentContainer = styled.div`
-  flex: 1;
+   flex: 1;
   display: grid;
   grid-template-rows: 10% 90%;
   overflow: hidden;
-
-  @media (min-width: 640px) {
-    margin-left: ${(props) => (props.$collapsed ? '80px' : '250px')};
-    transition: margin-left 0.3s ease;
-  }
+  margin-left: 250px;
+  transition: margin-left 0.3s ease;
 
   @media (max-width: 640px) {
     margin-left: 0;

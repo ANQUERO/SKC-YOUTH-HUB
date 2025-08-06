@@ -13,9 +13,7 @@ import {
   ToggleSidebarButton,
   UserContainer,
   Content,
-  SearchContainer,
   CreatePostLink,
-  CollapseToggle,
   LogoWrapper
 } from 'components/authenticatedLayout';
 
@@ -29,8 +27,6 @@ import {
   Settings as SettingsIcon,
   LogOut,
   Plus,
-  PanelLeft,
-  PanelRight,
   Menu as MenuIcon
 } from 'lucide-react';
 
@@ -38,22 +34,9 @@ import Logo from '@components/Logo.jsx';
 import Menu from '@components/Menu.jsx';
 
 const Authenticated = () => {
-  const [collapsed, setCollapsed] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const logout = useLogout();
   const { user } = useAuthContext();
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 640) {
-        setCollapsed(true);
-        setIsSidebarOpen(false);
-      }
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const menu = [
     {
@@ -72,19 +55,22 @@ const Authenticated = () => {
       title: "Purok",
       path: "/purok",
       visible: true,
-      icon: <MapPinned />
+      icon: <MapPinned
+      />
     },
     {
       title: "Inbox",
       path: "/inbox",
       visible: true,
-      icon: <InboxIcon />
+      icon: <InboxIcon
+      />
     },
     {
       title: "Verification",
       path: "/verification",
       visible: true,
-      icon: <IdCard />
+      icon: <IdCard
+      />
     },
     {
       title: "Officials",
@@ -99,13 +85,15 @@ const Authenticated = () => {
       title: "Settings",
       path: "/account",
       visible: true,
-      icon: <SettingsIcon />,
+      icon: <SettingsIcon
+      />
     },
     {
       title: "Logout",
       onClick: logout,
       visible: true,
-      icon: <LogOut />,
+      icon: <LogOut
+      />
     }
   ];
 
@@ -113,39 +101,32 @@ const Authenticated = () => {
     <MainContainer>
       {isSidebarOpen && <MobileOverlay onClick={() => setIsSidebarOpen(false)} />}
 
-      <MenuContainer $collapsed={collapsed} $open={isSidebarOpen}>
+      <MenuContainer $open={isSidebarOpen}>
         <div>
-          <CollapseToggle onClick={() => setCollapsed(prev => !prev)} $collapsed={collapsed}>
-            {collapsed ? <PanelRight /> : <PanelLeft />}
-          </CollapseToggle>
-
           <div className={style.top}>
-            <LogoWrapper $collapsed={collapsed}>
+            <LogoWrapper>
               <Logo />
             </LogoWrapper>
           </div>
 
-          <CreatePostLink to="/feed" $collapsed={collapsed} title="Create Post">
+          <CreatePostLink to="/feed" title="Create Post">
             <Plus />
             <span>Create Post</span>
           </CreatePostLink>
 
-          {!collapsed && (
-            <h4 style={{ color: 'white', marginBottom: '0.75rem' }}>Menu</h4>
-          )}
-          <Menu menus={menu} collapsed={collapsed} />
+          <h4 style={{ color: 'white', marginBottom: '0.75rem' }}>Menu</h4>
+          <Menu menus={menu} />
         </div>
 
-        <Menu menus={menusBottom} collapsed={collapsed} />
+        <Menu menus={menusBottom} />
       </MenuContainer>
 
-      <ContentContainer $collapsed={collapsed}>
+      <ContentContainer>
         <TopContainer>
-          {collapsed && (
-            <ToggleSidebarButton onClick={() => setIsSidebarOpen(prev => !prev)}>
-              <MenuIcon />
-            </ToggleSidebarButton>
-          )}
+          <ToggleSidebarButton onClick={() => setIsSidebarOpen(prev => !prev)}>
+            <MenuIcon />
+          </ToggleSidebarButton>
+
           <UserContainer>
             <span>{user?.name || "User"}</span>
           </UserContainer>

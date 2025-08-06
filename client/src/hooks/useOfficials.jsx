@@ -3,15 +3,20 @@ import axiosInstance from '@lib/axios';
 import { useAuthContext } from '@context/AuthContext';
 
 const useOfficials = () => {
-    const { authUser } = useAuthContext();
+    const { authUser, isSkAdmin, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
 
     const [officials, setOfficials] = useState([]);
     const [official, setOfficial] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const isAuthorized = isSkAdmin || isSkNaturalAdmin || isSkSuperAdmin;
 
     // Fetch all officials (admins)
     const fetchOfficials = async () => {
+        if (!isAuthorized) {
+            setError("Unauthorized access")
+        }
+
         setLoading(true);
         setError(null);
         try {
@@ -25,7 +30,6 @@ const useOfficials = () => {
         }
     };
 
-    // Fetch a specific official by ID
     const fetchOfficialById = async (admin_id) => {
         setLoading(true);
         setError(null);
@@ -40,12 +44,11 @@ const useOfficials = () => {
         }
     };
 
-    // Optional: Update official (e.g. for profile settings)
-    const updateOfficial = async (admin_id, updatedData) => {
+    const updateOfficial = async (admin_id) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axiosInstance.put(`/admin/${admin_id}`, updatedData);
+            const response = await axiosInstance.put(`/admin/${admin_id}`);
             setOfficial(response.data.data);
             return response.data.data;
         } catch (err) {
@@ -58,6 +61,7 @@ const useOfficials = () => {
     };
 
     return {
+        authUser,
         officials,
         official,
         loading,
