@@ -1,0 +1,82 @@
+<section>
+    <h2>Add Youth</h2>
+
+    <form onSubmit={handleSubmit}>
+        <div><label>Email</label><input type="email" name="email" value={formData.email} onChange={handleChange} />
+        </div>
+        <div><label>Password</label><input type="password" name="password" value={formData.password}
+                onChange={handleChange} /></div>
+
+        {/* Name */}
+        <div><label>First Name</label><input name="name.first_name" value={formData.name.first_name}
+                onChange={handleChange} /></div>
+        <div><label>Middle Name</label><input name="name.middle_name" value={formData.name.middle_name}
+                onChange={handleChange} /></div>
+        <div><label>Last Name</label><input name="name.last_name" value={formData.name.last_name}
+                onChange={handleChange} /></div>
+        <div><label>Suffix</label><input name="name.suffix" value={formData.name.suffix} onChange={handleChange} />
+        </div>
+
+        {/* Location */}
+        <div><label>Region</label><input name="location.region" value={formData.location.region}
+                onChange={handleChange} /></div>
+        <div><label>Province</label><input name="location.province" value={formData.location.province}
+                onChange={handleChange} /></div>
+        <div><label>Municipality</label><input name="location.municipality" value={formData.location.municipality}
+                onChange={handleChange} /></div>
+        <div><label>Barangay</label><input name="location.barangay" value={formData.location.barangay}
+                onChange={handleChange} /></div>
+        <div><label>Purok ID</label><input name="location.purok_id" value={formData.location.purok_id}
+                onChange={handleChange} /></div>
+
+        {/* Gender */}
+        <div><label>Gender</label><input name="gender.gender" value={formData.gender.gender} onChange={handleChange} />
+        </div>
+
+        {/* Info */}
+        <div><label>Age</label><input name="info.age" value={formData.info.age} onChange={handleChange} /></div>
+        <div><label>Contact</label><input name="info.contact" value={formData.info.contact} onChange={handleChange} />
+        </div>
+        <div><label>Birthday</label><input type="date" name="info.birthday" value={formData.info.birthday}
+                onChange={handleChange} /></div>
+
+        {/* Demographics */}
+        <div><label>Civil Status</label><input name="demographics.civil_status"
+                value={formData.demographics.civil_status} onChange={handleChange} /></div>
+        <div><label>Youth Age Gap</label><input name="demographics.youth_age_gap"
+                value={formData.demographics.youth_age_gap} onChange={handleChange} /></div>
+        <div><label>Youth Classification</label><input name="demographics.youth_classification"
+                value={formData.demographics.youth_classification} onChange={handleChange} /></div>
+        <div><label>Educational Background</label><input name="demographics.educational_background"
+                value={formData.demographics.educational_background} onChange={handleChange} /></div>
+        <div><label>Work Status</label><input name="demographics.work_status" value={formData.demographics.work_status}
+                onChange={handleChange} /></div>
+
+        {/* Survey */}
+        <div><label>Registered Voter</label><input type="checkbox" name="survey.registered_voter"
+                checked={formData.survey.registered_voter} onChange={handleChange} /></div>
+        <div><label>Registered National Voter</label><input type="checkbox" name="survey.registered_national_voter"
+                checked={formData.survey.registered_national_voter} onChange={handleChange} /></div>
+        <div><label>Voted Last Election</label><input type="checkbox" name="survey.vote_last_election"
+                checked={formData.survey.vote_last_election} onChange={handleChange} /></div>
+
+        {/* Meeting Survey */}
+        <div><label>Attended Meeting</label><input type="checkbox" name="meetingSurvey.attended"
+                checked={formData.meetingSurvey.attended} onChange={handleChange} /></div>
+        <div><label>Times Attended</label><input name="meetingSurvey.times_attended"
+                value={formData.meetingSurvey.times_attended} onChange={handleChange} /></div>
+        <div><label>Reason Not Attend</label><input name="meetingSurvey.reason_not_attend"
+                value={formData.meetingSurvey.reason_not_attend} onChange={handleChange} /></div>
+
+        {/* Household */}
+        <div><label>Household</label><input name="household.household" value={formData.household?.household || '' }
+                onChange={handleChange} /></div>
+
+        <button type="submit" disabled={loading}>
+            {loading ? "Submitting..." : "Submit"}
+        </button>
+    </form>
+
+    {error && <p>Error: {error}</p>}
+    {success && <p>{success}</p>}
+</section>

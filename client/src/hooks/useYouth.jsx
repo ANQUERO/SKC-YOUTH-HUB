@@ -9,6 +9,7 @@ const useYouth = () => {
     const [youthData, setYouthData] = useState([]);
     const [youth, setYouth] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [success, setSucces] = useState(null);
     const [error, setError] = useState(null);
 
     const fetchYouths = async () => {
@@ -49,15 +50,43 @@ const useYouth = () => {
         } finally {
             setLoading(false);
         }
-    };  
+    };
+
+    const storeYouth = async () => {
+        if (!isAuthorized) {
+            setError("Unauthorized access");
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+        setSucces(null);
+
+        try {
+            const res = await axiosInstance.post('/youth/', youthData);
+            if (res.data?.youth_id) {
+                setSucces("Youth added succesfully");
+                return res.data;
+            } else {
+                setError("Failed to create youth");
+            }
+        } catch (error) {
+            console.error("Store youth error", error);
+            setError(error.response?.data?.message || "Failed to store youth");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return {
         youthData,
         youth,
         loading,
         error,
+        success,
         fetchYouths,
         fetchYouth,
+        storeYouth
     };
 };
 

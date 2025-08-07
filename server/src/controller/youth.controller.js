@@ -131,12 +131,25 @@ export const show = async (req, res) => {
 export const store = async (req, res) => {
     const user = req.user;
 
-    // 🛡️ Only admins can store youth data
+    // Only admins can store youth
     if (!user || user.userType !== 'admin') {
         return res.status(403).json({
             status: 'Error',
             message: 'Forbidden - Only admins can create youth profiles'
         });
+    }
+
+    let purokId = null;
+
+    if (location.purok) {
+        const purokResult = await client.query(`
+    SELECT purok_id FROM purok WHERE name = $1 LIMIT 1
+    `, [location.purok]
+        );
+
+        if (purokResult.rows.length > 0) {
+            purokId = purokResult.rows[0].purok_id;
+        }
     }
 
     const client = await pool.connect();
@@ -190,7 +203,7 @@ export const store = async (req, res) => {
             location.province,
             location.municipality,
             location.barangay,
-            location.purok_id || null
+            purokId
         ]);
 
         await client.query(`
