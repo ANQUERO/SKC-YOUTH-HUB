@@ -87,8 +87,6 @@ const AddYouth = () => {
             })
         });
 
-        const getValue = () => (type === 'checkbox' ? checked : value);
-
         const updateFormData = (updater) => {
             setFormData(prev => {
                 const updates = typeof updater === 'function' ? updater(prev) : updater;
@@ -104,6 +102,7 @@ const AddYouth = () => {
 
         if (name.includes('.')) {
             const [group, subKey] = name.split('.');
+
             if (group === 'gender') {
                 updateFormData({
                     gender: {
@@ -266,27 +265,58 @@ const AddYouth = () => {
 
                 <div>
                     <label>Civil Status</label>
+                    {[
+                        "Single", "Married", "Widowed", "Divorced",
+                        "Separated", "Annulled", "Live-in", "Unkown"
+                    ].map((status) => (
+                        <div
+                            key={status}
+                        >
+                            <label>
+                                <input
+                                    type='checkbox'
+                                    name="demographics.civil_status"
+                                    value={formData.demographics.civil_status}
+                                    onChange={handleChange}
+                                />
+                            </label>
+                        </div>
+                    ))}
+
+                </div>
+
+                <div>
+                    <label>Youth Age Gap</label>
                     <input
-                        name="demographics.region"
-                        value={formData.demographics.civil_status}
+                        name="demographics.youth_age_gap"
+                        value={formData.demographics.youth_age_gap}
                         onChange={handleChange}
                     />
                 </div>
 
                 <div>
-                    <label>Birthday</label>
+                    <label>Youth Classification</label>
                     <input
-                        name="info.birthday"
-                        value={formData.info.birthday}
+                        name="demographics.youth_classification"
+                        value={formData.demographics.youth_classification}
                         onChange={handleChange}
                     />
                 </div>
 
                 <div>
-                    <label>Birthday</label>
+                    <label>Educational Background</label>
                     <input
-                        name="info.birthday"
-                        value={formData.info.birthday}
+                        name="demographics.educational_background"
+                        value={formData.demographics.educational_background}
+                        onChange={handleChange}
+                    />
+                </div>
+
+                <div>
+                    <label>Work status</label>
+                    <input
+                        name="demographics.youth_classification"
+                        value={formData.demographics.youth_classification}
                         onChange={handleChange}
                     />
                 </div>

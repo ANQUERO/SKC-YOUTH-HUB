@@ -41,16 +41,101 @@
                 onChange={handleChange} /></div>
 
         {/* Demographics */}
-        <div><label>Civil Status</label><input name="demographics.civil_status"
-                value={formData.demographics.civil_status} onChange={handleChange} /></div>
-        <div><label>Youth Age Gap</label><input name="demographics.youth_age_gap"
-                value={formData.demographics.youth_age_gap} onChange={handleChange} /></div>
-        <div><label>Youth Classification</label><input name="demographics.youth_classification"
-                value={formData.demographics.youth_classification} onChange={handleChange} /></div>
-        <div><label>Educational Background</label><input name="demographics.educational_background"
-                value={formData.demographics.educational_background} onChange={handleChange} /></div>
-        <div><label>Work Status</label><input name="demographics.work_status" value={formData.demographics.work_status}
-                onChange={handleChange} /></div>
+        <div>
+            <label>Civil Status</label>
+            {[
+            "Single", "Married", "Widowed", "Divorced", "Separated",
+            "Annulled", "Live-in", "Unknown"
+            ].map((status) => (
+            <div key={status}>
+                <label>
+                    <input type="checkbox" name="demographics.civil_status" value={status}
+                        checked={formData.demographics.civil_status.includes(status)} onChange={handleCheckboxChange} />
+                    {status}
+                </label>
+            </div>
+            ))}
+        </div>
+
+        <div>
+            <label>Youth Age Group</label>
+            {[
+            "Child Youth (16–17 years old)",
+            "Core Youth (18–24 years old)",
+            "Young Adult (25–30 years old)"
+            ].map((ageGroup) => (
+            <div key={ageGroup}>
+                <label>
+                    <input type="checkbox" name="demographics.youth_age_gap" value={ageGroup}
+                        checked={formData.demographics.youth_age_gap.includes(ageGroup)}
+                        onChange={handleCheckboxChange} />
+                    {ageGroup}
+                </label>
+            </div>
+            ))}
+        </div>
+
+        <div>
+            <label>Youth Classification</label>
+            {[
+            "In school youth",
+            "Out of school youth",
+            "Working school youth",
+            "Youth w/ Specific needs",
+            "Person w/ Disability",
+            "Children in Conflict w/ Law",
+            "Indigenous People"
+            ].map((classification) => (
+            <div key={classification}>
+                <label>
+                    <input type="checkbox" name="demographics.youth_classification" value={classification}
+                        checked={formData.demographics.youth_classification.includes(classification)}
+                        onChange={handleCheckboxChange} />
+                    {classification}
+                </label>
+            </div>
+            ))}
+        </div>
+
+        <div>
+            <label>Educational Background</label>
+            {[
+            "Elementary Level", "Elementary Grad",
+            "High School Level", "High School Grad",
+            "Vocational Grad", "College Level", "College Grad",
+            "Masters Level", "Masters Grad",
+            "Doctorate Level", "Doctorate Graduate"
+            ].map((education) => (
+            <div key={education}>
+                <label>
+                    <input type="checkbox" name="demographics.educational_background" value={education}
+                        checked={formData.demographics.educational_background.includes(education)}
+                        onChange={handleCheckboxChange} />
+                    {education}
+                </label>
+            </div>
+            ))}
+        </div>
+
+        <div>
+            <label>Work Status</label>
+            {[
+            "Employed",
+            "Unemployed",
+            "Self-Employed",
+            "Currently looking for a job",
+            "Not interested looking for a job"
+            ].map((workStatus) => (
+            <div key={workStatus}>
+                <label>
+                    <input type="checkbox" name="demographics.work_status" value={workStatus}
+                        checked={formData.demographics.work_status.includes(workStatus)}
+                        onChange={handleCheckboxChange} />
+                    {workStatus}
+                </label>
+            </div>
+            ))}
+        </div>
 
         {/* Survey */}
         <div><label>Registered Voter</label><input type="checkbox" name="survey.registered_voter"
