@@ -287,39 +287,169 @@ const AddYouth = () => {
 
                 <div>
                     <label>Youth Age Gap</label>
-                    <input
-                        name="demographics.youth_age_gap"
-                        value={formData.demographics.youth_age_gap}
-                        onChange={handleChange}
-                    />
+                    {[
+                        "Child Youth (16-17 years old)",
+                        "Core Youth (18-24 years old)",
+                        "Young Adult (25-30 years old)",
+                    ].map((group) => (
+                        <div key={group}>
+                            <label>
+                                <input
+                                    type='checkbox'
+                                    name="demographics.youth_age_gap"
+                                    value={formData.demographics.youth_age_gap}
+                                    onChange={handleChange}
+                                />
+                            </label>
+                        </div>
+                    ))
+                    }
+
                 </div>
 
                 <div>
                     <label>Youth Classification</label>
-                    <input
-                        name="demographics.youth_classification"
-                        value={formData.demographics.youth_classification}
-                        onChange={handleChange}
-                    />
+                    {[
+                        "In school youth",
+                        "Out of school youth",
+                        "Working school youth",
+                        "Youth w/ Specific needs",
+                        "Person w/ Disability",
+                        "Children in Conflict w/ Law",
+                        "Indigenous people"
+                    ].map((classification) => (
+                        <label>
+                            <input
+                                type='checkbox'
+                                name="demographics.youth_classification"
+                                value={formData.demographics.youth_classification}
+                                onChange={handleChange}
+                            />
+                        </label>
+                    ))
+                    }
+
                 </div>
 
                 <div>
                     <label>Educational Background</label>
-                    <input
-                        name="demographics.educational_background"
-                        value={formData.demographics.educational_background}
-                        onChange={handleChange}
-                    />
+                    {[
+                        "Elementary Level",
+                        "Elementary Graduate",
+                        "High School Level",
+                        "High School Graduate",
+                        "Vocational Graduate",
+                        "College Level",
+                        "College Graduate",
+                        "Master's Level",
+                        "Master's Graduate",
+                        "Doctorate Level",
+                        "Doctorate Graduate"
+                    ].map((education) => (
+                        <div key={education}>
+                            <label>
+                                <input
+                                    type='checkbox'
+                                    name="demographics.educational_background"
+                                    value={formData.demographics.educational_background}
+                                    onChange={handleChange}
+                                />
+                            </label>
+                        </div>
+                    ))}
                 </div>
 
                 <div>
                     <label>Work status</label>
-                    <input
-                        name="demographics.youth_classification"
-                        value={formData.demographics.youth_classification}
-                        onChange={handleChange}
-                    />
+                    {[
+                        "Employed",
+                        "Unemployed",
+                        "Self-Employed",
+                        "Currently looking for a job",
+                        "Not interested looking for a job"
+                    ].map((workspace) => (
+                        <div key={workspace}>
+                            <label>
+                                <input
+                                    type='checkbox'
+                                    name="demographics.youth_classification"
+                                    value={formData.demographics.youth_classification}
+                                    onChange={handleChange}
+                                />
+                            </label>
+                        </div>
+                    ))
+                    }
                 </div>
+
+                <div>
+                    <label htmlFor="">Registered Voter</label>
+                    {[
+                        "Yes",
+                        "No",
+                    ].map((voter) => (
+                        <div key={voter}>
+                            <label>
+                                <input
+                                    type='radio'
+                                    name="survey.registered_voter"
+                                    value={voter}
+                                    checked={formData.survey.registered_voter === voter}
+                                    onChange={handleChange}
+                                />
+                                {voter}
+                            </label>
+                        </div>
+                    ))
+                    }
+                </div>
+
+                <div>
+                    <label htmlFor="">Registered National Voter</label>
+                    {[
+                        "Yes",
+                        "No",
+                    ].map((national) => (
+                        <div key={national}>
+                            <label>
+                                <input
+                                    type='radio'
+                                    name="survey.registered_national_voter"
+                                    value={national}
+                                    checked={formData.survey.registered_national_voter === national}
+                                    onChange={handleChange}
+                                />
+                                {national}
+                            </label>
+                        </div>
+                    ))
+                    }
+                </div>
+
+                <div>
+                    <label htmlFor="">Vote last election</label>
+                    {[
+                        "Yes",
+                        "No",
+                    ].map((last) => (
+                        <div key={last}>
+                            <label>
+                                <input
+                                    type='radio'
+                                    name="survey.vote_last_election"
+                                    value={last}
+                                    checked={formData.survey.vote_last_election === last}
+                                    onChange={handleChange}
+                                />
+                                {last}
+                            </label>
+                        </div>
+                    ))
+                    }
+                </div>
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" />
+</svg>
 
 
 

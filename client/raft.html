@@ -137,6 +137,19 @@
             ))}
         </div>
 
+        <div>
+            <label>Registered Voter</label>
+            {["Yes", "No"].map((option) => (
+            <div key={option}>
+                <label>
+                    <input type="radio" name="demographics.youth_classification" value={option}
+                        checked={formData.demographics.youth_classification===option} onChange={handleChange} />
+                    {option}
+                </label>
+            </div>
+            ))}
+        </div>
+
         {/* Survey */}
         <div><label>Registered Voter</label><input type="checkbox" name="survey.registered_voter"
                 checked={formData.survey.registered_voter} onChange={handleChange} /></div>
