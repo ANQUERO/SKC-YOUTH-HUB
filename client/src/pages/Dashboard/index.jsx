@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
     PieChart,
     BarChart,
@@ -13,27 +13,9 @@ import {
     Bar
 } from 'recharts';
 import style from '@styles/dashboard.module.scss';
+import useDashboard from '@hooks/useDashboard'
 
-// Data
-const voterRegistrationData = [
-    { name: 'Registered', value: 250 },
-    { name: 'Unregistered', value: 200 },
-];
-
-const purokPopulationData = [
-    { name: 'Purok 1', value: 120 },
-    { name: 'Purok 2', value: 180 },
-    { name: 'Purok 3', value: 95 },
-    { name: 'Purok 4', value: 130 },
-    { name: 'Purok 5', value: 110 },
-    { name: 'Purok 6', value: 165 },
-];
-
-const totalYouths = [
-    { name: 'Youths', value: 450 }
-];
-
-const COLORS = ['#4ade80', '#f87171'];
+const COLORS = ['#4ade80', '#f87171', '#60a5fa', '#fbbf24', '#a78bfa', '#f472b6'];
 
 // Custom Tooltip for Bar Chart
 const CustomTooltip = ({ active, payload, label }) => {
@@ -48,6 +30,51 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const DashBoard = () => {
+    const {
+        dashboardData,
+        fetchTotalVoters,
+        fetchTotalGender,
+        fetchResidentsPerPurok,
+        loading,
+        error
+    } = useDashboard();
+
+    useEffect(() => {
+        fetchTotalVoters();
+        fetchTotalGender();
+        fetchResidentsPerPurok();
+    }, []);
+
+
+    const voterRegistrationData = [
+        {
+            name: 'Registered',
+            value: Number(dashboardData.registered_voters) || 0
+        },
+        {
+            name: 'Unregistered',
+            value: Number(dashboardData.unregistered_voters) || 0
+        },
+    ];
+
+    const totalYouths = [
+        {
+            name: 'Youths',
+            value: Number(dashboardData.total_youths) || 0
+
+        }
+    ]
+
+    const totalGender = (dashboardData.gender_stats || []).map(g => ({
+        name: g.gender.charAt(0).toUpperCase() + g.gender.slice(1),
+        value: Number(g.total) || 0
+    }));
+
+    const residentsPerPurok = (dashboardData.purok_stats || []).map(p => ({
+        name: p.purok,
+        value: Number(p.total_residents) || 0
+    }));
+
     return (
         <div className={style.dashboard}>
             <h1>Hello Leester</h1>
@@ -69,7 +96,7 @@ const DashBoard = () => {
                                 label
                             >
                                 {voterRegistrationData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    <Cell key={`cell-voter-${index}`} fill={COLORS[index % COLORS.length]} />
                                 ))}
                             </Pie>
                             <Tooltip />
@@ -78,13 +105,12 @@ const DashBoard = () => {
                     </ResponsiveContainer>
                 </div>
 
-                {/* Population by Purok */}
                 <div className={style.chart_card}>
-                    <h2>Population by Purok</h2>
+                    <h2>Gender</h2>
                     <ResponsiveContainer width="100%" height={300}>
                         <PieChart>
                             <Pie
-                                data={purokPopulationData}
+                                data={totalGender}
                                 dataKey="value"
                                 nameKey="name"
                                 cx="50%"
@@ -92,8 +118,31 @@ const DashBoard = () => {
                                 outerRadius={100}
                                 label
                             >
-                                {purokPopulationData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                {totalGender.map((entry, index) => (
+                                    <Cell key={`cell-gender-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Pie>
+                            <Tooltip />
+                            <Legend />
+                        </PieChart>
+                    </ResponsiveContainer>
+                </div>
+
+                <div className={style.chart_card}>
+                    <h2>Residents per Purok</h2>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <PieChart>
+                            <Pie
+                                data={residentsPerPurok}
+                                dataKey="value"
+                                nameKey="name"
+                                cx="50%"
+                                cy="50%"
+                                outerRadius={100}
+                                label
+                            >
+                                {residentsPerPurok.map((entry, index) => (
+                                    <Cell key={`cell-purok-${index}`} fill={COLORS[index % COLORS.length]} />
                                 ))}
                             </Pie>
                             <Tooltip />
@@ -125,6 +174,8 @@ const DashBoard = () => {
                     </ResponsiveContainer>
                 </div>
             </div>
+            {loading && <p>Loading..</p>}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
         </div>
     );
 };
