@@ -46,6 +46,8 @@ const DashBoard = () => {
     }, []);
 
 
+
+
     const voterRegistrationData = [
         {
             name: 'Registered',
@@ -130,7 +132,7 @@ const DashBoard = () => {
 
                 <div className={style.chart_card}>
                     <h2>Residents per Purok</h2>
-                    <ResponsiveContainer width="100%" height={300}>
+                    <ResponsiveContainer width="100%" height={310}>
                         <PieChart>
                             <Pie
                                 data={residentsPerPurok}

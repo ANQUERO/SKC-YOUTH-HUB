@@ -45,7 +45,6 @@ export const index = async (req, res) => {
     }
 };
 
-
 export const show = async (req, res) => {
     const { id: youth_id } = req.params;
     const user = req.user;
@@ -60,66 +59,90 @@ export const show = async (req, res) => {
     }
 
     try {
-        const [
-            youth,
-            name,
-            location,
-            gender,
-            info,
-            demographics,
-            survey,
-            meetingSurvey,
-            attachments,
-            household
-        ] = await Promise.all([
-            pool.query('SELECT * FROM sk_youth WHERE youth_id = $1', [youth_id]),
-            pool.query('SELECT * FROM sk_youth_name WHERE youth_id = $1', [youth_id]),
-            pool.query('SELECT * FROM sk_youth_location WHERE youth_id = $1', [youth_id]),
-            pool.query('SELECT * FROM sk_youth_gender WHERE youth_id = $1', [youth_id]),
-            pool.query('SELECT * FROM sk_youth_info WHERE youth_id = $1', [youth_id]),
-            pool.query('SELECT * FROM sk_youth_demographics WHERE youth_id = $1', [youth_id]),
-            pool.query('SELECT * FROM sk_youth_survey WHERE youth_id = $1', [youth_id]),
-            pool.query('SELECT * FROM sk_youth_meeting_survey WHERE youth_id = $1', [youth_id]),
-            pool.query('SELECT * FROM sk_youth_attachments WHERE youth_id = $1', [youth_id]),
-            pool.query('SELECT * FROM sk_youth_household WHERE youth_id = $1', [youth_id]),
-        ]);
-        console.log('🧑‍💻 Full Youth Record:', {
-            youth: youth.rows[0],
-            name: name.rows,
-            location: location.rows,
-            gender: gender.rows,
-            info: info.rows,
-            demographics: demographics.rows,
-            survey: survey.rows,
-            meetingSurvey: meetingSurvey.rows,
-            attachments: attachments.rows,
-            household: household.rows
-        });
 
-        if (youth.rows.length === 0) {
+        const { rows } = await pool.query(`
+            SELECT 
+            y.youth_id,
+                y.email,
+                y.verified,
+                y.created_at,
+                y.updated_at,
+                yn.first_name,
+                yn.middle_name,
+                yn.last_name,
+                yn.suffix,
+                yl.region,
+                yl.province,
+                yl.municipality,
+                yl.barangay,
+                p.name AS purok,
+                yi.age,
+                yi.contact,
+                yi.birthday,
+                yg.gender,
+                yd.civil_status,
+                yd.youth_age_gap,
+                yd.youth_classification,
+                yd.educational_background,
+                yd.work_status,
+                ys.registered_voter,
+                ys.registered_national_voter,
+                ys.vote_last_election,
+                yms.attended,
+                yms.times_attended,
+                yms.reason_not_attend
+                FROM sk_youth y
+            LEFT JOIN sk_youth_name yn ON y.youth_id = yn.youth_id
+            LEFT JOIN sk_youth_location yl ON y.youth_id = yl.youth_id
+            LEFT JOIN purok p ON yl.purok_id = p.purok_id
+            LEFT JOIN sk_youth_info yi ON y.youth_id = yi.youth_id
+            LEFT JOIN sk_youth_gender yg ON y.youth_id = yg.youth_id
+            LEFT JOIN sk_youth_demographics yd ON y.youth_id = yd.youth_id
+            LEFT JOIN sk_youth_survey ys ON y.youth_id = ys.youth_id
+            LEFT JOIN sk_youth_meeting_survey yms ON y.youth_id = yms.youth_id
+            WHERE y.youth_id = $1
+            ORDER BY yn.created_at DESC
+            LIMIT 1;
+            `,
+            [youth_id]
+        );
+
+        if (rows.length === 0) {
             return res.status(404).json({
                 status: 'Error',
                 message: 'Youth not found'
             });
         }
 
+        const youth = rows[0];
+
+        const { rows: attachments } = await pool.query(
+            `
+            SELECT file_name, file_type, file_url, uploaded_at
+            FROM sk_youth_attachmetns
+            WHERE youth_id = $1 AND deleted_at IS NULL
+            `, [youth_id]
+        );
+
+        const { rows: households } = await pool.query(
+            `
+            SELECT household
+            FROM sk_youth_household
+            WHERE youth_id = $1 AND deleted_at IS NULL  
+            `, [youth_id]
+        )
+
         res.status(200).json({
             status: 'Success',
             data: {
-                youth: youth.rows[0],
-                name: name.rows,
-                location: location.rows,
-                gender: gender.rows,
-                info: info.rows,
-                demographics: demographics.rows,
-                survey: survey.rows,
-                meetingSurvey: meetingSurvey.rows,
-                attachments: attachments.rows,
-                household: household.rows
+                ...youth,
+                attachments,
+                households
             }
         });
+
     } catch (error) {
-        console.error('Failed to fetch youth data:', error);
+        console.error('Failed to fetch youth details:', error);
         res.status(500).json({
             status: "Error",
             message: "Internal Server Error"

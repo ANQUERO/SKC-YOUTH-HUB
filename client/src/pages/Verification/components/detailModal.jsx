@@ -11,7 +11,7 @@ const YouthDetailModal = ({ isOpen, onRequestClose, youth }) => {
             ariaHideApp={false}
             style={{
                 content: {
-                    maxWidth: '600px',
+                    maxWidth: '1200px',
                     margin: 'auto',
                     borderRadius: '8px',
                     padding: '1.5rem'
@@ -23,11 +23,9 @@ const YouthDetailModal = ({ isOpen, onRequestClose, youth }) => {
             {youth ? (
                 <Box>
                     <List dense>
-
                         <ListItem><ListItemText primary="Name" secondary={`${youth.suffix ? youth.suffix + '. ' : ''}${youth.first_name} ${youth.middle_name || ''} ${youth.last_name}`} /></ListItem>
                         <ListItem><ListItemText primary="Email" secondary={youth.email} /></ListItem>
                         <ListItem><ListItemText primary="Verified" secondary={youth.verified ? 'Yes' : 'No'} /></ListItem>
-
                         <ListItem><ListItemText primary="Joined" secondary={new Date(youth.created_at).toLocaleString()} /></ListItem>
                         <ListItem><ListItemText primary="Gender" secondary={youth.gender || 'N/A'} /></ListItem>
                         <ListItem><ListItemText primary="Birthday" secondary={youth.birthday ? new Date(youth.birthday).toLocaleDateString() : 'N/A'} /></ListItem>

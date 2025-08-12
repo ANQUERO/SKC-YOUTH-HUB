@@ -104,5 +104,4 @@ export const getResidentsPerPurok = async (req, res) => {
             message: 'Internal server error'
         });
     }
-
 }

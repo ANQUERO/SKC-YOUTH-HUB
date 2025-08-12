@@ -51,7 +51,7 @@ const useDashboard = () => {
 
         try {
             const res = await axiosInstance.get('/dashboard/v2');
-            setDashboardData(prev({
+            setDashboardData(prev => ({
                 ...prev,
                 gender_stats: res.data.data
             }));
@@ -76,10 +76,10 @@ const useDashboard = () => {
 
         try {
             const res = await axiosInstance.get('/dashboard/v3');
-            setDashboardData({
-
+            setDashboardData(prev => ({
+                ...prev,
                 purok_stats: res.data.data
-            });
+            }));
             setSucces('Fetched successfully');
         } catch (error) {
             setError("Failed to fetch data");

@@ -52,6 +52,7 @@ export const getYouthDetails = async (req, res) => {
     }
 
     try {
+
         const { rows } = await pool.query(
             `
             SELECT 
