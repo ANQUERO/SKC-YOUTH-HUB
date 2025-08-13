@@ -154,7 +154,6 @@ export const show = async (req, res) => {
 export const store = async (req, res) => {
     const user = req.user;
 
-    // Only admins can store youth
     if (!user || user.userType !== 'admin') {
         return res.status(403).json({
             status: 'Error',
@@ -162,38 +161,37 @@ export const store = async (req, res) => {
         });
     }
 
-    let purokId = null;
-
-    if (location.purok) {
-        const purokResult = await client.query(`
-    SELECT purok_id FROM purok WHERE name = $1 LIMIT 1
-    `, [location.purok]
-        );
-
-        if (purokResult.rows.length > 0) {
-            purokId = purokResult.rows[0].purok_id;
-        }
-    }
+    const {
+        email,
+        password,
+        name,
+        location,
+        gender,
+        info,
+        demographics,
+        survey,
+        meetingSurvey,
+        attachments,
+        household
+    } = req.body;
 
     const client = await pool.connect();
+    let purokId = location.purok_id || null;
+
     try {
         await client.query('BEGIN');
 
-        const {
-            email,
-            password,
-            name,
-            location,
-            gender,
-            info,
-            demographics,
-            survey,
-            meetingSurvey,
-            attachments,
-            household
-        } = req.body;
+        if (!purokId && location?.purok) {
+            const purokResult = await client.query(
+                `SELECT purok_id FROM purok WHERE name = $1 LIMIT 1`,
+                [location.purok]
+            );
 
-        // Hash the password
+            if (purokResult.rows.length > 0) {
+                purokId = purokResult.rows[0].purok_id;
+            }
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Insert into sk_youth
@@ -316,7 +314,6 @@ export const update = async (req, res) => {
     const { id: youth_id } = req.params;
     const user = req.user;
 
-    // 🛡️ Authorization: Only the logged-in youth can update their own data
     if (!user || user.userType !== 'youth' || user.youth_id !== parseInt(youth_id)) {
         return res.status(403).json({
             status: 'Error',
@@ -324,151 +321,16 @@ export const update = async (req, res) => {
         });
     }
 
-    const client = await pool.connect();
     try {
-        await client.query('BEGIN');
 
-        const {
-            name,
-            location,
-            gender,
-            info,
-            demographics,
-            survey,
-            meetingSurvey,
-            attachments,
-            household,
-        } = req.body;
 
-        // 🧠 sk_youth_name
-        if (name) {
-            await client.query(`
-                UPDATE sk_youth_name
-                SET first_name = COALESCE($1, first_name),
-                    middle_name = COALESCE($2, middle_name),
-                    last_name = COALESCE($3, last_name),
-                    suffix = COALESCE($4, suffix),
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE youth_id = $5
-            `, [name.first_name, name.middle_name, name.last_name, name.suffix, youth_id]);
-        }
-
-        // 🗺️ sk_youth_location
-        if (location) {
-            await client.query(`
-                UPDATE sk_youth_location
-                SET region = COALESCE($1, region),
-                    province = COALESCE($2, province),
-                    municipality = COALESCE($3, municipality),
-                    barangay = COALESCE($4, barangay),
-                    purok_id = COALESCE($5, purok_id),
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE youth_id = $6
-            `, [location.region, location.province, location.municipality, location.barangay, location.purok_id, youth_id]);
-        }
-
-        // 🚻 sk_youth_gender
-        if (gender) {
-            await client.query(`
-                UPDATE sk_youth_gender
-                SET gender = COALESCE($1, gender),
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE youth_id = $2
-            `, [gender.gender, youth_id]);
-        }
-
-        // 📞 sk_youth_info
-        if (info) {
-            await client.query(`
-                UPDATE sk_youth_info
-                SET age = COALESCE($1, age),
-                    contact = COALESCE($2, contact),
-                    birthday = COALESCE($3, birthday),
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE youth_id = $4
-            `, [info.age, info.contact, info.birthday, youth_id]);
-        }
-
-        // 📊 sk_youth_demographics
-        if (demographics) {
-            await client.query(`
-                UPDATE sk_youth_demographics
-                SET civil_status = COALESCE($1, civil_status),
-                    youth_age_gap = COALESCE($2, youth_age_gap),
-                    youth_classification = COALESCE($3, youth_classification),
-                    educational_background = COALESCE($4, educational_background),
-                    work_status = COALESCE($5, work_status),
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE youth_id = $6
-            `, [
-                demographics.civil_status,
-                demographics.youth_age_gap,
-                demographics.youth_classification,
-                demographics.educational_background,
-                demographics.work_status,
-                youth_id
-            ]);
-        }
-
-        // 🗳️ sk_youth_survey
-        if (survey) {
-            await client.query(`
-                UPDATE sk_youth_survey
-                SET registered_voter = COALESCE($1, registered_voter),
-                    registered_national_voter = COALESCE($2, registered_national_voter),
-                    vote_last_election = COALESCE($3, vote_last_election),
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE youth_id = $4
-            `, [survey.registered_voter, survey.registered_national_voter, survey.vote_last_election, youth_id]);
-        }
-
-        // 🧑‍🤝‍🧑 sk_youth_meeting_survey
-        if (meetingSurvey) {
-            await client.query(`
-                UPDATE sk_youth_meeting_survey
-                SET attended = COALESCE($1, attended),
-                    times_attended = COALESCE($2, times_attended),
-                    reason_not_attend = COALESCE($3, reason_not_attend),
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE youth_id = $4
-            `, [meetingSurvey.attended, meetingSurvey.times_attended, meetingSurvey.reason_not_attend, youth_id]);
-        }
-
-        // 🏠 sk_youth_household
-        if (household) {
-            await client.query(`
-                UPDATE sk_youth_household
-                SET household = COALESCE($1, household),
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE youth_id = $2
-            `, [household.household, youth_id]);
-        }
-
-        // 🧾 sk_youth_attachments (optional, usually handled by separate upload endpoint)
-        if (attachments) {
-            await Promise.all(attachments.map(att => {
-                return client.query(`
-                    INSERT INTO sk_youth_attachments (youth_id, file_name, file_type, file_url)
-                    VALUES ($1, $2, $3, $4)
-                `, [youth_id, att.file_name, att.file_type, att.file_url]);
-            }));
-        }
-
-        await client.query('COMMIT');
-        return res.status(200).json({
-            status: 'Success',
-            message: 'Youth profile updated successfully'
-        });
     } catch (err) {
-        await client.query('ROLLBACK');
         console.error('Update error:', err);
         res.status(500).json({
             status: 'Error',
             message: 'Something went wrong during update',
             error: err.message
         });
-    } finally {
-        client.release();
     }
 };
 

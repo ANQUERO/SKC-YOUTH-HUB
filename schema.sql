@@ -35,9 +35,6 @@ CREATE TABLE sk_youth_name (
     middle_name VARCHAR(55),
     last_name VARCHAR(55) NOT NULL,
     suffix VARCHAR(10),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP
 );
 
 -- Youth Location
@@ -49,9 +46,6 @@ CREATE TABLE sk_youth_location (
     municipality VARCHAR(55) NOT NULL,
     barangay VARCHAR(55) NOT NULL,
     purok_id INTEGER REFERENCES purok(purok_id),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP
 );
 
 -- Purok
@@ -66,9 +60,6 @@ CREATE TABLE sk_youth_gender (
     gender_id SERIAL PRIMARY KEY,
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
     gender VARCHAR(10) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP
 );
 
 -- Youth Info
@@ -78,9 +69,6 @@ CREATE TABLE sk_youth_info (
     age INT NOT NULL,
     contact VARCHAR(15) NOT NULL,
     birthday DATE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP
 );
 
 -- Youth Demographics
@@ -92,21 +80,15 @@ CREATE TABLE sk_youth_demographics (
     youth_classification VARCHAR(55) NOT NULL,
     educational_background VARCHAR(55) NOT NULL,
     work_status VARCHAR(55) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP
 );
 
 -- Youth Survey
 CREATE TABLE sk_youth_survey (
     survey_id SERIAL PRIMARY KEY,
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
-    registered_voter VARCHAR(45) NOT NULL CHECK(registered_voter IN ('yes', 'no')),
-    registered_national_voter VARCHAR(45) NOT NULL CHECK(registered_national_voter IN ('yes', 'no')),
-    vote_last_election VARCHAR(45) NOT NULL CHECK(vote_last_election IN ('yes', 'no')),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP
+    registered_voter VARCHAR(45),
+    registered_national_voter VARCHAR(55),
+    vote_last_election VARCHAR(45) ,
 );
 
 -- Youth Meeting Survey
@@ -116,9 +98,6 @@ CREATE TABLE sk_youth_meeting_survey (
     attended BOOLEAN NOT NULL,
     times_attended INT,
     reason_not_attend TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP
 );
 
 -- Youth Attachments
@@ -128,9 +107,6 @@ CREATE TABLE sk_youth_attachments (
     file_name VARCHAR(255) NOT NULL,
     file_type VARCHAR(100) NOT NULL,
     file_url TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP
 );
 
 -- Youth House Hold
@@ -138,9 +114,6 @@ CREATE TABLE sk_youth_household (
     household_id SERIAL PRIMARY KEY NOT NULL,
 	youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
     household VARCHAR(55) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP
 );
 
 
@@ -213,6 +186,20 @@ CREATE TABLE post_reactions (
     reacted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
+
+
+
+
+ -- Create Form -- 
+
+CREATE TABLE forms(
+    form_id SERIAL PRIMARY KEY,
+    admin_id INT NOT NULL REFERENCES sk_official_admin(admin_id),
+    title VARCHAR(255) NOT NULL,
+    description TEXT
+)
 
 
 
