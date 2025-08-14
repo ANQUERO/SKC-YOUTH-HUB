@@ -32,37 +32,54 @@ export const signupAdmin = async (req, res) => {
         );
 
         if (existing.rows.length > 0) {
-            return res.status(400).json({ errors: { email: "Email already exists" } });
+            return res.status(400).json({
+                errors:
+                {
+                    email: "Email already exists"
+                }
+            });
         }
 
         // Hash password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Insert new admin
-        const insertQuery = `
-      INSERT INTO sk_official_admin (first_name, last_name, email, position, password, role)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING admin_id, first_name, last_name, email, position, role
-    `;
+        const adminResult = await pool.query(
+            `INSERT INTO sk_official_admin (email, position, password, role)
+            VALUES ($1, $2, $3, $4)
+            RETURNING admin_id, email, position, role
+            `, [email, position, hashedPassword, role]
+        );
 
-        const result = await pool.query(insertQuery, [
-            first_name,
-            last_name,
-            email,
-            position,
-            hashedPassword,
-            role
-        ]);
+        const admin = adminResult.rows[0];
 
-        const newAdmin = result.rows[0];
+        await pool.query(
+            `INSERT INTO sk_official_name (
+                admin_id, 
+                first_name,
+                middle_name,
+                last_name,
+                suffix
+            ) VALUES ($1, $2, $3, $4, $5)`,
+            [admin.admin_id, first_name, middle_name || null, last_name, suffix || null]
+        );
+
+        await pool.query(
+            `INSERT INTO sk_official_info (
+                admin_id,
+                contact_number,
+                gender,
+                age
+            ) VALUES ($1, $2, $3, $4)`,
+            [admin.admin_id, contact_number || null, gender || null, age || null]
+        )
 
         //Pass userId and userType
-        generateTokenAndSetCookies(newAdmin, res, 'admin');
+        generateTokenAndSetCookies(admin, res, 'admin');
 
         return res.status(201).json({
             message: "Admin registered successfully",
-            admin: newAdmin
+            admin
         });
 
     } catch (error) {
@@ -230,20 +247,14 @@ export const login = async (req, res) => {
 
         if (userType === "admin") {
             Object.assign(responseUser, {
-                first_name: user.first_name,
-                last_name: user.last_name,
                 position: user.position,
                 role: user.role
             });
         } else if (userType === "youth") {
             Object.assign(responseUser, {
-                verified: user.verified,
-                is_active: user.is_active,
-                comment_status: user.comment_status
+                // Add youth-specific fields if needed
             });
         }
-
-        console.log('User Data:', result.rows[0])
 
         return res.status(200).json({
             message: "Login successful",

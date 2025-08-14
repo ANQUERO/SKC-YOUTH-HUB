@@ -18,7 +18,6 @@ const constraints = {
             pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
             message: '^Password must include uppercase, lowercase, number, and special character',
         }
-
     },
 };
 
@@ -41,7 +40,9 @@ const useLogin = () => {
     };
 
     const login = async (email, password) => {
+
         const validationErrors = validate({ email, password }, constraints);
+
         if (validationErrors) {
             const formattedErrors = Object.fromEntries(
                 Object.entries(validationErrors).map(([field, messages]) => [field, messages[0]])
@@ -56,12 +57,19 @@ const useLogin = () => {
             const res = await axiosInstance.post('/auth/login', { email, password });
             const loggedInUser = res.data.user;
 
+            // Ensure role is always an array
+            const roles = Array.isArray(loggedInUser.role)
+                ? loggedInUser.role
+                : loggedInUser.role
+                    ? [loggedInUser.role]
+                    : [];
+
             localStorage.setItem('auth-user', JSON.stringify(loggedInUser));
             setAuthUser(loggedInUser);
 
-            if (loggedInUser.role?.length > 0) {
-                setActiveRole(loggedInUser.role[0]);
-                localStorage.setItem('active-role', loggedInUser.role[0]);
+            if (roles.length > 0) {
+                setActiveRole(roles[0]);
+                localStorage.setItem('active-role', roles[0]);
             }
 
             return { success: true, user: loggedInUser };

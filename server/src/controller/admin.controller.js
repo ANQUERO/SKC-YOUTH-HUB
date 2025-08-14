@@ -12,7 +12,9 @@ export const index = async (req, res) => {
     }
 
     try {
+
         const result = await pool.query('SELECT * FROM sk_official_admin');
+
         console.log('Admins', result.rows);
         res.status(200).json({
             status: "Success",
