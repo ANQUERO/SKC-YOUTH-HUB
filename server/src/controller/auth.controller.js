@@ -7,12 +7,17 @@ import { pool } from '../db/config.js'
 export const signupAdmin = async (req, res) => {
     try {
         const {
-            first_name,
-            last_name,
             email,
-            position,
             password,
-            role
+            role,
+            position,
+            first_name,
+            middle_name,
+            last_name,
+            suffix,
+            contact_number,
+            gender,
+            age
         } = req.body;
 
         const errors = validationResult(req);
@@ -52,7 +57,7 @@ export const signupAdmin = async (req, res) => {
 
         const newAdmin = result.rows[0];
 
-       //Pass userId and userType
+        //Pass userId and userType
         generateTokenAndSetCookies(newAdmin, res, 'admin');
 
         return res.status(201).json({
