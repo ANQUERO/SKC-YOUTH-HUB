@@ -1,9 +1,9 @@
---Fetch admins
+--Fetch SK Officials
 CREATE OR REPLACE FUNCTION getAll_sk_officials()
 RETURNS TABLE (
     admin_id INT,
     email VARCHAR,
-    position VARCHAR,
+    admin_position VARCHAR,
     role VARCHAR,
     first_name VARCHAR,
     middle_name VARCHAR,
@@ -23,7 +23,7 @@ BEGIN
  SELECT 
         a.admin_id,
         a.email,
-        a.position,
+        a.admin_position,
         a.role,
         n.first_name,
         n.middle_name,
@@ -39,16 +39,16 @@ FROM sk_official_admin a
 LEFT JOIN sk_official_name n ON a.admin_id = n.admin_id
 LEFT JOIN sk_official_info i ON a.admin_id = i.admin_id
 LEFT JOIN sk_official_avatar av ON a.admin_id = av.admin_id
-WHERE a.deleted_at IS NULL
+WHERE a.deleted_at IS NULL;
 END;
 $$;
 
---Fetch specific admin
-CREATE OR REPLACE FUNCTION getAll_sk_official(p_admin_id INT)
+--Fetch specific SK Official
+CREATE OR REPLACE FUNCTION get_sk_official(p_admin_id INT)
 RETURNS TABLE (
     admin_id INT,
     email VARCHAR,
-    position VARCHAR,
+    admin_position VARCHAR,
     role VARCHAR,
     first_name VARCHAR,
     middle_name VARCHAR,
@@ -68,7 +68,7 @@ BEGIN
  SELECT 
         a.admin_id,
         a.email,
-        a.position,
+        a.admin_position,
         a.role,
         n.first_name,
         n.middle_name,
@@ -84,8 +84,13 @@ FROM sk_official_admin a
 LEFT JOIN sk_official_name n ON a.admin_id = n.admin_id
 LEFT JOIN sk_official_info i ON a.admin_id = i.admin_id
 LEFT JOIN sk_official_avatar av ON a.admin_id = av.admin_id
-WHERE a.deleted_at IS NULL AND a.admin_id = p_admin_id
+WHERE a.deleted_at IS NULL 
+AND a.admin_id = p_admin_id;
 END;
 $$;
+
+--Update SK Official
+
+
 
 

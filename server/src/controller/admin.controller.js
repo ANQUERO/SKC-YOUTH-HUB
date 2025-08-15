@@ -13,15 +13,15 @@ export const index = async (req, res) => {
 
     try {
 
-        const result = await pool.query('SELECT * FROM sk_official_admin');
+        const result = await pool.query('SELECT * FROM getAll_sk_officials()');
 
-        console.log('Admins', result.rows);
+        console.log('SK Officials', result.rows);
         res.status(200).json({
             status: "Success",
             data: result.rows
         });
     } catch (error) {
-        console.error("Failed to fetch admin data:", error);
+        console.error("Failed to fetch SK Officials:", error);
         res.status(500).json({
             status: "Error",
             message: "Internal server error"
@@ -42,16 +42,16 @@ export const show = async (req, res) => {
 
     try {
         const result = await pool.query(
-            'SELECT * FROM sk_official_admin WHERE admin_id = $1',
+            'SELECT * FROM get_sk_official($1)',
             [admin_id]
         );
-        console.log('Admins', result.rows);
+        console.log('SK Official', result.rows);
 
 
         if (result.rows.length === 0) {
             return res.status(404).json({
                 status: 'Error',
-                message: 'Admin not found'
+                message: 'Official not found'
             });
         }
 
@@ -59,8 +59,9 @@ export const show = async (req, res) => {
             status: "Success",
             data: result.rows[0]
         });
+
     } catch (error) {
-        console.error("Failed to fetch admin data:", error);
+        console.error("Failed to fetch SK Official data:", error);
         res.status(500).json({
             status: "Error",
             message: "Internal server error"

@@ -74,15 +74,15 @@ CREATE TABLE sk_youth_gender (
 CREATE TABLE sk_youth_info (
     info_id SERIAL PRIMARY KEY,
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
-    age INT NOT NULL,
-    contact VARCHAR(15) NOT NULL,
+    age INTEGER,
+    contact_number VARCHAR(20),
     birthday DATE
 );
 
 -- Purok
 CREATE TABLE purok (
     purok_id SERIAL PRIMARY KEY,
-    name VARCHAR(55) UNIQUE NOT NULL
+    name VARCHAR(55) UNIQUE 
 );
 
 -- Youth Location
