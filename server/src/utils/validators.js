@@ -41,7 +41,7 @@ export const signupAdminValidator = [
         ),
     body("role")
         .custom(isRole).withMessage(
-            'Role must be either "super_sk_admin" or "natural_sk_admin"'
+            'Role must be either "super_official" or "natural_official"'
         )
 ];
 

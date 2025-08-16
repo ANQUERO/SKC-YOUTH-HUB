@@ -1,12 +1,12 @@
 CREATE DATABASE skc_youth_hub;
 
 -- Admin Table
-CREATE TABLE sk_official_admin (
-    admin_id SERIAL PRIMARY KEY,
+CREATE TABLE sk_official (
+    official_id SERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     password TEXT NOT NULL,
-    position VARCHAR(35),
-    role VARCHAR(55) CHECK (role IN ('super_sk_admin', 'natural_sk_admin')),
+    official_position VARCHAR(35),
+    role VARCHAR(55) CHECK (role IN ('super_official', 'natural_official')),
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -15,7 +15,7 @@ CREATE TABLE sk_official_admin (
 
 CREATE TABLE sk_official_name (
     name_id SERIAL PRIMARY KEY,
-    admin_id INTEGER REFERENCES sk_official_admin(admin_id),
+    official_id INTEGER REFERENCES sk_official(official_id),
     first_name VARCHAR(55),
     middle_name VARCHAR(20),
     last_name VARCHAR(55),
@@ -24,7 +24,7 @@ CREATE TABLE sk_official_name (
 
 CREATE TABLE sk_official_info(
     info_id SERIAL PRIMARY KEY,
-    admin_id INTEGER REFERENCES sk_official_admin(admin_id),
+    official_id INTEGER REFERENCES sk_official(official_id),
     contact_number VARCHAR(20),
     gender VARCHAR(10),
     age INTEGER
@@ -32,7 +32,7 @@ CREATE TABLE sk_official_info(
 
 CREATE TABLE sk_official_avatar (
     attachment_id SERIAL PRIMARY KEY NOT NULL,
-    admin_id INTEGER REFERENCES sk_official_admin(admin_id),
+    official_id INTEGER REFERENCES sk_official(official_id),
     file_name VARCHAR(255),
     file_type VARCHAR(100),
     file_url TEXT 
@@ -146,14 +146,14 @@ CREATE TABLE sk_youth_deleted (
     youth_id INTEGER,
     email VARCHAR(55),
     deleted_reason TEXT,
-    deleted_by INTEGER, -- admin_id
+    deleted_by INTEGER, -- official_id
     deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 ---Posts table: supports image/video, description, title, and tracks posting admin
 CREATE TABLE posts (
     post_id SERIAL PRIMARY KEY,
-    admin_id INTEGER NOT NULL REFERENCES sk_official_admin(admin_id),
+    official_id INTEGER NOT NULL REFERENCES sk_official(official_id),
     title VARCHAR(100) NOT NULL,
     description TEXT NOT NULL,
     media_type VARCHAR(10) CHECK (media_type IN ('image', 'video')),
@@ -192,7 +192,7 @@ CREATE TABLE post_reactions (
 
 CREATE TABLE forms(
     form_id SERIAL PRIMARY KEY,
-    admin_id INT NOT NULL REFERENCES sk_official_admin(admin_id),
+    official_id INT NOT NULL REFERENCES sk_official(official_id),
     title VARCHAR(255) NOT NULL,
     description TEXT
 )

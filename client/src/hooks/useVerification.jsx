@@ -3,8 +3,8 @@ import axiosInstance from '@lib/axios';
 import { useAuthContext } from '@context/AuthContext';
 
 const useYouthAdmin = () => {
-    const { isSkAdmin, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
-    const isAuthorized = isSkAdmin || isSkSuperAdmin || isSkNaturalAdmin;
+    const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
+    const isAuthorized = isSkSuperAdmin || isSkNaturalAdmin;
 
     const [youthData, setYouthData] = useState([]);
     const [youthDetails, setYouthDetails] = useState(null);

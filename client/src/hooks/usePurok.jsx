@@ -4,12 +4,12 @@ import { useAuthContext } from "@context/AuthContext";
 
 
 const usePurok = () => {
-    const { authUser, isSkAdmin, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
+    const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
     const [puroks, setPuroks] = useState([]);
     const [purok, setPurok] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const isAuthorized = isSkAdmin || isSkSuperAdmin || isSkNaturalAdmin;
+    const isAuthorized = isSkSuperAdmin || isSkNaturalAdmin;
 
     const fetchPuroks = async () => {
         if (!isAuthorized) {

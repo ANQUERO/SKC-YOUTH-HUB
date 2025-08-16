@@ -25,7 +25,7 @@ export const isGender = value => {
 
 export const isRole = value => {
     const val = String(value).toLowerCase();
-    return val === "super_sk_admin" || val === "natural_sk_admin";
+    return val === "super_official" || val === "natural_official";
 };
 
 const normalize = value =>

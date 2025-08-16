@@ -18,11 +18,11 @@ export const generateTokenAndSetCookies = (user, res, userType) => {
 
     const payload = { userType: normalizedType };
 
-    if (normalizedType === 'admin') {
-        payload.admin_id = user.admin_id;
+    if (normalizedType === 'official') {
+        payload.offcial_id = user.offcial_id;
         payload.role = Array.isArray(user.role) ? user.role : [user.role];
         payload.email = user.email;
-        payload.position = user.position;
+        payload.official_position = user.official_position;
     } else if (normalizedType === 'youth') {
         payload.youth_id = user.youth_id;
         payload.email = user.email;

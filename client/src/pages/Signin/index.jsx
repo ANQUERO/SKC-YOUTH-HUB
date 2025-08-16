@@ -37,7 +37,12 @@ const Signin = () => {
     const { success, user } = await login(form.email, form.password);
 
     if (success && user) {
-      const route = user.userType === 'admin' ? '/dashboard' : user.userType === 'youth' ? '/feed' : '/';
+      const route =
+        user.userType === 'official'
+          ? '/dashboard'
+          : user.userType === 'youth'
+            ? '/feed'
+            : '/';
       navigate(route);
     }
   };

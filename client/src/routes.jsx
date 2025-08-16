@@ -56,9 +56,8 @@ export const routes = [
         element: (
             <ProtectedRoute allowedRoles={[
                 "youth",
-                "admin",
-                "super_sk_admin",
-                "natural_sk_admin"
+                "super_official",
+                "natural_official"
             ]}>
                 <NewsFeed />
             </ProtectedRoute>
@@ -68,9 +67,8 @@ export const routes = [
         path: "/dashboard",
         element: (
             <ProtectedRoute allowedRoles={[
-                "admin",
-                "super_sk_admin",
-                "natural_sk_admin"
+                "super_official",
+                "natural_official"
             ]}>
                 <Authenticated />
             </ProtectedRoute>
@@ -84,9 +82,8 @@ export const routes = [
         path: "/youth",
         element: (
             <ProtectedRoute allowedRoles={[
-                "admin",
-                "super_sk_admin",
-                "natural_sk_admin"
+                "super_official",
+                "natural_official"
             ]}>
                 <Authenticated />
             </ProtectedRoute>
@@ -97,9 +94,8 @@ export const routes = [
         path: "/purok",
         element: (
             <ProtectedRoute allowedRoles={[
-                "admin",
-                "super_sk_admin",
-                "natural_sk_admin"
+                "super_official",
+                "natural_official"
             ]}>
                 <Authenticated />
             </ProtectedRoute>
@@ -110,9 +106,8 @@ export const routes = [
         path: "/inbox",
         element: (
             <ProtectedRoute allowedRoles={[
-                "admin",
-                "super_sk_admin",
-                "natural_sk_admin"
+                "super_official",
+                "natural_official"
             ]}>
                 <Authenticated />
             </ProtectedRoute>
@@ -123,9 +118,8 @@ export const routes = [
         path: "/verification",
         element: (
             <ProtectedRoute allowedRoles={[
-                "admin",
-                "super_sk_admin",
-                "natural_sk_admin"
+                "super_official",
+                "natural_official"
             ]}>
                 <Authenticated />
             </ProtectedRoute>
@@ -136,9 +130,8 @@ export const routes = [
         path: "/officials",
         element: (
             <ProtectedRoute allowedRoles={[
-                "admin",
-                "super_sk_admin",
-                "natural_sk_admin"
+                "super_official",
+                "natural_official"
             ]}>
                 <Authenticated />
             </ProtectedRoute>
@@ -149,22 +142,20 @@ export const routes = [
         path: "/account",
         element: (
             <ProtectedRoute allowedRoles={[
-                "admin",
-                "super_sk_admin",
-                "natural_sk_admin"
+                "super_official",
+                "natural_official"
             ]}>
                 <Authenticated />
             </ProtectedRoute>
         ),
-        children: [{ index: true, elememt: <Settings /> }]
+        children: [{ index: true, element: <Settings /> }]
     },
     {
         path: "/admin",
         element: (
             <ProtectedRoute allowedRoles={[
-                "admin",
-                "super_sk_admin",
-                "natural_sk_admin"
+                "super_official",
+                "natural_official"
             ]}>
                 <Authenticated />
             </ProtectedRoute>

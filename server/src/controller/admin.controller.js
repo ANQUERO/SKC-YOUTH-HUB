@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 export const index = async (req, res) => {
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== 'official') {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"
@@ -13,7 +13,7 @@ export const index = async (req, res) => {
 
     try {
 
-        const result = await pool.query('SELECT * FROM getAll_sk_officials()');
+        const result = await pool.query('SELECT * FROM fetch_sk_officials()');
 
         console.log('SK Officials', result.rows);
         res.status(200).json({
@@ -30,10 +30,10 @@ export const index = async (req, res) => {
 };
 
 export const show = async (req, res) => {
-    const { id: admin_id } = req.params;
+    const { id: official_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== 'official') {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"
@@ -42,8 +42,8 @@ export const show = async (req, res) => {
 
     try {
         const result = await pool.query(
-            'SELECT * FROM get_sk_official($1)',
-            [admin_id]
+            'SELECT * FROM fetch_sk_official($1)',
+            [official_id]
         );
         console.log('SK Official', result.rows);
 
@@ -70,10 +70,10 @@ export const show = async (req, res) => {
 };
 
 export const update = async (req, res) => {
-    const { id: admin_id } = req.params;
+    const { id: official_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'admin' || parseInt(admin_id) !== user.admin_id) {
+    if (!user || user.userType !== 'admin' || parseInt(official_id) !== user.official_id) {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - You can only update your own account"
@@ -109,11 +109,11 @@ export const update = async (req, res) => {
         const query = `
             UPDATE sk_official_admin
             SET ${setClause}, updated_at = NOW()
-            WHERE admin_id = $${values.length + 1}
+            WHERE official_id = $${values.length + 1}
             RETURNING *;
         `;
 
-        const result = await pool.query(query, [...values, admin_id]);
+        const result = await pool.query(query, [...values, official_id]);
 
         if (result.rows.length === 0) {
             return res.status(404).json({
@@ -139,7 +139,7 @@ export const update = async (req, res) => {
 };
 
 export const destroy = async (req, res) => {
-    const { id: admin_id } = req.params;
+    const { id: official_id } = req.params;
     const user = req.user;
 
     if (!user || user.userType !== 'admin') {
@@ -151,8 +151,8 @@ export const destroy = async (req, res) => {
 
     try {
         const result = await pool.query(
-            'UPDATE sk_official_admin SET is_active = false WHERE admin_id = $1 RETURNING *',
-            [admin_id]
+            'UPDATE sk_official_admin SET is_active = false WHERE official_id = $1 RETURNING *',
+            [official_id]
         );
 
         if (result.rows.length === 0) {
@@ -177,7 +177,7 @@ export const destroy = async (req, res) => {
 }
 
 export const enable = async (req, res) => {
-    const { id: admin_id } = req.params;
+    const { id: official_id } = req.params;
     const user = req.user;
 
     if (!user || user.userType !== 'admin') {
@@ -189,8 +189,8 @@ export const enable = async (req, res) => {
 
     try {
         const result = await pool.query(
-            'UPDATE sk_official_admin SET is_active = true WHERE admin_id = $1 RETURNING *',
-            [admin_id]
+            'UPDATE sk_official_admin SET is_active = true WHERE official_id = $1 RETURNING *',
+            [official_id]
         );
 
         if (result.rows.length === 0) {
@@ -216,7 +216,7 @@ export const enable = async (req, res) => {
 }
 
 export const disableComment = async (req, res) => {
-    const { id: admin_id } = req.params;
+    const { id: official_id } = req.params;
     const user = req.user;
 
     if (!user || user.userType !== 'admin') {
@@ -228,8 +228,8 @@ export const disableComment = async (req, res) => {
 
     try {
         const result = await pool.query(
-            'UPDATE sk_official_admin SET comment_at = true WHERE admin_id = $1 RETURNING *',
-            [admin_id]
+            'UPDATE sk_official_admin SET comment_at = true WHERE official_id = $1 RETURNING *',
+            [official_id]
         );
 
         if (result.rows.length === 0) {
@@ -256,7 +256,7 @@ export const disableComment = async (req, res) => {
 }
 
 export const enableComment = async (req, res) => {
-    const { id: admin_id } = req.params;
+    const { id: official_id } = req.params;
     const user = req.user;
 
     if (!user || user.userType !== 'admin') {
@@ -268,8 +268,8 @@ export const enableComment = async (req, res) => {
 
     try {
         const result = await pool.query(
-            'UPDATE sk_official_admin SET comment_at = false WHERE admin_id = $1 RETURNING *',
-            [admin_id]
+            'UPDATE sk_official_admin SET comment_at = false WHERE official_id = $1 RETURNING *',
+            [official_id]
         );
 
         if (result.rows.length === 0) {

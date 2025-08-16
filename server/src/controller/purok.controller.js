@@ -3,7 +3,7 @@ import { pool } from '../db/config.js'
 export const index = async (req, res) => {
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== 'official') {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"
@@ -30,7 +30,7 @@ export const show = async (req, res) => {
     const { id: purok_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== 'official') {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"
@@ -69,7 +69,7 @@ export const store = async (req, res) => {
     const { name } = req.body
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== 'official') {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"
@@ -122,7 +122,7 @@ export const update = async (req, res) => {
     const { name } = req.body;
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== 'official') {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"
@@ -170,7 +170,7 @@ export const destroy = async (req, res) => {
     const { id: purok_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== 'official') {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"

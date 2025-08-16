@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt'
 export const index = async (req, res) => {
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== 'official') {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"
@@ -50,7 +50,7 @@ export const show = async (req, res) => {
     const user = req.user;
 
     const isSelf = user.userType === 'youth' && user.youth_id === parseInt(youth_id);
-    const isAdmin = user.userType === 'admin';
+    const isAdmin = user.userType === 'official';
 
     if (!isSelf && !isAdmin) {
         return res.status(403).json({
@@ -154,7 +154,7 @@ export const show = async (req, res) => {
 export const store = async (req, res) => {
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== 'official') {
         return res.status(403).json({
             status: 'Error',
             message: 'Forbidden - Only admins can create youth profiles'

@@ -113,9 +113,8 @@ export const AuthContextProvider = ({ children }) => {
                 setActiveRole,
                 loading,
                 isSkYouth: activeRole === "youth",
-                isSkAdmin: activeRole === "admin",
-                isSkSuperAdmin: activeRole === "super_sk_admin",
-                isSkNaturalAdmin: activeRole === "natural_sk_admin"
+                isSkSuperAdmin: activeRole === "super_official",
+                isSkNaturalAdmin: activeRole === "natural_official"
             }}
         >
             {children}

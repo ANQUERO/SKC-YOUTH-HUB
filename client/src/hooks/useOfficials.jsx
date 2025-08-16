@@ -3,13 +3,13 @@ import axiosInstance from '@lib/axios';
 import { useAuthContext } from '@context/AuthContext';
 
 const useOfficials = () => {
-    const { authUser, isSkAdmin, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
+    const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
 
     const [officials, setOfficials] = useState([]);
     const [official, setOfficial] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const isAuthorized = isSkAdmin || isSkNaturalAdmin || isSkSuperAdmin;
+    const isAuthorized = isSkNaturalAdmin || isSkSuperAdmin;
 
     // Fetch all officials (admins)
     const fetchOfficials = async () => {
@@ -30,11 +30,11 @@ const useOfficials = () => {
         }
     };
 
-    const fetchOfficialById = async (admin_id) => {
+    const fetchOfficialById = async (offial_id) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axiosInstance.get(`/admin/${admin_id}`);
+            const response = await axiosInstance.get(`/admin/${offial_id}`);
             setOfficial(response.data.data || null);
         } catch (err) {
             console.error('Error fetching official:', err);
@@ -44,11 +44,11 @@ const useOfficials = () => {
         }
     };
 
-    const updateOfficial = async (admin_id) => {
+    const updateOfficial = async (offial_id) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axiosInstance.put(`/admin/${admin_id}`);
+            const response = await axiosInstance.put(`/admin/${offial_id}`);
             setOfficial(response.data.data);
             return response.data.data;
         } catch (err) {

@@ -3,7 +3,7 @@ import { pool } from '../db/config.js';
 export const unverified = async (req, res) => {
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== 'official') {
         return res.status(403).json({
             status: 'Error',
             message: 'Forbidden - Only admins can access this resource'
@@ -44,7 +44,7 @@ export const getYouthDetails = async (req, res) => {
     const { id: youth_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== 'official') {
         return res.status(403).json({
             status: 'Error',
             message: 'Forbidden - Only admins can access this resource',
@@ -145,7 +145,7 @@ export const verifying = async (req, res) => {
     const { id: youth_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== 'official') {
         return res.status(403).json({
             status: 'Error',
             message: 'Forbidden - Only admins can access this resource'
@@ -182,7 +182,7 @@ export const deleteSignup = async (req, res) => {
     const { id: youth_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== 'official') {
         return res.status(403).json({
             status: 'Error',
             message: 'Forbidden - Only admins can access this resource'
@@ -218,7 +218,7 @@ export const deleteSignup = async (req, res) => {
 export const deletedSignup = async (req, res) => {
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== 'official') {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"

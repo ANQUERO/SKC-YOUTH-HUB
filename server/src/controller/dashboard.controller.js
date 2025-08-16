@@ -3,7 +3,7 @@ import { pool } from "../db/config.js";
 export const getTotalVoters = async (req, res) => {
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== 'official') {
         return res.status(403).json({
             status: 'Error',
             message: 'Forbidden - Only admins can access this resource'
@@ -39,7 +39,7 @@ export const getTotalVoters = async (req, res) => {
 export const getTotalGender = async (req, res) => {
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== 'official') {
         return res.status(404).json({
             status: 'Error',
             message: 'Forbidden - Only admins can access this resource'
@@ -72,7 +72,7 @@ export const getTotalGender = async (req, res) => {
 export const getResidentsPerPurok = async (req, res) => {
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== 'official') {
         return res.status(403).json({
             status: 'Error',
             message: 'Forbidden - Only admins can access this resource'

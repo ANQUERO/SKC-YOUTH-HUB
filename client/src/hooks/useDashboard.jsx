@@ -4,8 +4,8 @@ import { useAuthContext } from "@context/AuthContext";
 
 
 const useDashboard = () => {
-    const { isSkAdmin, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
-    const isAuthorized = isSkAdmin || isSkSuperAdmin || isSkNaturalAdmin;
+    const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
+    const isAuthorized = isSkSuperAdmin || isSkNaturalAdmin;
 
     const [dashboardData, setDashboardData] = useState({});
     const [loading, setLoading] = useState(false);

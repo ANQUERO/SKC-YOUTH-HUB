@@ -28,19 +28,19 @@ const protectRoute = (options = {}) => {
             if (!Array.isArray(rawRoles)) rawRoles = [rawRoles];
 
             const roleMap = {
-                natural_sk_admin: 'admin',
-                super_sk_admin: 'admin',
+                natural_official: 'official',
+                super_official: 'official',
             };
             const normalizedRoles = rawRoles.map(role => roleMap[role] || role);
 
             // Set req.user
-            if (decoded.userType === 'admin') {
+            if (decoded.userType === 'official') {
                 req.user = {
-                    userType: 'admin',
-                    admin_id: decoded.admin_id,
+                    userType: 'official',
+                    official_id: decoded.official_id,
                     role: rawRoles,
                     email: decoded.email,
-                    position: decoded.position
+                    official_position: decoded.official_position
                 };
             } else if (decoded.userType === 'youth') {
                 req.user = {
@@ -57,7 +57,7 @@ const protectRoute = (options = {}) => {
             // Role-based access check
             if (options.allowedRoles && Array.isArray(options.allowedRoles)) {
                 const hasAccess =
-                    req.user.userType === 'admin'
+                    req.user.userType === 'official'
                         ? normalizedRoles.some(role => options.allowedRoles.includes(role))
                         : options.allowedRoles.includes('youth');
 

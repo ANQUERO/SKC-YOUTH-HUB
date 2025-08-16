@@ -9,8 +9,8 @@ export const signupAdmin = async (req, res) => {
         const {
             email,
             password,
+            official_position,
             role,
-            position,
             first_name,
             middle_name,
             last_name,
@@ -22,21 +22,8 @@ export const signupAdmin = async (req, res) => {
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: validationErrors(errors) });
-        }
-
-        // Check if email already exists
-        const existing = await pool.query(
-            'SELECT admin_id FROM sk_official_admin WHERE email = $1',
-            [email]
-        );
-
-        if (existing.rows.length > 0) {
             return res.status(400).json({
-                errors:
-                {
-                    email: "Email already exists"
-                }
+                errors: validationErrors(errors)
             });
         }
 
@@ -44,47 +31,51 @@ export const signupAdmin = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        const adminResult = await pool.query(
-            `INSERT INTO sk_official_admin (email, position, password, role)
-            VALUES ($1, $2, $3, $4)
-            RETURNING admin_id, email, position, role
-            `, [email, position, hashedPassword, role]
-        );
-
-        const admin = adminResult.rows[0];
-
-        await pool.query(
-            `INSERT INTO sk_official_name (
-                admin_id, 
+        const result = await pool.query(
+            `
+            SELECT * FROM signup_official(
+            $1, $2, $3, $4,
+            $5, $6, $7, $8,
+            $9, $10, $11
+            )
+            `,
+            [
+                email,
+                hashedPassword,
+                official_position,
+                role,
                 first_name,
-                middle_name,
+                middle_name || '',
                 last_name,
-                suffix
-            ) VALUES ($1, $2, $3, $4, $5)`,
-            [admin.admin_id, first_name, middle_name || null, last_name, suffix || null]
+                suffix || '',
+                contact_number || '',
+                gender || '',
+                age
+            ]
         );
 
-        await pool.query(
-            `INSERT INTO sk_official_info (
-                admin_id,
-                contact_number,
-                gender,
-                age
-            ) VALUES ($1, $2, $3, $4)`,
-            [admin.admin_id, contact_number || null, gender || null, age || null]
-        )
+        const official = result.rows[0];
 
-        //Pass userId and userType
-        generateTokenAndSetCookies(admin, res, 'admin');
+        generateTokenAndSetCookies(official, res, 'official');
 
         return res.status(201).json({
-            message: "Admin registered successfully",
-            admin
+            message: "SK Official registered successfully",
+            official
         });
 
     } catch (error) {
         console.error("Signup error:", error);
-        return res.status(500).json({ error: "Server error" });
+
+        if (error.message.includes('Email already exists')) {
+            return res.status(400).json({
+                error: 'Email already exists'
+            });
+        }
+
+        return res.status(500).json({
+            error: "Server error"
+        });
+
     }
 };
 
@@ -196,7 +187,7 @@ export const login = async (req, res) => {
 
         // Try admin table first
         let result = await pool.query(
-            "SELECT * FROM sk_official_admin WHERE email = $1",
+            "SELECT * FROM sk_official WHERE email = $1",
             [email]
         );
 
@@ -206,8 +197,8 @@ export const login = async (req, res) => {
 
         if (result.rows.length > 0) {
             user = result.rows[0];
-            userType = "admin";
-            idField = "admin_id";
+            userType = "official";
+            idField = "official_id";
         } else {
             // Try youth table
             result = await pool.query(
@@ -245,9 +236,9 @@ export const login = async (req, res) => {
             userType
         };
 
-        if (userType === "admin") {
+        if (userType === "official") {
             Object.assign(responseUser, {
-                position: user.position,
+                official_position: user.official_position,
                 role: user.role
             });
         } else if (userType === "youth") {
