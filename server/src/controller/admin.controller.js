@@ -33,6 +33,13 @@ export const show = async (req, res) => {
     const { id: official_id } = req.params;
     const user = req.user;
 
+    if (!official_id || isNaN(official_id)) {
+        return res.status(400).json({
+            status: "Error",
+            message: "A valid official ID is required"
+        });
+    }
+
     if (!user || user.userType !== 'official') {
         return res.status(403).json({
             status: "Error",
@@ -43,10 +50,8 @@ export const show = async (req, res) => {
     try {
         const result = await pool.query(
             'SELECT * FROM fetch_sk_official($1)',
-            [official_id]
+            [parseInt(official_id)]
         );
-        console.log('SK Official', result.rows);
-
 
         if (result.rows.length === 0) {
             return res.status(404).json({

@@ -20,7 +20,7 @@ const useOfficials = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axiosInstance.get('/admin');
+            const response = await axiosInstance.get('/official');
             setOfficials(response.data.data || []);
         } catch (err) {
             console.error('Error fetching officials:', err);
@@ -34,7 +34,7 @@ const useOfficials = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axiosInstance.get(`/admin/${offial_id}`);
+            const response = await axiosInstance.get(`/official/${offial_id}`);
             setOfficial(response.data.data || null);
         } catch (err) {
             console.error('Error fetching official:', err);
