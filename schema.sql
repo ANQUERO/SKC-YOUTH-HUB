@@ -53,6 +53,18 @@ CREATE TABLE sk_youth (
     deleted_at TIMESTAMP
 );
 
+CREATE TABLE sk_youth (
+    youth_id SERIAL PRIMARY KEY,
+    email VARCHAR(55) UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    verified BOOLEAN DEFAULT false,
+    is_active BOOLEAN DEFAULT TRUE,
+    comment_status BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
+);
+
 -- Youth Full Name
 CREATE TABLE sk_youth_name (
     name_id SERIAL PRIMARY KEY,
@@ -104,7 +116,7 @@ CREATE TABLE sk_youth_demographics (
     youth_age_gap VARCHAR(55),
     youth_classification VARCHAR(55),
     educational_background VARCHAR(55),
-    work_status VARCHAR(55) ,
+    work_status VARCHAR(55)
 );
 
 -- Youth Survey
@@ -113,7 +125,7 @@ CREATE TABLE sk_youth_survey (
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
     registered_voter VARCHAR(45),
     registered_national_voter VARCHAR(55),
-    vote_last_election VARCHAR(45) ,
+    vote_last_election VARCHAR(45)
 );
 
 -- Youth Meeting Survey
@@ -122,7 +134,7 @@ CREATE TABLE sk_youth_meeting_survey (
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
     attended BOOLEAN NOT NULL,
     times_attended INT,
-    reason_not_attend TEXT,
+    reason_not_attend TEXT
 );
 
 -- Youth Attachments
@@ -131,14 +143,14 @@ CREATE TABLE sk_youth_attachments (
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
     file_name VARCHAR(255) NOT NULL,
     file_type VARCHAR(100) NOT NULL,
-    file_url TEXT NOT NULL,
+    file_url TEXT NOT NULL
 );
 
--- Youth House Hold
+-- Youth Household
 CREATE TABLE sk_youth_household (
     household_id SERIAL PRIMARY KEY NOT NULL,
-	youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
-    household VARCHAR(55) NOT NULL,
+    youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
+    household VARCHAR(55) NOT NULL
 );
 
 CREATE TABLE sk_youth_deleted (
@@ -196,6 +208,3 @@ CREATE TABLE forms(
     title VARCHAR(255) NOT NULL,
     description TEXT
 )
-
-
-

@@ -141,6 +141,246 @@ $$;
 --Update SK Official
 
 
+--Fetch SK Youths
+CREATE OR REPLACE FUNCTION fetch_sk_youths()
+RETURNS TABLE (
+    -- Base
+    youth_id INT,
+    email VARCHAR,
+    verified BOOLEAN,
+    is_active BOOLEAN,
+    comment_status BOOLEAN,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+
+    -- Name
+    first_name VARCHAR,
+    middle_name VARCHAR,
+    last_name VARCHAR,
+    suffix VARCHAR,
+
+    -- Gender
+    gender VARCHAR,
+
+    -- Info
+    age INT,
+    contact_number VARCHAR,
+    birthday DATE,
+
+    -- Location
+    region VARCHAR,
+    province VARCHAR,
+    municipality VARCHAR,
+    barangay VARCHAR,
+    purok_name VARCHAR,
+
+    -- Demographics
+    civil_status VARCHAR,
+    youth_age_gap VARCHAR,
+    youth_classification VARCHAR,
+    educational_background VARCHAR,
+    work_status VARCHAR,
+
+    -- Survey
+    registered_voter VARCHAR,
+    registered_national_voter VARCHAR,
+    vote_last_election VARCHAR,
+
+    -- Meeting Survey
+    attended BOOLEAN,
+    times_attended INT,
+    reason_not_attend TEXT,
+
+    -- Household
+    household VARCHAR,
+
+    -- Attachment (⚠ if multiple attachments, result will have duplicates)
+    file_name VARCHAR,
+    file_type VARCHAR,
+    file_url TEXT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        y.youth_id,
+        y.email,
+        y.verified,
+        y.is_active,
+        y.comment_status,
+        y.created_at,
+        y.updated_at,
+
+        n.first_name,
+        n.middle_name,
+        n.last_name,
+        n.suffix,
+
+        g.gender,
+
+        i.age,
+        i.contact_number,
+        i.birthday,
+
+        l.region,
+        l.province,
+        l.municipality,
+        l.barangay,
+        p.name AS purok_name,
+
+        d.civil_status,
+        d.youth_age_gap,
+        d.youth_classification,
+        d.educational_background,
+        d.work_status,
+
+        s.registered_voter,
+        s.registered_national_voter,
+        s.vote_last_election,
+
+        ms.attended,
+        ms.times_attended,
+        ms.reason_not_attend,
+
+        hh.household,
+
+        a.file_name,
+        a.file_type,
+        a.file_url
+    FROM sk_youth y
+    LEFT JOIN sk_youth_name n ON y.youth_id = n.youth_id
+    LEFT JOIN sk_youth_gender g ON y.youth_id = g.youth_id
+    LEFT JOIN sk_youth_info i ON y.youth_id = i.youth_id
+    LEFT JOIN sk_youth_location l ON y.youth_id = l.youth_id
+    LEFT JOIN purok p ON l.purok_id = p.purok_id
+    LEFT JOIN sk_youth_demographics d ON y.youth_id = d.youth_id
+    LEFT JOIN sk_youth_survey s ON y.youth_id = s.youth_id
+    LEFT JOIN sk_youth_meeting_survey ms ON y.youth_id = ms.youth_id
+    LEFT JOIN sk_youth_household hh ON y.youth_id = hh.youth_id
+    LEFT JOIN sk_youth_attachments a ON y.youth_id = a.youth_id;
+END;
+$$ LANGUAGE plpgsql;
+
+--Fetch SK Youth
+CREATE OR REPLACE FUNCTION fetch_sk_youths(p_youth_id INT)
+RETURNS TABLE (
+    -- Base
+    youth_id INT,
+    email VARCHAR,
+    verified BOOLEAN,
+    is_active BOOLEAN,
+    comment_status BOOLEAN,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+
+    -- Name
+    first_name VARCHAR,
+    middle_name VARCHAR,
+    last_name VARCHAR,
+    suffix VARCHAR,
+
+    -- Gender
+    gender VARCHAR,
+
+    -- Info
+    age INT,
+    contact_number VARCHAR,
+    birthday DATE,
+
+    -- Location
+    region VARCHAR,
+    province VARCHAR,
+    municipality VARCHAR,
+    barangay VARCHAR,
+    purok_name VARCHAR,
+
+    -- Demographics
+    civil_status VARCHAR,
+    youth_age_gap VARCHAR,
+    youth_classification VARCHAR,
+    educational_background VARCHAR,
+    work_status VARCHAR,
+
+    -- Survey
+    registered_voter VARCHAR,
+    registered_national_voter VARCHAR,
+    vote_last_election VARCHAR,
+
+    -- Meeting Survey
+    attended BOOLEAN,
+    times_attended INT,
+    reason_not_attend TEXT,
+
+    -- Household
+    household VARCHAR,
+
+    -- Attachment (⚠ if multiple attachments, result will have duplicates)
+    file_name VARCHAR,
+    file_type VARCHAR,
+    file_url TEXT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        y.youth_id,
+        y.email,
+        y.verified,
+        y.is_active,
+        y.comment_status,
+        y.created_at,
+        y.updated_at,
+
+        n.first_name,
+        n.middle_name,
+        n.last_name,
+        n.suffix,
+
+        g.gender,
+
+        i.age,
+        i.contact_number,
+        i.birthday,
+
+        l.region,
+        l.province,
+        l.municipality,
+        l.barangay,
+        p.name AS purok_name,
+
+        d.civil_status,
+        d.youth_age_gap,
+        d.youth_classification,
+        d.educational_background,
+        d.work_status,
+
+        s.registered_voter,
+        s.registered_national_voter,
+        s.vote_last_election,
+
+        ms.attended,
+        ms.times_attended,
+        ms.reason_not_attend,
+
+        hh.household,
+
+        a.file_name,
+        a.file_type,
+        a.file_url
+    FROM sk_youth y
+    LEFT JOIN sk_youth_name n ON y.youth_id = n.youth_id
+    LEFT JOIN sk_youth_gender g ON y.youth_id = g.youth_id
+    LEFT JOIN sk_youth_info i ON y.youth_id = i.youth_id
+    LEFT JOIN sk_youth_location l ON y.youth_id = l.youth_id
+    LEFT JOIN purok p ON l.purok_id = p.purok_id
+    LEFT JOIN sk_youth_demographics d ON y.youth_id = d.youth_id
+    LEFT JOIN sk_youth_survey s ON y.youth_id = s.youth_id
+    LEFT JOIN sk_youth_meeting_survey ms ON y.youth_id = ms.youth_id
+    LEFT JOIN sk_youth_household hh ON y.youth_id = hh.youth_id
+    LEFT JOIN sk_youth_attachments a ON y.youth_id = a.youth_id;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
 
 
 
