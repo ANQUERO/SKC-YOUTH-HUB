@@ -180,7 +180,7 @@ CREATE TABLE post_comments (
     comment_id SERIAL PRIMARY KEY,
     parent_comment_id INTEGER REFERENCES post_comments(comment_id) ,
     post_id INTEGER NOT NULL REFERENCES posts(post_id) ,
-    user_type VARCHAR(10) NOT NULL CHECK (user_type IN ('admin', 'youth')),
+    user_type VARCHAR(10) NOT NULL CHECK (user_type IN ('official', 'youth')),
     user_id INTEGER NOT NULL,
     content TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -192,7 +192,7 @@ CREATE TABLE post_comments (
 CREATE TABLE post_reactions (
     reaction_id SERIAL PRIMARY KEY,
     post_id INTEGER NOT NULL REFERENCES posts(post_id) ,
-    user_type VARCHAR(10) NOT NULL CHECK (user_type IN ('admin', 'youth')),
+    user_type VARCHAR(10) NOT NULL CHECK (user_type IN ('official', 'youth')),
     user_id INTEGER NOT NULL,
     type VARCHAR(10) NOT NULL CHECK (type IN ('like', 'heart', 'wow')),
     reacted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
