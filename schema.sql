@@ -102,7 +102,7 @@ CREATE TABLE sk_youth_location (
     location_id SERIAL PRIMARY KEY,
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
     region VARCHAR(55) NOT NULL,
-    province VARCHAR(55) NOT NULL,
+    province VARCHAR(55) NOT NULL, 
     municipality VARCHAR(55) NOT NULL,
     barangay VARCHAR(55) NOT NULL,
     purok_id INTEGER REFERENCES purok(purok_id)
