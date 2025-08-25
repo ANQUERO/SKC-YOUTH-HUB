@@ -136,7 +136,7 @@ export const getYouthDetails = async (req, res) => {
         console.error('Failed to fetch youth details:', error);
         res.status(500).json({
             status: 'Error',
-            message: 'Internal server error',
+            message: 'Internal server error'
         });
     }
 };

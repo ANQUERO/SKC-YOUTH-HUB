@@ -200,11 +200,21 @@ CREATE TABLE post_reactions (
 );
 
 
- -- Create Form -- 
+ -- Form -- 
 
 CREATE TABLE forms(
     form_id SERIAL PRIMARY KEY,
     official_id INT NOT NULL REFERENCES sk_official(official_id),
     title VARCHAR(255) NOT NULL,
-    description TEXT
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,
 )
+
+CREATE TABLE replied_forms(
+    replied_id SERIAL PRIMARY KEY,
+    form_id INT NOT NULL REFERENCES forms(form_id),
+    youth_id INT NOT NULL REFERENCES sk_youth(youth_id),
+    response TEXT NOT NULL,
+);
