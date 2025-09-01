@@ -194,7 +194,6 @@ RETURNS TABLE (
     -- Household
     household VARCHAR,
 
-    -- Attachment (⚠ if multiple attachments, result will have duplicates)
     file_name VARCHAR,
     file_type VARCHAR,
     file_url TEXT
@@ -313,7 +312,6 @@ RETURNS TABLE (
     -- Household
     household VARCHAR,
 
-    -- Attachment (⚠ if multiple attachments, result will have duplicates)
     file_name VARCHAR,
     file_type VARCHAR,
     file_url TEXT

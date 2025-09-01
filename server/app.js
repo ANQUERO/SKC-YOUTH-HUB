@@ -12,7 +12,6 @@ import dashboardRouter from './src/routes/dashboard.routes.js'
 import post from './src/routes/post.route.js'
 import comment from './src/routes/comments.route.js'
 import reaction from './src/routes/reactions.route.js'
-import inbox from './src/routes/inbox.route.js'
 
 
 dotenv.config();
@@ -47,7 +46,6 @@ app.use('/api', dashboardRouter);
 app.use('/api', post);
 app.use('/api', comment);
 app.use('/api', reaction);
-app.use('/api', inbox);
 
 app.use((req, res, next) => {
     res.status(404).json({ error: 'Not Found' });
