@@ -9,9 +9,9 @@ import ProtectRoute from "../middleware/protectRoute.middleware.js";
 
 const router = express.Router();
 
-router.get('/:post_id/comments', ProtectRoute(), getComments);
-router.post("/:post_id/comments", ProtectRoute(), createComment);
-router.put("/comments/:comment_id", ProtectRoute(), updateComment);
-router.delete("/comments/:comment_id", ProtectRoute(), deleteComment);
+router.get('/:id/comments', ProtectRoute(), getComments);
+router.post("/:id/comments", ProtectRoute(), createComment);
+router.put("/comments/:id", ProtectRoute(), updateComment);
+router.delete("/comments/:id", ProtectRoute(), deleteComment);
 
 export default router;

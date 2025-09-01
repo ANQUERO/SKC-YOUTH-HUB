@@ -1,11 +1,15 @@
 import express from "express";
-import { createReaction, removeReaction, getReactions } from "../controller/reactions.controller.js";
+import {
+    createReaction,
+    removeReaction,
+    getReactions
+} from "../controller/reactions.controller.js";
 import ProtectRoute from "../middleware/protectRoute.middleware.js";
 
 const router = express.Router();
 
-router.post("/:post_id/react", ProtectRoute(), createReaction);
-router.delete("/:post_id/react", ProtectRoute(), removeReaction);
-router.get("/:post_id/reactions", ProtectRoute(), getReactions);
+router.post("/:id/react", ProtectRoute(), createReaction);
+router.delete("/:id/react", ProtectRoute(), removeReaction);
+router.get("/:id/reactions", ProtectRoute(), getReactions);
 
 export default router;
