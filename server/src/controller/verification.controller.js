@@ -24,7 +24,7 @@ export const unverified = async (req, res) => {
             FROM sk_youth y
             LEFT JOIN sk_youth_name yn ON y.youth_id = yn.youth_id
             WHERE y.verified = false AND y.deleted_at IS NULL
-            ORDER BY y.youth_id, yn.created_at DESC;
+            ORDER BY y.youth_id
         `);
 
         res.status(200).json({
@@ -71,7 +71,7 @@ export const getYouthDetails = async (req, res) => {
                 yl.barangay,
                 p.name AS purok,
                 yi.age,
-                yi.contact,
+                yi.contact_number,
                 yi.birthday,
                 yg.gender,
                 yd.civil_status,
@@ -95,7 +95,7 @@ export const getYouthDetails = async (req, res) => {
             LEFT JOIN sk_youth_survey ys ON y.youth_id = ys.youth_id
             LEFT JOIN sk_youth_meeting_survey yms ON y.youth_id = yms.youth_id
             WHERE y.youth_id = $1
-            ORDER BY yn.created_at DESC
+            ORDER BY y.youth_id
             LIMIT 1;
             `,
             [youth_id]
@@ -240,7 +240,7 @@ export const deletedSignup = async (req, res) => {
             FROM sk_youth y
             LEFT JOIN sk_youth_name yn ON y.youth_id = yn.youth_id
             WHERE y.deleted_at IS NOT NULL
-            ORDER BY y.youth_id, yn.created_at DESC;
+            ORDER BY y.youth_id;
             `
         );
 

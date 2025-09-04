@@ -1,5 +1,9 @@
 import express from 'express';
-import { getTotalVoters, getTotalGender, getResidentsPerPurok } from '../controller/dashboard.controller.js';
+import {
+    getTotalVoters,
+    getTotalGender,
+    getResidentsPerPurok
+} from '../controller/dashboard.controller.js';
 import ProtectRoute from '../middleware/protectRoute.middleware.js';
 
 const router = express.Router();

@@ -11,9 +11,9 @@ const Officials = () => {
         fetchOfficials();
     }, []);
 
-    const handleSelectOfficial = async (admin_id) => {
-        setSelectedId(admin_id);
-        await fetchOfficialById(admin_id);
+    const handleSelectOfficial = async (official_id) => {
+        setSelectedId(official_id);
+        await fetchOfficialById(official_id);
         setShowModal(true);
     };
 
@@ -30,7 +30,7 @@ const Officials = () => {
 
             <List>
                 {officials.map((official) => (
-                    <Card key={official.admin_id} onClick={() => handleSelectOfficial(official.admin_id)}>
+                    <Card key={official.official_id} onClick={() => handleSelectOfficial(official.official_id)}>
                         <AvatarLarge src="/default-avatar.png" alt="Avatar" />
                         <CardContent>
                             <Name>{[official.first_name, official.last_name].filter(Boolean).join(' ')}</Name>

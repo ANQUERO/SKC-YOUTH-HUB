@@ -15,7 +15,7 @@ export const signupAdmin = async (req, res) => {
             middle_name,
             last_name,
             suffix,
-            contact_number,
+            contact_number_number,
             gender,
             age
         } = req.body;
@@ -48,7 +48,7 @@ export const signupAdmin = async (req, res) => {
                 middle_name || '',
                 last_name,
                 suffix || '',
-                contact_number || '',
+                contact_number_number || '',
                 gender || '',
                 age
             ]
@@ -89,7 +89,7 @@ export const signup = async (req, res) => {
             email, password,
             first_name, middle_name, last_name, suffix,
             region, province, municipality, barangay, purok_id,
-            gender, age, contact, birthday,
+            gender, age, contact_number, birthday,
             civil_status, youth_age_gap, youth_classification, educational_background, work_status,
             registered_voter, registered_national_voter, vote_last_election,
             attended, times_attended, reason_not_attend,
@@ -128,9 +128,9 @@ export const signup = async (req, res) => {
 
         // Info
         await client.query(`
-      INSERT INTO sk_youth_info (youth_id, age, contact, birthday)
+      INSERT INTO sk_youth_info (youth_id, age, contact_number, birthday)
       VALUES ($1, $2, $3, $4);
-    `, [youth_id, age, contact, birthday]);
+    `, [youth_id, age, contact_number, birthday]);
 
         // Demographics
         await client.query(`

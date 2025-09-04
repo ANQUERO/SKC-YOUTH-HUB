@@ -52,7 +52,6 @@ export const getTotalGender = async (req, res) => {
             gender, 
             COUNT(*) AS total
             FROM sk_youth_gender
-            WHERE deleted_at IS NULL
             GROUP BY gender
             `);
 
@@ -60,6 +59,7 @@ export const getTotalGender = async (req, res) => {
             status: 'Success',
             data: result.rows
         });
+
     } catch (error) {
         console.error('Database query failed', error);
         res.status(500).json({
@@ -81,15 +81,15 @@ export const getResidentsPerPurok = async (req, res) => {
 
     try {
         const result = await pool.query(`
-            SELECT 
-            p.name AS purok,
-            COUNT(sl.youth_id) AS total_residents
-            FROM purok p 
-            LEFT JOIN sk_youth_location sl ON p.purok_id = sl.purok_id
-            LEFT JOIN sk_youth y ON sl.youth_id = y.youth_id
-            WHERE sl.deleted_at IS NULL AND y.deleted_at IS NULL
-            GROUP BY p.name
-            ORDER BY p.name
+           SELECT 
+           p.name AS purok,
+           COUNT(sl.youth_id) AS total_residents
+           FROM purok p 
+           LEFT JOIN sk_youth_location sl ON p.purok_id = sl.purok_id
+           LEFT JOIN sk_youth y ON sl.youth_id = y.youth_id
+           WHERE y.deleted_at IS NULL
+           GROUP BY p.name
+           ORDER BY p.name
             `);
 
         res.status(200).json({

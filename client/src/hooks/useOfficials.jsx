@@ -30,11 +30,11 @@ const useOfficials = () => {
         }
     };
 
-    const fetchOfficialById = async (offial_id) => {
+    const fetchOfficialById = async (official_id) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axiosInstance.get(`/official/${offial_id}`);
+            const response = await axiosInstance.get(`/official/${official_id}`);
             setOfficial(response.data.data || null);
         } catch (err) {
             console.error('Error fetching official:', err);
@@ -44,11 +44,11 @@ const useOfficials = () => {
         }
     };
 
-    const updateOfficial = async (offial_id) => {
+    const updateOfficial = async (official_id) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axiosInstance.put(`/admin/${offial_id}`);
+            const response = await axiosInstance.put(`/official/${official_id}`);
             setOfficial(response.data.data);
             return response.data.data;
         } catch (err) {

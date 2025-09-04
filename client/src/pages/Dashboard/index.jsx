@@ -15,9 +15,15 @@ import {
 import style from '@styles/dashboard.module.scss';
 import useDashboard from '@hooks/useDashboard'
 
-const COLORS = ['#4ade80', '#f87171', '#60a5fa', '#fbbf24', '#a78bfa', '#f472b6'];
+const COLORS = [
+    '#4ade80',
+    '#f87171',
+    '#60a5fa',
+    '#fbbf24',
+    '#a78bfa',
+    '#f472b6'
+];
 
-// Custom Tooltip for Bar Chart
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
         return (

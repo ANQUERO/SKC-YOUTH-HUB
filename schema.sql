@@ -53,18 +53,6 @@ CREATE TABLE sk_youth (
     deleted_at TIMESTAMP
 );
 
-CREATE TABLE sk_youth (
-    youth_id SERIAL PRIMARY KEY,
-    email VARCHAR(55) UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    verified BOOLEAN DEFAULT false,
-    is_active BOOLEAN DEFAULT TRUE,
-    comment_status BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP
-);
-
 -- Youth Full Name
 CREATE TABLE sk_youth_name (
     name_id SERIAL PRIMARY KEY,
@@ -158,7 +146,7 @@ CREATE TABLE sk_youth_deleted (
     youth_id INTEGER,
     email VARCHAR(55),
     deleted_reason TEXT,
-    deleted_by INTEGER, -- official_id
+    deleted_by INTEGER, 
     deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
