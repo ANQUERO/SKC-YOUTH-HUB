@@ -41,7 +41,7 @@ const Signin = () => {
         user.userType === 'official'
           ? '/dashboard'
           : user.userType === 'youth'
-            ? '/feed'
+            ? '/profile'
             : '/';
       navigate(route);
     }

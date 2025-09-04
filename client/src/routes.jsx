@@ -19,6 +19,7 @@ import Settings from "@pages/Account";
 import NotFound from "@pages/NotFound";
 
 import { useAuthContext } from "@context/AuthContext";
+import YouthProfile from "@pages/YouthProfile";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
     const { authUser, activeRole, loading } = useAuthContext();
@@ -160,6 +161,16 @@ export const routes = [
             </ProtectedRoute>
         ),
         children: [{ index: true, element: <AdminAuth /> }]
+    },
+    {
+        path: "/profile",
+        element: (
+            <ProtectedRoute
+                allowedRoles={["youth"]}
+            >
+                <YouthProfile />
+            </ProtectedRoute>
+        ),
     },
     {
         path: "*",
