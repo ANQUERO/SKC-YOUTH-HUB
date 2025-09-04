@@ -77,7 +77,6 @@ export const routes = [
             { index: true, element: <Dashboard /> },
         ],
     },
-
     {
         path: "/youth",
         element: (
