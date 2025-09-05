@@ -94,7 +94,7 @@ export const show = async (req, res) => {
                 FROM sk_youth y
             LEFT JOIN sk_youth_name yn ON y.youth_id = yn.youth_id
             LEFT JOIN sk_youth_location yl ON y.youth_id = yl.youth_id
-            LEFT JOIN purok p ON yl.purok_id = p.purok_id
+            LEFT JOIN purok p ON yl.purok_id = p.purok_id   
             LEFT JOIN sk_youth_info yi ON y.youth_id = yi.youth_id
             LEFT JOIN sk_youth_gender yg ON y.youth_id = yg.youth_id
             LEFT JOIN sk_youth_demographics yd ON y.youth_id = yd.youth_id
