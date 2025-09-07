@@ -186,7 +186,7 @@ export const showMeetingHousehold = async (req, res) => {
 
         res.status(200).json({
             status: 'Success',
-            dara: rows[0]
+            data: rows[0]
         });
     } catch (error) {
         console.error('Failed to fetch youth showAccountName:', error);
