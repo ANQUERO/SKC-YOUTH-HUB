@@ -1,88 +1,127 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import useProfile from "@hooks/useProfile";
+import { ProfileNavbar } from "Components/Navbar";
 
 const YouthProfile = () => {
-    const {
-        fetchProfile,
-        accountName,
-        genderInfo,
-        demoSurvey,
-        meetingHousehold,
-        loadingProfile,
-        error,
-    } = useProfile();
+  const {
+    fetchProfile,
+    accountName,
+    genderInfo,
+    demoSurvey,
+    meetingHousehold,
+    loadingProfile,
+    error,
+  } = useProfile();
 
-    useEffect(() => {
-        fetchProfile();
-    }, []);
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
-    if (loadingProfile) return <p>Loading profile...</p>;
-    if (error) return <p>Failed to load profile.</p>;
-
+  if (loadingProfile) {
     return (
-        <Wrapper>
-            <Sidebar>
-                <Avatar>
-                    <img
-                        src={`https://ui-avatars.com/api/?name=${accountName?.first_name || "Youth"}`}
-                        alt="User Avatar"
-                    />
-                </Avatar>
-                <Name>
-                    {accountName?.first_name || ""} {accountName?.middle_name || ""} {accountName?.last_name || ""}
-                </Name>
-                <Email>{accountName?.email || "No email available"}</Email>
-            </Sidebar>
-
-            <Main>
-                <Section>
-                    <h2>Personal Info</h2>
-                    <p>Gender: {genderInfo?.gender || "N/A"}</p>
-                    <p>Age: {genderInfo?.age || "N/A"}</p>
-                    <p>Birthday: {genderInfo?.birthday || "N/A"}</p>
-                    <p>Contact: {genderInfo?.contact_number || "N/A"}</p>
-                </Section>
-
-                <Section>
-                    <h2>Demographics & Survey</h2>
-                    <p>Civil Status: {demoSurvey?.civil_status || "N/A"}</p>
-                    <p>Classification: {demoSurvey?.youth_classification || "N/A"}</p>
-                    <p>Education: {demoSurvey?.educational_background || "N/A"}</p>
-                    <p>Work Status: {demoSurvey?.work_status || "N/A"}</p>
-                    <p>Registered Voter: {demoSurvey?.registered_voter ? "Yes" : "No"}</p>
-                </Section>
-
-                <Section>
-                    <h2>Meeting & Household</h2>
-                    <p>Attended: {meetingHousehold?.attended ? "Yes" : "No"}</p>
-                    <p>Times Attended: {meetingHousehold?.times_attended || "0"}</p>
-                    <p>Reason Not Attend: {meetingHousehold?.reason_not_attend || "N/A"}</p>
-                    <p>Household: {meetingHousehold?.household || "N/A"}</p>
-                </Section>
-            </Main>
-        </Wrapper>
+      <Centered>
+        <Spinner />
+        <p>Loading profile...</p>
+      </Centered>
     );
+  }
+
+  if (error) {
+    return (
+      <Centered>
+        <ErrorBox>⚠️ Failed to load profile. Please try again later.</ErrorBox>
+      </Centered>
+    );
+  }
+
+  return (
+    <Wrapper>
+      <ProfileNavbar />
+      <Content>
+        <Sidebar>
+          <Avatar>
+            <img
+              src={`https://ui-avatars.com/api/?name=${accountName?.first_name || "Youth"}`}
+              alt="User Avatar"
+            />
+          </Avatar>
+          <Name>
+            {accountName?.first_name || ""} {accountName?.middle_name || ""}{" "}
+            {accountName?.last_name || ""}
+          </Name>
+          <Email>{accountName?.email || "No email available"}</Email>
+        </Sidebar>
+
+        <Main>
+          <Section>
+            <h2>Personal Info</h2>
+            <p>Gender: {genderInfo?.gender || "N/A"}</p>
+            <p>Age: {genderInfo?.age || "N/A"}</p>
+            <p>Birthday: {genderInfo?.birthday || "N/A"}</p>
+            <p>Contact: {genderInfo?.contact_number || "N/A"}</p>
+          </Section>
+
+          <Section>
+            <h2>Demographics & Survey</h2>
+            <p>Civil Status: {demoSurvey?.civil_status || "N/A"}</p>
+            <p>Classification: {demoSurvey?.youth_classification || "N/A"}</p>
+            <p>Education: {demoSurvey?.educational_background || "N/A"}</p>
+            <p>Work Status: {demoSurvey?.work_status || "N/A"}</p>
+            <p>
+              Registered Voter:{" "}
+              {demoSurvey?.registered_voter ? "Yes" : "No"}
+            </p>
+          </Section>
+
+          <Section>
+            <h2>Meeting & Household</h2>
+            <p>Attended: {meetingHousehold?.attended ? "Yes" : "No"}</p>
+            <p>Times Attended: {meetingHousehold?.times_attended || "0"}</p>
+            <p>
+              Reason Not Attend:{" "}
+              {meetingHousehold?.reason_not_attend || "N/A"}
+            </p>
+            <p>Household: {meetingHousehold?.household || "N/A"}</p>
+          </Section>
+        </Main>
+      </Content>
+    </Wrapper>
+  );
 };
 
 export default YouthProfile;
 
 // ---------------- Styled Components ----------------
 const Wrapper = styled.div`
+  min-height: 100vh;
+  background: #f7f9fb;
+`;
+
+const Content = styled.div`
   display: flex;
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 2rem auto;
   gap: 2rem;
+  padding: 0 1rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 
 const Sidebar = styled.aside`
   flex: 1;
-  max-width: 250px;
+  max-width: 280px;
   background: #fff;
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 2rem 1.5rem;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+  }
 `;
 
 const Avatar = styled.div`
@@ -91,12 +130,15 @@ const Avatar = styled.div`
     width: 120px;
     height: 120px;
     object-fit: cover;
+    border: 3px solid #e5e7eb;
   }
 `;
 
 const Name = styled.h1`
   margin: 1rem 0 0.25rem;
   font-size: 1.5rem;
+  font-weight: 600;
+  color: #222;
 `;
 
 const Email = styled.p`
@@ -115,13 +157,14 @@ const Section = styled.div`
   background: #fff;
   padding: 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
   h2 {
     font-size: 1.2rem;
     margin-bottom: 1rem;
     border-bottom: 1px solid #eee;
     padding-bottom: 0.5rem;
+    color: #111;
   }
 
   p {
@@ -130,3 +173,39 @@ const Section = styled.div`
     color: #333;
   }
 `;
+
+const Centered = styled.div`
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
+
+const Spinner = styled.div`
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
+const ErrorBox = styled.div`
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+`;
+

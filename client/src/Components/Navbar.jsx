@@ -2,6 +2,7 @@ import style from '@styles/navbar.module.scss';
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLogout } from '@hooks/useLogout';
 
 const Logo = () => (
     <div className={style.logo}>
@@ -44,6 +45,24 @@ const NavLinks = ({ links, onLinkClick }) => (
             </li>
         ))}
     </ul >
+);
+
+const ProfileNavLinks = ({ links }) => (
+    <ul className={style.nav_links}>
+        {links.map((link, key) => (
+            <li key={key}>
+                {link.onclick ? (
+                    <button className={style.link} onClick={link.onclick}>
+                        {link.title}
+                    </button>
+                ) : (
+                    <Link to={link.path} className={style.link}>
+                        {link.title}
+                    </Link>
+                )}
+            </li>
+        ))}
+    </ul>
 );
 
 
@@ -93,6 +112,39 @@ export default function Navbar() {
                     <NavLinks links={links} onLinkClick={handleLinkClick} />
                 </div>
 
+            </nav>
+        </header>
+    );
+}
+
+
+export function ProfileNavbar() {
+    const logout = useLogout();
+
+    const links = [
+        {
+            to: "/feed",
+            text: "News Feed",
+            external: false,
+        },
+        {
+            to: "/account",
+            text: "Settings",
+            external: false,
+        },
+        {
+            text: "Logout",
+            onClick: logout,
+        },
+    ];
+
+    return (
+        <header className={style.header}>
+            <nav className={style.nav}>
+                <Logo />
+                <div>
+                    <NavLinks links={links} />
+                </div>
             </nav>
         </header>
     );
