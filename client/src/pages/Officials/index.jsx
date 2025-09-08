@@ -3,7 +3,14 @@ import styled from 'styled-components';
 import useOfficials from '@hooks/useOfficials';
 
 const Officials = () => {
-    const { officials, loading, error, fetchOfficials, fetchOfficialById, official } = useOfficials();
+    const {
+        officials,
+        loading,
+        error,
+        fetchOfficials,
+        fetchOfficialById,
+        official
+    } = useOfficials();
     const [showModal, setShowModal] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
 
