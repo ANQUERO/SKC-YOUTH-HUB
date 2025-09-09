@@ -1,52 +1,44 @@
-import React, { useState } from 'react';
-import style from '@styles/newsFeed.module.scss';
-import Avatar from '@images/about.png';
-import { Image, Send, Video } from 'lucide-react';
-import { usePostContext } from '@context/PostContext';
+import React, { useState } from "react";
+import style from "@styles/newsFeed.module.scss";
+import Avatar from "@images/about.png";
+import { Image, Send, Video } from "lucide-react";
+import { usePostContext } from "@context/PostContext";
 
 export const CreatePost = () => {
-    const [content, setContent] = useState('');
-    const [image, setImage] = useState(null);
-    const [video, setVideo] = useState(null);
-    const [type, setType] = useState('post');
-    const { addPost } = usePostContext();
+    const [content, setContent] = useState("");
+    const [file, setFile] = useState(null);
+    const [fileType, setFileType] = useState(null);
+    const [type, setType] = useState("post");
+    const { createPost } = usePostContext();
 
-    const handleImageChange = (e) => {
+    const handleFileChange = (e, kind) => {
         const file = e.target.files[0];
         if (file) {
-            setImage(URL.createObjectURL(file));
-            setVideo(null);
-        }
-    };
-
-    const handleVideoChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setVideo(URL.createObjectURL(file));
-            setImage(null);
+            setFile(file);
+            setFileType(kind);
         }
     };
 
     const handlePost = () => {
-        if (content.trim() === '') return;
+        if (content.trim() === "") return;
 
-        const newPost = {
-            id: Date.now(),
-            author: 'SK Chairman, Lester Q. Cruspero',
-            role: 'Official',
-            avatar: Avatar,
-            time: new Date().toLocaleString(),
-            content,
-            image,
-            video,
-            type,
-        };
+        const newPost = new FormData();
+        newPost.append("title", content);
+        newPost.append("description", content);
+        newPost.append("type", type);
+        if (file) {
+            newPost.append("media", file);
+            newPost.append("media_type", fileType);
+        }
 
-        addPost(newPost);
-        setContent('');
-        setImage(null);
-        setVideo(null);
-        setType('post');
+        createPost.mutate(newPost, {
+            onSuccess: () => {
+                setContent("");
+                setFile(null);
+                setFileType(null);
+                setType("post");
+            },
+        });
     };
 
     return (
@@ -69,7 +61,6 @@ export const CreatePost = () => {
                         <option value="activity">Activity</option>
                     </select>
                 </div>
-
             </div>
 
             <textarea
@@ -85,8 +76,8 @@ export const CreatePost = () => {
                         <input
                             type="file"
                             accept="image/*"
-                            onChange={handleImageChange}
-                            style={{ display: 'none' }}
+                            onChange={(e) => handleFileChange(e, "image")}
+                            style={{ display: "none" }}
                         />
                     </label>
                     <label>
@@ -94,8 +85,8 @@ export const CreatePost = () => {
                         <input
                             type="file"
                             accept="video/*"
-                            onChange={handleVideoChange}
-                            style={{ display: 'none' }}
+                            onChange={(e) => handleFileChange(e, "video")}
+                            style={{ display: "none" }}
                         />
                     </label>
                 </div>

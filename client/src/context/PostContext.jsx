@@ -1,16 +1,29 @@
-import { createContext, useContext, useState } from 'react';
+import React, {
+    createContext, useContext
+} from 'react';
+import usePosts from '@hooks/usePost';
+
 
 const PostContext = createContext();
 
 export const PostProvider = ({ children }) => {
-    const [posts, setPosts] = useState([]);
-
-    const addPost = (newPost) => {
-        setPosts((prev) => [newPost, ...prev]);
-    };
+    const {
+        postsQuery,
+        createPost,
+        updatePost,
+        deletePost
+    } = usePosts();
 
     return (
-        <PostContext.Provider value={{ posts, addPost }}>
+        <PostContext.Provider
+            value={{
+                posts: postsQuery.data || [],
+                isLoading: postsQuery.isLoading,
+                createPost,
+                updatePost,
+                deletePost,
+            }}
+        >
             {children}
         </PostContext.Provider>
     );

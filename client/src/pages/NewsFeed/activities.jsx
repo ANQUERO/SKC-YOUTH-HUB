@@ -1,23 +1,22 @@
-import React from 'react';
-import { usePostContext } from '@context/PostContext';
-import { PostCard } from './feedComponents/postCard';
-import { CreatePost } from './feedComponents/createPost';
-
-import style from '@styles/newsFeed.module.scss';
-
+import React from "react";
+import { usePostContext } from "@context/PostContext";
+import { PostCard } from "./feedComponents/PostCard";
+import { CreatePost } from "./feedComponents/CreatePost";
+import style from "@styles/newsFeed.module.scss";
 
 export const Activities = () => {
-    const { posts } = usePostContext();
-    const activities = posts.filter(post => post.type === 'activity');
+    const { posts, isLoading } = usePostContext();
+    const activities = posts.filter((p) => p.type === "activity");
 
     return (
         <section className={style.feed}>
             <CreatePost />
-
-            {activities.length === 0 ? (
+            {isLoading ? (
+                <p>Loading activities...</p>
+            ) : activities.length === 0 ? (
                 <p>No activities posted yet.</p>
             ) : (
-                activities.map(post => <PostCard key={post.id} post={post} />)
+                activities.map((post) => <PostCard key={post.post_id || post.id} post={post} />)
             )}
         </section>
     );

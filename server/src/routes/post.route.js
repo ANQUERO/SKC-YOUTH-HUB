@@ -6,15 +6,16 @@ import {
     deletePost
 } from "../controller/post.controller.js";
 import ProtectRoute from "../middleware/protectRoute.middleware.js";
+import { uploadCloudinary } from "../middleware/upload.middleware.js"
 
 const router = express.Router();
 
-router.get("/", ProtectRoute(), index);
+router.get("/post", ProtectRoute(), uploadCloudinary, index);
 
-router.post("/", ProtectRoute(), createPost);
+router.post("/post", ProtectRoute(), uploadCloudinary, createPost);
 
-router.put("/:id", ProtectRoute(), updatePost);
+router.put("/post/:id", ProtectRoute(), uploadCloudinary, updatePost);
 
-router.delete("/:id", ProtectRoute(), deletePost);
+router.delete("/post/:id", ProtectRoute(), uploadCloudinary, deletePost);
 
 export default router;

@@ -172,8 +172,7 @@ CREATE TABLE post_comments (
     user_id INTEGER NOT NULL,
     content TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Post Reactions: admin and youth can react to posts
@@ -183,8 +182,7 @@ CREATE TABLE post_reactions (
     user_type VARCHAR(10) NOT NULL CHECK (user_type IN ('official', 'youth')),
     user_id INTEGER NOT NULL,
     type VARCHAR(10) NOT NULL CHECK (type IN ('like', 'heart', 'wow')),
-    reacted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    reacted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -197,12 +195,12 @@ CREATE TABLE forms(
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP NULL,
+    deleted_at TIMESTAMP NULL
 )
 
 CREATE TABLE replied_forms(
     replied_id SERIAL PRIMARY KEY,
     form_id INT NOT NULL REFERENCES forms(form_id),
     youth_id INT NOT NULL REFERENCES sk_youth(youth_id),
-    response TEXT NOT NULL,
+    response TEXT NOT NULL
 );

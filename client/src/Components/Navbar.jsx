@@ -47,25 +47,6 @@ const NavLinks = ({ links, onLinkClick }) => (
     </ul >
 );
 
-const ProfileNavLinks = ({ links }) => (
-    <ul className={style.nav_links}>
-        {links.map((link, key) => (
-            <li key={key}>
-                {link.onclick ? (
-                    <button className={style.link} onClick={link.onclick}>
-                        {link.title}
-                    </button>
-                ) : (
-                    <Link to={link.path} className={style.link}>
-                        {link.title}
-                    </Link>
-                )}
-            </li>
-        ))}
-    </ul>
-);
-
-
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
@@ -118,6 +99,26 @@ export default function Navbar() {
 }
 
 
+const ProfileNavLinks = ({ links }) => (
+    <ul className={style.nav_links}>
+        {links.map((link, key) => (
+            <li key={key}>
+                {link.onClick ? (
+                    <button
+                        className={style.link}
+                        onClick={link.onClick}>
+                        {link.text}
+                    </button>
+                ) : (
+                    <Link to={link.to} className={style.link}>
+                        {link.text}
+                    </Link>
+                )}
+            </li>
+        ))}
+    </ul>
+);
+
 export function ProfileNavbar() {
     const logout = useLogout();
 
@@ -125,12 +126,10 @@ export function ProfileNavbar() {
         {
             to: "/feed",
             text: "News Feed",
-            external: false,
         },
         {
             to: "/account",
             text: "Settings",
-            external: false,
         },
         {
             text: "Logout",
@@ -143,7 +142,7 @@ export function ProfileNavbar() {
             <nav className={style.nav}>
                 <Logo />
                 <div>
-                    <NavLinks links={links} />
+                    <ProfileNavLinks links={links} />
                 </div>
             </nav>
         </header>

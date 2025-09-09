@@ -1,10 +1,13 @@
-import React from 'react';
-import { Routes, Route, Outlet } from 'react-router-dom';
-import { Navbar } from '@components/NavbarFeed';
-
-import { NewsFeed } from './newsFeed';
-import { Announcement } from './announcements.jsx';
-import { Activities } from './activities.jsx';
+import React from "react";
+import {
+  Routes,
+  Route,
+  Outlet
+} from "react-router-dom";
+import { Navbar } from "@components/NavbarFeed";
+import { NewsFeed } from "./newsFeed";
+import { Announcement } from "./announcements";
+import { Activities } from "./activities";
 
 const NewsFeedLayout = () => {
   return (

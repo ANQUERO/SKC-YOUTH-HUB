@@ -1,15 +1,6 @@
 import { pool } from "../db/config.js";
 
 export const index = async (req, res) => {
-    const user = req.user;
-
-    if (!user || user.userType !== "official") {
-        return res.status(403).json({
-            status: "Error",
-            message: "Forbidden - Only officials can access this resource"
-        });
-    }
-
     try {
         const result = await pool.query(
             `
@@ -32,8 +23,10 @@ export const index = async (req, res) => {
             FROM posts p
             INNER JOIN sk_official o ON p.official_id = o.official_id
             LEFT JOIN sk_official_name n ON o.official_id = n.official_id
-            LEFT JOIN post_comments c ON p.post_id = c.post_id AND c.deleted_at IS NULL
-            LEFT JOIN post_reactions r ON p.post_id = r.post_id AND r.deleted_at IS NULL
+            LEFT JOIN post_comments c ON p.post_id = c.post_id 
+                AND (c.deleted_at IS NULL OR c.deleted_at IS NOT DISTINCT FROM NULL)
+            LEFT JOIN post_reactions r ON p.post_id = r.post_id 
+                AND (r.deleted_at IS NULL OR r.deleted_at IS NOT DISTINCT FROM NULL)
             WHERE p.deleted_at IS NULL
             GROUP BY 
                 p.post_id, o.official_id, o.official_position,
@@ -92,13 +85,28 @@ export const createPost = async (req, res) => {
     }
 
     try {
+        // get official_id linked to this account
+        const officialResult = await pool.query(
+            `SELECT official_id FROM sk_official WHERE account_id = $1 LIMIT 1`,
+            [user.userId]
+        );
+
+        if (officialResult.rows.length === 0) {
+            return res.status(400).json({
+                status: "Error",
+                message: "No official record found for this user"
+            });
+        }
+
+        const officialId = officialResult.rows[0].official_id;
+
         const result = await pool.query(
             `
             INSERT INTO posts (official_id, title, description, media_type, media_url)
             VALUES ($1, $2, $3, $4, $5)
             RETURNING post_id, title, description, media_type, media_url, created_at, updated_at
             `,
-            [user.official_id, title, description, media_type || null, media_url || null]
+            [officialId, title, description, media_type || null, media_url || null]
         );
 
         res.status(201).json({
@@ -114,6 +122,7 @@ export const createPost = async (req, res) => {
         });
     }
 };
+
 
 // Update post
 export const updatePost = async (req, res) => {
