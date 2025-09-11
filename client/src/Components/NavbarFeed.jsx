@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import style from '@styles/navbarFeed.module.scss';
 import Logo from '@images/logo.jpg';
-import Avatar from '@images/hero.jpg';
+import { useAuthContext } from '@context/AuthContext';
+import { useNotifications } from '@context/NotificationContext';
+import { useLogout } from '@hooks/useLogout';
+import { Link } from 'react-router-dom';
 import {
   Bell,
   House,
@@ -14,6 +17,10 @@ import { NavLink } from 'react-router-dom';
 export const Navbar = () => {
   const [isNotifOpen, setNotifOpen] = useState(false);
   const [isProfileOpen, setProfileOpen] = useState(false);
+  const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
+  const logout = useLogout();
+  const canManage = isSkSuperAdmin || isSkNaturalAdmin;
+  const { notifications, unreadCount, markAllRead, clear, clearRead } = useNotifications();
 
   return (
     <nav className={style.nav}>
@@ -80,15 +87,27 @@ export const Navbar = () => {
             onClick={() => setNotifOpen(!isNotifOpen)}
             className={style.icon}
           />
-          <span className={style.badge}>3</span>
+          {unreadCount > 0 && <span className={style.badge}>{unreadCount}</span>}
 
           {isNotifOpen && (
             <div className={style.dropdown}>
-              <p>You have 3 new notifications</p>
+              <div className={style.dropdownHeader}>
+                <p>{notifications.length === 0 ? 'No notifications' : 'Notifications'}</p>
+                {notifications.length > 0 && (
+                  <div className={style.dropdownActions}>
+                    <button className={style.dropdownButton} onClick={markAllRead}>Mark all read</button>
+                    <button className={style.dropdownButton} onClick={clearRead}>Clear read</button>
+                    <button className={style.dropdownButton} onClick={clear}>Clear all</button>
+                  </div>
+                )}
+              </div>
               <ul>
-                <li>New comment on your post</li>
-                <li>Announcement posted</li>
-                <li>Activity starts soon</li>
+                {notifications.slice(0, 10).map(n => (
+                  <li key={n.id}>
+                    <strong>{n.title}</strong>
+                    <div>{n.message}</div>
+                  </li>
+                ))}
               </ul>
             </div>
           )}
@@ -98,13 +117,41 @@ export const Navbar = () => {
           className={style.profileWrapper}
           onClick={() => setProfileOpen(!isProfileOpen)}
         >
-          <img src={Avatar} alt="Profile" className={style.avatar} />
+          <img
+            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+              authUser?.name || 'User'
+            )}`}
+            alt="Profile"
+            className={style.avatar}
+          />
           {isProfileOpen && (
             <div className={style.dropdown}>
+              <div className={style.profileHeader}>
+                <strong>{authUser?.name || 'User'}</strong>
+                <small>{authUser?.email || ''}</small>
+              </div>
               <ul>
-                <li>My Profile</li>
-                <li>Settings</li>
-                <li>Logout</li>
+                {canManage && (
+                  <li>
+                    <Link to="/dashboard">Dashboard</Link>
+                  </li>
+                )}
+                {canManage && (
+                  <li>
+                    <Link to="/feed">Create Post</Link>
+                  </li>
+                )}
+                {!canManage && (
+                  <li>
+                    <Link to="/profile">My Profile</Link>
+                  </li>
+                )}
+                <li>
+                  <Link to="/account">Settings</Link>
+                </li>
+                <li>
+                  <button onClick={logout} className={style.dropdownButton}>Logout</button>
+                </li>
               </ul>
             </div>
           )}

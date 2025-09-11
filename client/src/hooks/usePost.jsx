@@ -4,6 +4,7 @@ import {
     useQueryClient,
 } from "@tanstack/react-query";
 import axiosInstance from "@lib/axios";
+import { useNotifications } from "@context/NotificationContext";
 import { useAuthContext } from "@context/AuthContext";
 
 const usePosts = () => {
@@ -13,6 +14,7 @@ const usePosts = () => {
         isSkNaturalAdmin
     } = useAuthContext();
     const queryClient = useQueryClient();
+    const { pushNotification } = useNotifications();
 
     const managePosts = isSkSuperAdmin || isSkNaturalAdmin;
     const viewPosts = isSkYouth || managePosts;
@@ -29,11 +31,19 @@ const usePosts = () => {
 
     // --- Create post ---
     const createPost = useMutation({
-        mutationFn: async (newPost) => {
-            const { data } = await axiosInstance.post("/post", newPost);
+        mutationFn: async (newPostFormData) => {
+            const { data } = await axiosInstance.post("/post", newPostFormData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
             return data.data;
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
+            pushNotification({
+                type: 'post',
+                title: 'Post created',
+                message: data?.title || 'Your post has been published.',
+                meta: { post_id: data?.post_id }
+            });
             queryClient.invalidateQueries(["posts"]);
         },
     });
@@ -44,7 +54,13 @@ const usePosts = () => {
             const { data } = await axiosInstance.put(`/post/${id}`, updatedPost);
             return data.data;
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
+            pushNotification({
+                type: 'post',
+                title: 'Post updated',
+                message: data?.title || 'Your post has been updated.',
+                meta: { post_id: data?.post_id }
+            });
             queryClient.invalidateQueries(["posts"]);
         },
     });
@@ -55,7 +71,13 @@ const usePosts = () => {
             const { data } = await axiosInstance.delete(`/post/${id}`);
             return data.data;
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
+            pushNotification({
+                type: 'post',
+                title: 'Post deleted',
+                message: 'Your post has been deleted.',
+                meta: { post_id: data?.post_id }
+            });
             queryClient.invalidateQueries(["posts"]);
         },
     });

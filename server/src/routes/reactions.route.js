@@ -8,8 +8,9 @@ import ProtectRoute from "../middleware/protectRoute.middleware.js";
 
 const router = express.Router();
 
-router.post("/:id/react", ProtectRoute(), createReaction);
-router.delete("/:id/react", ProtectRoute(), removeReaction);
-router.get("/:id/reactions", ProtectRoute(), getReactions);
+// Prefix all routes with /post
+router.post("/post/:post_id/react", ProtectRoute(), createReaction);
+router.delete("/post/:post_id/react", ProtectRoute(), removeReaction);
+router.get("/post/:post_id/reactions", ProtectRoute(), getReactions);
 
 export default router;

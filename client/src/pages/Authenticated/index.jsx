@@ -36,7 +36,7 @@ import Menu from '@components/Menu.jsx';
 const Authenticated = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const logout = useLogout();
-  const { user } = useAuthContext();
+  const { authUser } = useAuthContext();
 
   const menu = [
     {
@@ -128,7 +128,14 @@ const Authenticated = () => {
           </ToggleSidebarButton>
 
           <UserContainer>
-            <span>{user?.name || "User"}</span>
+            <img
+              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+                authUser?.name || 'User'
+              )}`}
+              alt="User Avatar"
+              style={{ width: 32, height: 32, borderRadius: '50%' }}
+            />
+            <span>{authUser?.name || 'User'}</span>
           </UserContainer>
         </TopContainer>
 

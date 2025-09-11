@@ -21,13 +21,14 @@ export const createComment = async (req, res) => {
     }
 
     try {
+        const authorId = user.userType === 'official' ? user.official_id : user.youth_id;
         const { rows } = await pool.query(
             `
             INSERT INTO post_comments (post_id, user_type, user_id, content, parent_comment_id)
             VALUES ($1, $2, $3, $4, $5)
             RETURNING *
             `,
-            [post_id, user.userType, user.user_id, content.trim(), parent_comment_id || null]
+            [post_id, user.userType, authorId, content.trim(), parent_comment_id || null]
         );
 
         return res.status(201).json({
@@ -59,14 +60,15 @@ export const updateComment = async (req, res) => {
     }
 
     try {
+        const authorId = user.userType === 'official' ? user.official_id : user.youth_id;
         const { rows } = await pool.query(
             `
             UPDATE post_comments
             SET content = $1, updated_at = CURRENT_TIMESTAMP
-            WHERE comment_id = $2 AND user_type = $3 AND user_id = $4 AND deleted_at IS NULL
+            WHERE comment_id = $2 AND user_type = $3 AND user_id = $4
             RETURNING *
             `,
-            [content.trim(), comment_id, user.userType, user.user_id]
+            [content.trim(), comment_id, user.userType, authorId]
         );
 
         if (rows.length === 0) {
@@ -97,15 +99,31 @@ export const deleteComment = async (req, res) => {
     const { comment_id } = req.params;
 
     try {
-        const { rows } = await pool.query(
-            `
-            UPDATE post_comments
-            SET deleted_at = CURRENT_TIMESTAMP
-            WHERE comment_id = $1 AND user_type = $2 AND user_id = $3 AND deleted_at IS NULL
-            RETURNING *
-            `,
-            [comment_id, user.userType, user.user_id]
-        );
+        let rows;
+        if (user.userType === 'official') {
+            // Officials can hide any comment
+            const result = await pool.query(
+                `
+                DELETE FROM post_comments
+                WHERE comment_id = $1
+                RETURNING *
+                `,
+                [comment_id]
+            );
+            rows = result.rows;
+        } else {
+            // Youth can only delete their own comments
+            const authorId = user.youth_id;
+            const result = await pool.query(
+                `
+                DELETE FROM post_comments
+                WHERE comment_id = $1 AND user_type = 'youth' AND user_id = $2
+                RETURNING *
+                `,
+                [comment_id, authorId]
+            );
+            rows = result.rows;
+        }
 
         if (rows.length === 0) {
             return res.status(404).json({
@@ -148,7 +166,7 @@ export const getComments = async (req, res) => {
                     WHEN c.user_type = 'youth' THEN (SELECT CONCAT(n.first_name, ' ', n.last_name) FROM sk_youth_name n WHERE n.youth_id = c.user_id)
                 END AS user_name
             FROM post_comments c
-            WHERE c.post_id = $1 AND c.deleted_at IS NULL
+            WHERE c.post_id = $1
             ORDER BY c.created_at ASC
             `,
             [post_id]

@@ -21,13 +21,14 @@ export const createReaction = async (req, res) => {
     }
 
     try {
+        const authorId = user.userType === 'official' ? user.official_id : user.youth_id;
         // Check if user already reacted to this post
         const check = await pool.query(
             `
             SELECT reaction_id FROM post_reactions
-            WHERE post_id = $1 AND user_type = $2 AND user_id = $3 AND deleted_at IS NULL
+            WHERE post_id = $1 AND user_type = $2 AND user_id = $3
             `,
-            [post_id, user.userType, user.user_id]
+            [post_id, user.userType, authorId]
         );
 
         let reaction;
@@ -52,7 +53,7 @@ export const createReaction = async (req, res) => {
                 VALUES ($1, $2, $3, $4)
                 RETURNING *
                 `,
-                [post_id, user.userType, user.user_id, type]
+                [post_id, user.userType, authorId, type]
             );
             reaction = insert.rows[0];
         }
@@ -85,14 +86,14 @@ export const removeReaction = async (req, res) => {
     }
 
     try {
+        const authorId = user.userType === 'official' ? user.official_id : user.youth_id;
         const result = await pool.query(
             `
-            UPDATE post_reactions
-            SET deleted_at = CURRENT_TIMESTAMP
-            WHERE post_id = $1 AND user_type = $2 AND user_id = $3 AND deleted_at IS NULL
+            DELETE FROM post_reactions
+            WHERE post_id = $1 AND user_type = $2 AND user_id = $3
             RETURNING *
             `,
-            [post_id, user.userType, user.user_id]
+            [post_id, user.userType, authorId]
         );
 
         if (result.rows.length === 0) {
@@ -134,7 +135,7 @@ export const getReactions = async (req, res) => {
                     WHEN r.user_type = 'youth' THEN (SELECT CONCAT(n.first_name, ' ', n.last_name) FROM sk_youth_name n WHERE n.youth_id = r.user_id)
                 END AS user_name
             FROM post_reactions r
-            WHERE r.post_id = $1 AND r.deleted_at IS NULL
+            WHERE r.post_id = $1
             ORDER BY r.reacted_at DESC
             `,
             [post_id]

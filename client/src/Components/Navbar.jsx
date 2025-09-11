@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLogout } from '@hooks/useLogout';
+import { useAuthContext } from '@context/AuthContext';
 
 const Logo = () => (
     <div className={style.logo}>
@@ -121,8 +122,19 @@ const ProfileNavLinks = ({ links }) => (
 
 export function ProfileNavbar() {
     const logout = useLogout();
+    const { authUser } = useAuthContext();
+    const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
+    const canManage = isSkSuperAdmin || isSkNaturalAdmin;
 
     const links = [
+        canManage && {
+            to: "/dashboard",
+            text: "Dashboard",
+        },
+        {
+            to: "/feed",
+            text: "Create Post",
+        },
         {
             to: "/feed",
             text: "News Feed",
@@ -135,13 +147,21 @@ export function ProfileNavbar() {
             text: "Logout",
             onClick: logout,
         },
-    ];
+    ].filter(Boolean);
 
     return (
         <header className={style.header}>
             <nav className={style.nav}>
                 <Logo />
-                <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <img
+                            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(authUser?.name || 'User')}`}
+                            alt="User Avatar"
+                            style={{ width: 32, height: 32, borderRadius: '50%' }}
+                        />
+                        <span style={{ fontWeight: 600 }}>{authUser?.name || 'User'}</span>
+                    </div>
                     <ProfileNavLinks links={links} />
                 </div>
             </nav>

@@ -1,4 +1,12 @@
 import { pool } from "../db/config.js";
+const inferMediaType = (url) => {
+    try {
+        const u = String(url).toLowerCase();
+        if (u.includes('/image/') || u.match(/\.(png|jpg|jpeg|gif|webp)$/)) return 'image';
+        if (u.includes('/video/') || u.match(/\.(mp4|webm|mov|m4v)$/)) return 'video';
+    } catch { }
+    return null;
+};
 
 export const index = async (req, res) => {
     try {
@@ -23,11 +31,8 @@ export const index = async (req, res) => {
             FROM posts p
             INNER JOIN sk_official o ON p.official_id = o.official_id
             LEFT JOIN sk_official_name n ON o.official_id = n.official_id
-            LEFT JOIN post_comments c ON p.post_id = c.post_id 
-                AND (c.deleted_at IS NULL OR c.deleted_at IS NOT DISTINCT FROM NULL)
-            LEFT JOIN post_reactions r ON p.post_id = r.post_id 
-                AND (r.deleted_at IS NULL OR r.deleted_at IS NOT DISTINCT FROM NULL)
-            WHERE p.deleted_at IS NULL
+            LEFT JOIN post_comments c ON p.post_id = c.post_id
+            LEFT JOIN post_reactions r ON p.post_id = r.post_id
             GROUP BY 
                 p.post_id, o.official_id, o.official_position,
                 n.first_name, n.middle_name, n.last_name, n.suffix
@@ -68,7 +73,11 @@ export const index = async (req, res) => {
 // Create post
 export const createPost = async (req, res) => {
     const user = req.user;
-    const { title, description, media_type, media_url } = req.body;
+    const body = req.body || {};
+    const title = body.title || '';
+    const description = body.description || '';
+    const media_type = body.media_type || '';
+    const media_url = body.media_url || '';
 
     if (!user || user.userType !== "official") {
         return res.status(403).json({
@@ -85,20 +94,17 @@ export const createPost = async (req, res) => {
     }
 
     try {
-        // get official_id linked to this account
-        const officialResult = await pool.query(
-            `SELECT official_id FROM sk_official WHERE account_id = $1 LIMIT 1`,
-            [user.userId]
-        );
-
-        if (officialResult.rows.length === 0) {
+        const officialId = user.official_id;
+        if (!officialId) {
             return res.status(400).json({
                 status: "Error",
-                message: "No official record found for this user"
+                message: "Missing official_id for current user"
             });
         }
 
-        const officialId = officialResult.rows[0].official_id;
+        const uploaded = Array.isArray(res.locals.uploaded_images) ? res.locals.uploaded_images : [];
+        const finalMediaUrl = uploaded[0] || media_url || null;
+        const finalMediaType = finalMediaUrl ? (media_type || inferMediaType(finalMediaUrl)) : null;
 
         const result = await pool.query(
             `
@@ -106,7 +112,7 @@ export const createPost = async (req, res) => {
             VALUES ($1, $2, $3, $4, $5)
             RETURNING post_id, title, description, media_type, media_url, created_at, updated_at
             `,
-            [officialId, title, description, media_type || null, media_url || null]
+            [officialId, title, description, finalMediaType, finalMediaUrl]
         );
 
         res.status(201).json({
@@ -146,7 +152,7 @@ export const updatePost = async (req, res) => {
                 media_type = $3,
                 media_url = $4,
                 updated_at = CURRENT_TIMESTAMP
-            WHERE post_id = $5 AND official_id = $6 AND deleted_at IS NULL
+            WHERE post_id = $5 AND official_id = $6
             RETURNING *
             `,
             [title, description, media_type || null, media_url || null, post_id, user.official_id]
@@ -191,7 +197,7 @@ export const deletePost = async (req, res) => {
             UPDATE posts
             SET deleted_at = CURRENT_TIMESTAMP,
                 updated_at = CURRENT_TIMESTAMP
-            WHERE post_id = $1 AND official_id = $2 AND deleted_at IS NULL
+            WHERE post_id = $1 AND official_id = $2
             RETURNING *
             `,
             [post_id, user.official_id]
