@@ -111,16 +111,16 @@ export const getYouthDetails = async (req, res) => {
         const youth = rows[0];
 
         const { rows: attachments } = await pool.query(
-            `SELECT file_name, file_type, file_url, uploaded_at 
+            `SELECT file_name, file_type, file_url
              FROM sk_youth_attachments 
-             WHERE youth_id = $1 AND deleted_at IS NULL`,
+             WHERE youth_id = $1`,
             [youth_id]
         );
 
         const { rows: households } = await pool.query(
             `SELECT household 
              FROM sk_youth_household 
-             WHERE youth_id = $1 AND deleted_at IS NULL`,
+             WHERE youth_id = $1`,
             [youth_id]
         );
 

@@ -155,39 +155,31 @@ function YouthPage() {
     const SidebarContent = (
         <Box sx={{ width: 260, p: 2 }}>
             <Typography variant="h6" gutterBottom>Status</Typography>
-            <Stack spacing={1}>
-                <Button variant={filter === "all" ? "contained" : "outlined"} onClick={() => setFilter("all")}>All</Button>
-                <Button variant={filter === "registered" ? "contained" : "outlined"} onClick={() => setFilter("registered")}>Registered</Button>
-                <Button variant={filter === "unregistered" ? "contained" : "outlined"} onClick={() => setFilter("unregistered")}>Unregistered</Button>
+            <Stack>
+                <FormControlLabel control={<Checkbox checked={filter === "all"} onChange={() => setFilter("all")} />} label="All" />
+                <FormControlLabel control={<Checkbox checked={filter === "registered"} onChange={() => setFilter("registered")} />} label="Registered" />
+                <FormControlLabel control={<Checkbox checked={filter === "unregistered"} onChange={() => setFilter("unregistered")} />} label="Unregistered" />
             </Stack>
             <Divider sx={{ my: 2 }} />
             <Typography variant="h6" gutterBottom>Verified</Typography>
-            <Stack spacing={1}>
-                <Button variant={verifiedFilter === "all" ? "contained" : "outlined"} onClick={() => setVerifiedFilter("all")}>All</Button>
-                <Button variant={verifiedFilter === "yes" ? "contained" : "outlined"} onClick={() => setVerifiedFilter("yes")}>Verified</Button>
-                <Button variant={verifiedFilter === "no" ? "contained" : "outlined"} onClick={() => setVerifiedFilter("no")}>Unverified</Button>
+            <Stack>
+                <FormControlLabel control={<Checkbox checked={verifiedFilter === "all"} onChange={() => setVerifiedFilter("all")} />} label="All" />
+                <FormControlLabel control={<Checkbox checked={verifiedFilter === "yes"} onChange={() => setVerifiedFilter("yes")} />} label="Verified" />
+                <FormControlLabel control={<Checkbox checked={verifiedFilter === "no"} onChange={() => setVerifiedFilter("no")} />} label="Unverified" />
             </Stack>
             <Divider sx={{ my: 2 }} />
             <Typography variant="h6" gutterBottom>Gender</Typography>
-            <Stack spacing={1}>
-                <Button variant={genderFilter === "all" ? "contained" : "outlined"} onClick={() => setGenderFilter("all")}>All</Button>
-                <Button variant={genderFilter === "male" ? "contained" : "outlined"} onClick={() => setGenderFilter("male")}>Male</Button>
-                <Button variant={genderFilter === "female" ? "contained" : "outlined"} onClick={() => setGenderFilter("female")}>Female</Button>
+            <Stack>
+                <FormControlLabel control={<Checkbox checked={genderFilter === "all"} onChange={() => setGenderFilter("all")} />} label="All" />
+                <FormControlLabel control={<Checkbox checked={genderFilter === "male"} onChange={() => setGenderFilter("male")} />} label="Male" />
+                <FormControlLabel control={<Checkbox checked={genderFilter === "female"} onChange={() => setGenderFilter("female")} />} label="Female" />
             </Stack>
             <Divider sx={{ my: 2 }} />
             <Typography variant="h6" gutterBottom>Purok</Typography>
-            <Stack spacing={1}>
-                <Button variant={purokFilter === "all" ? "contained" : "outlined"} onClick={() => setPurokFilter("all")}>
-                    All
-                </Button>
+            <Stack>
+                <FormControlLabel control={<Checkbox checked={purokFilter === "all"} onChange={() => setPurokFilter("all")} />} label="All" />
                 {["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Purok 5", "Purok 6"].map((p) => (
-                    <Button
-                        key={p}
-                        variant={purokFilter === p ? "contained" : "outlined"}
-                        onClick={() => setPurokFilter(p)}
-                    >
-                        {p}
-                    </Button>
+                    <FormControlLabel key={p} control={<Checkbox checked={purokFilter === p} onChange={() => setPurokFilter(p)} />} label={p} />
                 ))}
             </Stack>
         </Box>
@@ -196,13 +188,9 @@ function YouthPage() {
     return (
         <Box sx={{ display: "flex", height: "100vh" }}>
 
-            <Drawer anchor="left" open={sidebarOpen} onClose={() => setSidebarOpen(false)} sx={{ display: { sm: "none" } }}>
+            <Drawer anchor="right" open={sidebarOpen} onClose={() => setSidebarOpen(false)}>
                 {SidebarContent}
             </Drawer>
-
-            <Box sx={{ width: { xs: 0, sm: 260 }, display: { xs: "none", sm: "block" }, borderRight: "1px solid #ddd", bgcolor: "#f9f9f9" }}>
-                {SidebarContent}
-            </Box>
 
             <Box sx={{ flex: 1, p: 2, minWidth: 0 }}>
 
@@ -217,7 +205,7 @@ function YouthPage() {
                 <Paper sx={{ mb: 2 }}>
                     <Toolbar sx={{ flexDirection: { xs: "column", sm: "row" }, gap: 2, alignItems: { xs: "stretch", sm: "center" }, justifyContent: "space-between" }}>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                            <IconButton sx={{ display: { sm: "none" } }} onClick={() => setSidebarOpen(true)}>
+                            <IconButton onClick={() => setSidebarOpen(true)}>
                                 <MenuIcon />
                             </IconButton>
                             <TextField
@@ -305,6 +293,8 @@ function YouthPage() {
 
                 <FormControlLabel control={<Switch checked={dense} onChange={(e) => setDense(e.target.checked)} />} label="Dense padding" />
             </Box>
+
+            {null}
         </Box>
     );
 }

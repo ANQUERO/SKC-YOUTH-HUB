@@ -141,6 +141,11 @@ export const Navbar = () => {
                     <Link to="/feed">Create Post</Link>
                   </li>
                 )}
+                {canManage && (
+                  <li>
+                    <Link to="/official-profile">My Profile</Link>
+                  </li>
+                )}
                 {!canManage && (
                   <li>
                     <Link to="/profile">My Profile</Link>

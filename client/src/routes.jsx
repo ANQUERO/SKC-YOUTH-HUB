@@ -20,6 +20,7 @@ import NotFound from "@pages/NotFound";
 
 import { useAuthContext } from "@context/AuthContext";
 import YouthProfile from "@pages/YouthProfile";
+import OfficialsProfile from "@pages/OfficialsProfile";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
     const { authUser, activeRole, loading } = useAuthContext();
@@ -169,6 +170,14 @@ export const routes = [
                 allowedRoles={["youth"]}
             >
                 <YouthProfile />
+            </ProtectedRoute>
+        ),
+    },
+    {
+        path: "/official-profile",
+        element: (
+            <ProtectedRoute allowedRoles={["super_official", "natural_official"]}>
+                <OfficialsProfile />
             </ProtectedRoute>
         ),
     },
