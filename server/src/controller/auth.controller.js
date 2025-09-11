@@ -79,6 +79,41 @@ export const signupAdmin = async (req, res) => {
     }
 };
 
+export const resetPassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const user = req.user;
+
+        if (!user) return res.status(401).json({ message: 'Unauthorized' });
+
+        let table, idField;
+        if (user.userType === 'official') {
+            table = 'sk_official';
+            idField = 'official_id';
+        } else if (user.userType === 'youth') {
+            table = 'sk_youth';
+            idField = 'youth_id';
+        } else {
+            return res.status(400).json({ message: 'Invalid user type' });
+        }
+
+        const { rows } = await pool.query(`SELECT password FROM ${table} WHERE ${idField} = $1`, [user[idField]]);
+        if (rows.length === 0) return res.status(404).json({ message: 'User not found' });
+
+        const ok = await bcrypt.compare(currentPassword, rows[0].password);
+        if (!ok) return res.status(400).json({ message: 'Current password is incorrect' });
+
+        const salt = await bcrypt.genSalt(10);
+        const hashed = await bcrypt.hash(newPassword, salt);
+        await pool.query(`UPDATE ${table} SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE ${idField} = $2`, [hashed, user[idField]]);
+
+        return res.status(200).json({ message: 'Password updated successfully' });
+    } catch (err) {
+        console.error('Reset password error:', err);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
 
 export const signup = async (req, res) => {
     const client = await pool.connect();

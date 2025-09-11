@@ -3,8 +3,10 @@ import {
     signupAdmin,
     signup,
     login,
-    logout
+    logout,
+    resetPassword
 } from '../controller/auth.controller.js'
+import ProtectRoute from '../middleware/protectRoute.middleware.js'
 import {
     signupYouthValidator,
     signupAdminValidator,
@@ -32,5 +34,7 @@ router.post("/login",
     login
 );
 router.post("/logout", logout);
+
+router.post('/reset-password', ProtectRoute(), (req, res, next) => next(), resetPassword);
 
 export default router;
