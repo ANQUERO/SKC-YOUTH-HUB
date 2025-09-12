@@ -410,68 +410,125 @@
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-//Footer
 .footer {
+  background-color: rgba(17, 17, 51, 0.2);
+  padding: 3rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  color: white;
+
+  // Tagline Section
+  .tagline {
     display: flex;
-    height: 40vh;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-    text-align: center;
+    font-size: 3.5rem;
+    font-weight: 600;
 
+    .subTagline {
+      color: #c4c4c4;
+      font-size: 1.5rem;
+      font-weight: 400;
+    }
+  }
 
-.footerLogo {
+  // Main Footer Links Section
+  .footerLinks {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
 
-    img {
-        max-width: 50px;
-        margin-top: 0.5rem;
+    // Logo
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+
+      .logoImage {
+        width: 5rem;
+        border-radius: 50%;
+      }
+
+      .logoText {
+        font-size: 2rem;
+        font-weight: bold;
+        color: white;
+      }
     }
 
-    .logoText {
-    font-size: 2rem;
-    font-weight: bold;
-    color: white;
-}
-}
+    // Navigation Links
+    .navLinks {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+      padding: 0;
+      margin: 0;
 
-
-
-.links {
-    list-style: none;
-    padding: 0;
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-
-    a {
-        text-decoration: none;
-        color: white;
-        font-weight: 500;
+      .links {
+        cursor: pointer;
+        color: #c4c4c4;
+        font-size: 1rem;
+        transition: color 0.2s ease;
 
         &:hover {
-            text-decoration: underline;
+          color: white;
         }
+      }
     }
+
+    // Social Links
+    .socialLinks {
+      .social {
+        display: flex;
+        gap: 1rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        .socLinks {
+          cursor: pointer;
+          color: #c4c4c4;
+          text-transform: capitalize;
+          transition: color 0.2s ease;
+
+          &:hover {
+            color: white;
+          }
+        }
+      }
+    }
+  }
+
+  // Bottom Row
+  .bottomRow {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 0.9rem;
+    color: #c4c4c4;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+
+    .legalLinks {
+      display: flex;
+      gap: 1.5rem;
+
+      a {
+        color: #c4c4c4;
+        text-decoration: none;
+        transition: color 0.2s ease;
+
+        &:hover {
+          color: white;
+        }
+      }
+    }
+  }
 }
 
-p {
-    color: white;
-}
-
-}
