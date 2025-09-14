@@ -1,3 +1,13 @@
+//Variables
+$bg: #fff;
+$muted: #8a8d91;
+$primary: #1877f2;
+$border: #e6e6e6;
+$shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+$radius: 10px;
+$avatar-size: 40px;
+
+
 .feed {
     max-width: 1000px;
     margin: auto;
@@ -141,17 +151,15 @@
         line-height: 1.5;
     }
 
-    // Updated media styling for both images and videos
     .postMedia {
         margin-top: 0.75rem;
         width: 100%;
-        height: 300px; // Fixed height
+        height: 300px;
         border-radius: 10px;
         object-fit: cover;
         display: block;
     }
 
-    // Keep the old class for backward compatibility
     .postImage {
         margin-top: 0.75rem;
         width: 100%;
@@ -173,4 +181,72 @@
             background: #005f87;
         }
     }
+
+    .commentBox {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+
+        .box {
+            background-color: $bg;
+            border: 1px solid $border;
+            border-radius: $radius;
+            box-shadow: $shadow;
+            padding: 1rem;
+            max-width: 60rem;
+            width: 100%;
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+
+            input {
+                flex: 1;
+                padding: 0.75rem 1rem;
+                border: 1px solid $border;
+                border-radius: $radius;
+                outline: none;
+                font-size: 1rem;
+                color: #111;
+                transition: border-color 0.2s, box-shadow 0.2s;
+
+                &:focus {
+                    border-color: darken($border, 10%);
+                    box-shadow: 0 0 0 3px rgba($border, 0.2);
+                }
+
+                &:disabled {
+                    background-color: lighten($bg, 5%);
+                    cursor: not-allowed;
+                }
+            }
+
+            button {
+                padding: 0.75rem 1.5rem;
+                background-color: $primary;
+                color: #fff;
+                font-size: 1rem;
+                font-weight: 500;
+                border: none;
+                border-radius: $radius;
+                cursor: pointer;
+                transition: background-color 0.2s, transform 0.1s;
+
+                &:hover:not(:disabled) {
+                    background-color: darken($primary, 7%);
+                }
+
+                &:active:not(:disabled) {
+                    transform: scale(0.97);
+                }
+
+                &:disabled {
+                    background-color: lighten($primary, 15%);
+                    cursor: not-allowed;
+                }
+            }
+        }
+    }
+
+
 }

@@ -46,7 +46,11 @@ export const NotificationProvider = ({ children }) => {
             const raw = localStorage.getItem(seenKey);
             setSeen(raw ? JSON.parse(raw) : { comments: {}, reactions: {} });
         } catch {
-            setSeen({ comments: {}, reactions: {} });
+            setSeen({
+                comments: {
+                    use
+                }, reactions: {}
+            });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [seenKey]);

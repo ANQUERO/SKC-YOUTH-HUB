@@ -15,7 +15,7 @@ import Purok from "@pages/Purok";
 import Inbox from "@pages/Inbox";
 import Verification from "@pages/Verification";
 import Officials from "@pages/Officials";
-import Settings from "@pages/Account";
+import Settings from "@pages/Settings";
 import NotFound from "@pages/NotFound";
 
 import { useAuthContext } from "@context/AuthContext";

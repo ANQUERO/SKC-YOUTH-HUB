@@ -4,26 +4,38 @@ import axiosInstance from "@lib/axios";
 import { useNotifications } from "@context/NotificationContext";
 import { useAuthContext } from "@context/AuthContext";
 
+
 export const PostCard = ({ post }) => {
-    const { pushNotification, hasSeen, markItemSeen } = useNotifications();
+    const {
+        pushNotification,
+        hasSeen,
+        markItemSeen
+    } = useNotifications();
     const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
     const isOfficial = isSkSuperAdmin || isSkNaturalAdmin;
     const [comment, setComment] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [comments, setComments] = useState([]);
-    const [reactionsCount, setReactionsCount] = useState({ like: 0, heart: 0, wow: 0 });
+    const [reactionsCount, setReactionsCount] = useState({
+        like: 0,
+        heart: 0,
+        wow: 0
+    });
 
     useEffect(() => {
+
         // Load comments
         axiosInstance.get(`/post/${post.post_id}/comments`).then(({ data }) => {
             setComments(data.data || []);
         }).catch(() => { });
+
         // Load reactions summary
         axiosInstance.get(`/post/${post.post_id}/reactions`).then(({ data }) => {
             const counts = { like: 0, heart: 0, wow: 0 };
             (data.data || []).forEach(r => { counts[r.type] = (counts[r.type] || 0) + 1; });
             setReactionsCount(counts);
         }).catch(() => { });
+
         // Periodic polling for officials to generate notifications for unseen youth comments/reactions
         if (isOfficial) {
             const interval = setInterval(async () => {
@@ -49,6 +61,7 @@ export const PostCard = ({ post }) => {
                     });
                 } catch { }
             }, 10000);
+
             return () => clearInterval(interval);
         }
     }, [post.post_id, isOfficial, hasSeen, markItemSeen, pushNotification]);
@@ -66,12 +79,15 @@ export const PostCard = ({ post }) => {
     const handleRemoveReaction = async () => {
         try {
             await axiosInstance.delete(`/post/${post.post_id}/react`);
+
             // Reload reactions after removal
+
             axiosInstance.get(`/post/${post.post_id}/reactions`).then(({ data }) => {
                 const counts = { like: 0, heart: 0, wow: 0 };
                 (data.data || []).forEach(r => { counts[r.type] = (counts[r.type] || 0) + 1; });
                 setReactionsCount(counts);
             }).catch(() => { });
+
         } catch (e) {
             console.error(e);
         }
@@ -139,19 +155,24 @@ export const PostCard = ({ post }) => {
             </div>
 
             <div className={style.reactionsSummary}>
-                <span>👍 {reactionsCount.like}</span>
-                <span>❤️ {reactionsCount.heart}</span>
-                <span>😮 {reactionsCount.wow}</span>
+                <span> 👍 {reactionsCount.like} </span>
+                <span> ❤️ {reactionsCount.heart} </span>
+                <span> 😮 {reactionsCount.wow} </span>
             </div>
 
             <div className={style.commentBox}>
-                <input
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    placeholder="Write a comment..."
-                    disabled={submitting}
-                />
-                <button onClick={handleComment} disabled={submitting || !comment.trim()}>Comment</button>
+
+                <div className={style.box}>
+                    <input
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        placeholder="Write a comment..."
+                        disabled={submitting}
+                    />
+
+                    <button onClick={handleComment} disabled={submitting || !comment.trim()}>Comment</button>
+                </div>
+
             </div>
 
             {comments.length > 0 && (
@@ -165,6 +186,7 @@ export const PostCard = ({ post }) => {
                     ))}
                 </div>
             )}
+
         </div>
     );
 };
@@ -184,8 +206,8 @@ const NestedComment = ({ postId, comment, onChanged }) => {
     };
 
     return (
-        <div className={"commentItem"}>
-            <div className={"commentHeader"}>
+        <div className={style.commentItem}>
+            <div className={style.commentHeader}>
                 <strong>{comment.user_name || comment.user_type}</strong>
                 <small>{new Date(comment.created_at).toLocaleString()}</small>
             </div>
