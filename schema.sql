@@ -196,7 +196,7 @@ CREATE TABLE forms(
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL
-)
+);
 
 CREATE TABLE replied_forms(
     replied_id SERIAL PRIMARY KEY,

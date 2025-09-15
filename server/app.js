@@ -14,12 +14,13 @@ import comment from './src/routes/comments.route.js'
 import reaction from './src/routes/reactions.route.js'
 import profile from './src/routes/profile.route.js'
 
-
 dotenv.config();
 
 const app = express();
 
 app.use(helmet());
+
+const allowedOrigin = process.env.APP_URL?.trim().replace(/\/$/, '');
 
 app.use(cors({
     origin: process.env.APP_URL,
@@ -27,6 +28,7 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'X-Project-ID']
 }));
+console.log(allowedOrigin)
 
 app.use(cookieParser());
 

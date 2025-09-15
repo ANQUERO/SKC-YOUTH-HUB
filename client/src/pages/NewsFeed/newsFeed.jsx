@@ -9,7 +9,7 @@ export const NewsFeed = () => {
     const { posts, isLoading } = usePostContext();
     const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
     const canManage = isSkSuperAdmin || isSkNaturalAdmin;
-    const feed = posts; // show all posts; schema has no type column
+    const feed = posts;
 
     return (
         <section className={style.feed}>

@@ -144,7 +144,6 @@ $$;
 --Fetch SK Youths
 CREATE OR REPLACE FUNCTION fetch_sk_youths()
 RETURNS TABLE (
-    -- Base
     youth_id INT,
     email VARCHAR,
     verified BOOLEAN,
@@ -153,45 +152,37 @@ RETURNS TABLE (
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
 
-    -- Name
     first_name VARCHAR,
     middle_name VARCHAR,
     last_name VARCHAR,
     suffix VARCHAR,
 
-    -- Gender
     gender VARCHAR,
 
-    -- Info
     age INT,
     contact_number VARCHAR,
     birthday DATE,
 
-    -- Location
     region VARCHAR,
     province VARCHAR,
     municipality VARCHAR,
     barangay VARCHAR,
     purok_name VARCHAR,
 
-    -- Demographics
     civil_status VARCHAR,
     youth_age_gap VARCHAR,
     youth_classification VARCHAR,
     educational_background VARCHAR,
     work_status VARCHAR,
 
-    -- Survey
     registered_voter VARCHAR,
     registered_national_voter VARCHAR,
     vote_last_election VARCHAR,
 
-    -- Meeting Survey
     attended BOOLEAN,
     times_attended INT,
     reason_not_attend TEXT,
 
-    -- Household
     household VARCHAR,
 
     file_name VARCHAR,
@@ -262,7 +253,6 @@ $$ LANGUAGE plpgsql;
 --Fetch SK Youth
 CREATE OR REPLACE FUNCTION fetch_sk_youths(p_youth_id INT)
 RETURNS TABLE (
-    -- Base
     youth_id INT,
     email VARCHAR,
     verified BOOLEAN,
@@ -271,45 +261,37 @@ RETURNS TABLE (
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
 
-    -- Name
     first_name VARCHAR,
     middle_name VARCHAR,
     last_name VARCHAR,
     suffix VARCHAR,
 
-    -- Gender
     gender VARCHAR,
 
-    -- Info
     age INT,
     contact_number VARCHAR,
     birthday DATE,
 
-    -- Location
     region VARCHAR,
     province VARCHAR,
     municipality VARCHAR,
     barangay VARCHAR,
     purok_name VARCHAR,
 
-    -- Demographics
     civil_status VARCHAR,
     youth_age_gap VARCHAR,
     youth_classification VARCHAR,
     educational_background VARCHAR,
     work_status VARCHAR,
 
-    -- Survey
     registered_voter VARCHAR,
     registered_national_voter VARCHAR,
     vote_last_election VARCHAR,
 
-    -- Meeting Survey
     attended BOOLEAN,
     times_attended INT,
     reason_not_attend TEXT,
 
-    -- Household
     household VARCHAR,
 
     file_name VARCHAR,
