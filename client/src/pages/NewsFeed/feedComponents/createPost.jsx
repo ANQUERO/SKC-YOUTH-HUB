@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import style from "@styles/newsFeed.module.scss";
 import Avatar from "@images/about.png";
-import { Image, Send, Video } from "lucide-react";
+import { Image, Send, Video, X } from "lucide-react";
 import { usePostContext } from "@context/PostContext";
 
 export const CreatePost = () => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [files, setFiles] = useState([]);
-    const [fileType, setFileType] = useState(null); // 'image' | 'video'
+    const [fileType, setFileType] = useState(null);
     const [type, setType] = useState("post");
     const { createPost } = usePostContext();
 
@@ -18,6 +18,12 @@ export const CreatePost = () => {
             setFiles(list);
             setFileType(kind);
         }
+    };
+
+    const handleRemoveFile = (index) => {
+        const updated = files.filter((_, i) => i !== index);
+        setFiles(updated);
+        if (updated.length === 0) setFileType(null);
     };
 
     const handlePost = () => {
@@ -42,6 +48,7 @@ export const CreatePost = () => {
 
     return (
         <div className={style.createPost}>
+            {/* --- USER INFO --- */}
             <div className={style.userInfo}>
                 <img src={Avatar} alt="avatar" />
                 <div>
@@ -62,6 +69,7 @@ export const CreatePost = () => {
                 </div>
             </div>
 
+            {/* --- INPUTS --- */}
             <input
                 placeholder="Title"
                 value={title}
@@ -74,6 +82,36 @@ export const CreatePost = () => {
                 onChange={(e) => setDescription(e.target.value)}
             />
 
+            {/* --- PREVIEW SECTION --- */}
+            {files.length > 0 && (
+                <div className={style.previewSection}>
+                    {files.map((file, idx) => (
+                        <div key={idx} className={style.previewItem}>
+                            {fileType === "image" ? (
+                                <img
+                                    src={URL.createObjectURL(file)}
+                                    alt="preview"
+                                    className={style.previewMedia}
+                                />
+                            ) : (
+                                <video
+                                    src={URL.createObjectURL(file)}
+                                    className={style.previewMedia}
+                                    controls
+                                />
+                            )}
+                            <button
+                                className={style.removeBtn}
+                                onClick={() => handleRemoveFile(idx)}
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* --- ACTIONS --- */}
             <div className={style.actions}>
                 <div className={style.files}>
                     <label>

@@ -145,20 +145,26 @@ export const PostCard = ({ post }) => {
             )}
 
             <div className={style.actionsRow}>
-                <button onClick={() => handleReact('like')}>Like</button>
-                <button onClick={() => handleReact('heart')}>Heart</button>
-                <button onClick={() => handleReact('wow')}>Wow</button>
-                <button onClick={handleRemoveReaction}>Undo</button>
-                {isOfficial && (
-                    <button onClick={handleDelete}>Delete/Hide</button>
-                )}
+                <div className={style.actionGroup}>
+                    <span className={style.actionIcon} onClick={() => handleReact("like")}>
+                        👍 <small>{reactionsCount.like}</small>
+                    </span>
+                    <span className={style.actionIcon} onClick={() => handleReact("heart")}>
+                        ❤️ <small>{reactionsCount.heart}</small>
+                    </span>
+                    <span className={style.actionIcon} onClick={() => handleReact("wow")}>
+                        😮 <small>{reactionsCount.wow}</small>
+                    </span>
+                </div>
+
+                <div className={style.actionGroup}>
+                    <span className={style.actionIcon} onClick={handleRemoveReaction}>↩</span>
+                    {isOfficial && (
+                        <span className={style.actionIcon} onClick={handleDelete}>🗑️</span>
+                    )}
+                </div>
             </div>
 
-            <div className={style.reactionsSummary}>
-                <span> 👍 {reactionsCount.like} </span>
-                <span> ❤️ {reactionsCount.heart} </span>
-                <span> 😮 {reactionsCount.wow} </span>
-            </div>
 
             <div className={style.commentBox}>
 
@@ -194,6 +200,7 @@ export const PostCard = ({ post }) => {
 const NestedComment = ({ postId, comment, onChanged }) => {
     const [replyOpen, setReplyOpen] = useState(false);
     const [replyContent, setReplyContent] = useState("");
+    const [showReplies, setShowReplies] = useState(true);
 
     const submitReply = async () => {
         if (!replyContent.trim()) return;
@@ -211,22 +218,47 @@ const NestedComment = ({ postId, comment, onChanged }) => {
                 <strong>{comment.user_name || comment.user_type}</strong>
                 <small>{new Date(comment.created_at).toLocaleString()}</small>
             </div>
+
             <div>{comment.content}</div>
-            <div style={{ marginTop: '0.25rem' }}>
+
+            <div style={{ marginTop: "0.25rem" }}>
                 <button onClick={() => setReplyOpen((v) => !v)}>Reply</button>
             </div>
+
             {replyOpen && (
-                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem' }}>
-                    <input value={replyContent} onChange={(e) => setReplyContent(e.target.value)} placeholder="Write a reply..." />
-                    <button onClick={submitReply} disabled={!replyContent.trim()}>Send</button>
+                <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.25rem" }}>
+                    <input
+                        value={replyContent}
+                        onChange={(e) => setReplyContent(e.target.value)}
+                        placeholder="Write a reply..."
+                    />
+                    <button onClick={submitReply} disabled={!replyContent.trim()}>
+                        Send
+                    </button>
                 </div>
             )}
+
+            {/* Only show toggle button if there are replies */}
             {Array.isArray(comment.replies) && comment.replies.length > 0 && (
-                <div style={{ marginLeft: '1rem' }}>
-                    {comment.replies.map((child) => (
-                        <NestedComment key={child.comment_id} postId={postId} comment={child} onChanged={onChanged} />
-                    ))}
-                </div>
+                <>
+                    <button className={style.toggleReplies} onClick={() => setShowReplies((v) => !v)}>
+                        {showReplies
+                            ? `Hide ${comment.replies.length} repl${comment.replies.length > 1 ? "ies" : "y"}`
+                            : `View ${comment.replies.length} repl${comment.replies.length > 1 ? "ies" : "y"}`}
+                    </button>
+                    {showReplies && (
+                        <div className={style.replies}>
+                            {comment.replies.map((child) => (
+                                <NestedComment
+                                    key={child.comment_id}
+                                    postId={postId}
+                                    comment={child}
+                                    onChanged={onChanged}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );

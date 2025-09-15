@@ -90,27 +90,41 @@ export const Navbar = () => {
           {unreadCount > 0 && <span className={style.badge}>{unreadCount}</span>}
 
           {isNotifOpen && (
-            <div className={style.dropdown}>
+            <div className={style.notifDropdown}>
               <div className={style.dropdownHeader}>
-                <p>{notifications.length === 0 ? 'No notifications' : 'Notifications'}</p>
+                <h4>Notifications</h4>
                 {notifications.length > 0 && (
                   <div className={style.dropdownActions}>
-                    <button className={style.dropdownButton} onClick={markAllRead}>Mark all read</button>
-                    <button className={style.dropdownButton} onClick={clearRead}>Clear read</button>
-                    <button className={style.dropdownButton} onClick={clear}>Clear all</button>
+                    <button onClick={markAllRead}>Mark all as read</button>
+                    <button onClick={clearRead}>Clear read</button>
+                    <button onClick={clear}>Clear all</button>
                   </div>
                 )}
               </div>
-              <ul>
-                {notifications.slice(0, 10).map(n => (
-                  <li key={n.id}>
-                    <strong>{n.title}</strong>
-                    <div>{n.message}</div>
-                  </li>
-                ))}
-              </ul>
+
+              <div className={style.notifList}>
+                {notifications.length === 0 ? (
+                  <p className={style.emptyNotif}>No notifications</p>
+                ) : (
+                  notifications.slice(0, 10).map((n) => (
+                    <div
+                      key={n.id}
+                      className={`${style.notifItem} ${n.read ? "" : style.unread}`}
+                    >
+                      <div className={style.notifContent}>
+                        <strong>{n.title}</strong>
+                        <p>{n.message}</p>
+                        <span className={style.timestamp}>
+                          {new Date(n.createdAt).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           )}
+
         </div>
 
         <div
