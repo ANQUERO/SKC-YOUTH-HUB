@@ -29,6 +29,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import MenuIcon from "@mui/icons-material/Menu";
 import { visuallyHidden } from "@mui/utils";
 import { saveAs } from "file-saver";
+import AddYouthModal from "./components/AddYouthModal";
 
 const descendingComparator = (a, b, orderBy) => {
     if (b[orderBy] < a[orderBy]) return -1;
@@ -66,6 +67,7 @@ function YouthPage() {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [dense, setDense] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [addModalOpen, setAddModalOpen] = useState(false);
 
     useEffect(() => {
         fetchYouths();
@@ -218,7 +220,7 @@ function YouthPage() {
                             />
                         </Box>
                         <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 1, width: { xs: "100%", sm: "auto" } }}>
-                            <Button variant="contained" startIcon={<AddIcon />} onClick={() => alert("Add Youth")}>Add</Button>
+                            <Button variant="contained" startIcon={<AddIcon />} onClick={() => setAddModalOpen(true)}>Add</Button>
                             <Button variant="outlined" startIcon={<DownloadIcon />} onClick={exportToCSV}>Export</Button>
                             <Button variant="outlined" color="error" startIcon={<DeleteIcon />} disabled={selected.length === 0} onClick={() => alert("Delete selected")}>Delete</Button>
                         </Box>
@@ -294,7 +296,14 @@ function YouthPage() {
                 <FormControlLabel control={<Switch checked={dense} onChange={(e) => setDense(e.target.checked)} />} label="Dense padding" />
             </Box>
 
-            {null}
+            <AddYouthModal
+                open={addModalOpen}
+                onClose={() => setAddModalOpen(false)}
+                onSuccess={() => {
+                    fetchYouths();
+                    setAddModalOpen(false);
+                }}
+            />
         </Box>
     );
 }

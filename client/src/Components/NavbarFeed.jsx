@@ -4,20 +4,28 @@ import Logo from '@images/logo.jpg';
 import { useAuthContext } from '@context/AuthContext';
 import { useNotifications } from '@context/NotificationContext';
 import { useLogout } from '@hooks/useLogout';
+import useCurrentUser from '@hooks/useCurrentUser';
 import { Link } from 'react-router-dom';
 import {
   Bell,
   House,
   Megaphone,
   CalendarRange,
-  MessageCircle
+  MessageCircle,
+  Search,
+  User,
+  Settings,
+  LogOut,
+  Shield
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 export const Navbar = () => {
   const [isNotifOpen, setNotifOpen] = useState(false);
   const [isProfileOpen, setProfileOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
+  const { userData, profilePicture, loading: userLoading } = useCurrentUser();
   const logout = useLogout();
   const canManage = isSkSuperAdmin || isSkNaturalAdmin;
   const { notifications, unreadCount, markAllRead, clear, clearRead } = useNotifications();
@@ -26,14 +34,20 @@ export const Navbar = () => {
     <nav className={style.nav}>
       {/* Logo and Search */}
       <div className={style.logoWrapper}>
-        <NavLink to="/">
-          <img src={Logo} alt="App Logo" />
+        <NavLink to="/feed" className={style.logoLink}>
+          <img src={Logo} alt="SKC Youth Hub" className={style.logo} />
+          <span className={style.logoText}>SKC Youth Hub</span>
         </NavLink>
-        <input
-          type="search"
-          className={style.searchInput}
-          placeholder="Search..."
-        />
+        <div className={style.searchWrapper}>
+          <Search className={style.searchIcon} />
+          <input
+            type="search"
+            className={style.searchInput}
+            placeholder="Search posts, announcements..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
       </div>
 
       {/* Navigation Links - Desktop */}
@@ -45,7 +59,8 @@ export const Navbar = () => {
               isActive ? `${style.navLink} ${style.active}` : style.navLink
             }
           >
-            <House />
+            <House className={style.navIcon} />
+            <span className={style.navLabel}>Home</span>
           </NavLink>
         </li>
         <li>
@@ -55,7 +70,8 @@ export const Navbar = () => {
               isActive ? `${style.navLink} ${style.active}` : style.navLink
             }
           >
-            <Megaphone />
+            <Megaphone className={style.navIcon} />
+            <span className={style.navLabel}>Announcements</span>
           </NavLink>
         </li>
         <li>
@@ -65,7 +81,8 @@ export const Navbar = () => {
               isActive ? `${style.navLink} ${style.active}` : style.navLink
             }
           >
-            <CalendarRange />
+            <CalendarRange className={style.navIcon} />
+            <span className={style.navLabel}>Activities</span>
           </NavLink>
         </li>
         <li>
@@ -75,7 +92,8 @@ export const Navbar = () => {
               isActive ? `${style.navLink} ${style.active}` : style.navLink
             }
           >
-            <MessageCircle />
+            <MessageCircle className={style.navIcon} />
+            <span className={style.navLabel}>Feedback</span>
           </NavLink>
         </li>
       </ul>
@@ -131,45 +149,86 @@ export const Navbar = () => {
           className={style.profileWrapper}
           onClick={() => setProfileOpen(!isProfileOpen)}
         >
-          <img
-            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
-              authUser?.name || 'User'
-            )}`}
-            alt="Profile"
-            className={style.avatar}
-          />
+          <div className={style.avatarContainer}>
+            <img
+              src={profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                userData?.name || 'User'
+              )}&background=random&color=fff`}
+              alt="Profile"
+              className={style.avatar}
+            />
+            {userLoading && <div className={style.avatarLoading}></div>}
+          </div>
+          <div className={style.userInfo}>
+            <span className={style.userName}>{userData?.name || 'User'}</span>
+            <span className={style.userRole}>
+              {canManage ? (userData?.position || 'Official') : 'Youth Member'}
+            </span>
+          </div>
           {isProfileOpen && (
             <div className={style.dropdown}>
               <div className={style.profileHeader}>
-                <strong>{authUser?.name || 'User'}</strong>
-                <small>{authUser?.email || ''}</small>
+                <div className={style.profileAvatar}>
+                  <img
+                    src={profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                      userData?.name || 'User'
+                    )}&background=random&color=fff`}
+                    alt="Profile"
+                  />
+                </div>
+                <div className={style.profileDetails}>
+                  <strong>{userData?.name || 'User'}</strong>
+                  <small>{userData?.email || ''}</small>
+                  <span className={style.userBadge}>
+                    {canManage ? (userData?.position || 'Official') : 'Youth Member'}
+                  </span>
+                </div>
               </div>
-              <ul>
+              <ul className={style.dropdownMenu}>
                 {canManage && (
                   <li>
-                    <Link to="/dashboard">Dashboard</Link>
+                    <Link to="/dashboard" className={style.dropdownItem}>
+                      <Shield className={style.dropdownIcon} />
+                      Dashboard
+                    </Link>
                   </li>
                 )}
                 {canManage && (
                   <li>
-                    <Link to="/feed">Create Post</Link>
+                    <Link to="/feed" className={style.dropdownItem}>
+                      <Megaphone className={style.dropdownIcon} />
+                      Create Post
+                    </Link>
                   </li>
                 )}
                 {canManage && (
                   <li>
-                    <Link to="/official-profile">My Profile</Link>
+                    <Link to="/official-profile" className={style.dropdownItem}>
+                      <User className={style.dropdownIcon} />
+                      My Profile
+                    </Link>
                   </li>
                 )}
                 {!canManage && (
                   <li>
-                    <Link to="/profile">My Profile</Link>
+                    <Link to="/profile" className={style.dropdownItem}>
+                      <User className={style.dropdownIcon} />
+                      My Profile
+                    </Link>
                   </li>
                 )}
                 <li>
-                  <Link to="/account">Settings</Link>
+                  <Link to="/account" className={style.dropdownItem}>
+                    <Settings className={style.dropdownIcon} />
+                    Settings
+                  </Link>
                 </li>
+                <li className={style.divider}></li>
                 <li>
-                  <button onClick={logout} className={style.dropdownButton}>Logout</button>
+                  <button onClick={logout} className={style.logoutButton}>
+                    <LogOut className={style.dropdownIcon} />
+                    Logout
+                  </button>
                 </li>
               </ul>
             </div>
@@ -186,7 +245,8 @@ export const Navbar = () => {
               isActive ? `${style.mobileNavLink} ${style.active}` : style.mobileNavLink
             }
           >
-            <House />
+            <House className={style.mobileNavIcon} />
+            <span className={style.mobileNavLabel}>Home</span>
           </NavLink>
         </li>
         <li>
@@ -196,7 +256,8 @@ export const Navbar = () => {
               isActive ? `${style.mobileNavLink} ${style.active}` : style.mobileNavLink
             }
           >
-            <Megaphone />
+            <Megaphone className={style.mobileNavIcon} />
+            <span className={style.mobileNavLabel}>News</span>
           </NavLink>
         </li>
         <li>
@@ -206,7 +267,8 @@ export const Navbar = () => {
               isActive ? `${style.mobileNavLink} ${style.active}` : style.mobileNavLink
             }
           >
-            <CalendarRange />
+            <CalendarRange className={style.mobileNavIcon} />
+            <span className={style.mobileNavLabel}>Events</span>
           </NavLink>
         </li>
         <li>
@@ -216,7 +278,8 @@ export const Navbar = () => {
               isActive ? `${style.mobileNavLink} ${style.active}` : style.mobileNavLink
             }
           >
-            <MessageCircle />
+            <MessageCircle className={style.mobileNavIcon} />
+            <span className={style.mobileNavLabel}>Chat</span>
           </NavLink>
         </li>
       </ul>

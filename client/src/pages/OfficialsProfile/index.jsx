@@ -1,87 +1,113 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import axiosInstance from "@lib/axios";
 import { ProfileNavbar } from "Components/Navbar";
-import { useState } from "react";
+import ProfilePictureUpload from "@components/ProfilePictureUpload";
+import ProfileEditModal from "@components/ProfileEditModal";
+import { Button } from "@mui/material";
+import { Edit } from "@mui/icons-material";
+import useCurrentUser from "@hooks/useCurrentUser";
 
 const OfficialsProfile = () => {
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [account, setAccount] = useState(null);
-    const [name, setName] = useState(null);
-    const [info, setInfo] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [account, setAccount] = useState(null);
+  const [name, setName] = useState(null);
+  const [info, setInfo] = useState(null);
+  const { userData, profilePicture, updateProfilePicture } = useCurrentUser();
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
-    const fetchProfile = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const res = await axiosInstance.get("/profile");
-            const { account, name, info } = res.data.data || {};
-            setAccount(account || null);
-            setName(name || null);
-            setInfo(info || null);
-        } catch (e) {
-            setError(e);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => { fetchProfile(); }, []);
-
-    if (loading) {
-        return (
-            <Centered>
-                <Spinner />
-                <p>Loading profile...</p>
-            </Centered>
-        );
+  const fetchProfile = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axiosInstance.get("/profile");
+      const { account, name, info } = res.data.data || {};
+      setAccount(account || null);
+      setName(name || null);
+      setInfo(info || null);
+    } catch (e) {
+      setError(e);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    if (error) {
-        return (
-            <Centered>
-                <ErrorBox>⚠️ Failed to load profile. Please try again later.</ErrorBox>
-            </Centered>
-        );
+  useEffect(() => { fetchProfile(); }, []);
+
+  useEffect(() => {
+    if (account?.profile_picture) {
+      updateProfilePicture(account.profile_picture);
     }
+  }, [account, updateProfilePicture]);
 
+  if (loading) {
     return (
-        <Wrapper>
-            <ProfileNavbar />
-            <Content>
-                <Sidebar>
-                    <Avatar>
-                        <img
-                            src={`https://ui-avatars.com/api/?name=${name?.first_name || "Official"}`}
-                            alt="User Avatar"
-                        />
-                    </Avatar>
-                    <Name>
-                        {name?.first_name || ""} {name?.middle_name || ""} {name?.last_name || ""}
-                    </Name>
-                    <Email>{account?.email || "No email available"}</Email>
-                    <p>{account?.official_position || ""}</p>
-                </Sidebar>
-
-                <Main>
-                    <Section>
-                        <h2>Personal Info</h2>
-                        <p>Gender: {info?.gender || "N/A"}</p>
-                        <p>Age: {info?.age || "N/A"}</p>
-                        <p>Contact: {info?.contact_number || "N/A"}</p>
-                    </Section>
-
-                    <Section>
-                        <h2>Account</h2>
-                        <p>Role: {account?.role || "N/A"}</p>
-                        <p>Status: {account?.is_active ? "Active" : "Inactive"}</p>
-                        <p>Created: {account?.created_at ? new Date(account.created_at).toLocaleString() : "N/A"}</p>
-                    </Section>
-                </Main>
-            </Content>
-        </Wrapper>
+      <Centered>
+        <Spinner />
+        <p>Loading profile...</p>
+      </Centered>
     );
+  }
+
+  if (error) {
+    return (
+      <Centered>
+        <ErrorBox>⚠️ Failed to load profile. Please try again later.</ErrorBox>
+      </Centered>
+    );
+  }
+
+  return (
+    <Wrapper>
+      <ProfileNavbar />
+      <Content>
+        <Sidebar>
+          <ProfilePictureUpload
+            currentPicture={profilePicture}
+            userName={userData?.name || "Official"}
+            onPictureUpdate={updateProfilePicture}
+            size={120}
+          />
+          <Name>
+            {userData?.name || "Official"}
+          </Name>
+          <Email>{userData?.email || "No email available"}</Email>
+          <p>{userData?.position || ""}</p>
+          <EditButton
+            variant="outlined"
+            startIcon={<Edit />}
+            onClick={() => setEditModalOpen(true)}
+            sx={{ mt: 2 }}
+          >
+            Edit Profile
+          </EditButton>
+        </Sidebar>
+
+        <Main>
+          <Section>
+            <h2>Personal Info</h2>
+            <p>Gender: {info?.gender || "N/A"}</p>
+            <p>Age: {info?.age || "N/A"}</p>
+            <p>Contact: {info?.contact_number || "N/A"}</p>
+          </Section>
+
+          <Section>
+            <h2>Account</h2>
+            <p>Role: {account?.role || "N/A"}</p>
+            <p>Status: {account?.is_active ? "Active" : "Inactive"}</p>
+            <p>Created: {account?.created_at ? new Date(account.created_at).toLocaleString() : "N/A"}</p>
+          </Section>
+        </Main>
+      </Content>
+
+      <ProfileEditModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        userType="official"
+      />
+    </Wrapper>
+  );
 };
 
 export default OfficialsProfile;
@@ -138,6 +164,16 @@ const Name = styled.h1`
 const Email = styled.p`
   color: #666;
   font-size: 0.9rem;
+`;
+
+const EditButton = styled(Button)`
+  && {
+    width: 100%;
+    margin-top: 1rem;
+    border-radius: 8px;
+    text-transform: none;
+    font-weight: 500;
+  }
 `;
 
 const Main = styled.main`

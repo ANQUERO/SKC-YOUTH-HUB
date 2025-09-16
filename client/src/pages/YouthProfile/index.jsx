@@ -1,7 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import useProfile from "@hooks/useProfile";
+import useCurrentUser from "@hooks/useCurrentUser";
 import { ProfileNavbar } from "Components/Navbar";
+import ProfilePictureUpload from "@components/ProfilePictureUpload";
+import ProfileEditModal from "@components/ProfileEditModal";
+import { Button } from "@mui/material";
+import { Edit } from "@mui/icons-material";
 
 const YouthProfile = () => {
   const {
@@ -14,9 +19,18 @@ const YouthProfile = () => {
     error,
   } = useProfile();
 
+  const { userData, profilePicture, updateProfilePicture } = useCurrentUser();
+  const [editModalOpen, setEditModalOpen] = useState(false);
+
   useEffect(() => {
     fetchProfile();
   }, []);
+
+  useEffect(() => {
+    if (accountName?.profile_picture) {
+      updateProfilePicture(accountName.profile_picture);
+    }
+  }, [accountName, updateProfilePicture]);
 
   if (loadingProfile) {
     return (
@@ -40,17 +54,24 @@ const YouthProfile = () => {
       <ProfileNavbar />
       <Content>
         <Sidebar>
-          <Avatar>
-            <img
-              src={`https://ui-avatars.com/api/?name=${accountName?.first_name || "Youth"}`}
-              alt="User Avatar"
-            />
-          </Avatar>
+          <ProfilePictureUpload
+            currentPicture={profilePicture}
+            userName={userData?.name || "Youth"}
+            onPictureUpdate={updateProfilePicture}
+            size={120}
+          />
           <Name>
-            {accountName?.first_name || ""} {accountName?.middle_name || ""}{" "}
-            {accountName?.last_name || ""}
+            {userData?.name || "Youth Member"}
           </Name>
-          <Email>{accountName?.email || "No email available"}</Email>
+          <Email>{userData?.email || "No email available"}</Email>
+          <EditButton
+            variant="outlined"
+            startIcon={<Edit />}
+            onClick={() => setEditModalOpen(true)}
+            sx={{ mt: 2 }}
+          >
+            Edit Profile
+          </EditButton>
         </Sidebar>
 
         <Main>
@@ -86,6 +107,12 @@ const YouthProfile = () => {
           </Section>
         </Main>
       </Content>
+
+      <ProfileEditModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        userType="youth"
+      />
     </Wrapper>
   );
 };
@@ -144,6 +171,16 @@ const Name = styled.h1`
 const Email = styled.p`
   color: #666;
   font-size: 0.9rem;
+`;
+
+const EditButton = styled(Button)`
+  && {
+    width: 100%;
+    margin-top: 1rem;
+    border-radius: 8px;
+    text-transform: none;
+    font-weight: 500;
+  }
 `;
 
 const Main = styled.main`

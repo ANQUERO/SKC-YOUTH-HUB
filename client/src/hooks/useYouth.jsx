@@ -52,7 +52,7 @@ const useYouth = () => {
         }
     };
 
-    const storeYouth = async () => {
+    const storeYouth = async (formData) => {
         if (!isAuthorized) {
             setError("Unauthorized access");
             return;
@@ -63,9 +63,9 @@ const useYouth = () => {
         setSucces(null);
 
         try {
-            const res = await axiosInstance.post('/youth/', youthData);
+            const res = await axiosInstance.post('/youth/', formData);
             if (res.data?.youth_id) {
-                setSucces("Youth added succesfully");
+                setSucces("Youth added successfully");
                 return res.data;
             } else {
                 setError("Failed to create youth");

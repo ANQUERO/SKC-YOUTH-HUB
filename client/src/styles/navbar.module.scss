@@ -2,7 +2,7 @@
     position: sticky;
     top: 0;
     z-index: 50;
-    background-color: #31578b;
+    background-color: #1976d2;
 }
 
 .nav {
@@ -14,7 +14,7 @@
     height: 10vh;
 
     &.scrolled {
-        background-color: #26416b;
+        background-color: #1565c0;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         padding-top: 0.5rem;
         padding-bottom: 0.5rem;
@@ -43,7 +43,7 @@
     top: 100%;
     left: 0;
     right: 0;
-    background-color: hsla(215, 67%, 42%, 0.39);
+    background-color: rgba(25, 118, 210, 0.95);
     border-radius: 0 0 8px 8px;
     padding: 1.2rem;
     opacity: 0;
@@ -101,23 +101,23 @@
     transition: color 0.3s ease;
 
     &:hover {
-        color: #B8336A;
+        color: #42a5f5;
     }
 }
 
 .sign_up {
-  background-color: #B8336A;
-  color: white;
-  padding: 0.5rem 2rem;
-  border: none;
-  border-radius: 1.5rem;
-  text-align: center;
-  text-decoration: none;
-  transition: background-color 0.3s ease;
+    background-color: #1976d2;
+    color: white;
+    padding: 0.5rem 2rem;
+    border: none;
+    border-radius: 1.5rem;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
 
-  &:hover {
-    background-color: #ffff;
-    color: #B8336A;
-  }
+    &:hover {
+        background-color: #ffff;
+        color: #1976d2;
+    }
 
 }
