@@ -3,9 +3,11 @@ import style from "@styles/newsFeed.module.scss";
 import axiosInstance from "@lib/axios";
 import { useNotifications } from "@context/NotificationContext";
 import { useAuthContext } from "@context/AuthContext";
+import CommentSystem from "@components/CommentSystem";
+import PostOptions from "@components/PostOptions";
 
 
-export const PostCard = ({ post }) => {
+export const PostCard = ({ post, onPostDeleted }) => {
     const {
         pushNotification,
         hasSeen,
@@ -13,22 +15,14 @@ export const PostCard = ({ post }) => {
     } = useNotifications();
     const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
     const isOfficial = isSkSuperAdmin || isSkNaturalAdmin;
-    const [comment, setComment] = useState("");
-    const [submitting, setSubmitting] = useState(false);
-    const [comments, setComments] = useState([]);
     const [reactionsCount, setReactionsCount] = useState({
         like: 0,
         heart: 0,
         wow: 0
     });
+    const [postHidden, setPostHidden] = useState(false);
 
     useEffect(() => {
-
-        // Load comments
-        axiosInstance.get(`/post/${post.post_id}/comments`).then(({ data }) => {
-            setComments(data.data || []);
-        }).catch(() => { });
-
         // Load reactions summary
         axiosInstance.get(`/post/${post.post_id}/reactions`).then(({ data }) => {
             const counts = { like: 0, heart: 0, wow: 0 };
@@ -36,22 +30,11 @@ export const PostCard = ({ post }) => {
             setReactionsCount(counts);
         }).catch(() => { });
 
-        // Periodic polling for officials to generate notifications for unseen youth comments/reactions
+        // Periodic polling for officials to generate notifications for unseen reactions
         if (isOfficial) {
             const interval = setInterval(async () => {
                 try {
-                    const [cRes, rRes] = await Promise.all([
-                        axiosInstance.get(`/post/${post.post_id}/comments`),
-                        axiosInstance.get(`/post/${post.post_id}/reactions`)
-                    ]);
-                    const newComments = cRes.data?.data || [];
-                    const flat = (list) => list.flatMap(c => [c, ...(Array.isArray(c.replies) ? flat(c.replies) : [])]);
-                    flat(newComments).forEach(c => {
-                        if (!hasSeen('comments', c.comment_id)) {
-                            pushNotification({ type: 'comment', title: 'New comment', message: c.content?.slice(0, 80) || '' });
-                            markItemSeen('comments', c.comment_id);
-                        }
-                    });
+                    const rRes = await axiosInstance.get(`/post/${post.post_id}/reactions`);
                     const reacts = rRes.data?.data || [];
                     reacts.forEach(r => {
                         if (!hasSeen('reactions', r.reaction_id)) {
@@ -93,32 +76,23 @@ export const PostCard = ({ post }) => {
         }
     };
 
-    const handleComment = async () => {
-        if (!comment.trim()) return;
-        setSubmitting(true);
-        try {
-            await axiosInstance.post(`/post/${post.post_id}/comments`, { content: comment.trim() });
-            setComment("");
-            pushNotification({ type: 'comment', title: 'Comment posted', message: 'Your comment was posted.' });
-            // Reload comments
-            axiosInstance.get(`/post/${post.post_id}/comments`).then(({ data }) => {
-                setComments(data.data || []);
-            }).catch(() => { });
-        } catch (e) {
-            console.error(e);
-        } finally {
-            setSubmitting(false);
-        }
+    const handlePostDeleted = () => {
+        onPostDeleted && onPostDeleted();
     };
 
-    const handleDelete = async () => {
-        try {
-            await axiosInstance.delete(`/post/${post.post_id}`);
-            pushNotification({ type: 'post', title: 'Post deleted', message: 'Post has been deleted.' });
-        } catch (e) {
-            console.error(e);
-        }
+    const handlePostHidden = () => {
+        setPostHidden(!postHidden);
     };
+
+    if (postHidden) {
+        return (
+            <div className={style.card}>
+                <div className={style.hiddenPost}>
+                    <p>This post has been hidden by a moderator.</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={style.card}>
@@ -130,9 +104,16 @@ export const PostCard = ({ post }) => {
                         <p>{post.role || post.official?.position}</p>
                     </div>
                 </div>
-                <span className={style.time}>
-                    {new Date(post.created_at || post.time).toLocaleString()}
-                </span>
+                <div className={style.headerActions}>
+                    <span className={style.time}>
+                        {new Date(post.created_at || post.time).toLocaleString()}
+                    </span>
+                    <PostOptions
+                        post={post}
+                        onPostDeleted={handlePostDeleted}
+                        onPostHidden={handlePostHidden}
+                    />
+                </div>
             </div>
 
             <p className={style.content}>{post.description || post.content}</p>
@@ -159,107 +140,15 @@ export const PostCard = ({ post }) => {
 
                 <div className={style.actionGroup}>
                     <span className={style.actionIcon} onClick={handleRemoveReaction}>↩</span>
-                    {isOfficial && (
-                        <span className={style.actionIcon} onClick={handleDelete}>🗑️</span>
-                    )}
                 </div>
             </div>
 
-
-            <div className={style.commentBox}>
-
-                <div className={style.box}>
-                    <input
-                        value={comment}
-                        onChange={(e) => setComment(e.target.value)}
-                        placeholder="Write a comment..."
-                        disabled={submitting}
-                    />
-
-                    <button onClick={handleComment} disabled={submitting || !comment.trim()}>Comment</button>
-                </div>
-
-            </div>
-
-            {comments.length > 0 && (
-                <div className={style.commentsList}>
-                    {comments.map((c) => (
-                        <NestedComment key={c.comment_id} postId={post.post_id} comment={c} onChanged={() => {
-                            axiosInstance.get(`/post/${post.post_id}/comments`).then(({ data }) => {
-                                setComments(data.data || []);
-                            }).catch(() => { });
-                        }} />
-                    ))}
-                </div>
-            )}
+            <CommentSystem
+                postId={post.post_id}
+                postAuthor={post.author || post.official?.name}
+            />
 
         </div>
     );
 };
 
-const NestedComment = ({ postId, comment, onChanged }) => {
-    const [replyOpen, setReplyOpen] = useState(false);
-    const [replyContent, setReplyContent] = useState("");
-    const [showReplies, setShowReplies] = useState(true);
-
-    const submitReply = async () => {
-        if (!replyContent.trim()) return;
-        try {
-            await axiosInstance.post(`/post/${postId}/comments`, { content: replyContent.trim(), parent_comment_id: comment.comment_id });
-            setReplyContent("");
-            setReplyOpen(false);
-            onChanged && onChanged();
-        } catch (e) { console.error(e); }
-    };
-
-    return (
-        <div className={style.commentItem}>
-            <div className={style.commentHeader}>
-                <strong>{comment.user_name || comment.user_type}</strong>
-                <small>{new Date(comment.created_at).toLocaleString()}</small>
-            </div>
-
-            <div>{comment.content}</div>
-
-            <div style={{ marginTop: "0.25rem" }}>
-                <button onClick={() => setReplyOpen((v) => !v)}>Reply</button>
-            </div>
-
-            {replyOpen && (
-                <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.25rem" }}>
-                    <input
-                        value={replyContent}
-                        onChange={(e) => setReplyContent(e.target.value)}
-                        placeholder="Write a reply..."
-                    />
-                    <button onClick={submitReply} disabled={!replyContent.trim()}>
-                        Send
-                    </button>
-                </div>
-            )}
-
-            {/* Only show toggle button if there are replies */}
-            {Array.isArray(comment.replies) && comment.replies.length > 0 && (
-                <>
-                    <button className={style.toggleReplies} onClick={() => setShowReplies((v) => !v)}>
-                        {showReplies
-                            ? `Hide ${comment.replies.length} repl${comment.replies.length > 1 ? "ies" : "y"}`
-                            : `View ${comment.replies.length} repl${comment.replies.length > 1 ? "ies" : "y"}`}
-                    </button>
-                    {showReplies && (
-                        <div className={style.replies}>
-                            {comment.replies.map((child) => (
-                                <NestedComment
-                                    key={child.comment_id}
-                                    postId={postId}
-                                    comment={child}
-                                    onChanged={onChanged}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </>
-            )}
-        </div>
-    );
-};

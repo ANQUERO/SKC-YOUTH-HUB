@@ -158,6 +158,9 @@ CREATE TABLE posts (
     description TEXT NOT NULL,
     media_type VARCHAR(10) CHECK (media_type IN ('image', 'video')),
     media_url TEXT,
+    is_hidden BOOLEAN DEFAULT FALSE,
+    hidden_by INTEGER REFERENCES sk_official(official_id),
+    hidden_reason VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -171,6 +174,9 @@ CREATE TABLE post_comments (
     user_type VARCHAR(10) NOT NULL CHECK (user_type IN ('official', 'youth')),
     user_id INTEGER NOT NULL,
     content TEXT NOT NULL,
+    is_hidden BOOLEAN DEFAULT FALSE,
+    hidden_by INTEGER,
+    hidden_reason VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -21,6 +21,31 @@ export const createComment = async (req, res) => {
     }
 
     try {
+        // Check if user is banned from commenting
+        if (user.userType === 'youth') {
+            const youthCheck = await pool.query(
+                `SELECT comment_status FROM sk_youth WHERE youth_id = $1`,
+                [user.youth_id]
+            );
+            if (youthCheck.rows.length === 0 || !youthCheck.rows[0].comment_status) {
+                return res.status(403).json({
+                    status: "Error",
+                    message: "You are banned from commenting"
+                });
+            }
+        } else if (user.userType === 'official') {
+            const officialCheck = await pool.query(
+                `SELECT is_active FROM sk_official WHERE official_id = $1`,
+                [user.official_id]
+            );
+            if (officialCheck.rows.length === 0 || !officialCheck.rows[0].is_active) {
+                return res.status(403).json({
+                    status: "Error",
+                    message: "Your account is deactivated"
+                });
+            }
+        }
+
         const authorId = user.userType === 'official' ? user.official_id : user.youth_id;
         const { rows } = await pool.query(
             `
@@ -93,7 +118,7 @@ export const updateComment = async (req, res) => {
     }
 };
 
-// Delete (soft delete) comment
+// Delete comment (permanent deletion)
 export const deleteComment = async (req, res) => {
     const user = req.user;
     const { comment_id } = req.params;
@@ -101,7 +126,7 @@ export const deleteComment = async (req, res) => {
     try {
         let rows;
         if (user.userType === 'official') {
-            // Officials can hide any comment
+            // Officials can delete any comment
             const result = await pool.query(
                 `
                 DELETE FROM post_comments
@@ -146,9 +171,233 @@ export const deleteComment = async (req, res) => {
     }
 };
 
+// Hide comment (moderation action)
+export const hideComment = async (req, res) => {
+    const user = req.user;
+    const { comment_id } = req.params;
+    const { reason } = req.body;
+
+    if (!user || user.userType !== 'official') {
+        return res.status(403).json({
+            status: "Error",
+            message: "Forbidden - Only officials can hide comments"
+        });
+    }
+
+    try {
+        const { rows } = await pool.query(
+            `
+            UPDATE post_comments
+            SET is_hidden = TRUE, hidden_by = $1, hidden_reason = $2, updated_at = CURRENT_TIMESTAMP
+            WHERE comment_id = $3
+            RETURNING *
+            `,
+            [user.official_id, reason || 'Hidden by moderator', comment_id]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                status: "Error",
+                message: "Comment not found"
+            });
+        }
+
+        return res.status(200).json({
+            status: "Success",
+            message: "Comment hidden successfully",
+            data: rows[0]
+        });
+
+    } catch (error) {
+        console.error("Error hiding comment:", error);
+        return res.status(500).json({
+            status: "Error",
+            message: "Internal Server Error"
+        });
+    }
+};
+
+// Unhide comment
+export const unhideComment = async (req, res) => {
+    const user = req.user;
+    const { comment_id } = req.params;
+
+    if (!user || user.userType !== 'official') {
+        return res.status(403).json({
+            status: "Error",
+            message: "Forbidden - Only officials can unhide comments"
+        });
+    }
+
+    try {
+        const { rows } = await pool.query(
+            `
+            UPDATE post_comments
+            SET is_hidden = FALSE, hidden_by = NULL, hidden_reason = NULL, updated_at = CURRENT_TIMESTAMP
+            WHERE comment_id = $1
+            RETURNING *
+            `,
+            [comment_id]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                status: "Error",
+                message: "Comment not found"
+            });
+        }
+
+        return res.status(200).json({
+            status: "Success",
+            message: "Comment unhidden successfully",
+            data: rows[0]
+        });
+
+    } catch (error) {
+        console.error("Error unhiding comment:", error);
+        return res.status(500).json({
+            status: "Error",
+            message: "Internal Server Error"
+        });
+    }
+};
+
+// Ban user from commenting
+export const banUserFromCommenting = async (req, res) => {
+    const user = req.user;
+    const { user_id, user_type } = req.params;
+    const { reason } = req.body;
+
+    if (!user || user.userType !== 'official') {
+        return res.status(403).json({
+            status: "Error",
+            message: "Forbidden - Only officials can ban users"
+        });
+    }
+
+    // Check if current user has permission to ban
+    if (user.userType === 'official') {
+        const currentUserRole = await pool.query(
+            `SELECT role FROM sk_official WHERE official_id = $1`,
+            [user.official_id]
+        );
+
+        if (currentUserRole.rows.length === 0) {
+            return res.status(403).json({
+                status: "Error",
+                message: "User not found"
+            });
+        }
+
+        const currentRole = currentUserRole.rows[0].role;
+
+        // Super officials can ban anyone, natural officials can only ban youth
+        if (currentRole === 'natural_official' && user_type === 'official') {
+            return res.status(403).json({
+                status: "Error",
+                message: "Natural officials can only ban youth members"
+            });
+        }
+    }
+
+    try {
+        let result;
+        if (user_type === 'youth') {
+            result = await pool.query(
+                `UPDATE sk_youth SET comment_status = FALSE WHERE youth_id = $1 RETURNING *`,
+                [user_id]
+            );
+        } else if (user_type === 'official') {
+            result = await pool.query(
+                `UPDATE sk_official SET is_active = FALSE WHERE official_id = $1 RETURNING *`,
+                [user_id]
+            );
+        } else {
+            return res.status(400).json({
+                status: "Error",
+                message: "Invalid user type"
+            });
+        }
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                status: "Error",
+                message: "User not found"
+            });
+        }
+
+        return res.status(200).json({
+            status: "Success",
+            message: `${user_type} banned successfully`,
+            data: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error("Error banning user:", error);
+        return res.status(500).json({
+            status: "Error",
+            message: "Internal Server Error"
+        });
+    }
+};
+
+// Unban user from commenting
+export const unbanUserFromCommenting = async (req, res) => {
+    const user = req.user;
+    const { user_id, user_type } = req.params;
+
+    if (!user || user.userType !== 'official') {
+        return res.status(403).json({
+            status: "Error",
+            message: "Forbidden - Only officials can unban users"
+        });
+    }
+
+    try {
+        let result;
+        if (user_type === 'youth') {
+            result = await pool.query(
+                `UPDATE sk_youth SET comment_status = TRUE WHERE youth_id = $1 RETURNING *`,
+                [user_id]
+            );
+        } else if (user_type === 'official') {
+            result = await pool.query(
+                `UPDATE sk_official SET is_active = TRUE WHERE official_id = $1 RETURNING *`,
+                [user_id]
+            );
+        } else {
+            return res.status(400).json({
+                status: "Error",
+                message: "Invalid user type"
+            });
+        }
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                status: "Error",
+                message: "User not found"
+            });
+        }
+
+        return res.status(200).json({
+            status: "Success",
+            message: `${user_type} unbanned successfully`,
+            data: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error("Error unbanning user:", error);
+        return res.status(500).json({
+            status: "Error",
+            message: "Internal Server Error"
+        });
+    }
+};
+
 // Fetch all comments (nested structure)
 export const getComments = async (req, res) => {
     const { post_id } = req.params;
+    const user = req.user;
 
     try {
         const { rows } = await pool.query(
@@ -159,12 +408,19 @@ export const getComments = async (req, res) => {
                 c.content,
                 c.user_type,
                 c.user_id,
+                c.is_hidden,
+                c.hidden_by,
+                c.hidden_reason,
                 c.created_at,
                 c.updated_at,
                 CASE 
                     WHEN c.user_type = 'official' THEN (SELECT CONCAT(n.first_name, ' ', n.last_name) FROM sk_official_name n WHERE n.official_id = c.user_id)
                     WHEN c.user_type = 'youth' THEN (SELECT CONCAT(n.first_name, ' ', n.last_name) FROM sk_youth_name n WHERE n.youth_id = c.user_id)
-                END AS user_name
+                END AS user_name,
+                CASE 
+                    WHEN c.user_type = 'official' THEN (SELECT o.role FROM sk_official o WHERE o.official_id = c.user_id)
+                    ELSE NULL
+                END AS user_role
             FROM post_comments c
             WHERE c.post_id = $1
             ORDER BY c.created_at ASC
@@ -190,10 +446,25 @@ export const getComments = async (req, res) => {
             }
         });
 
+        // Filter out hidden comments for non-officials
+        const filterHiddenComments = (comments) => {
+            return comments.filter(comment => {
+                if (comment.is_hidden && (!user || user.userType !== 'official')) {
+                    return false;
+                }
+                if (comment.replies && comment.replies.length > 0) {
+                    comment.replies = filterHiddenComments(comment.replies);
+                }
+                return true;
+            });
+        };
+
+        const filteredComments = user && user.userType === 'official' ? rootComments : filterHiddenComments(rootComments);
+
         return res.status(200).json({
             status: "Success",
             count: rows.length,
-            data: rootComments
+            data: filteredComments
         });
 
     } catch (error) {

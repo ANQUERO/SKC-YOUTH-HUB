@@ -9,7 +9,15 @@ const inferMediaType = (url) => {
 };
 
 export const index = async (req, res) => {
+    const user = req.user;
+
     try {
+        // Build the query with conditional filtering for hidden posts
+        let whereClause = '';
+        if (!user || user.userType !== 'official') {
+            whereClause = 'WHERE p.is_hidden = FALSE';
+        }
+
         const result = await pool.query(
             `
             SELECT 
@@ -18,6 +26,9 @@ export const index = async (req, res) => {
                 p.description,
                 p.media_type,
                 p.media_url,
+                p.is_hidden,
+                p.hidden_by,
+                p.hidden_reason,
                 p.created_at,
                 p.updated_at,
                 o.official_id,
@@ -33,9 +44,11 @@ export const index = async (req, res) => {
             LEFT JOIN sk_official_name n ON o.official_id = n.official_id
             LEFT JOIN post_comments c ON p.post_id = c.post_id
             LEFT JOIN post_reactions r ON p.post_id = r.post_id
+            ${whereClause}
             GROUP BY 
                 p.post_id, o.official_id, o.official_position,
-                n.first_name, n.middle_name, n.last_name, n.suffix
+                n.first_name, n.middle_name, n.last_name, n.suffix,
+                p.is_hidden, p.hidden_by, p.hidden_reason
             ORDER BY p.created_at DESC
             `
         );
@@ -46,6 +59,9 @@ export const index = async (req, res) => {
             description: row.description,
             media_type: row.media_type,
             media_url: row.media_url,
+            is_hidden: row.is_hidden,
+            hidden_by: row.hidden_by,
+            hidden_reason: row.hidden_reason,
             created_at: row.created_at,
             updated_at: row.updated_at,
             official: {
@@ -220,6 +236,97 @@ export const deletePost = async (req, res) => {
         res.status(500).json({
             status: "Error",
             message: "Internal server error"
+        });
+    }
+};
+
+// Hide post (moderation action)
+export const hidePost = async (req, res) => {
+    const { post_id } = req.params;
+    const { reason } = req.body;
+    const user = req.user;
+
+    if (!user || user.userType !== 'official') {
+        return res.status(403).json({
+            status: "Error",
+            message: "Forbidden - Only officials can hide posts"
+        });
+    }
+
+    try {
+        const { rows } = await pool.query(
+            `
+            UPDATE posts
+            SET is_hidden = TRUE, hidden_by = $1, hidden_reason = $2, updated_at = CURRENT_TIMESTAMP
+            WHERE post_id = $3
+            RETURNING *
+            `,
+            [user.official_id, reason || 'Hidden by moderator', post_id]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                status: "Error",
+                message: "Post not found"
+            });
+        }
+
+        return res.status(200).json({
+            status: "Success",
+            message: "Post hidden successfully",
+            data: rows[0]
+        });
+
+    } catch (error) {
+        console.error("Error hiding post:", error);
+        return res.status(500).json({
+            status: "Error",
+            message: "Internal Server Error"
+        });
+    }
+};
+
+// Unhide post
+export const unhidePost = async (req, res) => {
+    const { post_id } = req.params;
+    const user = req.user;
+
+    if (!user || user.userType !== 'official') {
+        return res.status(403).json({
+            status: "Error",
+            message: "Forbidden - Only officials can unhide posts"
+        });
+    }
+
+    try {
+        const { rows } = await pool.query(
+            `
+            UPDATE posts
+            SET is_hidden = FALSE, hidden_by = NULL, hidden_reason = NULL, updated_at = CURRENT_TIMESTAMP
+            WHERE post_id = $1
+            RETURNING *
+            `,
+            [post_id]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                status: "Error",
+                message: "Post not found"
+            });
+        }
+
+        return res.status(200).json({
+            status: "Success",
+            message: "Post unhidden successfully",
+            data: rows[0]
+        });
+
+    } catch (error) {
+        console.error("Error unhiding post:", error);
+        return res.status(500).json({
+            status: "Error",
+            message: "Internal Server Error"
         });
     }
 };
