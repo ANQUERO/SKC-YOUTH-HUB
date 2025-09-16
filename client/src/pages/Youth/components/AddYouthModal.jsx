@@ -28,7 +28,7 @@ import {
     Step,
     StepLabel
 } from '@mui/material';
-import { PersonAdd, PersonalInfo, LocationOn, School, HowToVote, Event } from '@mui/icons-material';
+import { PersonAdd, Badge, LocationOn, School, HowToVote, Event } from '@mui/icons-material';
 import useYouth from '@hooks/useYouth';
 import usePurok from '@hooks/usePurok';
 
@@ -39,7 +39,7 @@ const AddYouthModal = ({ open, onClose, onSuccess }) => {
     const [activeStep, setActiveStep] = useState(0);
 
     const steps = [
-        { label: 'Basic Info', icon: <PersonalInfo /> },
+        { label: 'Basic Info', icon: <Badge /> },
         { label: 'Location', icon: <LocationOn /> },
         { label: 'Demographics', icon: <School /> },
         { label: 'Survey', icon: <HowToVote /> },
@@ -193,7 +193,7 @@ const AddYouthModal = ({ open, onClose, onSuccess }) => {
                     <Card elevation={0} sx={{ bgcolor: '#f8f9fa', p: 2 }}>
                         <CardContent>
                             <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, color: '#1976d2' }}>
-                                <PersonalInfo /> Basic Information
+                                <Badge /> Basic Information
                             </Typography>
                             <Grid container spacing={2} sx={{ mt: 1 }}>
                                 <Grid item xs={12} sm={6}>

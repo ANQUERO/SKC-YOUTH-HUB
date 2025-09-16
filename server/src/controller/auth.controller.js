@@ -306,3 +306,170 @@ export const logout = (req, res) => {
         message: "Logged out successfully"
     });
 }
+
+// Forgot password - send reset email
+export const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                status: "Error",
+                message: "Email is required"
+            });
+        }
+
+        // Check if user exists in either table
+        let user = null;
+        let userType = null;
+        let idField = null;
+
+        // Check official table first
+        let result = await pool.query(
+            "SELECT official_id, email FROM sk_official WHERE email = $1",
+            [email]
+        );
+
+        if (result.rows.length > 0) {
+            user = result.rows[0];
+            userType = "official";
+            idField = "official_id";
+        } else {
+            // Check youth table
+            result = await pool.query(
+                "SELECT youth_id, email FROM sk_youth WHERE email = $1 AND deleted_at IS NULL",
+                [email]
+            );
+
+            if (result.rows.length > 0) {
+                user = result.rows[0];
+                userType = "youth";
+                idField = "youth_id";
+            }
+        }
+
+        if (!user) {
+            return res.status(404).json({
+                status: "Error",
+                message: "No account found with this email address"
+            });
+        }
+
+        // Generate reset token (simple implementation - in production, use proper token generation)
+        const resetToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour from now
+
+        // Store reset token in database
+        await pool.query(
+            `UPDATE ${userType === 'official' ? 'sk_official' : 'sk_youth'} 
+             SET reset_token = $1, reset_token_expiry = $2, updated_at = CURRENT_TIMESTAMP 
+             WHERE ${idField} = $3`,
+            [resetToken, resetTokenExpiry, user[idField]]
+        );
+
+        // In a real application, you would send an email here
+        // For now, we'll return the token (remove this in production)
+        return res.status(200).json({
+            status: "Success",
+            message: "Password reset instructions have been sent to your email",
+            // Remove this in production - only for development
+            resetToken: process.env.NODE_ENV === 'development' ? resetToken : undefined
+        });
+
+    } catch (error) {
+        console.error("Forgot password error:", error);
+        return res.status(500).json({
+            status: "Error",
+            message: "Internal server error"
+        });
+    }
+};
+
+// Reset password with token
+export const resetPasswordWithToken = async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+
+        if (!token || !newPassword) {
+            return res.status(400).json({
+                status: "Error",
+                message: "Token and new password are required"
+            });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({
+                status: "Error",
+                message: "Password must be at least 6 characters long"
+            });
+        }
+
+        // Check if token exists and is valid in either table
+        let user = null;
+        let userType = null;
+        let idField = null;
+
+        // Check official table first
+        let result = await pool.query(
+            "SELECT official_id, reset_token_expiry FROM sk_official WHERE reset_token = $1",
+            [token]
+        );
+
+        if (result.rows.length > 0) {
+            user = result.rows[0];
+            userType = "official";
+            idField = "official_id";
+        } else {
+            // Check youth table
+            result = await pool.query(
+                "SELECT youth_id, reset_token_expiry FROM sk_youth WHERE reset_token = $1",
+                [token]
+            );
+
+            if (result.rows.length > 0) {
+                user = result.rows[0];
+                userType = "youth";
+                idField = "youth_id";
+            }
+        }
+
+        if (!user) {
+            return res.status(400).json({
+                status: "Error",
+                message: "Invalid or expired reset token"
+            });
+        }
+
+        // Check if token is expired
+        if (new Date() > new Date(user.reset_token_expiry)) {
+            return res.status(400).json({
+                status: "Error",
+                message: "Reset token has expired"
+            });
+        }
+
+        // Hash new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        // Update password and clear reset token
+        await pool.query(
+            `UPDATE ${userType === 'official' ? 'sk_official' : 'sk_youth'} 
+             SET password = $1, reset_token = NULL, reset_token_expiry = NULL, updated_at = CURRENT_TIMESTAMP 
+             WHERE ${idField} = $2`,
+            [hashedPassword, user[idField]]
+        );
+
+        return res.status(200).json({
+            status: "Success",
+            message: "Password has been reset successfully"
+        });
+
+    } catch (error) {
+        console.error("Reset password error:", error);
+        return res.status(500).json({
+            status: "Error",
+            message: "Internal server error"
+        });
+    }
+};

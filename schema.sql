@@ -8,6 +8,8 @@ CREATE TABLE sk_official (
     official_position VARCHAR(35),
     role VARCHAR(55) CHECK (role IN ('super_official', 'natural_official')),
     is_active BOOLEAN DEFAULT TRUE,
+    reset_token VARCHAR(255),
+    reset_token_expiry TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
@@ -48,12 +50,13 @@ CREATE TABLE sk_youth (
     verified BOOLEAN DEFAULT false,
     is_active BOOLEAN DEFAULT TRUE,
     comment_status BOOLEAN DEFAULT TRUE,
+    reset_token VARCHAR(255),
+    reset_token_expiry TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
 );
 
--- Youth Full Name
 CREATE TABLE sk_youth_name (
     name_id SERIAL PRIMARY KEY,
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
@@ -63,14 +66,12 @@ CREATE TABLE sk_youth_name (
     suffix VARCHAR(10)
 );
 
--- Youth Gender
 CREATE TABLE sk_youth_gender (
     gender_id SERIAL PRIMARY KEY,
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
     gender VARCHAR(10)
 );
 
--- Youth Info
 CREATE TABLE sk_youth_info (
     info_id SERIAL PRIMARY KEY,
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
@@ -79,13 +80,11 @@ CREATE TABLE sk_youth_info (
     birthday DATE
 );
 
--- Purok
 CREATE TABLE purok (
     purok_id SERIAL PRIMARY KEY,
     name VARCHAR(55) UNIQUE 
 );
 
--- Youth Location
 CREATE TABLE sk_youth_location (
     location_id SERIAL PRIMARY KEY,
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
@@ -96,7 +95,6 @@ CREATE TABLE sk_youth_location (
     purok_id INTEGER REFERENCES purok(purok_id)
 );
 
--- Youth Demographics
 CREATE TABLE sk_youth_demographics (
     demographics_id SERIAL PRIMARY KEY,
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
@@ -107,7 +105,6 @@ CREATE TABLE sk_youth_demographics (
     work_status VARCHAR(55)
 );
 
--- Youth Survey
 CREATE TABLE sk_youth_survey (
     survey_id SERIAL PRIMARY KEY,
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
@@ -116,7 +113,6 @@ CREATE TABLE sk_youth_survey (
     vote_last_election VARCHAR(45)
 );
 
--- Youth Meeting Survey
 CREATE TABLE sk_youth_meeting_survey (
     meeting_id SERIAL PRIMARY KEY,
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
@@ -125,7 +121,6 @@ CREATE TABLE sk_youth_meeting_survey (
     reason_not_attend TEXT
 );
 
--- Youth Attachments
 CREATE TABLE sk_youth_attachments (
     attachment_id SERIAL PRIMARY KEY NOT NULL,
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
@@ -134,7 +129,6 @@ CREATE TABLE sk_youth_attachments (
     file_url TEXT NOT NULL
 );
 
--- Youth Household
 CREATE TABLE sk_youth_household (
     household_id SERIAL PRIMARY KEY NOT NULL,
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),

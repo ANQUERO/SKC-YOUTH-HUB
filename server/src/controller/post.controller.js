@@ -1,4 +1,5 @@
 import { pool } from "../db/config.js";
+
 const inferMediaType = (url) => {
     try {
         const u = String(url).toLowerCase();

@@ -4,7 +4,9 @@ import {
     signup,
     login,
     logout,
-    resetPassword
+    resetPassword,
+    forgotPassword,
+    resetPasswordWithToken
 } from '../controller/auth.controller.js'
 import ProtectRoute from '../middleware/protectRoute.middleware.js'
 import {
@@ -19,22 +21,36 @@ import {
 
 const router = express.Router();
 
+// Youth signup
 router.post("/signup",
     upload,
     uploadCloudinary,
     signupYouthValidator,
-    signup)
-    ;
+    signup
+);
+
+// Admin signup (moved to settings)
 router.post("/adminSignup",
     signupAdminValidator,
     signupAdmin
 );
+
+// Login
 router.post("/login",
     loginValidator,
     login
 );
+
+// Logout
 router.post("/logout", logout);
 
+// Password reset (authenticated)
 router.post('/reset-password', ProtectRoute(), (req, res, next) => next(), resetPassword);
+
+// Forgot password (public)
+router.post('/forgot-password', forgotPassword);
+
+// Reset password with token (public)
+router.post('/reset-password-token', resetPasswordWithToken);
 
 export default router;
