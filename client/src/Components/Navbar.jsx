@@ -4,12 +4,7 @@ import { Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLogout } from '@hooks/useLogout';
 import { useAuthContext } from '@context/AuthContext';
-
-const Logo = () => (
-    <div className={style.logo}>
-        <h1 className={style.logo_name}>SKC</h1>
-    </div>
-);
+import Logo from './Logo';
 
 const MenuButton = ({ isMenuOpen, setIsMenuOpen }) => (
     <button
@@ -88,10 +83,19 @@ export default function Navbar() {
         <header className={style.header}>
             <nav className={`${style.nav} ${isScrolled ? style.scrolled : ''}`}>
                 <Logo />
-                <MenuButton isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
+                <MenuButton
+                    isMenuOpen={isMenuOpen}
+                    setIsMenuOpen={setIsMenuOpen}
+                />
 
-                <div className={`${style.menu} ${isMenuOpen ? style.open : ''}`}>
-                    <NavLinks links={links} onLinkClick={handleLinkClick} />
+                <div className={`
+                    ${style.menu} 
+                    ${isMenuOpen ? style.open : ''}
+                    `}>
+                    <NavLinks
+                        links={links}
+                        onLinkClick={handleLinkClick}
+                    />
                 </div>
 
             </nav>
@@ -133,10 +137,6 @@ export function ProfileNavbar() {
         },
         {
             to: "/feed",
-            text: "Create Post",
-        },
-        {
-            to: "/feed",
             text: "News Feed",
         },
         {
@@ -153,14 +153,24 @@ export function ProfileNavbar() {
         <header className={style.header}>
             <nav className={style.nav}>
                 <Logo />
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem'
+                }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <img
                             src={`https://ui-avatars.com/api/?name=${encodeURIComponent(authUser?.name || 'User')}`}
                             alt="User Avatar"
-                            style={{ width: 32, height: 32, borderRadius: '50%' }}
+                            style={{
+                                width: 32,
+                                height: 32,
+                                borderRadius: '50%'
+                            }}
                         />
-                        <span style={{ fontWeight: 600 }}>{authUser?.name || 'User'}</span>
+                        <span style={{ fontWeight: 600 }}>
+                            {authUser?.name || 'User'}
+                        </span>
                     </div>
                     <ProfileNavLinks links={links} />
                 </div>

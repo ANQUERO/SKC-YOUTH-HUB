@@ -23,7 +23,6 @@ export const index = async (req, res) => {
             `
             SELECT 
                 p.post_id,
-                p.title,
                 p.description,
                 p.media_type,
                 p.media_url,
@@ -56,7 +55,6 @@ export const index = async (req, res) => {
 
         const posts = result.rows.map(row => ({
             post_id: row.post_id,
-            title: row.title,
             description: row.description,
             media_type: row.media_type,
             media_url: row.media_url,
@@ -91,7 +89,6 @@ export const index = async (req, res) => {
 export const createPost = async (req, res) => {
     const user = req.user;
     const body = req.body || {};
-    const title = body.title || '';
     const description = body.description || '';
     const media_type = body.media_type || '';
     const media_url = body.media_url || '';
@@ -125,11 +122,11 @@ export const createPost = async (req, res) => {
 
         const result = await pool.query(
             `
-            INSERT INTO posts (official_id, title, description, media_type, media_url)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING post_id, title, description, media_type, media_url, created_at, updated_at
+            INSERT INTO posts (official_id, description, media_type, media_url)
+            VALUES ($1, $2, $3, $4, )
+            RETURNING post_id, description, media_type, media_url, created_at, updated_at
             `,
-            [officialId, title, description, finalMediaType, finalMediaUrl]
+            [officialId, description, finalMediaType, finalMediaUrl]
         );
 
         res.status(201).json({
@@ -151,7 +148,7 @@ export const createPost = async (req, res) => {
 export const updatePost = async (req, res) => {
     const user = req.user;
     const { id: post_id } = req.params;
-    const { title, description, media_type, media_url } = req.body;
+    const { description, media_type, media_url } = req.body;
 
     if (!user || user.userType !== "official") {
         return res.status(403).json({
@@ -164,15 +161,15 @@ export const updatePost = async (req, res) => {
         const result = await pool.query(
             `
             UPDATE posts
-            SET title = $1,
-                description = $2,
-                media_type = $3,
-                media_url = $4,
+            SET
+                description = $1,
+                media_type = $2,
+                media_url = $3,
                 updated_at = CURRENT_TIMESTAMP
-            WHERE post_id = $5 AND official_id = $6
+            WHERE post_id = $4 AND official_id = $5
             RETURNING *
             `,
-            [title, description, media_type || null, media_url || null, post_id, user.official_id]
+            [description, media_type || null, media_url || null, post_id, user.official_id]
         );
 
         if (result.rows.length === 0) {
