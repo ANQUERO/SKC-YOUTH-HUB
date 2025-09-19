@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import style from '@styles/profile.module.scss'
 import useProfile from "@hooks/useProfile";
 import useCurrentUser from "@hooks/useCurrentUser";
 import { ProfileNavbar } from "Components/Navbar";
@@ -36,7 +37,7 @@ const YouthProfile = () => {
     return (
       <Centered>
         <Spinner />
-        <p>Loading profile...</p>
+        <p className={style.loading}>Loading profile...</p>
       </Centered>
     );
   }
@@ -75,8 +76,9 @@ const YouthProfile = () => {
         </Sidebar>
 
         <Main>
+
           <Section>
-            <h2>Personal Info</h2>
+            <h2 className={style.title}>Personal Info</h2>
             <p>Gender: {genderInfo?.gender || "N/A"}</p>
             <p>Age: {genderInfo?.age || "N/A"}</p>
             <p>Birthday: {genderInfo?.birthday || "N/A"}</p>
@@ -84,7 +86,8 @@ const YouthProfile = () => {
           </Section>
 
           <Section>
-            <h2>Demographics & Survey</h2>
+
+            <h2 className={style.title}>Demographics & Survey</h2>
             <p>Civil Status: {demoSurvey?.civil_status || "N/A"}</p>
             <p>Classification: {demoSurvey?.youth_classification || "N/A"}</p>
             <p>Education: {demoSurvey?.educational_background || "N/A"}</p>
@@ -93,10 +96,12 @@ const YouthProfile = () => {
               Registered Voter:{" "}
               {demoSurvey?.registered_voter ? "Yes" : "No"}
             </p>
+
           </Section>
 
           <Section>
-            <h2>Meeting & Household</h2>
+
+            <h2 className={style.title}>Meeting & Household</h2>
             <p>Attended: {meetingHousehold?.attended ? "Yes" : "No"}</p>
             <p>Times Attended: {meetingHousehold?.times_attended || "0"}</p>
             <p>
@@ -104,7 +109,9 @@ const YouthProfile = () => {
               {meetingHousehold?.reason_not_attend || "N/A"}
             </p>
             <p>Household: {meetingHousehold?.household || "N/A"}</p>
+
           </Section>
+
         </Main>
       </Content>
 
@@ -119,7 +126,7 @@ const YouthProfile = () => {
 
 export default YouthProfile;
 
-// ---------------- Styled Components ----------------
+// ---------------- Styled ----------------
 const Wrapper = styled.div`
   min-height: 100vh;
   background: #f7f9fb;
