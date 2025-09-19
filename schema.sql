@@ -148,7 +148,6 @@ CREATE TABLE sk_youth_deleted (
 CREATE TABLE posts (
     post_id SERIAL PRIMARY KEY,
     official_id INTEGER NOT NULL REFERENCES sk_official(official_id),
-    title VARCHAR(100) NOT NULL,
     description TEXT NOT NULL,
     media_type VARCHAR(10) CHECK (media_type IN ('image', 'video')),
     media_url TEXT,
@@ -187,7 +186,6 @@ CREATE TABLE post_reactions (
 
 
  -- Form -- 
-
 CREATE TABLE forms(
     form_id SERIAL PRIMARY KEY,
     official_id INT NOT NULL REFERENCES sk_official(official_id),

@@ -131,7 +131,7 @@ const Authenticated = () => {
             <img
               src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
                 authUser?.name || 'User'
-              )}`}
+              )}`}  
               alt="User Avatar"
               style={{ width: 32, height: 32, borderRadius: '50%' }}
             />

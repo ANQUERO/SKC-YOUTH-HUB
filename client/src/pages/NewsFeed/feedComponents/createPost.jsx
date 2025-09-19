@@ -5,7 +5,6 @@ import { Image, Send, Video, X } from "lucide-react";
 import { usePostContext } from "@context/PostContext";
 
 export const CreatePost = () => {
-    const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [files, setFiles] = useState([]);
     const [fileType, setFileType] = useState(null);
@@ -30,14 +29,12 @@ export const CreatePost = () => {
         if (title.trim() === "" || description.trim() === "") return;
 
         const newPost = new FormData();
-        newPost.append("title", title);
         newPost.append("description", description);
         if (fileType) newPost.append("media_type", fileType);
         files.forEach((f) => newPost.append("media", f));
 
         createPost.mutate(newPost, {
             onSuccess: () => {
-                setTitle("");
                 setDescription("");
                 setFiles([]);
                 setFileType(null);
@@ -70,12 +67,7 @@ export const CreatePost = () => {
             </div>
 
             {/* --- INPUTS --- */}
-            <input
-                placeholder="Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className={style.titleInput}
-            />
+
             <textarea
                 placeholder="What's on your mind?"
                 value={description}
