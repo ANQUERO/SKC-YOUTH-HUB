@@ -26,7 +26,7 @@ export const CreatePost = () => {
     };
 
     const handlePost = () => {
-        if (title.trim() === "" || description.trim() === "") return;
+        if (description.trim() === "") return;
 
         const newPost = new FormData();
         newPost.append("description", description);

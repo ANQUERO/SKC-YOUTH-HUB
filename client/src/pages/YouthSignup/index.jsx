@@ -52,7 +52,7 @@ const YouthSignup = () => {
         region: 'Region VII',
         province: 'Cebu',
         municipality: 'Cordova',
-        barangay: 'Cordova',
+        barangay: 'Catarman ',
         purok_id: '',
 
         // Demographics, Survey, Meeting, Household (Step 3)
