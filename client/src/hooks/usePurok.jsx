@@ -11,16 +11,13 @@ const usePurok = () => {
     const isAuthorized = isSkSuperAdmin || isSkNaturalAdmin;
 
     const fetchPuroks = async () => {
-        if (!isAuthorized) {
-            setError("Unauthorized access");
-            return;
-        }
-
         setLoading(true);
         setError(null);
 
         try {
-            const res = await axiosInstance.get('/purok');
+            // Use public endpoint if not authorized, otherwise use protected endpoint
+            const endpoint = isAuthorized ? '/purok' : '/purok/public';
+            const res = await axiosInstance.get(endpoint);
             setPuroks(res.data.data);
         } catch (error) {
             setError(error.response?.data?.message || "Failed to fetch puroks");

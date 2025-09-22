@@ -2,7 +2,10 @@ import bcrypt from "bcrypt";
 import { generateTokenAndSetCookies } from "../utils/jwt.js";
 import { validationErrors } from "../utils/validators.js";
 import { validationResult } from "express-validator";
-import { pool } from '../db/config.js'
+import { pool } from '../db/config.js';
+import { sendVerificationEmail } from '../services/emailService.js';
+import crypto from 'crypto';
+import { OAuth2Client } from 'google-auth-library';
 
 export const signupAdmin = async (req, res) => {
     try {
@@ -135,11 +138,14 @@ export const signup = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Insert into sk_youth
+        // Generate verification token
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+
+        // Insert into sk_youth (unverified by default)
         const youthResult = await client.query(`
-      INSERT INTO sk_youth (email, password)
-      VALUES ($1, $2) RETURNING youth_id;
-    `, [email, hashedPassword]);
+      INSERT INTO sk_youth (email, password, verified, reset_token, reset_token_expiry)
+      VALUES ($1, $2, false, $3, NOW() + INTERVAL '24 hours') RETURNING youth_id;
+    `, [email, hashedPassword, verificationToken]);
 
         const youth_id = youthResult.rows[0].youth_id;
 
@@ -199,8 +205,20 @@ export const signup = async (req, res) => {
       `, [youth_id, file.originalname, file.mimetype, `/uploads/${file.filename}`]);
         }
 
+        // Send verification email
+        try {
+            await sendVerificationEmail(email, verificationToken);
+        } catch (emailError) {
+            console.error('Failed to send verification email:', emailError);
+            // Don't fail the signup if email fails, just log it
+        }
+
         await client.query('COMMIT');
-        res.status(201).json({ message: 'Signup completed successfully', youth_id });
+        res.status(201).json({
+            message: 'Signup completed successfully. Please check your email for verification.',
+            youth_id,
+            verificationSent: true
+        });
 
     } catch (error) {
         await client.query('ROLLBACK');
@@ -208,6 +226,122 @@ export const signup = async (req, res) => {
         res.status(500).json({ message: 'Signup failed' });
     } finally {
         client.release();
+    }
+};
+
+export const verifyEmail = async (req, res) => {
+    try {
+        const { token } = req.body;
+
+        if (!token) {
+            return res.status(400).json({ message: 'Verification token is required' });
+        }
+
+        // Find user with this token
+        const result = await pool.query(
+            'SELECT youth_id, reset_token_expiry FROM sk_youth WHERE reset_token = $1 AND verified = false',
+            [token]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(400).json({ message: 'Invalid or expired verification token' });
+        }
+
+        const user = result.rows[0];
+
+        // Check if token is expired
+        if (new Date() > new Date(user.reset_token_expiry)) {
+            return res.status(400).json({ message: 'Verification token has expired' });
+        }
+
+        // Mark user as verified and clear token
+        await pool.query(
+            'UPDATE sk_youth SET verified = true, reset_token = NULL, reset_token_expiry = NULL WHERE youth_id = $1',
+            [user.youth_id]
+        );
+
+        res.status(200).json({ message: 'Email verified successfully' });
+
+    } catch (error) {
+        console.error('Email verification error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+export const googleLogin = async (req, res) => {
+    try {
+        const { credential } = req.body;
+
+        if (!credential) {
+            return res.status(400).json({ message: 'Google credential is required' });
+        }
+
+        const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+        // Verify the Google token
+        const ticket = await client.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+        const { email, name, picture } = payload;
+
+        // Check if user exists
+        const userResult = await pool.query(
+            'SELECT youth_id, email, verified FROM sk_youth WHERE email = $1',
+            [email]
+        );
+
+        let youth_id;
+
+        if (userResult.rows.length === 0) {
+            // Create new user if doesn't exist
+            const newUserResult = await pool.query(
+                'INSERT INTO sk_youth (email, password, verified) VALUES ($1, $2, true) RETURNING youth_id',
+                [email, 'google_oauth_user'] // Dummy password for Google users
+            );
+            youth_id = newUserResult.rows[0].youth_id;
+
+            // Create basic name record
+            const nameParts = name.split(' ');
+            const firstName = nameParts[0] || '';
+            const lastName = nameParts.slice(1).join(' ') || '';
+
+            await pool.query(
+                'INSERT INTO sk_youth_name (youth_id, first_name, last_name) VALUES ($1, $2, $3)',
+                [youth_id, firstName, lastName]
+            );
+        } else {
+            youth_id = userResult.rows[0].youth_id;
+
+            // Check if user is verified
+            if (!userResult.rows[0].verified) {
+                // Auto-verify Google users
+                await pool.query(
+                    'UPDATE sk_youth SET verified = true WHERE youth_id = $1',
+                    [youth_id]
+                );
+            }
+        }
+
+        // Generate JWT token
+        const token = generateTokenAndSetCookies(res, youth_id, 'youth');
+
+        res.status(200).json({
+            success: true,
+            message: 'Google login successful',
+            user: {
+                youth_id,
+                email,
+                userType: 'youth'
+            },
+            token
+        });
+
+    } catch (error) {
+        console.error('Google login error:', error);
+        res.status(500).json({ message: 'Google login failed' });
     }
 };
 

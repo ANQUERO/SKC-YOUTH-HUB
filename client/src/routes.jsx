@@ -3,7 +3,8 @@ import { Navigate, useLocation } from "react-router-dom";
 
 import LandingPage from "@pages/LandingPage";
 import Signin from "@pages/Signin";
-import Signup from "@pages/Signup";
+import YouthSignup from "@pages/YouthSignup";
+import VerifyEmail from "@pages/VerifyEmail";
 import ForgotPassword from "@pages/ForgotPasword";
 import AdminAuth from "@pages/AdminAuth";
 
@@ -47,7 +48,11 @@ export const routes = [
     },
     {
         path: "/signup",
-        element: <Signup />
+        element: <YouthSignup />
+    },
+    {
+        path: "/verify-email",
+        element: <VerifyEmail />
     },
     {
         path: "/forgot",

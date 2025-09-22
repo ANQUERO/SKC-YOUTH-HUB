@@ -83,9 +83,4 @@ function Filter({ filters, setFilters }) {
         </Box>
     )
 
-
-
-
-
-
 }

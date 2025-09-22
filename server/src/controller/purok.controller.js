@@ -26,6 +26,23 @@ export const index = async (req, res) => {
     }
 };
 
+export const publicIndex = async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM purok ORDER BY name');
+        console.log('Public Puroks', result.rows);
+        res.status(200).json({
+            status: "Success",
+            data: result.rows
+        });
+    } catch (error) {
+        console.error("Failed to fetch public purok data:", error);
+        res.status(500).json({
+            status: "Error",
+            message: "Internal server error"
+        });
+    }
+};
+
 export const show = async (req, res) => {
     const { id: purok_id } = req.params;
     const user = req.user;

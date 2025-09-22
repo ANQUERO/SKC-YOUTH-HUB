@@ -2,6 +2,8 @@ import express from 'express'
 import {
     signupAdmin,
     signup,
+    verifyEmail,
+    googleLogin,
     login,
     logout,
     resetPassword,
@@ -28,6 +30,12 @@ router.post("/signup",
     signupYouthValidator,
     signup
 );
+
+// Email verification
+router.post("/verify-email", verifyEmail);
+
+// Google OAuth login
+router.post("/google-login", googleLogin);
 
 // Admin signup (moved to settings)
 router.post("/adminSignup",

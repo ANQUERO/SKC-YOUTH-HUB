@@ -18,6 +18,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import Logo from '@images/logo.jpg';
 import style from '@styles/signin.module.scss';
 import useLogin from '@hooks/useSignin';
+import GoogleOAuth from '@components/GoogleOAuth';
 
 const Signin = () => {
   const [form, setForm] = useState({ email: '', password: '', remember: false });
@@ -45,6 +46,36 @@ const Signin = () => {
             : '/';
       navigate(route);
     }
+  };
+
+  const handleGoogleSuccess = async (credential) => {
+    try {
+      // Send the credential to backend for verification
+      const response = await fetch('http://localhost:5000/api/auth/google-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ credential }),
+        credentials: 'include', // Include cookies for CORS
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Handle successful Google login
+        const route = data.user.userType === 'official' ? '/dashboard' : '/profile';
+        navigate(route);
+      } else {
+        console.error('Google login failed:', data.message);
+      }
+    } catch (error) {
+      console.error('Google login error:', error);
+    }
+  };
+
+  const handleGoogleError = (error) => {
+    console.error('Google OAuth error:', error);
   };
 
   const renderField = (label, field, type = 'text', showToggle = false) => (
@@ -136,14 +167,25 @@ const Signin = () => {
               variant="contained"
               color="primary"
               fullWidth
-              sx={{ mt: 3, mb: 1 }}
+              sx={{ mt: 3, mb: 2 }}
               disabled={loading}
             >
               {loading ? <CircularProgress size={20} /> : 'Login'}
             </Button>
 
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="body2" align="center" sx={{ mb: 2 }}>
+                Or continue with
+              </Typography>
+              <GoogleOAuth
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                disabled={loading}
+              />
+            </Box>
+
             <Typography variant="body2" align="center">
-              Don’t have an account?{' '}
+              Don't have an account?{' '}
               <Link component={RouterLink} to="/signup">
                 Signup
               </Link>
