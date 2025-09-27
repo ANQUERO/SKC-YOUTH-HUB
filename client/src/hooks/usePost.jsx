@@ -40,7 +40,6 @@ const usePosts = () => {
         onSuccess: (data) => {
             pushNotification({
                 type: 'post',
-                title: 'Post created',
                 message: data?.title || 'Your post has been published.',
                 meta: { post_id: data?.post_id }
             });
@@ -57,7 +56,6 @@ const usePosts = () => {
         onSuccess: (data) => {
             pushNotification({
                 type: 'post',
-                title: 'Post updated',
                 message: data?.title || 'Your post has been updated.',
                 meta: { post_id: data?.post_id }
             });
@@ -74,7 +72,6 @@ const usePosts = () => {
         onSuccess: (data) => {
             pushNotification({
                 type: 'post',
-                title: 'Post deleted',
                 message: 'Your post has been deleted.',
                 meta: { post_id: data?.post_id }
             });

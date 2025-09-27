@@ -47,7 +47,7 @@ export const CreatePost = () => {
         <div className={style.createPost}>
             {/* --- USER INFO --- */}
             <div className={style.userInfo}>
-                <img src={Avatar} alt="avatar" />
+                    <img src={Avatar} alt="avatar" />
                 <div>
                     <strong>SK Chairman, Lester Q. Cruspero</strong>
                     <p>Official</p>

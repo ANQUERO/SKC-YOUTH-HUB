@@ -100,13 +100,6 @@ export const createPost = async (req, res) => {
         });
     }
 
-    if (!title || !description) {
-        return res.status(400).json({
-            status: "Error",
-            message: "Title and description are required"
-        });
-    }
-
     try {
         const officialId = user.official_id;
         if (!officialId) {
@@ -123,7 +116,7 @@ export const createPost = async (req, res) => {
         const result = await pool.query(
             `
             INSERT INTO posts (official_id, description, media_type, media_url)
-            VALUES ($1, $2, $3, $4, )
+            VALUES ($1, $2, $3, $4 )
             RETURNING post_id, description, media_type, media_url, created_at, updated_at
             `,
             [officialId, description, finalMediaType, finalMediaUrl]
