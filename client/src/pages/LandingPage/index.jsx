@@ -5,19 +5,19 @@ import About from './sections/about.jsx'
 import Officials from './sections/officials.jsx'
 import Location from './sections/location.jsx'
 import Footer from './sections/footer.jsx'
+import style from '@styles/landingpage.module.scss'
 
 
 const LandingPage = () => {
   return (
     <>
-      <main className='background_color'>
+      <main className={style.landing_page}>
         <Navbar />
         <Hero />
         <About />
         <Officials />
         <Location />
         <Footer />
-
       </main>
 
     </>
