@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js"
+    "start": "node index.js",
+    "server": "nodemon index.js --ignore client",
+    "dev": "concurently \"npm run server\" \"npm run client\"",
+    "client": "npm start "
   },
   "keywords": [],
   "author": "",
@@ -11,7 +14,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@supabase/supabase-js": "^2.50.5",
     "bcrypt": "^5.1.1",
     "body-parser": "^2.2.0",
     "cloudinary": "^2.7.0",
@@ -28,7 +30,6 @@
     "nodemon": "^3.1.10",
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.37.7",
     "streamifier": "^0.1.1"
   }
 }

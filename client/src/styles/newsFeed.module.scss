@@ -1,13 +1,3 @@
-//Variables
-$bg: #fff;
-$muted: #8a8d91;
-$primary: #1877f2;
-$border: #e6e6e6;
-$shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-$radius: 10px;
-$avatar-size: 40px;
-
-
 .feed {
   max-width: 1000px;
   margin: auto;
@@ -136,7 +126,6 @@ $avatar-size: 40px;
   object-fit: cover;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
-
 
 .card {
   background-color: #fff;
@@ -298,7 +287,7 @@ $avatar-size: 40px;
       cursor: pointer;
 
       &:hover {
-        background: darken(#1877f2, 5%);
+        background: #1269d9;
       }
 
       &:disabled {
@@ -388,16 +377,6 @@ $avatar-size: 40px;
       text-decoration: underline;
     }
   }
-}
-
-.replies {
-  margin-left: 1.5rem;
-  margin-top: 0.25rem;
-  padding-left: 0.5rem;
-  border-left: 2px solid #e4e6eb;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
 }
 
 .replies {
