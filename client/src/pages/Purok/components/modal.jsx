@@ -1,4 +1,10 @@
-import { Modal, Box, Typography, TextField, Button } from '@mui/material';
+import {
+    Modal,
+    Box,
+    Typography,
+    TextField,
+    Button
+} from '@mui/material';
 
 export default function PurokModal({ open, onClose, onSave, name, setName, editing, loading }) {
     return (

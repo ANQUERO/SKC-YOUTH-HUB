@@ -2,12 +2,36 @@ import { TableHead, TableRow, TableCell, Checkbox, TableSortLabel, Box } from '@
 import { visuallyHidden } from '@mui/utils';
 
 const headCells = [
-    { id: 'select', label: '', numeric: false, disablePadding: true },
-    { id: 'number', label: '#', numeric: true },
-    { id: 'name', label: 'Purok Name', numeric: false },
+    {
+        id: 'select', label: '',
+        numeric: false,
+        disablePadding: true
+    },
+    {
+        id: 'number',
+        label: '#',
+        numeric: true
+    },
+    {
+        id: 'name',
+        label: 'Purok Name',
+        numeric: false
+    },
+    {
+        id: 'total_residence',
+        label: 'Total Residence',
+        numeric: false
+    }
 ];
 
-export default function EnhancedTableHead({ order, orderBy, onRequestSort, onSelectAllClick, rowCount, numSelected }) {
+export default function EnhancedTableHead({
+    order,
+    orderBy,
+    onRequestSort,
+    onSelectAllClick,
+    rowCount,
+    numSelected
+}) {
     const createSortHandler = (property) => (e) => onRequestSort(e, property);
     return (
         <TableHead>

@@ -220,3 +220,23 @@ export const destroy = async (req, res) => {
     }
 };
 
+export const totalResidence = async (req, res) => {
+    const { id: purok_id } = req.params
+    const user = req.user
+
+    if (!user || user.userType !== 'official') {
+        return res.status(403).json({
+            status: "Error",
+            message: "Forbidden - Only admins can access this resource"
+        });
+    }
+
+    try {
+        const result = await pool.query(
+            `SELECT `
+        )
+    } catch (error) {
+
+    }
+}
+

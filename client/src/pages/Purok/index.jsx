@@ -8,7 +8,7 @@ import { Ellipsis } from 'lucide-react';
 import usePurok from '@hooks/usePurok';
 import EnhancedTableHead from './components/tableHead';
 import PurokActionsMenu from './components/actions';
-import PurokModal from './components/modeal';
+import PurokModal from './components/modal';
 
 function descendingComparator(a, b, orderBy) {
   return b[orderBy]?.localeCompare(a[orderBy]);
@@ -34,7 +34,9 @@ const Purok = () => {
   const [selectedPurok, setSelectedPurok] = useState(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
-  useEffect(() => { fetchPuroks(); }, []);
+  useEffect(() => {
+    fetchPuroks();
+  }, []);
 
   const visibleRows = puroks
     ?.slice()
