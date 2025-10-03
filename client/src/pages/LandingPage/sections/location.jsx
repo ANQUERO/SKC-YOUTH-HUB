@@ -6,6 +6,7 @@ const Location = () => {
     return (
         <section className={style.location}>
             <div className={style.container}>
+
                 <div className={style.textContent}>
                     <h2 className={style.heading}>Find Us Here</h2>
                     <p className={style.subheading}>
@@ -26,6 +27,7 @@ const Location = () => {
                             <span>Mon–Fri: 8:00 AM – 5:00 PM</span>
                         </div>
                     </div>
+
                 </div>
 
                 <div className={style.mapWrapper}>
@@ -42,6 +44,7 @@ const Location = () => {
                         </div>
                     </div>
                 </div>
+
             </div>
         </section>
     );

@@ -3,6 +3,7 @@ import Navbar from "@components/Navbar.jsx"
 import Hero from './sections/hero.jsx'
 import About from './sections/about.jsx'
 import Organizations from './sections/organizations.jsx'
+import Discover from './sections/discover.jsx'
 import Officials from './sections/officials.jsx'
 import Location from './sections/location.jsx'
 import Footer from './sections/footer.jsx'
@@ -17,6 +18,7 @@ const LandingPage = () => {
         <Hero />
         <About />
         <Organizations />
+        <Discover />
         <Officials />
         <Location />
         <Footer />
