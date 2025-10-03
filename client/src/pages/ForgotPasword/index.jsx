@@ -138,7 +138,7 @@ const ForgotPassword = () => {
                                 </Button>
 
                                 <Box sx={{ textAlign: 'center' }}>
-                                    <Link component={RouterLink} to="/signin" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                                    <Link component={RouterLink} to="/login" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
                                         <ArrowBack fontSize="small" />
                                         Back to Sign In
                                     </Link>

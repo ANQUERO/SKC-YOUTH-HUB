@@ -12,8 +12,10 @@ import {
   InputAdornment,
   IconButton,
   CircularProgress,
+  Container,
+  Paper,
 } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Visibility, VisibilityOff, LoginRounded } from '@mui/icons-material';
 
 import Logo from '@images/logo.jpg';
 import style from '@styles/signin.module.scss';
@@ -50,20 +52,18 @@ const Signin = () => {
 
   const handleGoogleSuccess = async (credential) => {
     try {
-      // Send the credential to backend for verification
       const response = await fetch('http://localhost:5000/api/auth/google-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ credential }),
-        credentials: 'include', // Include cookies for CORS
+        credentials: 'include',
       });
 
       const data = await response.json();
 
       if (data.success) {
-        // Handle successful Google login
         const route = data.user.userType === 'official' ? '/dashboard' : '/profile';
         navigate(route);
       } else {
@@ -79,17 +79,38 @@ const Signin = () => {
   };
 
   const renderField = (label, field, type = 'text', showToggle = false) => (
-    <Box sx={{ mb: 2 }}>
+    <Box sx={{ mb: 2.5 }}>
       <TextField
         label={label}
         type={showToggle ? (showPassword ? 'text' : 'password') : type}
         fullWidth
         required
-        size="small"
+        size="medium"
         value={form[field]}
         onChange={handleChange(field)}
         error={Boolean(errors?.[field])}
         autoComplete={field}
+        variant="outlined"
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            borderRadius: 2,
+            backgroundColor: '#f8fafc',
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              backgroundColor: '#ffffff',
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: '#2c5aa0',
+              },
+            },
+            '&.Mui-focused': {
+              backgroundColor: '#ffffff',
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: '#2c5aa0',
+                borderWidth: 2,
+              },
+            },
+          },
+        }}
         InputProps={
           showToggle
             ? {
@@ -99,6 +120,7 @@ const Signin = () => {
                     onClick={() => setShowPassword((prev) => !prev)}
                     edge="end"
                     size="small"
+                    sx={{ color: '#64748b' }}
                   >
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
@@ -118,46 +140,99 @@ const Signin = () => {
       <div className={style.left}>
         <div className={style.text}>
           <img src={Logo} alt="SK Logo" className={style.logo} />
-          <h1 className={style.title}>Catarman community</h1>
+          <h1 className={style.title}>Empowering Catarman Youth</h1>
           <p className={style.tagline}>
-            Our philosophy is simple: transparency, engagement, and accountability.
+            Join us in building a transparent, engaged, and accountable community
+            where every young voice matters and can create meaningful change.
           </p>
         </div>
       </div>
 
       {/* RIGHT SIDE */}
       <div className={style.right}>
-        <Box sx={{ width: '100%', maxWidth: 400, mx: 'auto' }}>
-          <Typography variant="h3" gutterBottom>
-            Welcome back
+        <Box sx={{ width: '100%', maxWidth: 440 }}>
+          <Typography
+            variant="h3"
+            gutterBottom
+            sx={{
+              fontWeight: 700,
+              background: 'linear-gradient(135deg, #2c5aa0, #1e4785)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              color: 'transparent',
+            }}
+          >
+            Welcome Back
           </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-            Through clear communication and engagement, we empower young voters to stay informed,
-            participate, and shape their communities.
+          <Typography
+            variant="body1"
+            sx={{
+              mb: 3,
+              color: '#64748b',
+              lineHeight: 1.6,
+              fontSize: '1rem'
+            }}
+          >
+            Sign in to continue your journey with us. Together, we're shaping a better
+            future for Catarman through informed participation and community engagement.
           </Typography>
 
           {errors?.general && (
-            <Alert severity="error" sx={{ mb: 2 }}>
+            <Alert
+              severity="error"
+              sx={{
+                mb: 2.5,
+                borderRadius: 2,
+                fontWeight: 500
+              }}
+            >
               {errors.general}
             </Alert>
           )}
 
           <form onSubmit={handleSubmit} noValidate>
-            {renderField('Email', 'email', 'email')}
+            {renderField('Email Address', 'email', 'email')}
             {renderField('Password', 'password', 'password', true)}
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mb: 1
+            }}>
               <FormControlLabel
                 control={
                   <Checkbox
                     checked={form.remember}
                     onChange={handleChange('remember')}
                     size="small"
+                    sx={{
+                      color: '#2c5aa0',
+                      '&.Mui-checked': {
+                        color: '#2c5aa0',
+                      },
+                    }}
                   />
                 }
-                label="Remember me"
+                label={
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                    Remember me
+                  </Typography>
+                }
               />
-              <Link component={RouterLink} to="/forgot" variant="body2">
+              <Link
+                component={RouterLink}
+                to="/forgot"
+                variant="body2"
+                sx={{
+                  fontWeight: 600,
+                  color: '#2c5aa0',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  }
+                }}
+              >
                 Forgot password?
               </Link>
             </Box>
@@ -165,16 +240,55 @@ const Signin = () => {
             <Button
               type="submit"
               variant="contained"
-              color="primary"
               fullWidth
-              sx={{ mt: 3, mb: 2 }}
+              sx={{
+                mt: 3,
+                mb: 2,
+                py: 1.5,
+                borderRadius: 2,
+                fontSize: '1rem',
+                fontWeight: 600,
+                background: 'linear-gradient(135deg, #2c5aa0, #1e4785)',
+                boxShadow: '0 4px 15px rgba(44, 90, 160, 0.3)',
+                '&:hover': {
+                  transform: 'translateY(-1px)',
+                  boxShadow: '0 6px 20px rgba(44, 90, 160, 0.4)',
+                  background: 'linear-gradient(135deg, #25518f, #1a3d75)',
+                },
+                '&:disabled': {
+                  background: '#e2e8f0',
+                }
+              }}
               disabled={loading}
+              startIcon={loading ? <CircularProgress size={20} /> : <LoginRounded />}
             >
-              {loading ? <CircularProgress size={20} /> : 'Login'}
+              {loading ? 'Signing In...' : 'Sign In'}
             </Button>
 
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="body2" align="center" sx={{ mb: 2 }}>
+            <Box sx={{ mb: 3 }}>
+              <Typography
+                variant="body2"
+                align="center"
+                sx={{
+                  mb: 2,
+                  color: '#64748b',
+                  position: 'relative',
+                  '&::before, &::after': {
+                    content: '""',
+                    position: 'absolute',
+                    top: '50%',
+                    width: '30%',
+                    height: '1px',
+                    backgroundColor: '#e2e8f0',
+                  },
+                  '&::before': {
+                    left: 0,
+                  },
+                  '&::after': {
+                    right: 0,
+                  }
+                }}
+              >
                 Or continue with
               </Typography>
               <GoogleOAuth
@@ -184,10 +298,28 @@ const Signin = () => {
               />
             </Box>
 
-            <Typography variant="body2" align="center">
-              Don't have an account?{' '}
-              <Link component={RouterLink} to="/signup">
-                Signup
+            <Typography
+              variant="body2"
+              align="center"
+              sx={{
+                color: '#64748b',
+                fontWeight: 500
+              }}
+            >
+              New to our community?{' '}
+              <Link
+                component={RouterLink}
+                to="/signup"
+                sx={{
+                  fontWeight: 600,
+                  color: '#2c5aa0',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  }
+                }}
+              >
+                Create an account
               </Link>
             </Typography>
           </form>
@@ -199,27 +331,23 @@ const Signin = () => {
 
 export default Signin;
 
-
 const errorBoxStyles = {
-  mt: 0.5,
-  ml: 1,
-  backgroundColor: '#ffe6e6',
-  color: '#d32f2f',
-  px: 1.5,
-  py: 0.5,
-  borderRadius: '6px',
+  mt: 1,
+  ml: 0.5,
+  backgroundColor: '#fef2f2',
+  color: '#dc2626',
+  px: 2,
+  py: 1,
+  borderRadius: '8px',
   fontSize: '0.85rem',
-  maxWidth: '300px',
-  position: 'relative',
+  fontWeight: 500,
+  border: '1px solid #fecaca',
+  display: 'flex',
+  alignItems: 'center',
+  gap: 0.5,
   '&::before': {
-    content: '""',
-    position: 'absolute',
-    top: '-5px',
-    left: '10px',
-    width: 0,
-    height: 0,
-    borderLeft: '6px solid transparent',
-    borderRight: '6px solid transparent',
-    borderBottom: '6px solid #ffe6e6',
+    content: '"⚠"',
+    fontSize: '0.8rem',
+    fontWeight: 'bold',
   },
 };
