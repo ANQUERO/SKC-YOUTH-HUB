@@ -9,7 +9,7 @@ const BasicInfoStep = ({ formData, errors, onChange }) => {
   };
 
   return (
-    <div className={style.container} data-mobile={isMobile}>
+    <div className={style.basicContainer} data-mobile={isMobile}>
       {/* Header Section */}
       <div className={style.headerSection} data-mobile={isMobile}>
         <h1 className={style.title}>Basic Information</h1>

@@ -14,7 +14,7 @@
 }
 
 // Basinc Info Step
-.container {
+.basicContainer {
     max-width: 800px;
     margin: 0 auto;
     padding: 1.5rem 2rem;
@@ -221,4 +221,49 @@
 
 }
 
-// 
+// Location Step
+.locationContainer {
+    
+    .purokContainer {
+        margin-top: 24px;
+        margin-bottom: 16px;
+        
+        .purokSelect {
+            max-width: 700px; // Adjust this value as needed
+        }
+    }
+    
+    .previewBox {
+        margin-top: 16px;
+        padding: 12px;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+        
+        .previewText {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+    }
+    
+    .formGrid {
+        margin-bottom: 16px;
+    }
+    
+    .infoAlert {
+        margin-bottom: 24px;
+    }
+    
+    .errorAlert {
+        margin-bottom: 16px;
+    }
+    
+    .title {
+        margin-bottom: 16px;
+    }
+    
+    .errorText {
+        display: block;
+        margin-top: 4px;
+    }
+}

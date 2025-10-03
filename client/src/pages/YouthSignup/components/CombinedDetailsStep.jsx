@@ -7,9 +7,7 @@ import {
     Select,
     MenuItem,
     Typography,
-    Divider,
-    Paper,
-    Grid
+    Divider
 } from '@mui/material';
 
 const CombinedDetailsStep = ({ formData, errors, onChange }) => {
@@ -96,321 +94,230 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
     ];
 
     return (
-        <Box sx={{ maxWidth: 800, mx: 'auto' }}>
-            <Typography variant="h6" gutterBottom sx={{ mb: 3, textAlign: 'center' }}>
-                Demographics, Survey & Household Information
-            </Typography>
+        <Box sx={{ maxWidth: 800, mx: 'auto', p: 2 }}>
+            {/* Demographics Section */}
+            <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
+                    Demographics
+                </Typography>
 
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 4, textAlign: 'center' }}>
-                Please provide detailed information about your demographics, voting status, meeting attendance, and household.
-            </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <FormControl fullWidth error={!!errors.civil_status} required>
+                        <InputLabel>Civil Status</InputLabel>
+                        <Select
+                            value={formData.civil_status}
+                            onChange={(e) => onChange('civil_status', e.target.value)}
+                            label="Civil Status"
+                        >
+                            {civilStatusOptions.map((option) => (
+                                <MenuItem key={option} value={option}>
+                                    {option}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
 
-            <Grid container spacing={4}>
-                {/* Demographics Section */}
-                <Grid item xs={12}>
-                    <Paper elevation={1} sx={{ p: 3, mb: 3 }}>
-                        <Typography variant="h6" gutterBottom color="primary">
-                            Demographics
-                        </Typography>
+                    <FormControl fullWidth error={!!errors.youth_age_gap} required>
+                        <InputLabel>Youth Age Gap</InputLabel>
+                        <Select
+                            value={formData.youth_age_gap}
+                            onChange={(e) => onChange('youth_age_gap', e.target.value)}
+                            label="Youth Age Gap"
+                        >
+                            {youthAgeGapOptions.map((option) => (
+                                <MenuItem key={option} value={option}>
+                                    {option}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
 
-                        <Grid container spacing={3}>
-                            <Grid item xs={12} sm={6}>
-                                <FormControl fullWidth error={!!errors.civil_status} required>
-                                    <InputLabel>Civil Status</InputLabel>
-                                    <Select
-                                        value={formData.civil_status}
-                                        onChange={(e) => onChange('civil_status', e.target.value)}
-                                        label="Civil Status"
-                                    >
-                                        {civilStatusOptions.map((option) => (
-                                            <MenuItem key={option} value={option}>
-                                                {option}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                    {errors.civil_status && (
-                                        <Typography variant="caption" color="error" sx={{ mt: 1 }}>
-                                            {errors.civil_status}
-                                        </Typography>
-                                    )}
-                                </FormControl>
-                            </Grid>
+                    <FormControl fullWidth error={!!errors.educational_background} required>
+                        <InputLabel>Educational Background</InputLabel>
+                        <Select
+                            value={formData.educational_background}
+                            onChange={(e) => onChange('educational_background', e.target.value)}
+                            label="Educational Background"
+                        >
+                            {educationalBackgroundOptions.map((option) => (
+                                <MenuItem key={option} value={option}>
+                                    {option}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
 
-                            <Grid item xs={12} sm={6}>
-                                <FormControl fullWidth error={!!errors.youth_age_gap} required>
-                                    <InputLabel>Youth Age Gap</InputLabel>
-                                    <Select
-                                        value={formData.youth_age_gap}
-                                        onChange={(e) => onChange('youth_age_gap', e.target.value)}
-                                        label="Youth Age Gap"
-                                    >
-                                        {youthAgeGapOptions.map((option) => (
-                                            <MenuItem key={option} value={option}>
-                                                {option}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                    {errors.youth_age_gap && (
-                                        <Typography variant="caption" color="error" sx={{ mt: 1 }}>
-                                            {errors.youth_age_gap}
-                                        </Typography>
-                                    )}
-                                </FormControl>
-                            </Grid>
+                    <FormControl fullWidth error={!!errors.work_status} required>
+                        <InputLabel>Work Status</InputLabel>
+                        <Select
+                            value={formData.work_status}
+                            onChange={(e) => onChange('work_status', e.target.value)}
+                            label="Work Status"
+                        >
+                            {workStatusOptions.map((option) => (
+                                <MenuItem key={option} value={option}>
+                                    {option}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
 
-                            <Grid item xs={12}>
-                                <FormControl fullWidth error={!!errors.youth_classification} required>
-                                    <InputLabel>Youth Classification</InputLabel>
-                                    <Select
-                                        value={formData.youth_classification}
-                                        onChange={(e) => onChange('youth_classification', e.target.value)}
-                                        label="Youth Classification"
-                                    >
-                                        {youthClassificationOptions.map((option) => (
-                                            <MenuItem key={option} value={option}>
-                                                {option}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                    {errors.youth_classification && (
-                                        <Typography variant="caption" color="error" sx={{ mt: 1 }}>
-                                            {errors.youth_classification}
-                                        </Typography>
-                                    )}
-                                </FormControl>
-                            </Grid>
+                    <FormControl fullWidth error={!!errors.youth_classification} required>
+                        <InputLabel>Youth Classification</InputLabel>
+                        <Select
+                            value={formData.youth_classification}
+                            onChange={(e) => onChange('youth_classification', e.target.value)}
+                            label="Youth Classification"
+                        >
+                            {youthClassificationOptions.map((option) => (
+                                <MenuItem key={option} value={option}>
+                                    {option}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </Box>
+            </Box>
 
-                            <Grid item xs={12} sm={6}>
-                                <FormControl fullWidth error={!!errors.educational_background} required>
-                                    <InputLabel>Educational Background</InputLabel>
-                                    <Select
-                                        value={formData.educational_background}
-                                        onChange={(e) => onChange('educational_background', e.target.value)}
-                                        label="Educational Background"
-                                    >
-                                        {educationalBackgroundOptions.map((option) => (
-                                            <MenuItem key={option} value={option}>
-                                                {option}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                    {errors.educational_background && (
-                                        <Typography variant="caption" color="error" sx={{ mt: 1 }}>
-                                            {errors.educational_background}
-                                        </Typography>
-                                    )}
-                                </FormControl>
-                            </Grid>
+            <Divider sx={{ my: 4 }} />
 
-                            <Grid item xs={12} sm={6}>
-                                <FormControl fullWidth error={!!errors.work_status} required>
-                                    <InputLabel>Work Status</InputLabel>
-                                    <Select
-                                        value={formData.work_status}
-                                        onChange={(e) => onChange('work_status', e.target.value)}
-                                        label="Work Status"
-                                    >
-                                        {workStatusOptions.map((option) => (
-                                            <MenuItem key={option} value={option}>
-                                                {option}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                    {errors.work_status && (
-                                        <Typography variant="caption" color="error" sx={{ mt: 1 }}>
-                                            {errors.work_status}
-                                        </Typography>
-                                    )}
-                                </FormControl>
-                            </Grid>
-                        </Grid>
-                    </Paper>
-                </Grid>
+            {/* Voting Survey Section */}
+            <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
+                    Voting Survey
+                </Typography>
 
-                {/* Survey Section */}
-                <Grid item xs={12}>
-                    <Paper elevation={1} sx={{ p: 3, mb: 3 }}>
-                        <Typography variant="h6" gutterBottom color="primary">
-                            Voting Survey
-                        </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <FormControl fullWidth error={!!errors.registered_voter} required>
+                        <InputLabel>Registered Voter in Barangay?</InputLabel>
+                        <Select
+                            value={formData.registered_voter}
+                            onChange={(e) => onChange('registered_voter', e.target.value)}
+                            label="Registered Voter in Barangay?"
+                        >
+                            {yesNoOptions.map((option) => (
+                                <MenuItem key={option.value} value={option.value}>
+                                    {option.label}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
 
-                        <Grid container spacing={3}>
-                            <Grid item xs={12} sm={4}>
-                                <FormControl fullWidth error={!!errors.registered_voter} required>
-                                    <InputLabel>Registered Voter in Barangay?</InputLabel>
-                                    <Select
-                                        value={formData.registered_voter}
-                                        onChange={(e) => onChange('registered_voter', e.target.value)}
-                                        label="Registered Voter in Barangay?"
-                                    >
-                                        {yesNoOptions.map((option) => (
-                                            <MenuItem key={option.value} value={option.value}>
-                                                {option.label}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                    {errors.registered_voter && (
-                                        <Typography variant="caption" color="error" sx={{ mt: 1 }}>
-                                            {errors.registered_voter}
-                                        </Typography>
-                                    )}
-                                </FormControl>
-                            </Grid>
+                    <FormControl fullWidth error={!!errors.registered_national_voter} required>
+                        <InputLabel>Registered National Voter?</InputLabel>
+                        <Select
+                            value={formData.registered_national_voter}
+                            onChange={(e) => onChange('registered_national_voter', e.target.value)}
+                            label="Registered National Voter?"
+                        >
+                            {yesNoOptions.map((option) => (
+                                <MenuItem key={option.value} value={option.value}>
+                                    {option.label}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
 
-                            <Grid item xs={12} sm={4}>
-                                <FormControl fullWidth error={!!errors.registered_national_voter} required>
-                                    <InputLabel>Registered National Voter?</InputLabel>
-                                    <Select
-                                        value={formData.registered_national_voter}
-                                        onChange={(e) => onChange('registered_national_voter', e.target.value)}
-                                        label="Registered National Voter?"
-                                    >
-                                        {yesNoOptions.map((option) => (
-                                            <MenuItem key={option.value} value={option.value}>
-                                                {option.label}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                    {errors.registered_national_voter && (
-                                        <Typography variant="caption" color="error" sx={{ mt: 1 }}>
-                                            {errors.registered_national_voter}
-                                        </Typography>
-                                    )}
-                                </FormControl>
-                            </Grid>
+                    <FormControl fullWidth error={!!errors.vote_last_election} required>
+                        <InputLabel>Voted in Last Election?</InputLabel>
+                        <Select
+                            value={formData.vote_last_election}
+                            onChange={(e) => onChange('vote_last_election', e.target.value)}
+                            label="Voted in Last Election?"
+                        >
+                            {yesNoOptions.map((option) => (
+                                <MenuItem key={option.value} value={option.value}>
+                                    {option.label}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </Box>
+            </Box>
 
-                            <Grid item xs={12} sm={4}>
-                                <FormControl fullWidth error={!!errors.vote_last_election} required>
-                                    <InputLabel>Voted in Last Election?</InputLabel>
-                                    <Select
-                                        value={formData.vote_last_election}
-                                        onChange={(e) => onChange('vote_last_election', e.target.value)}
-                                        label="Voted in Last Election?"
-                                    >
-                                        {yesNoOptions.map((option) => (
-                                            <MenuItem key={option.value} value={option.value}>
-                                                {option.label}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                    {errors.vote_last_election && (
-                                        <Typography variant="caption" color="error" sx={{ mt: 1 }}>
-                                            {errors.vote_last_election}
-                                        </Typography>
-                                    )}
-                                </FormControl>
-                            </Grid>
-                        </Grid>
-                    </Paper>
-                </Grid>
+            <Divider sx={{ my: 4 }} />
 
-                {/* Meeting Survey Section */}
-                <Grid item xs={12}>
-                    <Paper elevation={1} sx={{ p: 3, mb: 3 }}>
-                        <Typography variant="h6" gutterBottom color="primary">
-                            Meeting Attendance
-                        </Typography>
+            {/* Meeting Attendance Section */}
+            <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
+                    Meeting Attendance
+                </Typography>
 
-                        <Grid container spacing={3}>
-                            <Grid item xs={12} sm={4}>
-                                <FormControl fullWidth error={!!errors.attended} required>
-                                    <InputLabel>Attended SK Meetings?</InputLabel>
-                                    <Select
-                                        value={formData.attended}
-                                        onChange={(e) => onChange('attended', e.target.value)}
-                                        label="Attended SK Meetings?"
-                                    >
-                                        {yesNoOptions.map((option) => (
-                                            <MenuItem key={option.value} value={option.value}>
-                                                {option.label}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                    {errors.attended && (
-                                        <Typography variant="caption" color="error" sx={{ mt: 1 }}>
-                                            {errors.attended}
-                                        </Typography>
-                                    )}
-                                </FormControl>
-                            </Grid>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                        <FormControl sx={{ minWidth: 200 }} error={!!errors.attended} required>
+                            <InputLabel>Attended SK Meetings?</InputLabel>
+                            <Select
+                                value={formData.attended}
+                                onChange={(e) => onChange('attended', e.target.value)}
+                                label="Attended SK Meetings?"
+                            >
+                                {yesNoOptions.map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
-                            {formData.attended === 'yes' && (
-                                <Grid item xs={12} sm={4}>
-                                    <FormControl fullWidth error={!!errors.times_attended} required>
-                                        <InputLabel>How Many Times?</InputLabel>
-                                        <Select
-                                            value={formData.times_attended}
-                                            onChange={(e) => onChange('times_attended', e.target.value)}
-                                            label="How Many Times?"
-                                        >
-                                            {timesAttendedOptions.map((option) => (
-                                                <MenuItem key={option.value} value={option.value}>
-                                                    {option.label}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                                        {errors.times_attended && (
-                                            <Typography variant="caption" color="error" sx={{ mt: 1 }}>
-                                                {errors.times_attended}
-                                            </Typography>
-                                        )}
-                                    </FormControl>
-                                </Grid>
-                            )}
+                        {formData.attended === 'yes' && (
+                            <FormControl sx={{ minWidth: 200 }} error={!!errors.times_attended} required>
+                                <InputLabel>How Many Times?</InputLabel>
+                                <Select
+                                    value={formData.times_attended}
+                                    onChange={(e) => onChange('times_attended', e.target.value)}
+                                    label="How Many Times?"
+                                >
+                                    {timesAttendedOptions.map((option) => (
+                                        <MenuItem key={option.value} value={option.value}>
+                                            {option.label}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        )}
 
-                            {formData.attended === 'no' && (
-                                <Grid item xs={12} sm={8}>
-                                    <FormControl fullWidth error={!!errors.reason_not_attend} required>
-                                        <InputLabel>Reason for Not Attending</InputLabel>
-                                        <Select
-                                            value={formData.reason_not_attend}
-                                            onChange={(e) => onChange('reason_not_attend', e.target.value)}
-                                            label="Reason for Not Attending"
-                                        >
-                                            {reasonNotAttendOptions.map((option) => (
-                                                <MenuItem key={option} value={option}>
-                                                    {option}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                                        {errors.reason_not_attend && (
-                                            <Typography variant="caption" color="error" sx={{ mt: 1 }}>
-                                                {errors.reason_not_attend}
-                                            </Typography>
-                                        )}
-                                    </FormControl>
-                                </Grid>
-                            )}
-                        </Grid>
-                    </Paper>
-                </Grid>
+                        {formData.attended === 'no' && (
+                            <FormControl sx={{ minWidth: 300, flex: 1 }} error={!!errors.reason_not_attend} required>
+                                <InputLabel>Reason for Not Attending</InputLabel>
+                                <Select
+                                    value={formData.reason_not_attend}
+                                    onChange={(e) => onChange('reason_not_attend', e.target.value)}
+                                    label="Reason for Not Attending"
+                                >
+                                    {reasonNotAttendOptions.map((option) => (
+                                        <MenuItem key={option} value={option}>
+                                            {option}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        )}
+                    </Box>
+                </Box>
+            </Box>
 
-                {/* Household Section */}
-                <Grid item xs={12}>
-                    <Paper elevation={1} sx={{ p: 3 }}>
-                        <Typography variant="h6" gutterBottom color="primary">
-                            Household Information
-                        </Typography>
+            <Divider sx={{ my: 4 }} />
 
-                        <Grid container spacing={3}>
-                            <Grid item xs={12}>
-                                <TextField
-                                    fullWidth
-                                    label="Household Information"
-                                    placeholder="e.g., Family of 5, living with parents, etc."
-                                    value={formData.household}
-                                    onChange={(e) => onChange('household', e.target.value)}
-                                    error={!!errors.household}
-                                    helperText={errors.household || "Please provide information about your household"}
-                                    required
-                                    multiline
-                                    rows={3}
-                                />
-                            </Grid>
-                        </Grid>
-                    </Paper>
-                </Grid>
-            </Grid>
+            {/* Household Information Section */}
+            <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
+                    Household Information
+                </Typography>
+
+                <TextField
+                    fullWidth
+                    label="Household Information"
+                    placeholder="e.g., Family of 5, living with parents, etc."
+                    value={formData.household}
+                    onChange={(e) => onChange('household', e.target.value)}
+                    error={!!errors.household}
+                    helperText="Please provide detailed information about your household composition and living situation"
+                    required
+                    multiline
+                    rows={3}
+                />
+            </Box>
         </Box>
     );
 };

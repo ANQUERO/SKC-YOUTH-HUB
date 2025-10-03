@@ -11,8 +11,7 @@ import {
     ListItemText,
     ListItemIcon,
     IconButton,
-    InputAdornment,
-    Grid
+    InputAdornment
 } from '@mui/material';
 import { CloudUpload, AttachFile, Delete, Visibility, VisibilityOff } from '@mui/icons-material';
 
@@ -65,92 +64,89 @@ const VerificationStep = ({ formData, errors, onChange, isVerified, onVerified }
                 Please upload a document to verify your location, then provide your email and password to complete registration.
             </Typography>
 
-            <Grid container spacing={3}>
-                {/* File Upload Section */}
-                <Grid item xs={12}>
-                    <Paper elevation={1} sx={{ p: 3, border: '2px dashed #ccc' }}>
-                        <Typography variant="h6" gutterBottom sx={{ textAlign: 'center' }}>
-                            Location Validation Document
-                        </Typography>
+            {/* File Upload Section */}
+            <Paper elevation={1} sx={{ p: 3, border: '2px dashed #ccc', mb: 3 }}>
+                <Typography variant="h6" gutterBottom sx={{ textAlign: 'center' }}>
+                    Location Validation Document
+                </Typography>
 
-                        <Alert severity="info" sx={{ mb: 2 }}>
-                            <Typography variant="body2">
-                                Please upload a document that validates your location in Cordova, Cebu.
-                                This can be a barangay certificate, utility bill, or any official document
-                                showing your address.
-                            </Typography>
-                        </Alert>
+                <Alert severity="info" sx={{ mb: 2 }}>
+                    <Typography variant="body2">
+                        Please upload a document that validates your location in Cordova, Cebu.
+                        This can be a barangay certificate, utility bill, or any official document
+                        showing your address.
+                    </Typography>
+                </Alert>
 
-                        <Box sx={{ textAlign: 'center', mb: 2 }}>
-                            <Button
-                                variant="outlined"
-                                startIcon={<CloudUpload />}
-                                onClick={handleUploadClick}
-                                sx={{ mb: 2 }}
-                            >
-                                Choose File
-                            </Button>
+                <Box sx={{ textAlign: 'center', mb: 2 }}>
+                    <Button
+                        variant="outlined"
+                        startIcon={<CloudUpload />}
+                        onClick={handleUploadClick}
+                        sx={{ mb: 2 }}
+                    >
+                        Choose File
+                    </Button>
 
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                hidden
-                                accept=".jpg,.jpeg,.png,.pdf"
-                                onChange={handleFileChange}
-                            />
-                        </Box>
-
-                        {selectedFile && (
-                            <Paper elevation={1} sx={{ p: 2, bgcolor: 'grey.50' }}>
-                                <List dense>
-                                    <ListItem
-                                        secondaryAction={
-                                            <IconButton edge="end" onClick={handleRemoveFile}>
-                                                <Delete />
-                                            </IconButton>
-                                        }
-                                    >
-                                        <ListItemIcon>
-                                            <AttachFile />
-                                        </ListItemIcon>
-                                        <ListItemText
-                                            primary={selectedFile.name}
-                                            secondary={`${(selectedFile.size / 1024 / 1024).toFixed(2)} MB`}
-                                        />
-                                    </ListItem>
-                                </List>
-                            </Paper>
-                        )}
-
-                        {errors.attachment && (
-                            <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
-                                {errors.attachment}
-                            </Typography>
-                        )}
-
-                        <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
-                            Accepted formats: JPEG, PNG, PDF (Max size: 5MB)
-                        </Typography>
-                    </Paper>
-                </Grid>
-
-                {/* Email */}
-                <Grid item xs={12}>
-                    <TextField
-                        fullWidth
-                        label="Email Address"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => onChange('email', e.target.value)}
-                        error={!!errors.email}
-                        helperText={errors.email}
-                        required
-                        autoComplete="email"
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        hidden
+                        accept=".jpg,.jpeg,.png,.pdf"
+                        onChange={handleFileChange}
                     />
-                </Grid>
+                </Box>
 
-                {/* Password */}
-                <Grid item xs={12} sm={6}>
+                {selectedFile && (
+                    <Paper elevation={1} sx={{ p: 2, bgcolor: 'grey.50' }}>
+                        <List dense>
+                            <ListItem
+                                secondaryAction={
+                                    <IconButton edge="end" onClick={handleRemoveFile}>
+                                        <Delete />
+                                    </IconButton>
+                                }
+                            >
+                                <ListItemIcon>
+                                    <AttachFile />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={selectedFile.name}
+                                    secondary={`${(selectedFile.size / 1024 / 1024).toFixed(2)} MB`}
+                                />
+                            </ListItem>
+                        </List>
+                    </Paper>
+                )}
+
+                {errors.attachment && (
+                    <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
+                        {errors.attachment}
+                    </Typography>
+                )}
+
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
+                    Accepted formats: JPEG, PNG, PDF (Max size: 5MB)
+                </Typography>
+            </Paper>
+
+            {/* Email and Password Section */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                {/* Email */}
+                <TextField
+                    fullWidth
+                    label="Email Address"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => onChange('email', e.target.value)}
+                    error={!!errors.email}
+                    helperText={errors.email}
+                    required
+                    autoComplete="email"
+                />
+
+                {/* Password and Confirm Password - Side by Side */}
+                <Box sx={{ display: 'flex', gap: 2 }}>
                     <TextField
                         fullWidth
                         label="Password"
@@ -174,10 +170,7 @@ const VerificationStep = ({ formData, errors, onChange, isVerified, onVerified }
                             )
                         }}
                     />
-                </Grid>
 
-                {/* Confirm Password */}
-                <Grid item xs={12} sm={6}>
                     <TextField
                         fullWidth
                         label="Confirm Password"
@@ -201,8 +194,8 @@ const VerificationStep = ({ formData, errors, onChange, isVerified, onVerified }
                             )
                         }}
                     />
-                </Grid>
-            </Grid>
+                </Box>
+            </Box>
 
             <Alert severity="info" sx={{ mt: 3 }}>
                 <Typography variant="body2">
