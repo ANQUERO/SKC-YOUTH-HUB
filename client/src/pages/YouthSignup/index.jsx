@@ -311,7 +311,7 @@ export default YouthSignup;
 // Styled Components
 const Wrapper = styled.div`
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #5894E2 0%, #68A1E1 100%);
     padding: 2rem 0;
     display: flex;
     align-items: center;
