@@ -57,7 +57,6 @@ export const ContentContainer = styled.div`
 
 export const TopContainer = styled.div`
   background-color: #FBFCFA;
-  padding: 0.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;

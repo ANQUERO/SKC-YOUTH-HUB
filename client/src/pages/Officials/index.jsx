@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import useOfficials from '@hooks/useOfficials';
+import styles from '@styles/official.module.scss';
 
 const Officials = () => {
     const {
@@ -29,152 +29,63 @@ const Officials = () => {
     };
 
     return (
-        <Wrapper>
-            <Title>SK Youth Officials</Title>
+        <div className={styles.officials_wrapper}>
+            <h1 className={styles.officials_title}>SK Youth Officials</h1>
 
-            {loading && <Message>Loading...</Message>}
-            {error && <ErrorText>{error}</ErrorText>}
+            {loading && <p className={styles.officials_message}>Loading...</p>}
+            {error && <p className={styles.officials_error}>{error}</p>}
 
-            <List>
+            <div className={styles.officials_list}>
                 {officials.map((official) => (
-                    <Card key={official.official_id} onClick={() => handleSelectOfficial(official.official_id)}>
-                        <AvatarLarge src="/default-avatar.png" alt="Avatar" />
-                        <CardContent>
-                            <Name>{[official.first_name, official.last_name].filter(Boolean).join(' ')}</Name>
-                            <Info>{official.position || 'SK Official'}</Info>
-                        </CardContent>
-                    </Card>
+                    <div
+                        key={official.official_id}
+                        className={styles.official_card}
+                        onClick={() => handleSelectOfficial(official.official_id)}
+                    >
+                        <img
+                            className={styles.avatar_large}
+                            src="/default-avatar.png"
+                            alt="Avatar"
+                        />
+                        <div className={styles.card_content}>
+                            <h2 className={styles.official_name}>
+                                {[official.first_name, official.last_name].filter(Boolean).join(' ')}
+                            </h2>
+                            <p className={styles.official_info}>
+                                {official.position || 'SK Official'}
+                            </p>
+                        </div>
+                    </div>
                 ))}
-            </List>
+            </div>
 
             {showModal && official && (
-                <ModalOverlay onClick={closeModal}>
-                    <ModalContent onClick={(e) => e.stopPropagation()}>
-                        <ModalTitle>{official.full_name}</ModalTitle>
-                        <Detail><strong>Email:</strong> {official.email}</Detail>
-                        <Detail><strong>FullName:</strong> {[official.first_name, official.last_name].filter(Boolean).join(' ')}</Detail>
-                        <Detail><strong>Role:</strong> {official.role}</Detail>
-                        {official.position && <Detail><strong>Position:</strong> {official.position}</Detail>}
-                        <CloseButton onClick={closeModal}>Close</CloseButton>
-                    </ModalContent>
-                </ModalOverlay>
+                <div className={styles.modal_overlay} onClick={closeModal}>
+                    <div className={styles.modal_content} onClick={(e) => e.stopPropagation()}>
+                        <h2 className={styles.modal_title}>{official.full_name}</h2>
+                        <p className={styles.modal_detail}>
+                            <strong>Email:</strong> {official.email}
+                        </p>
+                        <p className={styles.modal_detail}>
+                            <strong>FullName:</strong> {[official.first_name, official.last_name].filter(Boolean).join(' ')}
+                        </p>
+                        <p className={styles.modal_detail}>
+                            <strong>Role:</strong> {official.role}
+                        </p>
+                        {official.position && (
+                            <p className={styles.modal_detail}>
+                                <strong>Position:</strong> {official.position}
+                            </p>
+                        )}
+                        <button className={styles.close_button} onClick={closeModal}>
+                            Close
+                        </button>
+                    </div>
+                </div>
             )}
-        </Wrapper>
+            
+        </div>
     );
 };
 
 export default Officials;
-
-
-const Wrapper = styled.div`
-    padding: 2rem;
-    max-width: 900px;
-    margin: auto;
-`;
-
-const Title = styled.h1`
-    font-size: 2rem;
-    font-weight: bold;
-    margin-bottom: 2rem;
-`;
-
-const Message = styled.p`
-    font-size: 1rem;
-    color: #555;
-`;
-
-const ErrorText = styled.p`
-    font-size: 1rem;
-    color: red;
-`;
-
-const List = styled.div`
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 2rem;
-`;
-
-const Card = styled.div`
-    background: #fff;
-    border-radius: 1rem;
-    overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    cursor: pointer;
-    transition: transform 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 1rem;
-
-    &:hover {
-        transform: translateY(-5px);
-        background-color: #f3f4f6;
-    }
-`;
-
-const CardContent = styled.div`
-    text-align: center;
-`;
-
-const Name = styled.h2`
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-`;
-
-const Info = styled.p`
-    font-size: 0.95rem;
-    color: #333;
-`;
-
-const ModalOverlay = styled.div`
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-`;
-
-const ModalContent = styled.div`
-    background: #fff;
-    padding: 2rem;
-    border-radius: 0.75rem;
-    max-width: 500px;
-    width: 90%;
-    position: relative;
-`;
-
-const ModalTitle = styled.h2`
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-`;
-
-const Detail = styled.p`
-    margin: 0.5rem 0;
-    font-size: 1rem;
-`;
-
-const CloseButton = styled.button`
-    background: #ef4444;
-    color: white;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-top: 1rem;
-
-    &:hover {
-        background: #dc2626;
-    }
-`;
-
-const AvatarLarge = styled.img`
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 3px solid #ddd;
-    margin-bottom: 1rem;
-`;
-

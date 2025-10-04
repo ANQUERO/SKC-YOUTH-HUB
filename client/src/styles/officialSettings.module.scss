@@ -1,0 +1,385 @@
+// Add official
+.officialSignupCard {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s ease;
+    
+    &:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+}
+
+.officialSignupHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    
+    .icon {
+        color: #1976d2;
+    }
+}
+
+.officialSignupDescription {
+    color: #666666;
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+.officialSignupAlert {
+    margin-bottom: 24px;
+    border-radius: 4px;
+}
+
+.officialSignupForm {
+    .formGrid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .sectionTitle {
+        margin: 16px 0 8px 0;
+        color: #333333;
+        font-weight: 600;
+        padding-bottom: 4px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .textField {
+        margin-bottom: 8px;
+    }
+
+    .selectContainer {
+        margin-bottom: 8px;
+    }
+
+    .submitButton {
+        margin-top: 16px;
+        padding: 10px 24px;
+        font-weight: 500;
+        text-transform: none;
+        border-radius: 4px;
+        background-color: #1976d2;
+        
+        &:hover {
+            background-color: #1565c0;
+        }
+        
+        &:disabled {
+            background-color: #e0e0e0;
+            color: #9e9e9e;
+        }
+    }
+}
+
+.fullWidth {
+    grid-column: 1 / -1;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+    .officialSignupCard {
+        margin: 8px;
+    }
+    
+    .officialSignupForm {
+        .formGrid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+    }
+    
+    .officialSignupHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .submitButton {
+        width: 100%;
+    }
+}
+
+// Add password reset 
+.passwordResetCard {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  max-width: 600px;
+  margin: 0 auto;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+  }
+}
+
+.cardContent {
+  padding: 32px !important;
+
+  @media (max-width: 768px) {
+    padding: 24px !important;
+  }
+
+  @media (max-width: 480px) {
+    padding: 20px !important;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px !important;
+  color: #1a237e;
+  font-weight: 600;
+  text-align: center;
+  justify-content: center;
+
+  .icon {
+    color: #1976d2;
+    font-size: 28px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 1.25rem !important;
+    justify-content: flex-start;
+    text-align: left;
+  }
+}
+
+.description {
+  margin-bottom: 32px !important;
+  color: #666666;
+  line-height: 1.6;
+  font-size: 1rem;
+  text-align: center;
+
+  @media (max-width: 768px) {
+    text-align: left;
+    margin-bottom: 24px !important;
+  }
+}
+
+.alert {
+  margin-bottom: 24px;
+  border-radius: 8px;
+  
+  &.MuiAlert-standardSuccess {
+    background-color: #f1f8e9;
+    border: 1px solid #c5e1a5;
+  }
+  
+  &.MuiAlert-standardError {
+    background-color: #ffebee;
+    border: 1px solid #ef9a9a;
+  }
+}
+
+.form {
+  width: 100%;
+
+  .textField {
+    margin-bottom: 6px;
+
+    .MuiOutlinedInput-root {
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      
+      &:hover fieldset {
+        border-color: #90caf9;
+      }
+      
+      &.Mui-focused fieldset {
+        border-color: #1976d2;
+        border-width: 2px;
+      }
+    }
+    
+    .MuiInputLabel-root {
+      color: #666666;
+      font-size: 0.95rem;
+      
+      &.Mui-focused {
+        color: #1976d2;
+        font-weight: 500;
+      }
+    }
+    
+    .MuiFormHelperText-root {
+      margin-left: 0;
+      margin-top: 6px;
+      font-size: 0.8rem;
+      color: #666666;
+    }
+  }
+}
+
+// Grid container adjustments
+.formGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.passwordFields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+
+  @media (max-width: 768px) {
+    justify-content: stretch;
+    margin-top: 20px;
+  }
+}
+
+.submitButton {
+  padding: 14px 48px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  border-radius: 8px !important;
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%) !important;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3) !important;
+  transition: all 0.3s ease !important;
+  min-width: 200px;
+  font-size: 1rem !important;
+  
+  &:hover {
+    background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%) !important;
+    box-shadow: 0 4px 16px rgba(25, 118, 210, 0.4) !important;
+    transform: translateY(-2px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    background: #e0e0e0 !important;
+    color: #9e9e9e !important;
+    box-shadow: none !important;
+    transform: none !important;
+    cursor: not-allowed;
+  }
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    min-width: auto;
+    padding: 14px 32px !important;
+  }
+}
+
+// Field group styling
+.fieldGroup {
+  margin-bottom: 8px;
+  
+  &.currentPassword {
+    margin-bottom: 24px;
+  }
+  
+  &.newPasswords {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+}
+
+// Responsive design improvements
+@media (max-width: 768px) {
+  .passwordResetCard {
+    margin: 16px;
+    border-radius: 8px;
+  }
+
+  .header {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    
+    .icon {
+      align-self: center;
+      font-size: 24px;
+    }
+  }
+
+  .form {
+    .textField {
+      margin-bottom: 12px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .cardContent {
+    padding: 16px !important;
+  }
+
+  .header {
+    font-size: 1.1rem !important;
+    gap: 8px;
+    
+    .icon {
+      font-size: 20px;
+    }
+  }
+
+  .description {
+    font-size: 0.9rem;
+    margin-bottom: 20px !important;
+  }
+
+  .submitButton {
+    padding: 12px 24px !important;
+    font-size: 0.95rem !important;
+  }
+
+  .fieldGroup {
+    &.newPasswords {
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+  }
+}
+
+// Animation for better UX
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.passwordResetCard {
+  animation: slideIn 0.3s ease-out;
+}
+
+// Focus states for accessibility
+.textField:focus-within {
+  .MuiOutlinedInput-root {
+    fieldset {
+      border-color: #1976d2 !important;
+    }
+  }
+}
