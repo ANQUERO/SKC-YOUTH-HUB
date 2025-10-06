@@ -24,7 +24,7 @@ export const Navbar = () => {
   const [isNotifOpen, setNotifOpen] = useState(false);
   const [isProfileOpen, setProfileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
+  const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
   const { userData, profilePicture, loading: userLoading } = useCurrentUser();
   const logout = useLogout();
   const canManage = isSkSuperAdmin || isSkNaturalAdmin;
