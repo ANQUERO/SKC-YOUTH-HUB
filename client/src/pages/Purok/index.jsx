@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import {
   Box, Paper, Table, TableBody, TableCell, TableContainer, TableRow,
   TablePagination, Checkbox, Toolbar, Typography, Button, Switch, FormControlLabel,
-  Snackbar, Alert
+  Snackbar, Alert, Chip, Card, CardContent, Grid
 } from '@mui/material';
-import { Ellipsis } from 'lucide-react';
+import { Ellipsis, Users, UserCheck, UserX, Vote, Male, Female } from 'lucide-react';
 import usePurok from '@hooks/usePurok';
 import EnhancedTableHead from './components/tableHead';
 import PurokActionsMenu from './components/actions';
@@ -19,7 +19,7 @@ function getComparator(order, orderBy) {
 }
 
 const Purok = () => {
-  const { puroks, fetchPuroks, deletePurok, createPurok, updatePurok, loading, error } = usePurok();
+  const { puroks, fetchPuroks, deletePurok, createPurok, updatePurok, fetchAllPuroksWithResidents, loading, error } = usePurok();
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('name');
   const [page, setPage] = useState(0);
@@ -33,12 +33,25 @@ const Purok = () => {
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [selectedPurok, setSelectedPurok] = useState(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [puroksWithResidents, setPuroksWithResidents] = useState([]);
+  const [showResidents, setShowResidents] = useState(true);
 
   useEffect(() => {
     fetchPuroks();
+    loadPuroksWithResidents();
   }, []);
 
-  const visibleRows = puroks
+  const loadPuroksWithResidents = async () => {
+    try {
+      const data = await fetchAllPuroksWithResidents();
+      setPuroksWithResidents(data);
+    } catch (error) {
+      console.error('Failed to load puroks with residents:', error);
+    }
+  };
+
+  const dataToShow = showResidents ? puroksWithResidents : puroks;
+  const visibleRows = dataToShow
     ?.slice()
     ?.sort(getComparator(order, orderBy))
     ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) || [];
@@ -112,21 +125,98 @@ const Purok = () => {
 
       <Typography variant="h4" gutterBottom>Purok Management</Typography>
 
-      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'end', gap: '2px' }}>
+      {/* Summary Cards */}
+      {showResidents && puroksWithResidents.length > 0 && (
+        <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Users color="#1976d2" />
+                  <Typography variant="h6">
+                    {puroksWithResidents.reduce((sum, p) => sum + (p.total_residents || 0), 0)}
+                  </Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary">
+                  Total Residents
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <UserCheck color="#4caf50" />
+                  <Typography variant="h6">
+                    {puroksWithResidents.reduce((sum, p) => sum + (p.verified_residents || 0), 0)}
+                  </Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary">
+                  Verified Residents
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Vote color="#ff9800" />
+                  <Typography variant="h6">
+                    {puroksWithResidents.reduce((sum, p) => sum + (p.registered_voters || 0), 0)}
+                  </Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary">
+                  Registered Voters
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ display: 'flex', gap: 0.5 }}>
+                    <Male color="#e91e63" />
+                    <Female color="#2196f3" />
+                  </Box>
+                  <Typography variant="h6">
+                    {puroksWithResidents.reduce((sum, p) => sum + (p.male_residents || 0), 0)} / {puroksWithResidents.reduce((sum, p) => sum + (p.female_residents || 0), 0)}
+                  </Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary">
+                  Male / Female
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      )}
 
-        <Button variant="contained" onClick={() => setShowModal(true)}>+ New Purok</Button>
+      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Button 
+          variant={showResidents ? "contained" : "outlined"}
+          onClick={() => setShowResidents(!showResidents)}
+          startIcon={<Users />}
+        >
+          {showResidents ? 'Show Residents Data' : 'Show Basic Data'}
+        </Button>
 
-        {selectedIds.length > 0 && (
-          <Button
-            color="error"
-            sx={{ border: '1px solid red' }}
-            onClick={handleBulkDelete}
-            disabled={actionLoading}
-          >
-            Delete Selected
-          </Button>
-        )}
+        <Box sx={{ display: 'flex', gap: '8px' }}>
+          <Button variant="contained" onClick={() => setShowModal(true)}>+ New Purok</Button>
 
+          {selectedIds.length > 0 && (
+            <Button
+              color="error"
+              sx={{ border: '1px solid red' }}
+              onClick={handleBulkDelete}
+              disabled={actionLoading}
+            >
+              Delete Selected
+            </Button>
+          )}
+        </Box>
       </Box>
 
       {loading && <Typography>Loading...</Typography>}
@@ -144,10 +234,11 @@ const Purok = () => {
                 setOrderBy(prop);
               }}
               onSelectAllClick={(e) =>
-                setSelectedIds(e.target.checked ? puroks.map((p) => p.purok_id) : [])
+                setSelectedIds(e.target.checked ? (dataToShow?.map((p) => p.purok_id) || []) : [])
               }
               rowCount={visibleRows.length}
               numSelected={selectedIds.length}
+              showResidents={showResidents}
             />
             <TableBody>
               {visibleRows.map((row, i) => (
@@ -165,7 +256,61 @@ const Purok = () => {
                     />
                   </TableCell>
                   <TableCell>{page * rowsPerPage + i + 1}</TableCell>
-                  <TableCell>{row.name}</TableCell>
+                  <TableCell>{row.name || row.purok_name}</TableCell>
+                  {showResidents && (
+                    <>
+                      <TableCell align="center">
+                        <Chip 
+                          icon={<Users size={16} />} 
+                          label={row.total_residents || 0} 
+                          color="primary" 
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell align="center">
+                        <Chip 
+                          icon={<UserCheck size={16} />} 
+                          label={row.verified_residents || 0} 
+                          color="success" 
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell align="center">
+                        <Chip 
+                          icon={<UserX size={16} />} 
+                          label={row.unverified_residents || 0} 
+                          color="warning" 
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell align="center">
+                        <Chip 
+                          icon={<Vote size={16} />} 
+                          label={row.registered_voters || 0} 
+                          color="info" 
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell align="center">
+                        <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
+                          <Chip 
+                            icon={<Male size={14} />} 
+                            label={row.male_residents || 0} 
+                            color="secondary" 
+                            size="small"
+                            sx={{ minWidth: 'auto' }}
+                          />
+                          <Chip 
+                            icon={<Female size={14} />} 
+                            label={row.female_residents || 0} 
+                            color="secondary" 
+                            size="small"
+                            sx={{ minWidth: 'auto' }}
+                          />
+                        </Box>
+                      </TableCell>
+                    </>
+                  )}
                   <TableCell align="right">
                     <Ellipsis onClick={(e) => handleMenuClick(e, row)} />
                   </TableCell>
@@ -178,7 +323,7 @@ const Purok = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10]}
           component="div"
-          count={puroks.length}
+          count={dataToShow?.length || 0}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={(e, newPage) => setPage(newPage)}

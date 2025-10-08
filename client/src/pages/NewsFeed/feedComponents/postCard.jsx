@@ -94,6 +94,19 @@ export const PostCard = ({ post, onPostDeleted }) => {
         );
     }
 
+    const getPostTypeInfo = (type) => {
+        switch (type) {
+            case 'announcement':
+                return { icon: '📢', label: 'Announcement', color: '#1976d2' };
+            case 'activity':
+                return { icon: '🎯', label: 'Activity', color: '#f57c00' };
+            default:
+                return { icon: '📝', label: 'Post', color: '#4caf50' };
+        }
+    };
+
+    const postTypeInfo = getPostTypeInfo(post.type);
+
     return (
         <div className={style.card}>
             <div className={style.header}>
@@ -105,6 +118,10 @@ export const PostCard = ({ post, onPostDeleted }) => {
                     </div>
                 </div>
                 <div className={style.headerActions}>
+                    <div className={style.postTypeBadge} style={{ backgroundColor: postTypeInfo.color }}>
+                        <span>{postTypeInfo.icon}</span>
+                        <span>{postTypeInfo.label}</span>
+                    </div>
                     <span className={style.time}>
                         {new Date(post.created_at || post.time).toLocaleString()}
                     </span>

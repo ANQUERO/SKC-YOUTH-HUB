@@ -1,7 +1,7 @@
 import React from "react";
 import { usePostContext } from "@context/PostContext";
 import { PostCard } from "./feedComponents/postCard";
-import { CreatePost } from "./feedComponents/createPost";
+import { CreateAnnouncement } from "./feedComponents/CreateAnnouncement";
 import { useAuthContext } from "@context/AuthContext";
 import style from "@styles/newsFeed.module.scss";
 
@@ -13,7 +13,7 @@ export const Announcement = () => {
 
     return (
         <section className={style.feed}>
-            {canManage && <CreatePost />}
+            {canManage && <CreateAnnouncement />}
             {isLoading ? (
                 <p>Loading announcements...</p>
             ) : announcements.length === 0 ? (

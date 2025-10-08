@@ -149,6 +149,7 @@ CREATE TABLE posts (
     post_id SERIAL PRIMARY KEY,
     official_id INTEGER NOT NULL REFERENCES sk_official(official_id),
     description TEXT NOT NULL,
+    post_type VARCHAR(20) CHECK (post_type IN ('post', 'announcement', 'activity')) DEFAULT 'post',
     media_type VARCHAR(10) CHECK (media_type IN ('image', 'video')),
     media_url TEXT,
     is_hidden BOOLEAN DEFAULT FALSE,

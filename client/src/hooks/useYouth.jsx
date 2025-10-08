@@ -9,7 +9,7 @@ const useYouth = () => {
     const [youthData, setYouthData] = useState([]);
     const [youth, setYouth] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [success, setSucces] = useState(null);
+    const [success, setSuccess] = useState(null);
     const [error, setError] = useState(null);
 
     const fetchYouths = async () => {
@@ -52,7 +52,7 @@ const useYouth = () => {
         }
     };
 
-    const storeYouth = async () => {
+    const storeYouth = async (formData) => {
         if (!isAuthorized) {
             setError("Unauthorized access");
             return;
@@ -60,12 +60,12 @@ const useYouth = () => {
 
         setLoading(true);
         setError(null);
-        setSucces(null);
+        setSuccess(null);
 
         try {
-            const res = await axiosInstance.post('/youth/', youthData);
+            const res = await axiosInstance.post('/youth/', formData);
             if (res.data?.youth_id) {
-                setSucces("Youth added succesfully");
+                setSuccess("Youth added successfully");
                 return res.data;
             } else {
                 setError("Failed to create youth");

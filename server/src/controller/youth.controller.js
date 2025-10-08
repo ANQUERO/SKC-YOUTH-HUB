@@ -77,7 +77,7 @@ export const show = async (req, res) => {
                 yl.barangay,
                 p.name AS purok,
                 yi.age,
-                yi.contact,
+                yi.contact_number,
                 yi.birthday,
                 yg.gender,
                 yd.civil_status,
@@ -118,9 +118,9 @@ export const show = async (req, res) => {
 
         const { rows: attachments } = await pool.query(
             `
-            SELECT file_name, file_type, file_url, uploaded_at
-            FROM sk_youth_attachmetns
-            WHERE youth_id = $1 AND deleted_at IS NULL
+            SELECT file_name, file_type, file_url
+            FROM sk_youth_attachments
+            WHERE youth_id = $1
             `, [youth_id]
         );
 
@@ -128,9 +128,9 @@ export const show = async (req, res) => {
             `
             SELECT household
             FROM sk_youth_household
-            WHERE youth_id = $1 AND deleted_at IS NULL  
+            WHERE youth_id = $1
             `, [youth_id]
-        )
+        );
 
         res.status(200).json({
             status: 'Success',
@@ -174,6 +174,14 @@ export const store = async (req, res) => {
         attachments,
         household
     } = req.body;
+
+    // Basic validation
+    if (!email || !password || !name?.first_name || !name?.last_name) {
+        return res.status(400).json({
+            status: 'Error',
+            message: 'Missing required fields: email, password, first_name, last_name'
+        });
+    }
 
     const client = await pool.connect();
     let purokId = location.purok_id || null;
@@ -233,7 +241,7 @@ export const store = async (req, res) => {
         `, [youth_id, gender.gender]);
 
         await client.query(`
-            INSERT INTO sk_youth_info (youth_id, age, contact, birthday)
+            INSERT INTO sk_youth_info (youth_id, age, contact_number, birthday)
             VALUES ($1, $2, $3, $4)
         `, [youth_id, info.age, info.contact, info.birthday]);
 

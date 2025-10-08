@@ -11,12 +11,33 @@
   flex-wrap: wrap;
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  min-height: 70px;
+
+  @media (max-width: 768px) {
+    padding: 0.75rem 1rem;
+    min-height: 60px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.5rem 0.75rem;
+    min-height: 55px;
+  }
 
   .logoWrapper {
     display: flex;
     align-items: center;
     gap: 1.5rem;
     flex: 1;
+    min-width: 0; // Allow shrinking
+
+    @media (max-width: 768px) {
+      gap: 1rem;
+      flex: 1 1 auto;
+    }
+
+    @media (max-width: 480px) {
+      gap: 0.75rem;
+    }
 
     .logoLink {
       display: flex;
@@ -44,6 +65,15 @@
         font-weight: 700;
         color: white;
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        white-space: nowrap;
+
+        @media (max-width: 1024px) {
+          font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+          display: none;
+        }
       }
     }
 
@@ -51,6 +81,16 @@
       position: relative;
       display: flex;
       align-items: center;
+      flex: 1;
+      max-width: 350px;
+
+      @media (max-width: 768px) {
+        max-width: 250px;
+      }
+
+      @media (max-width: 480px) {
+        max-width: 180px;
+      }
 
       .searchIcon {
         position: absolute;
@@ -59,6 +99,12 @@
         width: 18px;
         height: 18px;
         z-index: 1;
+
+        @media (max-width: 480px) {
+          width: 16px;
+          height: 16px;
+          left: 10px;
+        }
       }
 
       .searchInput {
@@ -71,7 +117,18 @@
         color: white;
         backdrop-filter: blur(10px);
         transition: all 0.3s ease;
-        width: 350px;
+        width: 100%;
+        min-width: 0;
+
+        @media (max-width: 768px) {
+          padding: 0.6rem 0.8rem 0.6rem 2.2rem;
+          font-size: 0.9rem;
+        }
+
+        @media (max-width: 480px) {
+          padding: 0.5rem 0.6rem 0.5rem 2rem;
+          font-size: 0.85rem;
+        }
 
         &::placeholder {
           color: rgba(255, 255, 255, 0.7);
@@ -169,6 +226,15 @@
     align-items: center;
     gap: 1.5rem;
     position: relative;
+    flex-shrink: 0;
+
+    @media (max-width: 768px) {
+      gap: 1rem;
+    }
+
+    @media (max-width: 480px) {
+      gap: 0.75rem;
+    }
 
     .icon {
       width: 24px;
@@ -178,6 +244,18 @@
       transition: all 0.3s ease;
       padding: 0.5rem;
       border-radius: 50%;
+
+      @media (max-width: 768px) {
+        width: 22px;
+        height: 22px;
+        padding: 0.4rem;
+      }
+
+      @media (max-width: 480px) {
+        width: 20px;
+        height: 20px;
+        padding: 0.35rem;
+      }
 
       &:hover {
         color: white;
@@ -250,17 +328,29 @@
       flex-direction: column;
       align-items: flex-start;
 
+      @media (max-width: 768px) {
+        display: none;
+      }
+
       .userName {
         font-size: 0.9rem;
         font-weight: 600;
         color: white;
         line-height: 1.2;
+
+        @media (max-width: 1024px) {
+          font-size: 0.85rem;
+        }
       }
 
       .userRole {
         font-size: 0.75rem;
         color: rgba(255, 255, 255, 0.7);
         font-weight: 500;
+
+        @media (max-width: 1024px) {
+          font-size: 0.7rem;
+        }
       }
     }
   }
@@ -281,9 +371,16 @@
     border: 1px solid rgba(0, 0, 0, 0.05);
     backdrop-filter: blur(20px);
 
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
+      width: 90vw;
+      right: 5%;
+      max-width: 300px;
+    }
+
+    @media (max-width: 480px) {
       width: 95vw;
       right: 2.5%;
+      max-width: none;
     }
 
     .profileHeader {
@@ -412,9 +509,16 @@
     overflow: hidden;
     border: 1px solid rgba(0, 0, 0, 0.05);
 
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
+      width: 90vw;
+      right: 5%;
+      max-width: 300px;
+    }
+
+    @media (max-width: 480px) {
       width: 95vw;
       right: 2.5%;
+      max-width: none;
     }
 
     .dropdownHeader {
@@ -547,6 +651,8 @@
       padding: 0.5rem;
       border-radius: 12px;
       transition: all 0.3s ease;
+      min-height: 44px; // Minimum touch target size
+      justify-content: center;
 
       .mobileNavIcon {
         width: 20px;
@@ -567,6 +673,10 @@
         .mobileNavIcon {
           transform: scale(1.1);
         }
+      }
+
+      &:active {
+        transform: scale(0.95);
       }
 
       &.active {
@@ -602,31 +712,26 @@
 
   /* Adjust main nav container for mobile */
   @media (max-width: 768px) {
-    .nav {
-      flex-direction: row;
-      flex-wrap: wrap;
-      padding: 1rem;
-      padding-bottom: 0;
-    }
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 0.75rem 1rem 0;
+    align-items: center;
 
     .logoWrapper {
       flex: 1;
       margin-bottom: 0;
       gap: 1rem;
+      order: 1;
 
       .logoLink .logoText {
         display: none;
-      }
-
-      .searchWrapper .searchInput {
-        width: 200px;
-        font-size: 0.9rem;
       }
     }
 
     .actions {
       flex-shrink: 0;
       gap: 1rem;
+      order: 2;
 
       .profileWrapper {
         .userInfo {
@@ -634,11 +739,74 @@
         }
       }
     }
+
+    .mobileNavLinks {
+      order: 3;
+      margin-top: 0.75rem;
+    }
   }
 
   @media (max-width: 480px) {
-    .logoWrapper .searchWrapper .searchInput {
-      width: 150px;
+    padding: 0.5rem 0.75rem 0;
+
+    .logoWrapper {
+      gap: 0.75rem;
+
+      .searchWrapper {
+        display: none; // Hide search on very small screens to save space
+      }
+    }
+
+    .actions {
+      gap: 0.75rem;
+    }
+
+    .mobileNavLinks {
+      margin-top: 0.5rem;
+      padding: 0.5rem 0;
+
+      .mobileNavLabel {
+        font-size: 0.65rem;
+      }
+    }
+  }
+
+  @media (max-width: 360px) {
+    padding: 0.4rem 0.5rem 0;
+
+    .logoWrapper {
+      .logo {
+        width: 40px;
+        height: 40px;
+      }
+    }
+
+    .actions {
+      .icon {
+        width: 18px;
+        height: 18px;
+        padding: 0.3rem;
+      }
+
+      .profileWrapper {
+        .avatarContainer .avatar {
+          width: 35px;
+          height: 35px;
+        }
+      }
+    }
+
+    .mobileNavLinks {
+      padding: 0.4rem 0;
+
+      .mobileNavIcon {
+        width: 18px;
+        height: 18px;
+      }
+
+      .mobileNavLabel {
+        font-size: 0.6rem;
+      }
     }
   }
 }

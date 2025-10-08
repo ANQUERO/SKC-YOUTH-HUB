@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.get('/youth', ProtectRoute(), index);
 router.get('/youth/:id', ProtectRoute(), show);
-router.post('/youth', ProtectRoute({ allowedRoles: ['admin'] }), store);
+router.post('/youth', ProtectRoute(), store);
 router.put('/youth/:id', ProtectRoute({ allowedRoles: ['youth'] }), update);
 
 export default router

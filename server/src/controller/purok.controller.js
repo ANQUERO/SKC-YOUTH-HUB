@@ -233,10 +233,88 @@ export const totalResidence = async (req, res) => {
 
     try {
         const result = await pool.query(
-            `SELECT `
-        )
-    } catch (error) {
+            `
+            SELECT 
+                p.purok_id,
+                p.name as purok_name,
+                COUNT(yl.youth_id) as total_residents,
+                COUNT(CASE WHEN y.verified = true THEN 1 END) as verified_residents,
+                COUNT(CASE WHEN y.verified = false THEN 1 END) as unverified_residents,
+                COUNT(CASE WHEN ys.registered_voter = 'yes' THEN 1 END) as registered_voters
+            FROM purok p
+            LEFT JOIN sk_youth_location yl ON p.purok_id = yl.purok_id
+            LEFT JOIN sk_youth y ON yl.youth_id = y.youth_id AND y.deleted_at IS NULL
+            LEFT JOIN sk_youth_survey ys ON y.youth_id = ys.youth_id
+            WHERE p.purok_id = $1
+            GROUP BY p.purok_id, p.name
+            `,
+            [purok_id]
+        );
 
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                status: "Error",
+                message: "Purok not found"
+            });
+        }
+
+        res.status(200).json({
+            status: "Success",
+            data: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error("Failed to fetch purok residents:", error);
+        res.status(500).json({
+            status: "Error",
+            message: "Internal server error"
+        });
+    }
+}
+
+export const allPuroksWithResidents = async (req, res) => {
+    const user = req.user;
+
+    if (!user || user.userType !== 'official') {
+        return res.status(403).json({
+            status: "Error",
+            message: "Forbidden - Only admins can access this resource"
+        });
+    }
+
+    try {
+        const result = await pool.query(
+            `
+            SELECT 
+                p.purok_id,
+                p.name as purok_name,
+                COUNT(yl.youth_id) as total_residents,
+                COUNT(CASE WHEN y.verified = true THEN 1 END) as verified_residents,
+                COUNT(CASE WHEN y.verified = false THEN 1 END) as unverified_residents,
+                COUNT(CASE WHEN ys.registered_voter = 'yes' THEN 1 END) as registered_voters,
+                COUNT(CASE WHEN yg.gender = 'male' THEN 1 END) as male_residents,
+                COUNT(CASE WHEN yg.gender = 'female' THEN 1 END) as female_residents
+            FROM purok p
+            LEFT JOIN sk_youth_location yl ON p.purok_id = yl.purok_id
+            LEFT JOIN sk_youth y ON yl.youth_id = y.youth_id AND y.deleted_at IS NULL
+            LEFT JOIN sk_youth_survey ys ON y.youth_id = ys.youth_id
+            LEFT JOIN sk_youth_gender yg ON y.youth_id = yg.youth_id
+            GROUP BY p.purok_id, p.name
+            ORDER BY p.name
+            `
+        );
+
+        res.status(200).json({
+            status: "Success",
+            data: result.rows
+        });
+
+    } catch (error) {
+        console.error("Failed to fetch puroks with residents:", error);
+        res.status(500).json({
+            status: "Error",
+            message: "Internal server error"
+        });
     }
 }
 

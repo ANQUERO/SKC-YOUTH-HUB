@@ -19,6 +19,7 @@ const usePurok = () => {
             const endpoint = isAuthorized ? '/purok' : '/purok/public';
             const res = await axiosInstance.get(endpoint);
             setPuroks(res.data.data);
+            return res.data.data; // Return the data for immediate use
         } catch (error) {
             setError(error.response?.data?.message || "Failed to fetch puroks");
             throw error;
@@ -111,6 +112,46 @@ const usePurok = () => {
         }
     };
 
+    const fetchPurokResidents = async (purok_id) => {
+        if (!isAuthorized) {
+            setError("Unauthorized access");
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            const res = await axiosInstance.get(`/purok/${purok_id}/residents`);
+            return res.data.data;
+        } catch (error) {
+            setError(error.response?.data?.message || "Failed to fetch purok residents");
+            throw error;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchAllPuroksWithResidents = async () => {
+        if (!isAuthorized) {
+            setError("Unauthorized access");
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            const res = await axiosInstance.get('/puroks/residents');
+            return res.data.data;
+        } catch (error) {
+            setError(error.response?.data?.message || "Failed to fetch puroks with residents");
+            throw error;
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     return {
         authUser,
@@ -122,7 +163,9 @@ const usePurok = () => {
         fetchPurok,
         createPurok,
         updatePurok,
-        deletePurok
+        deletePurok,
+        fetchPurokResidents,
+        fetchAllPuroksWithResidents
     };
 };
 

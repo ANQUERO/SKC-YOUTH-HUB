@@ -4,11 +4,10 @@ import Avatar from "@images/about.png";
 import { Image, Send, Video, X } from "lucide-react";
 import { usePostContext } from "@context/PostContext";
 
-export const CreatePost = () => {
+export const CreateActivity = () => {
     const [description, setDescription] = useState("");
     const [files, setFiles] = useState([]);
     const [fileType, setFileType] = useState(null);
-    const [type, setType] = useState("post");
     const { createPost } = usePostContext();
 
     const handleFileChange = (e, kind) => {
@@ -30,7 +29,7 @@ export const CreatePost = () => {
 
         const newPost = new FormData();
         newPost.append("description", description);
-        newPost.append("type", type); // Send the selected post type
+        newPost.append("type", "activity"); // Always set as activity
         if (fileType) newPost.append("media_type", fileType);
         files.forEach((f) => newPost.append("media", f));
 
@@ -39,7 +38,6 @@ export const CreatePost = () => {
                 setDescription("");
                 setFiles([]);
                 setFileType(null);
-                setType("post");
             },
         });
     };
@@ -48,29 +46,22 @@ export const CreatePost = () => {
         <div className={style.createPost}>
             {/* --- USER INFO --- */}
             <div className={style.userInfo}>
-                    <img src={Avatar} alt="avatar" />
+                <img src={Avatar} alt="avatar" />
                 <div>
                     <strong>SK Chairman, Lester Q. Cruspero</strong>
                     <p>Official</p>
                 </div>
 
                 <div className={style.topBar}>
-                    <select
-                        className={style.postTypeSelect}
-                        value={type}
-                        onChange={(e) => setType(e.target.value)}
-                    >
-                        <option value="post">Post</option>
-                        <option value="announcement">Announcement</option>
-                        <option value="activity">Activity</option>
-                    </select>
+                    <div className={style.postTypeIndicator}>
+                        🎯 Activity
+                    </div>
                 </div>
             </div>
 
             {/* --- INPUTS --- */}
-
             <textarea
-                placeholder="What's on your mind?"
+                placeholder="Share information about an upcoming or past activity..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
             />

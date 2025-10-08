@@ -34,7 +34,7 @@ import usePurok from '@hooks/usePurok';
 
 const AddYouthModal = ({ open, onClose, onSuccess }) => {
     const { storeYouth, loading, error, success } = useYouth();
-    const { fetcPuroks } = usePurok();
+    const { fetchPuroks } = usePurok();
     const [puroks, setPuroks] = useState([]);
     const [activeStep, setActiveStep] = useState(0);
 
@@ -93,9 +93,9 @@ const AddYouthModal = ({ open, onClose, onSuccess }) => {
 
     useEffect(() => {
         if (open) {
-            fetcPuroks().then(data => setPuroks(data));
+            fetchPuroks().then(data => setPuroks(data));
         }
-    }, [open, fetcPuroks]);
+    }, [open, fetchPuroks]);
 
     useEffect(() => {
         if (success) {
@@ -126,7 +126,18 @@ const AddYouthModal = ({ open, onClose, onSuccess }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await storeYouth(formData);
+        
+        // Basic validation
+        if (!formData.email || !formData.password || !formData.name.first_name || !formData.name.last_name) {
+            setError("Please fill in all required fields (Email, Password, First Name, Last Name)");
+            return;
+        }
+        
+        try {
+            await storeYouth(formData);
+        } catch (error) {
+            console.error("Submit error:", error);
+        }
     };
 
     const handleNext = () => {
@@ -624,6 +635,7 @@ const AddYouthModal = ({ open, onClose, onSuccess }) => {
             </DialogTitle>
             <DialogContent sx={{ p: 3 }}>
                 {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+                {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
                 <Stepper activeStep={activeStep} sx={{ mb: 3 }}>
                     {steps.map((step, index) => (

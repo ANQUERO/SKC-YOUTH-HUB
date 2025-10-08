@@ -33,6 +33,46 @@
       color: #666;
       margin: 0;
     }
+
+    .topBar {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .postTypeSelect {
+        padding: 0.25rem 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        background: white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          border-color: #1976d2;
+        }
+
+        &:focus {
+          outline: none;
+          border-color: #1976d2;
+          box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+        }
+      }
+
+      .postTypeIndicator {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #1976d2, #1565c0);
+        color: white;
+        box-shadow: 0 2px 8px rgba(25, 118, 210, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+    }
   }
 
   textarea {
@@ -173,6 +213,24 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex-wrap: wrap;
+
+    .postTypeBadge {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 12px;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 600;
+      white-space: nowrap;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      
+      span:first-child {
+        font-size: 0.8rem;
+      }
+    }
 
     .time {
       font-size: 0.75rem;

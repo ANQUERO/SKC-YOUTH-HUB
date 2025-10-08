@@ -5,7 +5,9 @@ import {
     show,
     store,
     update,
-    destroy
+    destroy,
+    totalResidence,
+    allPuroksWithResidents
 } from '../controller/purok.controller.js';
 import ProtectRoute from '../middleware/protectRoute.middleware.js';
 
@@ -17,6 +19,8 @@ router.get('/purok/public', publicIndex);
 // Protected routes (authentication required)
 router.get('/purok', ProtectRoute(), index);
 router.get('/purok/:id', ProtectRoute(), show);
+router.get('/purok/:id/residents', ProtectRoute(), totalResidence);
+router.get('/puroks/residents', ProtectRoute(), allPuroksWithResidents);
 router.post('/purok', ProtectRoute(), store);
 router.put('/purok/:id', ProtectRoute(), update);
 router.delete('/purok/:id', ProtectRoute(), destroy);

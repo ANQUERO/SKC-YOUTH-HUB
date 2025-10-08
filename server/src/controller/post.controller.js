@@ -24,6 +24,7 @@ export const index = async (req, res) => {
             SELECT 
                 p.post_id,
                 p.description,
+                p.post_type,
                 p.media_type,
                 p.media_url,
                 p.is_hidden,
@@ -48,7 +49,7 @@ export const index = async (req, res) => {
             GROUP BY 
                 p.post_id, o.official_id, o.official_position,
                 n.first_name, n.middle_name, n.last_name, n.suffix,
-                p.is_hidden, p.hidden_by, p.hidden_reason
+                p.post_type, p.is_hidden, p.hidden_by, p.hidden_reason
             ORDER BY p.created_at DESC
             `
         );
@@ -56,6 +57,7 @@ export const index = async (req, res) => {
         const posts = result.rows.map(row => ({
             post_id: row.post_id,
             description: row.description,
+            type: row.post_type || 'post', // Map post_type to type for frontend compatibility
             media_type: row.media_type,
             media_url: row.media_url,
             is_hidden: row.is_hidden,
@@ -90,6 +92,7 @@ export const createPost = async (req, res) => {
     const user = req.user;
     const body = req.body || {};
     const description = body.description || '';
+    const post_type = body.type || body.post_type || 'post';
     const media_type = body.media_type || '';
     const media_url = body.media_url || '';
 
@@ -97,6 +100,15 @@ export const createPost = async (req, res) => {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only officials can create posts"
+        });
+    }
+
+    // Validate post_type
+    const validTypes = ['post', 'announcement', 'activity'];
+    if (!validTypes.includes(post_type)) {
+        return res.status(400).json({
+            status: "Error",
+            message: "Invalid post type. Must be one of: post, announcement, activity"
         });
     }
 
@@ -115,11 +127,11 @@ export const createPost = async (req, res) => {
 
         const result = await pool.query(
             `
-            INSERT INTO posts (official_id, description, media_type, media_url)
-            VALUES ($1, $2, $3, $4 )
-            RETURNING post_id, description, media_type, media_url, created_at, updated_at
+            INSERT INTO posts (official_id, description, post_type, media_type, media_url)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING post_id, description, post_type, media_type, media_url, created_at, updated_at
             `,
-            [officialId, description, finalMediaType, finalMediaUrl]
+            [officialId, description, post_type, finalMediaType, finalMediaUrl]
         );
 
         res.status(201).json({
@@ -141,7 +153,8 @@ export const createPost = async (req, res) => {
 export const updatePost = async (req, res) => {
     const user = req.user;
     const { id: post_id } = req.params;
-    const { description, media_type, media_url } = req.body;
+    const { description, type, post_type, media_type, media_url } = req.body;
+    const finalPostType = type || post_type;
 
     if (!user || user.userType !== "official") {
         return res.status(403).json({
@@ -150,19 +163,31 @@ export const updatePost = async (req, res) => {
         });
     }
 
+    // Validate post_type if provided
+    if (finalPostType) {
+        const validTypes = ['post', 'announcement', 'activity'];
+        if (!validTypes.includes(finalPostType)) {
+            return res.status(400).json({
+                status: "Error",
+                message: "Invalid post type. Must be one of: post, announcement, activity"
+            });
+        }
+    }
+
     try {
         const result = await pool.query(
             `
             UPDATE posts
             SET
                 description = $1,
-                media_type = $2,
-                media_url = $3,
+                post_type = COALESCE($2, post_type),
+                media_type = $3,
+                media_url = $4,
                 updated_at = CURRENT_TIMESTAMP
-            WHERE post_id = $4 AND official_id = $5
+            WHERE post_id = $5 AND official_id = $6
             RETURNING *
             `,
-            [description, media_type || null, media_url || null, post_id, user.official_id]
+            [description, finalPostType || null, media_type || null, media_url || null, post_id, user.official_id]
         );
 
         if (result.rows.length === 0) {
