@@ -175,3 +175,7 @@ VITE_API_URL=http://localhost:5000/api
    - Sign up with email verification
    - Login with Google OAuth
    - Verify email through the verification page
+
+
+### Test 
+https://skcyouthhub.netlify.app/
