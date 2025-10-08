@@ -4,7 +4,7 @@ import {
   TablePagination, Checkbox, Toolbar, Typography, Button, Switch, FormControlLabel,
   Snackbar, Alert, Chip, Card, CardContent, Grid
 } from '@mui/material';
-import { Ellipsis, Users, UserCheck, UserX, Vote, Male, Female } from 'lucide-react';
+import { Ellipsis, Users, UserCheck, UserX, Vote, Mars , Venus  } from 'lucide-react';
 import usePurok from '@hooks/usePurok';
 import EnhancedTableHead from './components/tableHead';
 import PurokActionsMenu from './components/actions';
@@ -294,14 +294,14 @@ const Purok = () => {
                       <TableCell align="center">
                         <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
                           <Chip 
-                            icon={<Male size={14} />} 
+                            icon={<Mars  size={14} />} 
                             label={row.male_residents || 0} 
                             color="secondary" 
                             size="small"
                             sx={{ minWidth: 'auto' }}
                           />
                           <Chip 
-                            icon={<Female size={14} />} 
+                            icon={<Venus  size={14} />} 
                             label={row.female_residents || 0} 
                             color="secondary" 
                             size="small"
