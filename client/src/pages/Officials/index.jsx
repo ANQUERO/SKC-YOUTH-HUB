@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import useOfficials from '@hooks/useOfficials';
+import useCurrentUser from '@hooks/useCurrentUser';
 import styles from '@styles/official.module.scss';
 
 const Officials = () => {
@@ -11,6 +12,7 @@ const Officials = () => {
         fetchOfficialById,
         official
     } = useOfficials();
+    const { userData } = useCurrentUser();
     const [showModal, setShowModal] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
 
@@ -26,6 +28,17 @@ const Officials = () => {
 
     const closeModal = () => {
         setShowModal(false);
+    };
+
+    // Function to get profile picture URL with fallback
+    const getProfilePicture = (official) => {
+        // Check for profile_picture in different possible locations
+        const profilePicture =
+            official.profile_picture ||
+            official.account?.profile_picture ||
+            '/default-avatar.png';
+
+        return profilePicture;
     };
 
     return (
@@ -44,8 +57,12 @@ const Officials = () => {
                     >
                         <img
                             className={styles.avatar_large}
-                            src="/default-avatar.png"
+                            src={getProfilePicture(official)}
                             alt="Avatar"
+                            onError={(e) => {
+                                // Fallback if image fails to load
+                                e.target.src = '/default-avatar.png';
+                            }}
                         />
                         <div className={styles.card_content}>
                             <h2 className={styles.official_name}>
@@ -62,6 +79,14 @@ const Officials = () => {
             {showModal && official && (
                 <div className={styles.modal_overlay} onClick={closeModal}>
                     <div className={styles.modal_content} onClick={(e) => e.stopPropagation()}>
+                        <img
+                            className={styles.avatar_large}
+                            src={getProfilePicture(official)}
+                            alt="Avatar"
+                            onError={(e) => {
+                                e.target.src = '/default-avatar.png';
+                            }}
+                        />
                         <h2 className={styles.modal_title}>{official.full_name}</h2>
                         <p className={styles.modal_detail}>
                             <strong>Email:</strong> {official.email}
@@ -83,7 +108,7 @@ const Officials = () => {
                     </div>
                 </div>
             )}
-            
+
         </div>
     );
 };
