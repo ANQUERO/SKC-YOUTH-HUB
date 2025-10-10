@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box, Paper, Table, TableBody, TableCell, TableContainer, TableRow,
-  TablePagination, Checkbox, Toolbar, Typography, Button, Switch, FormControlLabel,
+  TablePagination, Checkbox, Typography, Button, Switch, FormControlLabel,
   Snackbar, Alert, Chip, Card, CardContent, Grid
 } from '@mui/material';
 import { Ellipsis, Users, UserCheck, UserX, Vote, Mars , Venus  } from 'lucide-react';
@@ -124,75 +124,6 @@ const Purok = () => {
     <Box sx={{ width: '100%', p: 3 }}>
 
       <Typography variant="h4" gutterBottom>Purok Management</Typography>
-
-      {/* Summary Cards */}
-      {showResidents && puroksWithResidents.length > 0 && (
-        <Grid container spacing={2} sx={{ mb: 3 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Users color="#1976d2" />
-                  <Typography variant="h6">
-                    {puroksWithResidents.reduce((sum, p) => sum + (p.total_residents || 0), 0)}
-                  </Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary">
-                  Total Residents
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <UserCheck color="#4caf50" />
-                  <Typography variant="h6">
-                    {puroksWithResidents.reduce((sum, p) => sum + (p.verified_residents || 0), 0)}
-                  </Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary">
-                  Verified Residents
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Vote color="#ff9800" />
-                  <Typography variant="h6">
-                    {puroksWithResidents.reduce((sum, p) => sum + (p.registered_voters || 0), 0)}
-                  </Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary">
-                  Registered Voters
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Box sx={{ display: 'flex', gap: 0.5 }}>
-                    <Male color="#e91e63" />
-                    <Female color="#2196f3" />
-                  </Box>
-                  <Typography variant="h6">
-                    {puroksWithResidents.reduce((sum, p) => sum + (p.male_residents || 0), 0)} / {puroksWithResidents.reduce((sum, p) => sum + (p.female_residents || 0), 0)}
-                  </Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary">
-                  Male / Female
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      )}
 
       <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Button 

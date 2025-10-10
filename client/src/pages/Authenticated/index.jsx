@@ -27,7 +27,10 @@ import {
   Settings as SettingsIcon,
   LogOut,
   Plus,
-  Menu as MenuIcon
+  Menu as MenuIcon,
+  ChevronRight,
+  Bell,
+  Search
 } from 'lucide-react';
 
 import Logo from '@components/Logo.jsx';
@@ -35,48 +38,64 @@ import Menu from '@components/Menu.jsx';
 
 const Authenticated = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const logout = useLogout();
   const { authUser } = useAuthContext();
+
+  // Handle responsive behavior
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+      if (window.innerWidth >= 1024) {
+        setIsSidebarOpen(true);
+      } else {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const menu = [
     {
       title: "Dashboard",
       path: "/dashboard",
       visible: true,
-      icon: <LayoutGrid />
+      icon: <LayoutGrid size={20} />,
+      badge: 3
     },
     {
       title: "Youth",
       path: "/youth",
       visible: true,
-      icon: <User />
+      icon: <User size={20} />
     },
     {
       title: "Purok",
       path: "/purok",
       visible: true,
-      icon: <MapPinned
-      />
+      icon: <MapPinned size={20} />
     },
     {
       title: "Inbox",
       path: "/inbox",
       visible: true,
-      icon: <InboxIcon
-      />
+      icon: <InboxIcon size={20} />,
+      badge: 12
     },
     {
       title: "Verification",
       path: "/verification",
       visible: true,
-      icon: <IdCard
-      />
+      icon: <IdCard size={20} />
     },
     {
       title: "Officials",
       path: "/officials",
       visible: true,
-      icon: <Users />
+      icon: <Users size={20} />
     }
   ];
 
@@ -85,61 +104,118 @@ const Authenticated = () => {
       title: "Settings",
       path: "/account",
       visible: true,
-      icon: <SettingsIcon
-      />
+      icon: <SettingsIcon size={20} />
     },
     {
       title: "Logout",
       onClick: logout,
       visible: true,
-      icon: <LogOut
-      />
+      icon: <LogOut size={20} />
     }
   ];
 
   return (
     <MainContainer>
-      {isSidebarOpen && <MobileOverlay onClick={() => setIsSidebarOpen(false)} />}
+      {isSidebarOpen && isMobile && (
+        <MobileOverlay onClick={() => setIsSidebarOpen(false)} />
+      )}
 
-      <MenuContainer $open={isSidebarOpen}>
-        <div>
-          <div className={style.top}>
-            <LogoWrapper>
-              <Logo />
-            </LogoWrapper>
+      <MenuContainer $open={isSidebarOpen} className={style.sidebar}>
+        {/* Header Section */}
+        <div className={style.sidebarHeader}>
+          <LogoWrapper>
+            <Logo />
+          </LogoWrapper>
+          <div className={style.sidebarToggle} onClick={() => setIsSidebarOpen(false)}>
+            <ChevronRight size={16} />
           </div>
+        </div>
 
-          <CreatePostLink to="/feed" title="Create Post">
-            <Plus />
-            <span>Create Post</span>
-          </CreatePostLink>
+        {/* Create Post Button */}
+        <CreatePostLink to="/feed" title="Create Post" className={style.createPostBtn}>
+          <div className={style.createPostIcon}>
+            <Plus size={20} />
+          </div>
+          <span>Create Post</span>
+        </CreatePostLink>
 
-          <h4 style={{ color: 'white', marginBottom: '0.75rem' }}>Menu</h4>
+        {/* Navigation Menu */}
+        <div className={style.navSection}>
+          <h4 className={style.sectionTitle}>Menu</h4>
           <Menu menus={menu} />
         </div>
 
-        <Menu menus={menusBottom} />
-      </MenuContainer>
+        {/* Bottom Navigation */}
+        <div className={style.bottomNav}>
+          <Menu menus={menusBottom} />
+        </div>
 
-      <ContentContainer>
-        <TopContainer>
-          <ToggleSidebarButton onClick={() => setIsSidebarOpen(prev => !prev)}>
-            <MenuIcon />
-          </ToggleSidebarButton>
-
-          <UserContainer>
+        {/* User Profile Section */}
+        <div className={style.userProfile}>
+          <div className={style.userAvatar}>
             <img
               src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
                 authUser?.name || 'User'
-              )}`}
+              )}&background=6366f1&color=ffffff&bold=true`}
               alt="User Avatar"
-              style={{ width: 32, height: 32, borderRadius: '50%' }}
             />
-            <span>{authUser?.name || 'User'}</span>
-          </UserContainer>
+          </div>
+          <div className={style.userInfo}>
+            <span className={style.userName}>{authUser?.name || 'User'}</span>
+            <span className={style.userRole}>Administrator</span>
+          </div>
+        </div>
+      </MenuContainer>
+
+      <ContentContainer className={style.mainContent}>
+        {/* Top Navigation Bar */}
+        <TopContainer className={style.topBar}>
+          <div className={style.leftSection}>
+            <ToggleSidebarButton 
+              onClick={() => setIsSidebarOpen(prev => !prev)}
+              className={style.menuButton}
+            >
+              <MenuIcon size={20} />
+            </ToggleSidebarButton>
+            
+            {/* Search Bar */}
+            <div className={style.searchBar}>
+              <Search size={18} className={style.searchIcon} />
+              <input 
+                type="text" 
+                placeholder="Search..." 
+                className={style.searchInput}
+              />
+            </div>
+          </div>
+
+          <div className={style.rightSection}>
+            {/* Notifications */}
+            <button className={style.iconButton}>
+              <Bell size={20} />
+              <span className={style.notificationBadge}>5</span>
+            </button>
+
+            {/* User Menu */}
+            <UserContainer className={style.userMenu}>
+              <div className={style.avatarContainer}>
+                <img
+                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    authUser?.name || 'User'
+                  )}&background=6366f1&color=ffffff&bold=true`}
+                  alt="User Avatar"
+                />
+              </div>
+              <div className={style.userText}>
+                <span className={style.userName}>{authUser?.name || 'User'}</span>
+                <span className={style.userRole}>Admin</span>
+              </div>
+            </UserContainer>
+          </div>
         </TopContainer>
 
-        <Content>
+        {/* Main Content Area */}
+        <Content className={style.contentArea}>
           <Outlet />
         </Content>
       </ContentContainer>
