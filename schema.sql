@@ -185,7 +185,6 @@ CREATE TABLE post_reactions (
     reacted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
  -- Form -- 
 CREATE TABLE forms(
     form_id SERIAL PRIMARY KEY,
