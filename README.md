@@ -75,22 +75,22 @@ Create a `.env` file in the `server` directory with the following variables:
 
 ```env
 # Database Configuration
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=sk_youth_hub
+DB_HOST=db_localhost
+DB_PORT=db_port 
+DB_NAME=db_name
 DB_USER=your_db_user
 DB_PASSWORD=your_db_password
 
 # JWT Configuration
 JWT_SECRET=your_jwt_secret_key_here
-JWT_EXPIRES_IN=7d
+JWT_EXPIRES_IN=depends on you
 
 # Server Configuration
-PORT=5000
+PORT=depend on you
 NODE_ENV=development
 
 # CORS Configuration
-CLIENT_URL=http://localhost:3000
+CLIENT_URL=depend on you
 
 # SMTP Configuration for Email Verification
 SMTP_HOST=smtp.gmail.com
@@ -116,7 +116,7 @@ Create a `.env` file in the `client` directory with the following variables:
 VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
 
 # API Configuration
-VITE_API_URL=http://localhost:5000/api
+VITE_API_URL=depends on you
 ```
 
 ## Setup Instructions
