@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import style from "@styles/newsFeed.module.scss";
-import Avatar from "@images/about.png";
 import { Image, Send, Video, X } from "lucide-react";
 import { usePostContext } from "@context/PostContext";
+import useCurrentUser from '@hooks/useCurrentUser';
 
 export const CreatePost = () => {
     const [description, setDescription] = useState("");
@@ -10,6 +10,38 @@ export const CreatePost = () => {
     const [fileType, setFileType] = useState(null);
     const [type, setType] = useState("post");
     const { createPost } = usePostContext();
+    const { userData, profilePicture, loading } = useCurrentUser();
+
+    // Get user display information
+    const getUserDisplayInfo = () => {
+        if (loading) {
+            return {
+                name: 'Loading...',
+                role: 'Loading...',
+                avatar: "/default-avatar.png"
+            };
+        }
+
+        if (userData) {
+            return {
+                name: userData.name,
+                role: userData.userType === 'official' 
+                    ? userData.position || 'Official'
+                    : userData.userType === 'youth'
+                    ? 'Youth Member'
+                    : 'User',
+                avatar: profilePicture || `/default-avatar.png`
+            };
+        }
+
+        return {
+            name: 'User',
+            role: 'User',
+            avatar: "/default-avatar.png"
+        };
+    };
+
+    const displayInfo = getUserDisplayInfo();
 
     const handleFileChange = (e, kind) => {
         const list = Array.from(e.target.files || []);
@@ -48,10 +80,16 @@ export const CreatePost = () => {
         <div className={style.createPost}>
             {/* --- USER INFO --- */}
             <div className={style.userInfo}>
-                    <img src={Avatar} alt="avatar" />
+                <img 
+                    src={displayInfo.avatar} 
+                    alt="avatar" 
+                    onError={(e) => {
+                        e.target.src = "/default-avatar.png";
+                    }}
+                />
                 <div>
-                    <strong>SK Chairman, Lester Q. Cruspero</strong>
-                    <p>Official</p>
+                    <strong>{displayInfo.name}</strong>
+                    <p>{displayInfo.role}</p>
                 </div>
 
                 <div className={style.topBar}>
@@ -68,7 +106,6 @@ export const CreatePost = () => {
             </div>
 
             {/* --- INPUTS --- */}
-
             <textarea
                 placeholder="What's on your mind?"
                 value={description}
