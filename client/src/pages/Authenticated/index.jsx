@@ -191,6 +191,9 @@ const Authenticated = () => {
         <div className={style.sidebarHeader}>
           <LogoWrapper>
             <Logo />
+            <h1 className={style.logoText}>
+              SKC:YouthHub
+            </h1>
           </LogoWrapper>
           <div className={style.sidebarToggle} onClick={() => setIsSidebarOpen(false)}>
             <ChevronRight size={16} />

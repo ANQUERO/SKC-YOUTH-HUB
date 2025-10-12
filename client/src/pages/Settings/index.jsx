@@ -6,10 +6,15 @@ import {
     Tabs,
     Tab
 } from '@mui/material'
-import { Security, AdminPanelSettings, PersonAdd } from '@mui/icons-material'
+import { 
+    Security, 
+    AdminPanelSettings, 
+    PersonAdd 
+} from '@mui/icons-material'
 import { useAuthContext } from '@context/AuthContext'
 import PasswordReset from './settingComponents/passwordReset'
 import OfficialSignup from './settingComponents/officialSignup'
+import Officials from './settingComponents/officials'
 
 const Settings = () => {
     const { isSkSuperAdmin } = useAuthContext()
@@ -17,7 +22,12 @@ const Settings = () => {
 
     return (
         <Box sx={{ p: 3 }}>
-            <Typography variant="h4" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="h4" 
+            gutterBottom sx={{ 
+                display: 'flex',
+                 alignItems: 'center', 
+                 gap: 1 
+                 }}>
                 <AdminPanelSettings /> Account Settings
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
@@ -30,11 +40,15 @@ const Settings = () => {
                     {isSkSuperAdmin && (
                         <Tab label="Register Official" icon={<PersonAdd />} />
                     )}
+                    {isSkSuperAdmin && (
+                        <Tab label="Officials" icon={<AdminPanelSettings />} />
+                    )}
                 </Tabs>
             </Box>
 
             {activeTab === 0 && <PasswordReset />}
             {activeTab === 1 && isSkSuperAdmin && <OfficialSignup />}
+            {activeTab === 2 && isSkSuperAdmin && <Officials />}
 
             <Outlet />
         </Box>
