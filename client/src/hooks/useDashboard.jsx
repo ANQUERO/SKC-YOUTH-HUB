@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import axiosInstance from "@lib/axios";
 import { useAuthContext } from "@context/AuthContext";
 
-
 const useDashboard = () => {
     const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
     const isAuthorized = isSkSuperAdmin || isSkNaturalAdmin;
@@ -88,8 +87,6 @@ const useDashboard = () => {
             setLoading(false);
         }
     }
-
-
 
     return {
         setDashboardData,
