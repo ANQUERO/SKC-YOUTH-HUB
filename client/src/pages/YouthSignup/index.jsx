@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import style from '@styles/signup.module.scss';
 import {
     Box,
     Stepper,
@@ -12,19 +13,19 @@ import {
     Paper,
     Container
 } from '@mui/material';
+
 import {
     Person,
     LocationOn,
     School,
 } from '@mui/icons-material';
 
-// Import step components
+//  Step components
 import BasicInfoStep from './components/BasicInfoStep';
 import LocationStep from './components/LocationStep';
 import CombinedDetailsStep from './components/CombinedDetailsStep';
 import VerificationStep from './components/VerificationStep';
 
-// Import hooks
 import useYouthSignup from '@hooks/useYouthSignup';
 import usePurok from '@hooks/usePurok';
 
@@ -76,8 +77,18 @@ const YouthSignup = () => {
     const [errors, setErrors] = useState({});
     const [isVerified, setIsVerified] = useState(false);
 
-    const { signup, loading, error, success } = useYouthSignup();
-    const { puroks, fetchPuroks, loading: puroksLoading, error: puroksError } = usePurok();
+    const { 
+        signup, 
+        loading, 
+        error, 
+        success 
+    } = useYouthSignup();
+    const { 
+        puroks, 
+        fetchPuroks, 
+        loading: puroksLoading, 
+        error: puroksError 
+    } = usePurok();
 
     // Only fetch puroks when user reaches the location step (step 1)
     useEffect(() => {
@@ -229,9 +240,10 @@ const YouthSignup = () => {
         <Wrapper>
             <Container maxWidth="md">
                 <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-                    <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ mb: 4 }}>
+
+                    <h1 className={style.signupTitle}>
                         Youth Registration
-                    </Typography>
+                    </h1>
 
                     {error && (
                         <Alert severity="error" sx={{ mb: 3 }}>
@@ -272,7 +284,10 @@ const YouthSignup = () => {
                         {renderStepContent(activeStep)}
                     </Box>
 
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Box sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between' 
+                        }}>
                         <Button
                             disabled={activeStep === 0}
                             onClick={handleBack}

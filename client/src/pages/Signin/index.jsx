@@ -12,10 +12,12 @@ import {
   InputAdornment,
   IconButton,
   CircularProgress,
-  Container,
-  Paper,
 } from '@mui/material';
-import { Visibility, VisibilityOff, LoginRounded } from '@mui/icons-material';
+import { 
+  Visibility, 
+  VisibilityOff, 
+  LoginRounded 
+} from '@mui/icons-material';
 
 import Logo from '@images/logo.jpg';
 import style from '@styles/signin.module.scss';
