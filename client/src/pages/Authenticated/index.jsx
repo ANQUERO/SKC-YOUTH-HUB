@@ -31,7 +31,6 @@ import {
   Menu as MenuIcon,
   ChevronRight,
   Bell,
-  Search,
   House,
   Megaphone,
   CalendarRange,
@@ -46,7 +45,6 @@ const Authenticated = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isNotifOpen, setNotifOpen] = useState(false);
   const [isProfileOpen, setProfileOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   
   const {
     userData, 
@@ -64,11 +62,13 @@ const Authenticated = () => {
   // Handle responsive behavior
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
-      if (window.innerWidth >= 1024) {
-        setIsSidebarOpen(true);
-      } else {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      
+      if (mobile) {
         setIsSidebarOpen(false);
+      } else {
+        setIsSidebarOpen(true);
       }
     };
 
@@ -80,7 +80,7 @@ const Authenticated = () => {
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (isNotifOpen && !event.target.closest(`.${style.notificationDropdown}`)) {
+      if (isNotifOpen && !event.target.closest(`.${style.notificationWrapper}`)) {
         setNotifOpen(false);
       }
       if (isProfileOpen && !event.target.closest(`.${style.profileDropdown}`)) {
@@ -91,6 +91,13 @@ const Authenticated = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isNotifOpen, isProfileOpen]);
+
+  // Close sidebar when route changes on mobile
+  useEffect(() => {
+    if (isMobile) {
+      setIsSidebarOpen(false);
+    }
+  }, [isMobile]);
 
   // Get user display information
   const getUserDisplayInfo = () => {
@@ -182,10 +189,12 @@ const Authenticated = () => {
 
   return (
     <MainContainer>
+      {/* Mobile Overlay */}
       {isSidebarOpen && isMobile && (
         <MobileOverlay onClick={() => setIsSidebarOpen(false)} />
       )}
 
+      {/* Sidebar */}
       <MenuContainer $open={isSidebarOpen} className={style.sidebar}>
         {/* Header Section */}
         <div className={style.sidebarHeader}>
@@ -195,9 +204,11 @@ const Authenticated = () => {
               SKC:YouthHub
             </h1>
           </LogoWrapper>
-          <div className={style.sidebarToggle} onClick={() => setIsSidebarOpen(false)}>
-            <ChevronRight size={16} />
-          </div>
+          {isMobile && (
+            <div className={style.sidebarToggle} onClick={() => setIsSidebarOpen(false)}>
+              <ChevronRight size={16} />
+            </div>
+          )}
         </div>
 
         {/* Create Post Button */}
@@ -219,25 +230,28 @@ const Authenticated = () => {
           <Menu menus={menusBottom.filter(item => item.visible)} />
         </div>
 
-        {/* User Profile Section */}
-        <div className={style.userProfile}>
-          <div className={style.userAvatar}>
-            <img
-              src={displayInfo.avatar}
-              alt="User Avatar"
-              onError={(e) => {
-                e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayInfo.name)}&background=6366f1&color=ffffff&bold=true`;
-              }}
-            />
+        {/* Mobile User Profile Section */}
+        {isMobile && (
+          <div className={style.userProfile}>
+            <div className={style.userAvatar}>
+              <img
+                src={displayInfo.avatar}
+                alt="User Avatar"
+                onError={(e) => {
+                  e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayInfo.name)}&background=6366f1&color=ffffff&bold=true`;
+                }}
+              />
+            </div>
+            <div className={style.userInfo}>
+              <span className={style.userName}>{displayInfo.name}</span>
+              <span className={style.userRole}>{displayInfo.role}</span>
+            </div>
           </div>
-          <div className={style.userInfo}>
-            <span className={style.userName}>{displayInfo.name}</span>
-            <span className={style.userRole}>{displayInfo.role}</span>
-          </div>
-        </div>
+        )}
       </MenuContainer>
 
-      <ContentContainer className={style.mainContent}>
+      {/* Main Content */}
+      <ContentContainer $sidebarOpen={isSidebarOpen} className={style.mainContent}>
         {/* Top Navigation Bar */}
         <TopContainer className={style.topBar}>
           <div className={style.leftSection}>
@@ -247,18 +261,6 @@ const Authenticated = () => {
             >
               <MenuIcon size={20} />
             </ToggleSidebarButton>
-            
-            {/* Search Bar */}
-            <div className={style.searchBar}>
-              <Search size={18} className={style.searchIcon} />
-              <input 
-                type="text" 
-                placeholder="Search posts, announcements..." 
-                className={style.searchInput}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
 
             {/* Mobile Navigation Links */}
             {isMobile && (
@@ -319,7 +321,9 @@ const Authenticated = () => {
               >
                 <Bell size={20} />
                 {unreadCount > 0 && (
-                  <span className={style.notificationBadge}>{unreadCount}</span>
+                  <span className={style.notificationBadge}>
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
                 )}
               </button>
 
@@ -379,10 +383,12 @@ const Authenticated = () => {
                   />
                   {userLoading && <div className={style.avatarLoading}></div>}
                 </div>
-                <div className={style.userText}>
-                  <span className={style.userName}>{displayInfo.name}</span>
-                  <span className={style.userRole}>{displayInfo.role}</span>
-                </div>
+                {!isMobile && (
+                  <div className={style.userText}>
+                    <span className={style.userName}>{displayInfo.name}</span>
+                    <span className={style.userRole}>{displayInfo.role}</span>
+                  </div>
+                )}
               </UserContainer>
 
               {isProfileOpen && (

@@ -164,8 +164,6 @@ export default function Navbar() {
     );
 }
 
-
-
 const ProfileNavLinks = ({ links }) => (
     <ul className={style.nav_links}>
         {links.map((link, key) => (

@@ -1,5 +1,4 @@
 @use "sass:color";
-
 $primary: #5894E2;
 $accent: #1e4785;
 $white: #fff;
@@ -14,7 +13,6 @@ $text-light: #94a3b8;
 .container {
   display: flex;
   min-height: 100vh;
-  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
   background: $light-bg;
 
   .left {
@@ -86,6 +84,25 @@ $text-light: #94a3b8;
     justify-content: center;
     align-items: center;
     padding: 3rem;
+
+    .signinTitle {
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: $text-primary;
+      text-align: center;
+    }
+
+    .signinSubtitle {
+      font-size: clamp(0.9rem, 2vw, 1.2rem);
+      color: $text-secondary;
+      margin-bottom: 2rem;
+      text-align: center;
+      line-height: 1.6;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
 
     .content {
       width: 100%;
@@ -206,14 +223,14 @@ $text-light: #94a3b8;
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             transition: left 0.5s;
           }
 
           &:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba($primary, 0.4);
-            
+
             &::before {
               left: 100%;
             }
@@ -239,6 +256,7 @@ $text-light: #94a3b8;
     .left {
       display: none;
     }
+
     .right {
       width: 100%;
       padding: 2rem;
@@ -248,16 +266,16 @@ $text-light: #94a3b8;
   @media (max-width: 480px) {
     .right {
       padding: 1.5rem;
-      
+
       .content {
         padding: 2rem 1.5rem;
         border-radius: 12px;
-        
+
         .title {
           font-size: 1.75rem;
           text-align: center;
         }
-        
+
         .tagline {
           text-align: center;
           font-size: 0.95rem;

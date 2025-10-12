@@ -158,7 +158,6 @@ const Verification = () => {
 
       {/* Stats and Search Section */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={8}>
           <TextField
             fullWidth
             placeholder="Search by name or email..."
@@ -172,22 +171,22 @@ const Verification = () => {
               ),
             }}
           />
-        </Grid>
-        <Grid item xs={12} md={4}>
           <Box sx={{ display: 'flex', gap: 2, height: '100%' }}>
             <Tooltip title="Refresh data">
-              <Button
-                variant="outlined"
-                onClick={handleRefresh}
-                disabled={loading}
-                startIcon={<RefreshCw size={20} />}
-                sx={{ flex: 1 }}
-              >
-                Refresh
-              </Button>
+              {/* Wrapper span for disabled button */}
+              <span>
+                <Button
+                  variant="outlined"
+                  onClick={handleRefresh}
+                  disabled={loading}
+                  startIcon={<RefreshCw size={20} />}
+                  sx={{ flex: 1 }}
+                >
+                  Refresh
+                </Button>
+              </span>
             </Tooltip>
           </Box>
-        </Grid>
       </Grid>
 
       {/* Loading and Error States */}
@@ -299,21 +298,24 @@ const Verification = () => {
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
                           {!showDrafts && (
                             <Tooltip title="Verify">
-                              <IconButton
-                                size="small"
-                                color="success"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleVerify(youth.youth_id);
-                                }}
-                                disabled={actionLoading === youth.youth_id}
-                              >
-                                {actionLoading === youth.youth_id ? (
-                                  <CircularProgress size={20} />
-                                ) : (
-                                  <CheckCircle size={20} />
-                                )}
-                              </IconButton>
+                              {/* Wrapper span for disabled button */}
+                              <span>
+                                <IconButton
+                                  size="small"
+                                  color="success"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleVerify(youth.youth_id);
+                                  }}
+                                  disabled={actionLoading === youth.youth_id}
+                                >
+                                  {actionLoading === youth.youth_id ? (
+                                    <CircularProgress size={20} />
+                                  ) : (
+                                    <CheckCircle size={20} />
+                                  )}
+                                </IconButton>
+                              </span>
                             </Tooltip>
                           )}
                           

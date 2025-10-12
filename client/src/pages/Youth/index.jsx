@@ -2,15 +2,6 @@ import React, { useEffect, useState, useMemo } from "react";
 import useYouth from "@hooks/useYouth";
 import {
     Box,
-    Paper,
-    Checkbox,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TableSortLabel,
     TablePagination,
     Toolbar,
     Typography,
@@ -19,10 +10,7 @@ import {
     IconButton,
     FormControlLabel,
     Switch,
-    Divider,
-    Stack,
     Drawer,
-    Chip,
     Card,
     Grid,
     InputAdornment,
@@ -38,9 +26,10 @@ import SearchIcon from "@mui/icons-material/Search";
 import PersonIcon from "@mui/icons-material/Person";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import HowToVoteIcon from "@mui/icons-material/HowToVote";
-import { visuallyHidden } from "@mui/utils";
 import { saveAs } from "file-saver";
 import AddYouthModal from "./components/AddYouthModal";
+import YouthTable from "./components/youthTable";
+import Filter from "./components/filter";
 
 const descendingComparator = (a, b, orderBy) => {
     if (b[orderBy] < a[orderBy]) return -1;
@@ -52,16 +41,6 @@ const getComparator = (order, orderBy) =>
     order === "desc"
         ? (a, b) => descendingComparator(a, b, orderBy)
         : (a, b) => -descendingComparator(a, b, orderBy);
-
-const headCells = [
-    { id: "name", label: "Youth Member" },
-    { id: "email", label: "Email" },
-    { id: "registered", label: "Voting Status" },
-    { id: "verified", label: "Verification" },
-    { id: "age", label: "Age" },
-    { id: "gender", label: "Gender" },
-    { id: "purok", label: "Purok" },
-];
 
 function YouthPage() {
     const theme = useTheme();
@@ -138,20 +117,38 @@ function YouthPage() {
         female: rows.filter(y => y.gender.toLowerCase() === 'female').length,
     }), [rows]);
 
-    const handleSelectAllClick = (e) => {
-        if (e.target.checked) {
-            setSelected(paginatedRows.map((n) => n.id));
-        } else setSelected([]);
+    // Filter handlers
+    const handleFilterChange = (newFilter) => {
+        setFilter(newFilter);
+        setPage(0); // Reset to first page when filter changes
     };
 
-    const handleClick = (id) => {
+    const handleVerifiedFilterChange = (newVerifiedFilter) => {
+        setVerifiedFilter(newVerifiedFilter);
+        setPage(0);
+    };
+
+    const handleGenderFilterChange = (newGenderFilter) => {
+        setGenderFilter(newGenderFilter);
+        setPage(0);
+    };
+
+    const handlePurokFilterChange = (newPurokFilter) => {
+        setPurokFilter(newPurokFilter);
+        setPage(0);
+    };
+
+    const handleSelectAllClick = (selectedIds) => {
+        setSelected(selectedIds);
+    };
+
+    const handleRowClick = (id) => {
         setSelected((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
     };
 
-    const handleRequestSort = (_, property) => {
-        const isAsc = orderBy === property && order === "asc";
-        setOrder(isAsc ? "desc" : "asc");
-        setOrderBy(property);
+    const handleRequestSort = (newOrder, newOrderBy) => {
+        setOrder(newOrder);
+        setOrderBy(newOrderBy);
     };
 
     const handleChangePage = (_, newPage) => setPage(newPage);
@@ -162,7 +159,7 @@ function YouthPage() {
     };
 
     const exportToCSV = () => {
-        const headers = headCells.map((h) => h.label);
+        const headers = ["Youth Member", "Email", "Voting Status", "Verification", "Age", "Gender", "Purok"];
         const csvRows = [headers.join(",")];
         filteredRows.forEach((row) => {
             csvRows.push([
@@ -180,61 +177,6 @@ function YouthPage() {
     };
 
     const isSelected = (id) => selected.includes(id);
-
-    const FilterChip = ({ label, active, onClick }) => (
-        <Chip
-            label={label}
-            variant={active ? "filled" : "outlined"}
-            color={active ? "primary" : "default"}
-            onClick={onClick}
-            size="small"
-        />
-    );
-
-    const SidebarContent = (
-        <Box sx={{ width: 280, p: 3 }}>
-            <Typography variant="h6" gutterBottom color="primary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <FilterListIcon /> Filters
-            </Typography>
-            
-            <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle2" gutterBottom color="text.secondary">VOTING STATUS</Typography>
-                <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
-                    <FilterChip label="All" active={filter === "all"} onClick={() => setFilter("all")} />
-                    <FilterChip label="Registered" active={filter === "registered"} onClick={() => setFilter("registered")} />
-                    <FilterChip label="Unregistered" active={filter === "unregistered"} onClick={() => setFilter("unregistered")} />
-                </Stack>
-            </Box>
-
-            <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle2" gutterBottom color="text.secondary">VERIFICATION</Typography>
-                <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
-                    <FilterChip label="All" active={verifiedFilter === "all"} onClick={() => setVerifiedFilter("all")} />
-                    <FilterChip label="Verified" active={verifiedFilter === "yes"} onClick={() => setVerifiedFilter("yes")} />
-                    <FilterChip label="Unverified" active={verifiedFilter === "no"} onClick={() => setVerifiedFilter("no")} />
-                </Stack>
-            </Box>
-
-            <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle2" gutterBottom color="text.secondary">GENDER</Typography>
-                <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
-                    <FilterChip label="All" active={genderFilter === "all"} onClick={() => setGenderFilter("all")} />
-                    <FilterChip label="Male" active={genderFilter === "male"} onClick={() => setGenderFilter("male")} />
-                    <FilterChip label="Female" active={genderFilter === "female"} onClick={() => setGenderFilter("female")} />
-                </Stack>
-            </Box>
-
-            <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" gutterBottom color="text.secondary">PUROK</Typography>
-                <Stack spacing={1}>
-                    <FilterChip label="All" active={purokFilter === "all"} onClick={() => setPurokFilter("all")} />
-                    {["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Purok 5", "Purok 6"].map((p) => (
-                        <FilterChip key={p} label={p} active={purokFilter === p} onClick={() => setPurokFilter(p)} />
-                    ))}
-                </Stack>
-            </Box>
-        </Box>
-    );
 
     const StatCard = ({ icon, title, value, color }) => (
         <Card sx={{ p: 2, background: `linear-gradient(135deg, ${alpha(color, 0.1)} 0%, ${alpha(color, 0.05)} 100%)` }}>
@@ -267,7 +209,7 @@ function YouthPage() {
 
                 {/* Statistics Cards */}
                 <Grid container spacing={3} sx={{ mb: 4 }}>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                         <StatCard 
                             icon={<PersonIcon />} 
                             title="Total Youths" 
@@ -275,7 +217,7 @@ function YouthPage() {
                             color={theme.palette.primary.main} 
                         />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                         <StatCard 
                             icon={<HowToVoteIcon />} 
                             title="Registered Voters" 
@@ -283,7 +225,7 @@ function YouthPage() {
                             color={theme.palette.success.main} 
                         />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                         <StatCard 
                             icon={<VerifiedIcon />} 
                             title="Verified" 
@@ -291,7 +233,7 @@ function YouthPage() {
                             color={theme.palette.info.main} 
                         />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                         <StatCard 
                             icon={<PersonIcon />} 
                             title="Male / Female" 
@@ -306,22 +248,41 @@ function YouthPage() {
             <Card sx={{ boxShadow: 3, borderRadius: 2, overflow: 'hidden' }}>
                 {/* Toolbar */}
                 <Toolbar sx={{ 
-                    px: 3, 
+                    px: { xs: 2, sm: 3 }, 
                     py: 2, 
                     bgcolor: 'white',
                     borderBottom: 1,
-                    borderColor: 'divider'
+                    borderColor: 'divider',
+                    minHeight: '80px !important'
                 }}>
-                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2, width: '100%', alignItems: { xs: 'stretch', md: 'center' } }}>
+                    <Box sx={{ 
+                        display: 'flex', 
+                        flexDirection: { xs: 'column', sm: 'row' }, 
+                        gap: 2, 
+                        width: '100%', 
+                        alignItems: { xs: 'stretch', sm: 'center' },
+                        justifyContent: 'space-between'
+                    }}>
+                        {/* Search Field */}
                         <TextField
                             size="small"
                             placeholder="Search by name, email, or purok..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             sx={{ 
-                                maxWidth: { md: 400 },
+                                width: { xs: '100%', sm: 'auto' },
+                                flex: { xs: '1 1 auto', sm: '0 1 300px', md: '0 1 400px' },
+                                minWidth: 200,
                                 '& .MuiOutlinedInput-root': {
-                                    borderRadius: 2
+                                    borderRadius: 2,
+                                    backgroundColor: 'grey.50',
+                                    '&:hover': {
+                                        backgroundColor: 'grey.100',
+                                    },
+                                    '&.Mui-focused': {
+                                        backgroundColor: 'white',
+                                        boxShadow: '0 0 0 2px rgba(25, 118, 210, 0.2)',
+                                    }
                                 }
                             }}
                             InputProps={{
@@ -333,162 +294,142 @@ function YouthPage() {
                             }}
                         />
                         
-                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                        {/* Action Buttons */}
+                        <Box sx={{ 
+                            display: 'flex', 
+                            gap: 1, 
+                            flexWrap: 'wrap',
+                            justifyContent: { xs: 'space-between', sm: 'flex-end' },
+                            width: { xs: '100%', sm: 'auto' }
+                        }}>
                             <Button 
                                 variant="contained" 
                                 startIcon={<AddIcon />} 
                                 onClick={() => setAddModalOpen(true)}
-                                sx={{ borderRadius: 2 }}
-                            >
-                                Add Youth
-                            </Button>
-                            <Button 
-                                variant="outlined" 
-                                startIcon={<DownloadIcon />} 
-                                onClick={exportToCSV}
-                                sx={{ borderRadius: 2 }}
-                            >
-                                Export
-                            </Button>
-                            <Button 
-                                variant="outlined" 
-                                color="error" 
-                                startIcon={<DeleteIcon />} 
-                                disabled={selected.length === 0}
-                                sx={{ borderRadius: 2 }}
-                            >
-                                Delete ({selected.length})
-                            </Button>
-                            <IconButton 
-                                onClick={() => setSidebarOpen(true)}
                                 sx={{ 
-                                    border: 1, 
-                                    borderColor: 'divider',
-                                    borderRadius: 2
+                                    borderRadius: 2,
+                                    flex: { xs: '1 1 auto', sm: '0 0 auto' },
+                                    minWidth: { xs: '120px', sm: 'auto' }
                                 }}
                             >
-                                <FilterListIcon />
-                            </IconButton>
+                                <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                                    Add Youth
+                                </Box>
+                                <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>
+                                    Add
+                                </Box>
+                            </Button>
+
+                            <Box sx={{ 
+                                display: 'flex', 
+                                gap: 1,
+                                flex: { xs: '1 1 auto', sm: '0 0 auto' },
+                                justifyContent: { xs: 'flex-end', sm: 'flex-start' }
+                            }}>
+                                <Button 
+                                    variant="outlined" 
+                                    startIcon={<DownloadIcon />} 
+                                    onClick={exportToCSV}
+                                    sx={{ 
+                                        borderRadius: 2,
+                                        display: { xs: 'none', sm: 'flex' }
+                                    }}
+                                >
+                                    Export
+                                </Button>
+                                
+                                <IconButton 
+                                    onClick={exportToCSV}
+                                    sx={{ 
+                                        border: 1, 
+                                        borderColor: 'divider',
+                                        borderRadius: 2,
+                                        display: { xs: 'flex', sm: 'none' }
+                                    }}
+                                >
+                                    <DownloadIcon />
+                                </IconButton>
+
+                                <Button 
+                                    variant="outlined" 
+                                    color="error" 
+                                    startIcon={<DeleteIcon />} 
+                                    disabled={selected.length === 0}
+                                    sx={{ 
+                                        borderRadius: 2,
+                                        display: { xs: 'none', sm: 'flex' },
+                                        minWidth: 'auto'
+                                    }}
+                                >
+                                    Delete ({selected.length})
+                                </Button>
+                                
+                                <IconButton 
+                                    color="error"
+                                    disabled={selected.length === 0}
+                                    sx={{ 
+                                        border: 1, 
+                                        borderColor: selected.length > 0 ? 'error.main' : 'divider',
+                                        borderRadius: 2,
+                                        display: { xs: 'flex', sm: 'none' },
+                                        position: 'relative'
+                                    }}
+                                >
+                                    <DeleteIcon />
+                                    {selected.length > 0 && (
+                                        <Box
+                                            sx={{
+                                                position: 'absolute',
+                                                top: -4,
+                                                right: -4,
+                                                backgroundColor: 'error.main',
+                                                color: 'white',
+                                                borderRadius: '50%',
+                                                width: 16,
+                                                height: 16,
+                                                fontSize: '0.7rem',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontWeight: 'bold'
+                                            }}
+                                        >
+                                            {selected.length}
+                                        </Box>
+                                    )}
+                                </IconButton>
+
+                                <IconButton 
+                                    onClick={() => setSidebarOpen(true)}
+                                    sx={{ 
+                                        border: 1, 
+                                        borderColor: 'divider',
+                                        borderRadius: 2,
+                                        backgroundColor: 'grey.50',
+                                        '&:hover': {
+                                            backgroundColor: 'grey.100',
+                                        }
+                                    }}
+                                >
+                                    <FilterListIcon />
+                                </IconButton>
+                            </Box>
                         </Box>
                     </Box>
                 </Toolbar>
 
-                {/* Table */}
-                <TableContainer sx={{ maxHeight: 600 }}>
-                    <Table size={dense ? "small" : "medium"} stickyHeader>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell padding="checkbox" sx={{ bgcolor: 'background.paper' }}>
-                                    <Checkbox
-                                        indeterminate={selected.length > 0 && selected.length < paginatedRows.length}
-                                        checked={paginatedRows.length > 0 && selected.length === paginatedRows.length}
-                                        onChange={handleSelectAllClick}
-                                    />
-                                </TableCell>
-                                {headCells.map((headCell) => (
-                                    <TableCell 
-                                        key={headCell.id} 
-                                        sortDirection={orderBy === headCell.id ? order : false}
-                                        sx={{ bgcolor: 'background.paper', fontWeight: 'bold' }}
-                                    >
-                                        <TableSortLabel
-                                            active={orderBy === headCell.id}
-                                            direction={orderBy === headCell.id ? order : "asc"}
-                                            onClick={(e) => handleRequestSort(e, headCell.id)}
-                                        >
-                                            {headCell.label}
-                                            {orderBy === headCell.id && (
-                                                <Box component="span" sx={visuallyHidden}>
-                                                    {order === "desc" ? "sorted descending" : "sorted ascending"}
-                                                </Box>
-                                            )}
-                                        </TableSortLabel>
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {paginatedRows.map((row) => {
-                                const isItemSelected = isSelected(row.id);
-                                return (
-                                    <TableRow 
-                                        key={row.id} 
-                                        hover 
-                                        selected={isItemSelected}
-                                        onClick={() => handleClick(row.id)}
-                                        sx={{ 
-                                            cursor: 'pointer',
-                                            '&:last-child td, &:last-child th': { border: 0 }
-                                        }}
-                                    >
-                                        <TableCell padding="checkbox">
-                                            <Checkbox checked={isItemSelected} />
-                                        </TableCell>
-                                        <TableCell>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
-                                                    {row.name.charAt(0).toUpperCase()}
-                                                </Avatar>
-                                                <Box>
-                                                    <Typography variant="body2" fontWeight="medium">
-                                                        {row.name}
-                                                    </Typography>
-                                                </Box>
-                                            </Box>
-                                        </TableCell>
-                                        <TableCell>{row.email}</TableCell>
-                                        <TableCell>
-                                            <Chip 
-                                                label={row.registered ? "Registered" : "Unregistered"} 
-                                                size="small"
-                                                color={row.registered ? "success" : "default"}
-                                                variant={row.registered ? "filled" : "outlined"}
-                                            />
-                                        </TableCell>
-                                        <TableCell>
-                                            <Chip 
-                                                label={row.verified ? "Verified" : "Unverified"} 
-                                                size="small"
-                                                color={row.verified ? "success" : "default"}
-                                                variant={row.verified ? "filled" : "outlined"}
-                                                icon={row.verified ? <VerifiedIcon /> : null}
-                                            />
-                                        </TableCell>
-                                        <TableCell>{row.age}</TableCell>
-                                        <TableCell>
-                                            <Chip 
-                                                label={row.gender} 
-                                                size="small"
-                                                variant="outlined"
-                                            />
-                                        </TableCell>
-                                        <TableCell>
-                                            <Chip 
-                                                label={row.purok} 
-                                                size="small"
-                                                color="primary"
-                                                variant="outlined"
-                                            />
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })}
-                            {paginatedRows.length === 0 && (
-                                <TableRow>
-                                    <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                                        <PersonIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
-                                        <Typography variant="h6" color="text.secondary">
-                                            No youth members found
-                                        </Typography>
-                                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                                            Try adjusting your search or filters
-                                        </Typography>
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                {/* Table Component */}
+                <YouthTable
+                    rows={paginatedRows}
+                    selected={selected}
+                    order={order}
+                    orderBy={orderBy}
+                    dense={dense}
+                    onSelectAllClick={handleSelectAllClick}
+                    onRequestSort={handleRequestSort}
+                    onRowClick={handleRowClick}
+                    isSelected={isSelected}
+                />
 
                 {/* Pagination */}
                 <Box sx={{ 
@@ -528,7 +469,16 @@ function YouthPage() {
                     }
                 }}
             >
-                {SidebarContent}
+                <Filter
+                    filter={filter}
+                    verifiedFilter={verifiedFilter}
+                    genderFilter={genderFilter}
+                    purokFilter={purokFilter}
+                    onFilterChange={handleFilterChange}
+                    onVerifiedFilterChange={handleVerifiedFilterChange}
+                    onGenderFilterChange={handleGenderFilterChange}
+                    onPurokFilterChange={handlePurokFilterChange}
+                />
             </Drawer>
 
             {/* Add Youth Modal */}

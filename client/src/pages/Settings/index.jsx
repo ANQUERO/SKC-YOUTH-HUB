@@ -22,14 +22,16 @@ const Settings = () => {
 
     return (
         <Box sx={{ p: 3 }}>
+            
             <Typography variant="h4" 
             gutterBottom sx={{ 
-                display: 'flex',
+                 display: 'flex',
                  alignItems: 'center', 
                  gap: 1 
                  }}>
                 <AdminPanelSettings /> Account Settings
             </Typography>
+
             <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
                 Manage your personal information, security settings, and system administration.
             </Typography>

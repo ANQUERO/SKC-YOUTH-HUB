@@ -1,43 +1,351 @@
+// dashboard.module.scss
 .dashboard {
-  padding: 1rem;
+  padding: 1.5rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f8fafc;
+  min-height: 100vh;
 
-  h1 {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #1e2125;
-  }
-
-  p {
-    color: #4b5563;
+  .dashboardHeader {
     margin-bottom: 2rem;
-  }
 
-  .charts {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 0.5rem;
+    }
 
-   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-
-  @media (min-width: 1024px) {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-  }
-
-  .chart_card {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 1rem;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-
-    h2 {
-      margin-bottom: 1rem;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: #374151;
+    p {
+      color: #64748b;
+      font-size: 1.1rem;
+      margin: 0;
     }
   }
+
+  // Stats Grid
+  .statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .statCard {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #3b82f6;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    &.voters {
+      border-left-color: #10b981;
+    }
+
+    &.youths {
+      border-left-color: #f59e0b;
+    }
+
+    &.gender {
+      border-left-color: #8b5cf6;
+    }
+
+    &.purok {
+      border-left-color: #ef4444;
+    }
+
+    .statIcon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+
+      &.voters {
+        background: #dcfce7;
+        color: #16a34a;
+      }
+
+      &.youths {
+        background: #fef3c7;
+        color: #d97706;
+      }
+
+      &.gender {
+        background: #f3e8ff;
+        color: #9333ea;
+      }
+
+      &.purok {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+    }
+
+    .statValue {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 0.25rem;
+    }
+
+    .statLabel {
+      color: #64748b;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .statTrend {
+      display: flex;
+      align-items: center;
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+
+      &.positive {
+        color: #10b981;
+      }
+
+      &.negative {
+        color: #ef4444;
+      }
+    }
+  }
+
+  // Charts Section
+  .chartsSection {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+
+    @media (max-width: 1024px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .mainCharts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .sideCharts {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .chartCard {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .chartHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+
+      h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0;
+      }
+
+      .chartActions {
+        display: flex;
+        gap: 0.5rem;
+
+        button {
+          background: none;
+          border: none;
+          color: #64748b;
+          cursor: pointer;
+          padding: 0.25rem;
+          border-radius: 4px;
+          transition: color 0.2s ease;
+
+          &:hover {
+            color: #374151;
+            background: #f3f4f6;
+          }
+        }
+      }
+    }
+
+    .chartContainer {
+      height: 300px;
+    }
+
+    &.large {
+      grid-column: 1 / -1;
+
+      .chartContainer {
+        height: 350px;
+      }
+    }
+  }
+
+  // Recent Activity
+  .recentActivity {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+
+    .activityHeader {
+      padding: 1.5rem;
+      border-bottom: 1px solid #e2e8f0;
+
+      h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e293b;
+      }
+    }
+
+    .activityList {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .activityItem {
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background: #f8fafc;
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .activityIcon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        background: #e0f2fe;
+        color: #0369a1;
+      }
+
+      .activityContent {
+        flex: 1;
+
+        .activityTitle {
+          font-weight: 500;
+          color: #1e293b;
+          margin-bottom: 0.25rem;
+        }
+
+        .activityTime {
+          font-size: 0.8rem;
+          color: #64748b;
+        }
+      }
+
+      .activityBadge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+
+        &.success {
+          background: #dcfce7;
+          color: #166534;
+        }
+
+        &.warning {
+          background: #fef3c7;
+          color: #92400e;
+        }
+
+        &.info {
+          background: #dbeafe;
+          color: #1e40af;
+        }
+      }
+    }
+  }
+
+  // Loading and Error States
+  .loadingState {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem;
+    color: #64748b;
+  }
+
+  .errorState {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    margin: 1rem 0;
+  }
+
+  // Custom Tooltip
+  .customTooltip {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    p {
+      margin: 0;
+      font-weight: 500;
+      color: #1e293b;
+    }
+  }
+}
+
+// Custom chart colors
+:export {
+  primaryColor: #3b82f6;
+  successColor: #10b981;
+  warningColor: #f59e0b;
+  dangerColor: #ef4444;
+  infoColor: #8b5cf6;
 }

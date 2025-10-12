@@ -16,9 +16,6 @@ import {
     Person,
     LocationOn,
     School,
-    HowToVote,
-    Event,
-    Home
 } from '@mui/icons-material';
 
 // Import step components

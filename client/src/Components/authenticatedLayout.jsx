@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import { NavLink } from 'react-router-dom';
 
-
 export const MainContainer = styled.div`
   display: flex;
   min-height: 100vh;
@@ -10,47 +9,56 @@ export const MainContainer = styled.div`
 `;
 
 export const MenuContainer = styled.div`
- padding: 2rem 1.25rem;
+  padding: 2rem 1.25rem;
   background-color: #31578B;
   overflow: hidden;
   position: fixed;
   height: 100vh;
-  z-index: 20;
+  z-index: 1000;
   flex-direction: column;
   justify-content: space-between;
   width: 250px;
-  transition: left 0.3s ease;
+  transition: transform 0.3s ease;
   display: flex;
   left: 0;
   top: 0;
+  transform: ${props => props.$open ? 'translateX(0)' : 'translateX(-100%)'};
+
+  @media (min-width: 1024px) {
+    transform: translateX(0);
+    position: fixed;
+  }
 
   @media (max-width: 640px) {
-    width: 250px;
-    left: ${(props) => (props.$open ? '0' : '-250px')};
-    padding: ${(props) => (props.$open ? '2rem 1.25rem' : '0')};
+    width: 280px;
   }
 `;
 
 export const MobileOverlay = styled.div`
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.3);
-  z-index: 15;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  backdrop-filter: blur(2px);
 
-  @media (min-width: 640px) {
+  @media (min-width: 1024px) {
     display: none;
   }
 `;
 
 export const ContentContainer = styled.div`
-   flex: 1;
-  display: grid;
-  grid-template-rows: 10% 90%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-  margin-left: 250px;
   transition: margin-left 0.3s ease;
+  min-height: 100vh;
 
-  @media (max-width: 640px) {
+  @media (min-width: 1024px) {
+    margin-left: 250px;
+  }
+
+  @media (max-width: 1023px) {
     margin-left: 0;
   }
 `;
@@ -58,15 +66,22 @@ export const ContentContainer = styled.div`
 export const TopContainer = styled.div`
   background-color: #FBFCFA;
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  min-height: 64px;
 
-  @media (min-width: 1024px) {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 2rem;
-    gap: 0;
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.75rem;
+    min-height: 56px;
   }
 `;
 
@@ -77,98 +92,88 @@ export const ToggleSidebarButton = styled.button`
   align-items: center;
   padding: 0.5rem;
   cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.2s;
 
-  @media (min-width: 640px) {
+  &:hover {
+    background-color: #f1f5f9;
+  }
+
+  @media (min-width: 1024px) {
     display: none;
   }
 `;
 
 export const UserContainer = styled.div`
-  display: none;
+  display: flex;
   flex-direction: row;
   align-items: center;
   gap: 0.75rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 8px;
+  transition: background-color 0.2s;
 
-  @media (min-width: 1024px) {
-    display: inline-flex;
+  &:hover {
+    background-color: #f8fafc;
+  }
+
+  @media (max-width: 768px) {
+    gap: 0.5rem;
   }
 `;
 
 export const Content = styled.div`
-  padding: 3px;
-  padding-bottom: 1rem;
-  height: 100%;
+  flex: 1;
+  padding: 1.5rem;
   overflow-y: auto;
+  background: #f8fafc;
 
-  @media (min-width: 1024px) {
-    padding-bottom: 2rem;
+  @media (max-width: 768px) {
+    padding: 1rem;
   }
-`;
 
-export const SearchContainer = styled.input`
-  width: 100%;
-  border: none;
-  background-color: #f3f4f6;
-  border-radius: 9999px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-
-  @media (min-width: 1024px) {
-    width: 440px;
+  @media (max-width: 480px) {
+    padding: 0.75rem;
   }
 `;
 
 export const CreatePostLink = styled(NavLink)`
   display: flex;
   align-items: center;
-  gap: ${(props) => (props.$collapsed ? '0' : '0.5rem')};
-  background-color: #ffffff;
-  color: #31578B;
+  gap: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
   font-weight: 600;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 0.5rem;
-  padding: .8rem 1rem;
+  padding: 0.8rem 1rem;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  transition: all 0.3s ease;
   text-decoration: none;
-  width: 100%;
-  justify-content: ${(props) => (props.$collapsed ? 'center' : 'flex-start')};
-  margin-bottom: 1.5rem;
+  width: calc(100% - 2rem);
+  margin: 0 1rem 1.5rem;
+  backdrop-filter: blur(10px);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
 
   svg {
-    width: 2rem;
-    height: 1rem;
+    width: 1.25rem;
+    height: 1.25rem;
   }
 
   span {
-    display: ${(props) => (props.$collapsed ? 'none' : 'inline')};
-    font-size: 1rem;
-  }
-`;
-
-export const CollapseToggle = styled.button`
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  margin-bottom: .5rem;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  margin-left: .5rem;
-  justify-content: ${(props) => (props.$collapsed ? 'center' : 'flex-start')};
-
-  &:hover {
-    opacity: 0.7;
-  }
-
-  @media (max-width: 640px) {
-    display: none;
+    font-size: 0.875rem;
   }
 `;
 
 export const LogoWrapper = styled.div`
   display: flex;
-  justify-content: ${(props) => (props.$collapsed ? 'center' : 'flex-start')};
+  justify-content: flex-start;
   align-items: center;
   margin-bottom: 1.5rem;
 
@@ -177,6 +182,5 @@ export const LogoWrapper = styled.div`
     width: auto;
     max-width: 100%;
     transition: all 0.3s ease;
-    ${(props) => props.$collapsed && 'max-width: 40px;'}
   }
 `;

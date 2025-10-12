@@ -142,8 +142,7 @@ const Signin = () => {
           <img src={Logo} alt="SK Logo" className={style.logo} />
           <h1 className={style.title}>Empowering Catarman Youth</h1>
           <p className={style.tagline}>
-            Join us in building a transparent, engaged, and accountable community
-            where every young voice matters and can create meaningful change.
+            Join us in building a brighter Catarman — where every voice matters.
           </p>
         </div>
       </div>
@@ -151,32 +150,12 @@ const Signin = () => {
       {/* RIGHT SIDE */}
       <div className={style.right}>
         <Box sx={{ width: '100%', maxWidth: 440 }}>
-          <Typography
-            variant="h3"
-            gutterBottom
-            sx={{
-              fontWeight: 700,
-              background: 'linear-gradient(135deg, #2c5aa0, #1e4785)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              color: 'transparent',
-            }}
-          >
+          <h1 className={style.signinTitle} >
             Welcome Back
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{
-              mb: 3,
-              color: '#64748b',
-              lineHeight: 1.6,
-              fontSize: '1rem'
-            }}
-          >
-            Sign in to continue your journey with us. Together, we're shaping a better
-            future for Catarman through informed participation and community engagement.
-          </Typography>
-
+          </h1>
+          <h3 className={style.signinSubtitle}>
+           Be part of Catarman’s story — engage, connect, and create change.
+          </h3>
           {errors?.general && (
             <Alert
               severity="error"
