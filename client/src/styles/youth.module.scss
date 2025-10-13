@@ -46,30 +46,26 @@
   width: 100%;
 }
 
-/* Align stats to left and button to right */
 .statsHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap; /* keep responsive */
+  flex-wrap: wrap; 
 }
 
-/* Prevent grid from stretching too wide */
 .statsGrid {
   flex: 1;
-  min-width: 60%; /* or adjust depending on layout */
+  min-width: 60%; 
 }
 
-/* Make the Add button look like a toolbar action */
 .toolbarButton {
-  height: 42px; /* smaller than cards */
+  height: 42px; 
   padding: 0 20px;
   border-radius: 10px;
   align-self: flex-start;
   white-space: nowrap;
 }
 
-/* Optional: better alignment on small screens */
 @media (max-width: 768px) {
   .statsHeader {
     flex-direction: column;
