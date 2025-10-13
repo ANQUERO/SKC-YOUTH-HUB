@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import style from '@styles/profile.module.scss'
+import style from "@styles/profile.module.scss";
 import useProfile from "@hooks/useProfile";
 import useCurrentUser from "@hooks/useCurrentUser";
 import { ProfileNavbar } from "Components/Navbar";
@@ -22,10 +22,13 @@ const YouthProfile = () => {
   const { userData, profilePicture, updateProfilePicture } = useCurrentUser();
   const [editModalOpen, setEditModalOpen] = useState(false);
 
-  // Use useCallback to memoize the function and prevent unnecessary recreations
-  const handleProfilePictureUpdate = useCallback((newPictureUrl) => {
-    updateProfilePicture(newPictureUrl);
-  }, [updateProfilePicture]);
+  // Use useCallback prevent unnecessary recreations
+  const handleProfilePictureUpdate = useCallback(
+    (newPictureUrl) => {
+      updateProfilePicture(newPictureUrl);
+    },
+    [updateProfilePicture]
+  );
 
   useEffect(() => {
     fetchProfile();
@@ -33,14 +36,21 @@ const YouthProfile = () => {
 
   useEffect(() => {
     // Only update if we have a profile picture and it's different from current
-    if (accountName?.profile_picture && accountName.profile_picture !== profilePicture) {
+    if (
+      accountName?.profile_picture &&
+      accountName.profile_picture !== profilePicture
+    ) {
       handleProfilePictureUpdate(accountName.profile_picture);
     }
-  }, [accountName?.profile_picture, profilePicture, handleProfilePictureUpdate]); // Add proper dependencies
+  }, [
+    accountName?.profile_picture,
+    profilePicture,
+    handleProfilePictureUpdate,
+  ]); // Add proper dependencies
 
   // Rest of your component remains the same...
   const getStatusClass = (value) => {
-    if (typeof value === 'boolean') {
+    if (typeof value === "boolean") {
       return value ? style.statusYes : style.statusNo;
     }
     return value && value !== "N/A" ? style.statusYes : style.statusNeutral;
@@ -58,7 +68,9 @@ const YouthProfile = () => {
   if (error) {
     return (
       <div className={style.centered}>
-        <div className={style.errorBox}>⚠️ Failed to load profile. Please try again later.</div>
+        <div className={style.errorBox}>
+          ⚠️ Failed to load profile. Please try again later.
+        </div>
       </div>
     );
   }
@@ -77,10 +89,10 @@ const YouthProfile = () => {
             />
           </div>
           <div className={style.sidebarContent}>
-            <h1 className={style.name}>
-              {userData?.name || "Youth Member"}
-            </h1>
-            <p className={style.email}>{userData?.email || "No email available"}</p>
+            <h1 className={style.name}>{userData?.name || "Youth Member"}</h1>
+            <p className={style.email}>
+              {userData?.email || "No email available"}
+            </p>
             <Button
               variant="outlined"
               startIcon={<Edit />}
@@ -98,7 +110,9 @@ const YouthProfile = () => {
             <div className={style.infoGrid}>
               <div className={style.infoItem}>
                 <span className={style.label}>Gender</span>
-                <span className={style.value}>{genderInfo?.gender || "N/A"}</span>
+                <span className={style.value}>
+                  {genderInfo?.gender || "N/A"}
+                </span>
               </div>
               <div className={style.infoItem}>
                 <span className={style.label}>Age</span>
@@ -106,11 +120,15 @@ const YouthProfile = () => {
               </div>
               <div className={style.infoItem}>
                 <span className={style.label}>Birthday</span>
-                <span className={style.value}>{genderInfo?.birthday || "N/A"}</span>
+                <span className={style.value}>
+                  {genderInfo?.birthday || "N/A"}
+                </span>
               </div>
               <div className={style.infoItem}>
                 <span className={style.label}>Contact Number</span>
-                <span className={style.value}>{genderInfo?.contact_number || "N/A"}</span>
+                <span className={style.value}>
+                  {genderInfo?.contact_number || "N/A"}
+                </span>
               </div>
             </div>
           </section>
@@ -120,23 +138,35 @@ const YouthProfile = () => {
             <div className={style.infoGrid}>
               <div className={style.infoItem}>
                 <span className={style.label}>Civil Status</span>
-                <span className={style.value}>{demoSurvey?.civil_status || "N/A"}</span>
+                <span className={style.value}>
+                  {demoSurvey?.civil_status || "N/A"}
+                </span>
               </div>
               <div className={style.infoItem}>
                 <span className={style.label}>Classification</span>
-                <span className={style.value}>{demoSurvey?.youth_classification || "N/A"}</span>
+                <span className={style.value}>
+                  {demoSurvey?.youth_classification || "N/A"}
+                </span>
               </div>
               <div className={style.infoItem}>
                 <span className={style.label}>Education</span>
-                <span className={style.value}>{demoSurvey?.educational_background || "N/A"}</span>
+                <span className={style.value}>
+                  {demoSurvey?.educational_background || "N/A"}
+                </span>
               </div>
               <div className={style.infoItem}>
                 <span className={style.label}>Work Status</span>
-                <span className={style.value}>{demoSurvey?.work_status || "N/A"}</span>
+                <span className={style.value}>
+                  {demoSurvey?.work_status || "N/A"}
+                </span>
               </div>
               <div className={style.infoItem}>
                 <span className={style.label}>Registered Voter</span>
-                <span className={`${style.value} ${getStatusClass(demoSurvey?.registered_voter)}`}>
+                <span
+                  className={`${style.value} ${getStatusClass(
+                    demoSurvey?.registered_voter
+                  )}`}
+                >
                   {demoSurvey?.registered_voter ? "Yes" : "No"}
                 </span>
               </div>
@@ -148,21 +178,31 @@ const YouthProfile = () => {
             <div className={style.infoGrid}>
               <div className={style.infoItem}>
                 <span className={style.label}>Attended Meeting</span>
-                <span className={`${style.value} ${getStatusClass(meetingHousehold?.attended)}`}>
+                <span
+                  className={`${style.value} ${getStatusClass(
+                    meetingHousehold?.attended
+                  )}`}
+                >
                   {meetingHousehold?.attended ? "Yes" : "No"}
                 </span>
               </div>
               <div className={style.infoItem}>
                 <span className={style.label}>Times Attended</span>
-                <span className={style.value}>{meetingHousehold?.times_attended || "0"}</span>
+                <span className={style.value}>
+                  {meetingHousehold?.times_attended || "0"}
+                </span>
               </div>
               <div className={style.infoItem}>
                 <span className={style.label}>Reason for Not Attending</span>
-                <span className={style.value}>{meetingHousehold?.reason_not_attend || "N/A"}</span>
+                <span className={style.value}>
+                  {meetingHousehold?.reason_not_attend || "N/A"}
+                </span>
               </div>
               <div className={style.infoItem}>
                 <span className={style.label}>Household</span>
-                <span className={style.value}>{meetingHousehold?.household || "N/A"}</span>
+                <span className={style.value}>
+                  {meetingHousehold?.household || "N/A"}
+                </span>
               </div>
             </div>
           </section>

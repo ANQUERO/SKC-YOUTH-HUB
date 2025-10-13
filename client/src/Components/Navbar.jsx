@@ -4,6 +4,7 @@ import { Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLogout } from '@hooks/useLogout';
 import { useAuthContext } from '@context/AuthContext';
+import useCurrentUser from '@hooks/useCurrentUser';
 import Logo from './Logo';
 
 const MenuButton = ({ isMenuOpen, setIsMenuOpen }) => (
@@ -18,7 +19,6 @@ const MenuButton = ({ isMenuOpen, setIsMenuOpen }) => (
     </button>
 );
 
-/* NavLinks accepts an optional className so we can use different styles for mobile */
 const NavLinks = ({ links, onLinkClick, className }) => (
     <ul className={className || style.nav_links}>
         {links.map((link, idx) => (
@@ -164,77 +164,158 @@ export default function Navbar() {
     );
 }
 
-const ProfileNavLinks = ({ links }) => (
-    <ul className={style.nav_links}>
-        {links.map((link, key) => (
-            <li key={key}>
-                {link.onClick ? (
-                    <button
-                        className={style.link}
-                        onClick={link.onClick}>
-                        {link.text}
-                    </button>
-                ) : (
-                    <Link to={link.to} className={style.link}>
-                        {link.text}
-                    </Link>
-                )}
-            </li>
-        ))}
+const ProfileNavLinks = ({ links, mobile = false, onLinkClick }) => {
+  const handleClick = (link) => {
+    if (link.onClick) {
+      link.onClick();
+    }
+    if (onLinkClick) {
+      onLinkClick();
+    }
+  };
+
+  return (
+    <ul className={mobile ? style.mobileNavLinks : style.nav_links}>
+      {links.map((link, index) => (
+        <li key={index}>
+          {link.onClick ? (
+            <button
+              className={mobile ? style.mobileLink : style.link}
+              onClick={() => handleClick(link)}
+            >
+              {link.text}
+            </button>
+          ) : (
+            <Link 
+              to={link.to} 
+              className={mobile ? style.mobileLink : style.link}
+              onClick={() => onLinkClick && onLinkClick()}
+            >
+              {link.text}
+            </Link>
+          )}
+        </li>
+      ))}
     </ul>
-);
+  );
+};
 
 export function ProfileNavbar() {
-    const logout = useLogout();
-    const { authUser } = useAuthContext();
-    const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
-    const canManage = isSkSuperAdmin || isSkNaturalAdmin;
+  const logout = useLogout();
+  const { authUser } = useAuthContext();
+  const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
+  const canManage = isSkSuperAdmin || isSkNaturalAdmin;
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Use the useCurrentUser hook
+  const { userData, profilePicture } = useCurrentUser();
 
-    const links = [
-        canManage && {
-            to: "/dashboard",
-            text: "Dashboard",
-        },
-        {
-            to: "/feed",
-            text: "News Feed",
-        },
-        {
-            to: "/account",
-            text: "Settings",
-        },
-        {
-            text: "Logout",
-            onClick: logout,
-        },
-    ].filter(Boolean);
+  const links = [
+    canManage && {
+      to: "/dashboard",
+      text: "Dashboard",
+    },
+    {
+      to: "/feed",
+      text: "News Feed",
+    },
+    {
+      to: "/account",
+      text: "Settings",
+    },
+    {
+      text: "Logout",
+      onClick: () => {
+        setIsMobileMenuOpen(false);
+        logout();
+      },
+    },
+  ].filter(Boolean);
 
-    return (
-        <header className={style.header}>
-            <nav className={style.nav}>
-                <Logo />
-                <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem'
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <img
-                            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(authUser?.name || 'User')}`}
-                            alt="User Avatar"
-                            style={{
-                                width: 32,
-                                height: 32,
-                                borderRadius: '50%'
-                            }}
-                        />
-                        <span style={{ fontWeight: 600 }}>
-                            {authUser?.name || 'User'}
-                        </span>
-                    </div>
-                    <ProfileNavLinks links={links} />
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
+  // Use data from useCurrentUser hook with fallbacks
+  const displayName = userData?.name || authUser?.name || 'User';
+  const displayEmail = userData?.email || authUser?.email || 'No email available';
+  const displayProfilePicture = profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=3b82f6&color=ffffff`;
+
+  return (
+    <header className={style.profileHeader}>
+      <nav className={style.profileNav}>
+        <div className={style.logo}>
+          <Logo />
+        </div>
+        
+        <div className={style.navContent}>
+          <div className={style.userInfo}>
+            <img
+              src={displayProfilePicture}
+              alt="User Avatar"
+              className={style.avatar}
+            />
+            <span className={style.userName}>
+              {displayName}
+            </span>
+          </div>
+          <ProfileNavLinks links={links} />
+        </div>
+
+        <button 
+          className={style.hamburgerMenu}
+          onClick={toggleMobileMenu}
+          aria-label="Toggle menu"
+        >
+          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
+        <div 
+          className={style.mobileMenuOverlay}
+          data-open={isMobileMenuOpen}
+          onClick={closeMobileMenu}
+        />
+
+        <div 
+          className={style.mobileMenu}
+          data-open={isMobileMenuOpen}
+        >
+          <div className={style.mobileMenuHeader}>
+            <div className={style.mobileUserInfo}>
+              <img
+                src={displayProfilePicture}
+                alt="User Avatar"
+                className={style.mobileAvatar}
+              />
+              <div>
+                <div className={style.mobileUserName}>
+                  {displayName}
                 </div>
-            </nav>
-        </header>
-    );
+                <div className={style.mobileUserEmail}>
+                  {displayEmail}
+                </div>
+              </div>
+            </div>
+            <button 
+              className={style.closeButton}
+              onClick={closeMobileMenu}
+              aria-label="Close menu"
+            >
+              <X size={24} />
+            </button>
+          </div>
+
+          <ProfileNavLinks 
+            links={links} 
+            mobile={true}
+            onLinkClick={closeMobileMenu}
+          />
+        </div>
+      </nav>
+    </header>
+  );
 }
