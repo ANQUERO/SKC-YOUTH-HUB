@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import styled from "styled-components";
+import React, { useEffect, useState, useCallback } from "react";
 import style from '@styles/profile.module.scss'
 import useProfile from "@hooks/useProfile";
 import useCurrentUser from "@hooks/useCurrentUser";
@@ -23,233 +22,160 @@ const YouthProfile = () => {
   const { userData, profilePicture, updateProfilePicture } = useCurrentUser();
   const [editModalOpen, setEditModalOpen] = useState(false);
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
+  // Use useCallback to memoize the function and prevent unnecessary recreations
+  const handleProfilePictureUpdate = useCallback((newPictureUrl) => {
+    updateProfilePicture(newPictureUrl);
+  }, [updateProfilePicture]);
 
   useEffect(() => {
-    if (accountName?.profile_picture) {
-      updateProfilePicture(accountName.profile_picture);
+    fetchProfile();
+  }, []); // Empty dependency array since fetchProfile should be stable
+
+  useEffect(() => {
+    // Only update if we have a profile picture and it's different from current
+    if (accountName?.profile_picture && accountName.profile_picture !== profilePicture) {
+      handleProfilePictureUpdate(accountName.profile_picture);
     }
-  }, [accountName, updateProfilePicture]);
+  }, [accountName?.profile_picture, profilePicture, handleProfilePictureUpdate]); // Add proper dependencies
+
+  // Rest of your component remains the same...
+  const getStatusClass = (value) => {
+    if (typeof value === 'boolean') {
+      return value ? style.statusYes : style.statusNo;
+    }
+    return value && value !== "N/A" ? style.statusYes : style.statusNeutral;
+  };
 
   if (loadingProfile) {
     return (
-      <Centered>
-        <Spinner />
+      <div className={style.centered}>
+        <div className={style.spinner} />
         <p className={style.loading}>Loading profile...</p>
-      </Centered>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Centered>
-        <ErrorBox>⚠️ Failed to load profile. Please try again later.</ErrorBox>
-      </Centered>
+      <div className={style.centered}>
+        <div className={style.errorBox}>⚠️ Failed to load profile. Please try again later.</div>
+      </div>
     );
   }
 
   return (
-    <Wrapper>
+    <div className={style.wrapper}>
       <ProfileNavbar />
-      <Content>
-        <Sidebar>
-          <ProfilePictureUpload
-            currentPicture={profilePicture}
-            userName={userData?.name || "Youth"}
-            onPictureUpdate={updateProfilePicture}
-            size={120}
-          />
-          <Name>
-            {userData?.name || "Youth Member"}
-          </Name>
-          <Email>{userData?.email || "No email available"}</Email>
-          <EditButton
-            variant="outlined"
-            startIcon={<Edit />}
-            onClick={() => setEditModalOpen(true)}
-            sx={{ mt: 2 }}
-          >
-            Edit Profile
-          </EditButton>
-        </Sidebar>
+      <div className={style.content}>
+        <aside className={style.sidebar}>
+          <div className={style.avatarContainer}>
+            <ProfilePictureUpload
+              currentPicture={profilePicture}
+              userName={userData?.name || "Youth"}
+              onPictureUpdate={handleProfilePictureUpdate}
+              size={120}
+            />
+          </div>
+          <div className={style.sidebarContent}>
+            <h1 className={style.name}>
+              {userData?.name || "Youth Member"}
+            </h1>
+            <p className={style.email}>{userData?.email || "No email available"}</p>
+            <Button
+              variant="outlined"
+              startIcon={<Edit />}
+              onClick={() => setEditModalOpen(true)}
+              className={style.editButton}
+            >
+              Edit Profile
+            </Button>
+          </div>
+        </aside>
 
-        <Main>
+        <main className={style.main}>
+          <section className={style.section}>
+            <h2>Personal Information</h2>
+            <div className={style.infoGrid}>
+              <div className={style.infoItem}>
+                <span className={style.label}>Gender</span>
+                <span className={style.value}>{genderInfo?.gender || "N/A"}</span>
+              </div>
+              <div className={style.infoItem}>
+                <span className={style.label}>Age</span>
+                <span className={style.value}>{genderInfo?.age || "N/A"}</span>
+              </div>
+              <div className={style.infoItem}>
+                <span className={style.label}>Birthday</span>
+                <span className={style.value}>{genderInfo?.birthday || "N/A"}</span>
+              </div>
+              <div className={style.infoItem}>
+                <span className={style.label}>Contact Number</span>
+                <span className={style.value}>{genderInfo?.contact_number || "N/A"}</span>
+              </div>
+            </div>
+          </section>
 
-          <Section>
-            <h2 className={style.title}>Personal Info</h2>
-            <p>Gender: {genderInfo?.gender || "N/A"}</p>
-            <p>Age: {genderInfo?.age || "N/A"}</p>
-            <p>Birthday: {genderInfo?.birthday || "N/A"}</p>
-            <p>Contact: {genderInfo?.contact_number || "N/A"}</p>
-          </Section>
+          <section className={style.section}>
+            <h2>Demographics & Survey</h2>
+            <div className={style.infoGrid}>
+              <div className={style.infoItem}>
+                <span className={style.label}>Civil Status</span>
+                <span className={style.value}>{demoSurvey?.civil_status || "N/A"}</span>
+              </div>
+              <div className={style.infoItem}>
+                <span className={style.label}>Classification</span>
+                <span className={style.value}>{demoSurvey?.youth_classification || "N/A"}</span>
+              </div>
+              <div className={style.infoItem}>
+                <span className={style.label}>Education</span>
+                <span className={style.value}>{demoSurvey?.educational_background || "N/A"}</span>
+              </div>
+              <div className={style.infoItem}>
+                <span className={style.label}>Work Status</span>
+                <span className={style.value}>{demoSurvey?.work_status || "N/A"}</span>
+              </div>
+              <div className={style.infoItem}>
+                <span className={style.label}>Registered Voter</span>
+                <span className={`${style.value} ${getStatusClass(demoSurvey?.registered_voter)}`}>
+                  {demoSurvey?.registered_voter ? "Yes" : "No"}
+                </span>
+              </div>
+            </div>
+          </section>
 
-          <Section>
-
-            <h2 className={style.title}>Demographics & Survey</h2>
-            <p>Civil Status: {demoSurvey?.civil_status || "N/A"}</p>
-            <p>Classification: {demoSurvey?.youth_classification || "N/A"}</p>
-            <p>Education: {demoSurvey?.educational_background || "N/A"}</p>
-            <p>Work Status: {demoSurvey?.work_status || "N/A"}</p>
-            <p>
-              Registered Voter:{" "}
-              {demoSurvey?.registered_voter ? "Yes" : "No"}
-            </p>
-
-          </Section>
-
-          <Section>
-
-            <h2 className={style.title}>Meeting & Household</h2>
-            <p>Attended: {meetingHousehold?.attended ? "Yes" : "No"}</p>
-            <p>Times Attended: {meetingHousehold?.times_attended || "0"}</p>
-            <p>
-              Reason Not Attend:{" "}
-              {meetingHousehold?.reason_not_attend || "N/A"}
-            </p>
-            <p>Household: {meetingHousehold?.household || "N/A"}</p>
-
-          </Section>
-
-        </Main>
-      </Content>
+          <section className={style.section}>
+            <h2>Meeting & Household</h2>
+            <div className={style.infoGrid}>
+              <div className={style.infoItem}>
+                <span className={style.label}>Attended Meeting</span>
+                <span className={`${style.value} ${getStatusClass(meetingHousehold?.attended)}`}>
+                  {meetingHousehold?.attended ? "Yes" : "No"}
+                </span>
+              </div>
+              <div className={style.infoItem}>
+                <span className={style.label}>Times Attended</span>
+                <span className={style.value}>{meetingHousehold?.times_attended || "0"}</span>
+              </div>
+              <div className={style.infoItem}>
+                <span className={style.label}>Reason for Not Attending</span>
+                <span className={style.value}>{meetingHousehold?.reason_not_attend || "N/A"}</span>
+              </div>
+              <div className={style.infoItem}>
+                <span className={style.label}>Household</span>
+                <span className={style.value}>{meetingHousehold?.household || "N/A"}</span>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
 
       <ProfileEditModal
         open={editModalOpen}
         onClose={() => setEditModalOpen(false)}
         userType="youth"
       />
-    </Wrapper>
+    </div>
   );
 };
 
 export default YouthProfile;
-
-// ---------------- Styled ----------------
-const Wrapper = styled.div`
-  min-height: 100vh;
-  background: #f7f9fb;
-`;
-
-const Content = styled.div`
-  display: flex;
-  max-width: 1100px;
-  margin: 2rem auto;
-  gap: 2rem;
-  padding: 0 1rem;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-  }
-`;
-
-const Sidebar = styled.aside`
-  flex: 1;
-  max-width: 280px;
-  background: #fff;
-  border-radius: 12px;
-  padding: 2rem 1.5rem;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-
-  @media (max-width: 768px) {
-    max-width: 100%;
-  }
-`;
-
-const Avatar = styled.div`
-  img {
-    border-radius: 50%;
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border: 3px solid #e5e7eb;
-  }
-`;
-
-const Name = styled.h1`
-  margin: 1rem 0 0.25rem;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #222;
-`;
-
-const Email = styled.p`
-  color: #666;
-  font-size: 0.9rem;
-`;
-
-const EditButton = styled(Button)`
-  && {
-    width: 100%;
-    margin-top: 1rem;
-    border-radius: 8px;
-    text-transform: none;
-    font-weight: 500;
-  }
-`;
-
-const Main = styled.main`
-  flex: 3;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-`;
-
-const Section = styled.div`
-  background: #fff;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-
-  h2 {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 0.5rem;
-    color: #111;
-  }
-
-  p {
-    margin: 0.25rem 0;
-    font-size: 0.95rem;
-    color: #333;
-  }
-`;
-
-const Centered = styled.div`
-  min-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-`;
-
-const Spinner = styled.div`
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3b82f6;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-`;
-
-const ErrorBox = styled.div`
-  background: #fee2e2;
-  color: #b91c1c;
-  padding: 1rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 500;
-`;
-

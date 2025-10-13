@@ -16,7 +16,7 @@ import {
   User,
   MapPin,
   School,
-  Briefcase ,
+  Briefcase     ,
   Vote,
   Calendar,
   Mail,

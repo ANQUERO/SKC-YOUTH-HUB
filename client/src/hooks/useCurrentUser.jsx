@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '@lib/axios';
 import { useAuthContext } from '@context/AuthContext';
 
@@ -9,7 +9,7 @@ const useCurrentUser = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const fetchCurrentUserData = async () => {
+    const fetchCurrentUserData = useCallback(async () => {
         if (!authUser) {
             setUserData(null);
             setProfilePicture(null);
@@ -74,21 +74,21 @@ const useCurrentUser = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [authUser, activeRole]); // Add dependencies
 
     useEffect(() => {
         fetchCurrentUserData();
-    }, [authUser, activeRole]);
+    }, [fetchCurrentUserData]); // Now this is stable
 
-    const updateProfilePicture = (newPictureUrl) => {
+    const updateProfilePicture = useCallback((newPictureUrl) => {
         setProfilePicture(newPictureUrl);
-        setUserData(prev => ({
+        setUserData(prev => prev ? {
             ...prev,
             profilePicture: newPictureUrl
-        }));
-    };
+        } : null);
+    }, []); // No dependencies needed
 
-    const updateUserData = async (updateData) => {
+    const updateUserData = useCallback(async (updateData) => {
         setLoading(true);
         setError(null);
 
@@ -110,7 +110,7 @@ const useCurrentUser = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [fetchCurrentUserData]);
 
     return {
         userData,
