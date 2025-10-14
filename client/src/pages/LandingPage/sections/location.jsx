@@ -4,7 +4,7 @@ import { MapPin, Phone, Clock } from 'lucide-react';
 
 const Location = () => {
     return (
-        <section className={style.location}>
+        <section className={style.location} id='location'>
             <div className={style.container}>
 
                 <div className={style.textContent}>

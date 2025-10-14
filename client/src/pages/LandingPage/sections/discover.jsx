@@ -60,7 +60,7 @@ const Discover = () => {
     ];
 
     return (
-        <section className={styles.discover}>
+        <section className={styles.discover} id='discover'>
             <div className={styles.container}>
                 <Taglines
                     title="DISCOVER"

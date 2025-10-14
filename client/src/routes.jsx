@@ -2,6 +2,11 @@ import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
 import LandingPage from "@pages/LandingPage";
+import PrivacyPolicy from "@pages/LandingPage/privacy/policy"
+import TermsConditions from "@pages/LandingPage/privacy/terms";
+
+
+
 import Signin from "@pages/Signin";
 import YouthSignup from "@pages/YouthSignup";
 import VerifyEmail from "@pages/VerifyEmail";
@@ -41,6 +46,14 @@ export const routes = [
     {
         path: "/",
         element: <LandingPage />
+    },
+    {
+        path: "/privacy-policy",
+        element: <PrivacyPolicy />
+    },
+    {
+        path: "/terms-of-service",
+        element: <TermsConditions/>
     },
     {
         path: "/login",

@@ -1,0 +1,403 @@
+.policyContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f8f9fa;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid #e9ecef;
+
+  h1 {
+    color: #2c3e50;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+
+  .lastUpdated {
+    color: #6c757d;
+    font-size: 1rem;
+    font-style: italic;
+  }
+}
+
+.section {
+  margin-bottom: 2.5rem;
+  padding: 2rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  h2 {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  h3 {
+    color: #34495e;
+    font-size: 1.2rem;
+    margin: 1.5rem 0 0.5rem 0;
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: #555;
+  }
+
+  ul {
+    margin: 1rem 0;
+    padding-left: 2rem;
+
+    li {
+      margin-bottom: 0.5rem;
+      color: #555;
+    }
+  }
+}
+
+.contactInfo {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+
+  h2 {
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  p {
+    color: white;
+    margin-bottom: 0.5rem;
+  }
+
+  .email {
+    font-weight: bold;
+    color: #ffeb3b;
+  }
+}
+
+.highlight {
+  background-color: #fff3cd;
+  border-left: 4px solid #ffc107;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 4px;
+
+  p {
+    margin: 0;
+    color: #856404;
+  }
+}
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+
+  th, td {
+    padding: 1rem;
+    text-align: left;
+    border: 1px solid #dee2e6;
+  }
+
+  th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    color: #2c3e50;
+  }
+
+  tr:nth-child(even) {
+    background-color: #f8f9fa;
+  }
+}
+
+.backToTop {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #0056b3;
+    transform: translateY(-2px);
+  }
+}
+
+.toc {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+
+    li {
+      margin-bottom: 0.5rem;
+
+      a {
+        color: #007bff;
+        text-decoration: none;
+        transition: color 0.2s ease;
+
+        &:hover {
+          color: #0056b3;
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
+
+
+
+// Terms of Service specific styles
+.termContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f8f9fa;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+.termsHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid #e9ecef;
+
+  h1 {
+    color: #2c3e50;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+
+  .effectiveDate {
+    color: #6c757d;
+    font-size: 1rem;
+    font-style: italic;
+  }
+
+  .intro {
+    font-size: 1.1rem;
+    color: #555;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+}
+
+.termsSection {
+  margin-bottom: 2.5rem;
+  padding: 2rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  h2 {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  h3 {
+    color: #34495e;
+    font-size: 1.2rem;
+    margin: 1.5rem 0 0.5rem 0;
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: #555;
+  }
+
+  ul, ol {
+    margin: 1rem 0;
+    padding-left: 2rem;
+
+    li {
+      margin-bottom: 0.5rem;
+      color: #555;
+    }
+  }
+}
+
+.warningBox {
+  background-color: #f8d7da;
+  border-left: 4px solid #dc3545;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 4px;
+
+  p {
+    margin: 0;
+    color: #721c24;
+  }
+}
+
+.infoBox {
+  background-color: #d1ecf1;
+  border-left: 4px solid #17a2b8;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 4px;
+
+  p {
+    margin: 0;
+    color: #0c5460;
+  }
+}
+
+.termsTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+
+  th, td {
+    padding: 1rem;
+    text-align: left;
+    border: 1px solid #dee2e6;
+  }
+
+  th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    color: #2c3e50;
+  }
+
+  tr:nth-child(even) {
+    background-color: #f8f9fa;
+  }
+}
+
+.contactSection {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+
+  h2 {
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  p {
+    color: white;
+    margin-bottom: 0.5rem;
+  }
+
+  .contactEmail {
+    font-weight: bold;
+    color: #ffeb3b;
+  }
+}
+
+.acceptanceBox {
+  background-color: #d4edda;
+  border: 2px solid #c3e6cb;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  border-radius: 8px;
+  text-align: center;
+
+  p {
+    font-weight: bold;
+    color: #155724;
+    margin: 0;
+    font-size: 1.1rem;
+  }
+}
+
+.termsToc {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+  }
+
+  ol {
+    list-style: none;
+    padding: 0;
+    counter-reset: toc-counter;
+
+    li {
+      counter-increment: toc-counter;
+      margin-bottom: 0.5rem;
+      padding-left: 2rem;
+      position: relative;
+
+      &:before {
+        content: counter(toc-counter) ".";
+        position: absolute;
+        left: 0;
+        font-weight: bold;
+        color: #007bff;
+      }
+
+      a {
+        color: #007bff;
+        text-decoration: none;
+        transition: color 0.2s ease;
+
+        &:hover {
+          color: #0056b3;
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}

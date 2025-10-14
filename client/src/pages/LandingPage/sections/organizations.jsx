@@ -14,7 +14,7 @@ const Organizations = () => {
     const duplicatedOrgs = [...organizations, ...organizations];
 
     return (
-        <section className={style.organizations}>
+        <section className={style.organizations} id='organizations'>
             <div className={style.scrollContainer}>
                 <div className={style.scrollContent}>
                     {duplicatedOrgs.map((org, index) => (

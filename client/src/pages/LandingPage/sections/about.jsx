@@ -36,7 +36,7 @@ const features = [
 
 const AboutUs = () => {
     return (
-        <section className={style.about}>
+        <section className={style.about} id='about'>
             <div className={style.container}>
 
                 {/**Left Side */}

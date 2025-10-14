@@ -26,7 +26,6 @@ const Hero = () => {
 
             <div className={style.hero}>
 
-
                 <Taglines
                     text1="Empowered youth strengthen democracy"
                     text2="and build brighter futures."

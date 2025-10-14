@@ -46,7 +46,7 @@ const officials = [
 
 const Officials = () => {
     return (
-        <section id='section' className={style.officials}>
+        <section id='officials' className={style.officials}>
             <div className={style.container}>
                 <div className={style.contents}>
                     <h1 className={style.title}>
