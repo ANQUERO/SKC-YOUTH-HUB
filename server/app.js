@@ -10,6 +10,7 @@ import purokRouter from './src/routes/purok.route.js';
 import verificationRouter from './src/routes/verification.route.js';
 import dashboardRouter from './src/routes/dashboard.routes.js'
 import post from './src/routes/post.route.js'
+import postContent from './src/routes/post.route.js'
 import comment from './src/routes/comments.route.js'
 import reaction from './src/routes/reactions.route.js'
 import profile from './src/routes/profile.route.js'
@@ -47,6 +48,7 @@ app.use('/api', purokRouter);
 app.use('/api', verificationRouter);
 app.use('/api', dashboardRouter);
 app.use('/api', post);
+app.use('/api', postContent);
 app.use('/api', comment);
 app.use('/api', reaction);
 app.use('/api', profile)

@@ -1,6 +1,15 @@
 import { pool } from '../db/config.js';
 import bcrypt from 'bcrypt';
 
+const inferMediaType = (url) => {
+    try {
+        const u = String(url).toLocaleLowerCase();
+        if (u.includes('/image/') || u.match(/\.(png|jpg|jpeg|gif|webp)$/)) return 'image';
+        if (u.includes('/video/') || u.match(/\.(mp4|webm|mov|m4v)$/)) return 'video';
+    } catch { }
+    return 'null';
+};
+
 export const index = async (req, res) => {
     const user = req.user;
 
@@ -369,7 +378,7 @@ export const showContent = async (req, res) => {
 
 export const storeContent = async (req, res) => {
     const user = req.user;
-    const { official_name, official_title, media_type, media_url } = req.body;
+    const { official_name, official_title, media_url } = req.body;
 
     if (!user || user.userType !== 'admin') {
         return res.status(403).json({
@@ -379,17 +388,20 @@ export const storeContent = async (req, res) => {
     }
 
     // Validation
-    if (!official_name || !official_title || !media_type || !media_url) {
+    if (!official_name || !official_title || !media_url) {
         return res.status(400).json({
             status: "Error",
             message: "All fields are required"
         });
     }
 
+    // Infer media_type from media_url
+    const media_type = inferMediaType(media_url);
+    
     if (media_type !== 'image') {
         return res.status(400).json({
             status: "Error",
-            message: "Media type must be 'image'"
+            message: "Only image media type is allowed"
         });
     }
 
