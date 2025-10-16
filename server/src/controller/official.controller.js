@@ -226,7 +226,6 @@ export const enable = async (req, res) => {
             message: "Internal server error"
         });
     }
-
 }
 
 export const disableComment = async (req, res) => {
@@ -265,8 +264,6 @@ export const disableComment = async (req, res) => {
             message: "Internal server error"
         });
     }
-
-
 }
 
 export const enableComment = async (req, res) => {
@@ -307,7 +304,6 @@ export const enableComment = async (req, res) => {
     }
 
 }
-
 
 export const indexContent = async (req, res) => {
     const { id: official_id } = req.params;

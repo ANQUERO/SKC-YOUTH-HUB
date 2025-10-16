@@ -57,8 +57,16 @@ CREATE TABLE sk_youth (
     deleted_at TIMESTAMP
 );
 
+CREATE TABLE sk_youth_avatar (
+    attachment_id SERIAL PRIMARY KEY NOT NULL,
+    youth_id INTEGER REFERENCES sk_youth(youth_id),
+    file_name VARCHAR(255),
+    file_type VARCHAR(100),
+    file_url TEXT
+);
+
 CREATE TABLE sk_youth_name (
-    name_id SERIAL PRIMARY KEY,
+    name_id SERIAL PRIMARY KEY NOT NULL,
     youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
     first_name VARCHAR(55),
     middle_name VARCHAR(55),
@@ -191,6 +199,7 @@ CREATE TABLE forms(
     official_id INT NOT NULL REFERENCES sk_official(official_id),
     title VARCHAR(255) NOT NULL,
     description TEXT,
+    is_hidden BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL

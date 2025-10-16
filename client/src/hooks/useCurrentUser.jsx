@@ -74,7 +74,7 @@ const useCurrentUser = () => {
         } finally {
             setLoading(false);
         }
-    }, [authUser, activeRole]); // Add dependencies
+    }, [authUser, activeRole]); 
 
     useEffect(() => {
         fetchCurrentUserData();
