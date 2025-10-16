@@ -10,38 +10,7 @@ export const CreatePost = () => {
     const [fileType, setFileType] = useState(null);
     const [type, setType] = useState("post");
     const { createPost } = usePostContext();
-    const { userData, profilePicture, loading } = useCurrentUser();
-
-    // Get user display information
-    const getUserDisplayInfo = () => {
-        if (loading) {
-            return {
-                name: 'Loading...',
-                role: 'Loading...',
-                avatar: "/default-avatar.png"
-            };
-        }
-
-        if (userData) {
-            return {
-                name: userData.name,
-                role: userData.userType === 'official' 
-                    ? userData.position || 'Official'
-                    : userData.userType === 'youth'
-                    ? 'Youth Member'
-                    : 'User',
-                avatar: profilePicture || `/default-avatar.png`
-            };
-        }
-
-        return {
-            name: 'User',
-            role: 'User',
-            avatar: "/default-avatar.png"
-        };
-    };
-
-    const displayInfo = getUserDisplayInfo();
+    const { userData, profilePicture, loading: userLoading } = useCurrentUser();
 
     const handleFileChange = (e, kind) => {
         const list = Array.from(e.target.files || []);
@@ -62,7 +31,7 @@ export const CreatePost = () => {
 
         const newPost = new FormData();
         newPost.append("description", description);
-        newPost.append("type", type); // Send the selected post type
+        newPost.append("type", type);
         if (fileType) newPost.append("media_type", fileType);
         files.forEach((f) => newPost.append("media", f));
 
@@ -80,16 +49,21 @@ export const CreatePost = () => {
         <div className={style.createPost}>
             {/* --- USER INFO --- */}
             <div className={style.userInfo}>
-                <img 
-                    src={displayInfo.avatar} 
-                    alt="avatar" 
-                    onError={(e) => {
-                        e.target.src = "/default-avatar.png";
-                    }}
-                />
-                <div>
-                    <strong>{displayInfo.name}</strong>
-                    <p>{displayInfo.role}</p>
+                <div className={style.avatarContainer}>
+                    <img
+                        src={profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                            userData?.name || 'User'
+                        )}&background=random&color=fff`}
+                        alt="Profile"
+                        className={style.avatar}
+                    />
+                    {userLoading && <div className={style.avatarLoading}></div>}
+                </div>
+                <div className={style.userDetails}>
+                    <strong className={style.userName}>{userData?.name || 'User'}</strong>
+                    <span className={style.userRole}>
+                        {userData?.position || 'Youth Member'}
+                    </span>
                 </div>
 
                 <div className={style.topBar}>
@@ -110,6 +84,7 @@ export const CreatePost = () => {
                 placeholder="What's on your mind?"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                className={style.postTextarea}
             />
 
             {/* --- PREVIEW SECTION --- */}
@@ -144,8 +119,8 @@ export const CreatePost = () => {
             {/* --- ACTIONS --- */}
             <div className={style.actions}>
                 <div className={style.files}>
-                    <label>
-                        <Image />
+                    <label className={style.fileInputLabel}>
+                        <Image className={style.fileIcon} />
                         <input
                             type="file"
                             accept="image/*"
@@ -154,8 +129,8 @@ export const CreatePost = () => {
                             style={{ display: "none" }}
                         />
                     </label>
-                    <label>
-                        <Video />
+                    <label className={style.fileInputLabel}>
+                        <Video className={style.fileIcon} />
                         <input
                             type="file"
                             accept="video/*"
@@ -166,8 +141,13 @@ export const CreatePost = () => {
                     </label>
                 </div>
 
-                <button onClick={handlePost}>
-                    <Send />
+                <button 
+                    onClick={handlePost} 
+                    className={style.postButton}
+                    disabled={description.trim() === ""}
+                >
+                    <Send className={style.sendIcon} />
+                    Post
                 </button>
             </div>
         </div>

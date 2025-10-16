@@ -12,7 +12,6 @@ import {
   Megaphone,
   CalendarRange,
   MessageCircle,
-  Search,
   User,
   Settings,
   LogOut,
@@ -23,7 +22,6 @@ import { NavLink } from 'react-router-dom';
 export const Navbar = () => {
   const [isNotifOpen, setNotifOpen] = useState(false);
   const [isProfileOpen, setProfileOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
   const { userData, profilePicture, loading: userLoading } = useCurrentUser();
   const logout = useLogout();
@@ -38,16 +36,7 @@ export const Navbar = () => {
           <img src={Logo} alt="SKC Youth Hub" className={style.logo} />
           <span className={style.logoText}>SKC Youth Hub</span>
         </NavLink>
-        <div className={style.searchWrapper}>
-          <Search className={style.searchIcon} />
-          <input
-            type="search"
-            className={style.searchInput}
-            placeholder="Search posts, announcements..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+      
       </div>
 
       {/* Navigation Links - Desktop */}
