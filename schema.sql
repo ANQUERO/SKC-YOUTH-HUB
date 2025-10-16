@@ -209,7 +209,7 @@ CREATE TABLE replied_forms(
     replied_id SERIAL PRIMARY KEY,
     form_id INT NOT NULL REFERENCES forms(form_id),
     youth_id INT NOT NULL REFERENCES sk_youth(youth_id),
-    response TEXT NOT NULL
+    response TEXT 
 );
 
 -- Official Landing Page Content --

@@ -27,7 +27,7 @@ BEGIN
 INSERT INTO sk_official (email, password, official_position, role)
 VALUES (p_email, p_password, p_official_position , p_role)
 RETURNING sk_official.official_id, 
-          sk_official.email , 
+          sk_official.email, 
           sk_official.official_position, 
           sk_official.role
 INTO v_official_id, email, official_position, role;
