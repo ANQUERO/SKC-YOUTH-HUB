@@ -61,4 +61,6 @@ export const show = async (req, res) => {
             message: "Internal server error"
         });
     }
+
+    
 }
