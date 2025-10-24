@@ -29,7 +29,7 @@ const Terms = () => {
       {/* Header */}
       <div className={style.termsHeader}>
         <h1>Terms of Service</h1>
-        <p className={style.effectiveDate}>Effective Date: December 1, 2024</p>
+        <p className={style.effectiveDate}>Effective Date: November 1, 2025</p>
         <p className={style.intro}>
           Welcome to SK Catarman Hub. These Terms of Service govern your use of our platform and services. 
           Please read them carefully before using our services.
@@ -273,9 +273,9 @@ const Terms = () => {
       <div id="contact" className={style.contactSection}>
         <h2>14. Contact Information</h2>
         <p>If you have any questions about these Terms of Service, please contact us:</p>
-        <p className={style.contactEmail}>Email: legal@skcatarmanhub.com</p>
-        <p>Address: SK Catarman Hub, Catarman, Northern Samar, Philippines</p>
-        <p>Phone: +63 (XXX) XXX-XXXX</p>
+        <p className={style.contactEmail}>Email: leester@gmail.com</p>
+        <p>Address: Catarman, Cordova, Cebu, Philippines</p>
+        <p>Phone: +63 (906)2420480</p>
       </div>
 
       {/* Back to Top Button */}

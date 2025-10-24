@@ -29,7 +29,7 @@ const Policy = () => {
       {/* Header */}
       <div className={style.header}>
         <h1>Privacy Policy</h1>
-        <p className={style.lastUpdated}>Last Updated: December 1, 2024</p>
+        <p className={style.lastUpdated}>Last Updated: November 1, 2025</p>
         <p>Welcome to SK Catarman Hub. We are committed to protecting your privacy and ensuring the security of your personal information.</p>
       </div>
 
@@ -207,9 +207,9 @@ const Policy = () => {
       <div id="contact" className={style.contactInfo}>
         <h2>10. Contact Us</h2>
         <p>If you have any questions about this Privacy Policy, please contact us:</p>
-        <p className={style.email}>Email: privacy@skcatarmanhub.com</p>
-        <p>Address: SK Catarman Hub, Catarman, Northern Samar, Philippines</p>
-        <p>Phone: +63 (XXX) XXX-XXXX</p>
+        <p className={style.email}>Email: leester@gmail.com</p>
+        <p>Address: Catarman, Cordova, Cebu, Philippines</p>
+        <p>Phone: +63(906)2420480</p>
       </div>
 
       {/* Back to Top Button */}
