@@ -23,7 +23,7 @@ export const uploadCloudinary = async (req, res, next) => {
             return new Promise((resolve, reject) => {
                 const stream = cloudinary.uploader.upload_stream(
                     {
-                        resource_type: 'auto',
+                        resource_type: 'auto'
                     },
                     (error, result) => {
                         if (error) return reject(error);
