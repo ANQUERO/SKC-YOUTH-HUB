@@ -57,7 +57,7 @@ export const index = async (req, res) => {
         const posts = result.rows.map(row => ({
             post_id: row.post_id,
             description: row.description,
-            type: row.post_type || 'post', // Map post_type to type for frontend compatibility
+            type: row.post_type || 'post',
             media_type: row.media_type,
             media_url: row.media_url,
             is_hidden: row.is_hidden,

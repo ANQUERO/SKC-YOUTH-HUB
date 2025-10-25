@@ -54,3 +54,4 @@ export const isAge = value => {
     return Number.isInteger(age) && age >= 16 && age <= 30;
 }
 
+

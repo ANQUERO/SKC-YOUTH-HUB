@@ -76,3 +76,7 @@ export const loginValidator = [
     body("email").isEmail().withMessage("Invalid email"),
     body("password").isLength({ min: 8 }).withMessage("Password is required")
 ];
+
+export const posts = async (req, res) => {
+    body("description")
+}

@@ -61,6 +61,26 @@ export const show = async (req, res) => {
             message: "Internal server error"
         });
     }
+}
+
+export const store = async (req, res) => {
+    const user = req.user;
+    const body = req.body || {};
+    const {title, description} = body.description || body.title || '';
+
+    if (!user || user.userType !== "official") {
+        return res.status(403).json({
+            status: "Error",
+            message: "Forbidden - Only officials can create this inbox"
+        });
+    }
+
+    try {
+        
+    } catch (error) {
+        
+    }
+    
 
     
 }
