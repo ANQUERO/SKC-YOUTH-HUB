@@ -79,4 +79,5 @@ export const loginValidator = [
 
 export const posts = async (req, res) => {
     body("description")
+    .custom()
 }
