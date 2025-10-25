@@ -113,14 +113,14 @@ export const update = async (req, re) => {
 
   if (!user || user.userType !== "official") {
     return res.status(403).json({
-        status: "Error",
-        message: "Forbidden - Only officials can update forms"
+      status: "Error",
+      message: "Forbidden - Only officials can update forms",
     });
   }
 
   try {
     const result = await pool.query(
-        `
+      `
         UPDATE forms
         SET 
         title = COALSCE($1, title),
@@ -130,16 +130,28 @@ export const update = async (req, re) => {
         WHERE form_id = $4 AND deleted_at IS_NULL
         RETURNING *
         `,
-        [title, description, is_hidden, form_id]
+      [title, description, is_hidden, form_id]
     );
 
-    if (condition) {
-        
+    if (result.rows.length === 0) {
+      return res.status(400).json({
+        status: "Error",
+        message: "Form not found",
+      });
     }
+
+    return res.status(200).json({
+        status: "Success",
+        message: "Form updated successfully",
+        data: result.rows[0],
+    });
+
   } catch (error) {
-    
+    console.error("Error updating form:", error);
+    return res.status(500).json({
+        status: "Error",
+        message: "Internal Server Error"
+    });
   }
-
-
-
+  
 };
