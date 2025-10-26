@@ -141,17 +141,105 @@ export const update = async (req, re) => {
     }
 
     return res.status(200).json({
-        status: "Success",
-        message: "Form updated successfully",
-        data: result.rows[0],
+      status: "Success",
+      message: "Form updated successfully",
+      data: result.rows[0],
     });
-
   } catch (error) {
     console.error("Error updating form:", error);
     return res.status(500).json({
-        status: "Error",
-        message: "Internal Server Error"
+      status: "Error",
+      message: "Internal Server Error",
     });
   }
-  
 };
+
+export const destroy = async (req, res) => {
+  const user = req.user;
+  const { id: form_id } = req.params;
+
+  if (!user || user.userType !== "official") {
+    return res.status(403).json({
+      status: "Error",
+      message: "Forbidden - Only officials can delte this form",
+    });
+  }
+
+  try {
+    const result = await pool.query(
+      `
+      UPDATE forms
+      SET deleted_at = CURRENT_TIMESTAMP
+      WHERE form_id = $1 AND deleted_at IS NULL
+      RETURNING *
+      `,
+      [form_id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        status: "Error",
+        message: "Form not found",
+      });
+    }
+
+    return res.status(200).json({
+      status: "Success",
+      message: "Form deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting form: ", error);
+    return res.status(500).json({
+      status: "Error",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export const reply = async (req, res) => {
+  const { id: form_id } = req.params;
+  const user = req.user;
+  const { response } = req.body;
+
+  if (!user || user.userType !== "youth") {
+    return res.status(403).json({
+      status: "Error",
+      message: "Forbidden - Only youth can reply to forms",
+    });
+  }
+
+  if (!response) {
+    return res.status(400).json({
+      status: "Error",
+      message: "Response text is required"
+    });
+  }
+
+  try {
+    const result = await pool.query(
+      `
+      INSERT INTO replied_forms(form_id, youth_id, response)
+      VALUES ($1, $2, $3)
+      RETURNING *
+      `,
+      [form_id, user.youth_id, response]
+    );
+
+    return res.status(201).json({
+      status: "Success",
+      message: "Reply submitted successfully",
+      data: result.rows[0],
+    });
+    
+  } catch (error) {
+    console.error("Error submitted reply:", error);
+    return res.status(500).json({
+      status: "Error",
+      message: "Internal Server Error"
+    });
+  }
+};
+
+export const replied = async (req, res) => {
+  
+}
