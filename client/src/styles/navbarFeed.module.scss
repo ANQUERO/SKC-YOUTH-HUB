@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #ffffff;
+  background: linear-gradient(135deg, #5894E2, #478de7);
   padding: 0.5rem 1rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: sticky;
@@ -147,24 +147,23 @@
         .navIcon {
           width: 28px;
           height: 28px;
-          color: #65676b;
+          color: white;
           transition: color 0.2s ease;
         }
 
         &:hover {
-          background-color: #f0f2f5;
-          color: #050505;
+          color: #f0f2f5;
 
           .navIcon {
-            color: #050505;
+            color: #f0f2f5;
           }
         }
 
         &.active {
-          color: #1877f2;
+          color: #f0f2f5;
 
           .navIcon {
-            color: #1877f2;
+            color: #f0f2f5;
           }
 
           &::after {
@@ -174,7 +173,7 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: #1877f2;
+            background: #f0f2f5;
             border-radius: 3px 3px 0 0;
           }
         }

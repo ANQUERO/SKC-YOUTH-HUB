@@ -17,9 +17,6 @@ import {
   LogOut,
   Shield,
   Search,
-  Users,
-  Menu,
-  MessageSquare
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
@@ -30,7 +27,7 @@ export const Navbar = () => {
   const { userData, profilePicture, loading: userLoading } = useCurrentUser();
   const logout = useLogout();
   const canManage = isSkSuperAdmin || isSkNaturalAdmin;
-  const { notifications, unreadCount, markAllRead } = useNotifications();
+  const { notifications, unreadCount } = useNotifications();
 
   return (
     <>
@@ -122,7 +119,7 @@ export const Navbar = () => {
               alt="Profile"
               className={style.avatar}
             />
-            <span className={style.userName}>{userData?.name?.split(' ')[0] || 'User'}</span>
+            <span className={style.userName}>{userData?.name || 'User'} </span>
           </div>
 
           {/* Notifications Dropdown */}
