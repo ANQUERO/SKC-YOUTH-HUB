@@ -317,6 +317,7 @@ export const updateProfile = async (req, res) => {
 
             } catch (error) {
                 await client.query('ROLLBACK');
+                console.error("Database error in youth update:", error);
                 throw error;
             } finally {
                 client.release();
@@ -381,6 +382,7 @@ export const updateProfile = async (req, res) => {
 
             } catch (error) {
                 await client.query('ROLLBACK');
+                console.error("Database error in official update:", error);
                 throw error;
             } finally {
                 client.release();
@@ -394,7 +396,7 @@ export const updateProfile = async (req, res) => {
 
     } catch (error) {
         console.error("Failed to update profile:", error);
-        res.status(500).json({
+        return res.status(500).json({
             status: "Error",
             message: "Internal server error"
         });

@@ -11,12 +11,16 @@ import { Edit } from "@mui/icons-material";
 const YouthProfile = () => {
   const {
     fetchProfile,
+    updateProfile,
     accountName,
     genderInfo,
     demoSurvey,
     meetingHousehold,
     loadingProfile,
+    updatingProfile,
     error,
+    updateError,
+    successMessage,
   } = useProfile();
 
   const { userData, profilePicture, updateProfilePicture } = useCurrentUser();
@@ -29,6 +33,18 @@ const YouthProfile = () => {
     },
     [updateProfilePicture]
   );
+
+  // Handle profile update from the modal
+  const handleProfileUpdate = useCallback(async (updateData) => {
+    try {
+      await updateProfile(updateData);
+      // Modal will handle closing and any success/error messages
+      return true;
+    } catch (error) {
+      console.error("Profile update failed:", error);
+      return false;
+    }
+  }, [updateProfile]);
 
   useEffect(() => {
     fetchProfile();
@@ -98,9 +114,22 @@ const YouthProfile = () => {
               startIcon={<Edit />}
               onClick={() => setEditModalOpen(true)}
               className={style.editButton}
+              disabled={updatingProfile}
             >
-              Edit Profile
+              {updatingProfile ? "Updating..." : "Edit Profile"}
             </Button>
+            
+            {/* Success and Error Messages */}
+            {successMessage && (
+              <div className={style.successMessage}>
+                ✅ {successMessage}
+              </div>
+            )}
+            {updateError && (
+              <div className={style.errorMessage}>
+                ⚠️ {updateError}
+              </div>
+            )}
           </div>
         </aside>
 
@@ -212,7 +241,17 @@ const YouthProfile = () => {
       <ProfileEditModal
         open={editModalOpen}
         onClose={() => setEditModalOpen(false)}
+        onUpdate={handleProfileUpdate}
         userType="youth"
+        currentData={{
+          name: accountName,
+          info: genderInfo,
+          gender: genderInfo,
+          demographics: demoSurvey,
+          survey: demoSurvey,
+          meetingSurvey: meetingHousehold
+        }}
+        loading={updatingProfile}
       />
     </div>
   );
