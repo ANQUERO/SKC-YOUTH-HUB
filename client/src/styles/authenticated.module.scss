@@ -13,18 +13,77 @@
 
   @media (max-width: 1023px) {
     transform: translateX(-100%);
-    
+
     &[open] {
       transform: translateX(0);
     }
   }
-}
 
-.sidebarHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem 1rem 1rem;
+
+  .sidebarHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 1rem 1rem;
+
+    .logoText {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: white;
+      margin-left: 0.5rem;
+
+      @media (max-width: 480px) {
+        font-size: 1.1rem;
+      }
+    }
+  }
+
+  .createPostBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    margin: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .createPostIcon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+    }
+  }
+
+  .navSection {
+    padding: 1rem 0;
+    flex: 1;
+    overflow-y: auto;
+
+    .sectionTitle {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0 1rem 0.75rem;
+    }
+  }
+
 }
 
 .sidebarToggle {
@@ -48,52 +107,6 @@
   }
 }
 
-.createPostBtn {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  margin: 1rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  color: white;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-}
-
-.createPostIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-}
-
-.navSection {
-  padding: 1rem 0;
-  flex: 1;
-  overflow-y: auto;
-}
-
-.sectionTitle {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0 1rem 0.75rem;
-}
-
 .bottomNav {
   margin-top: auto;
   padding: 1rem 0;
@@ -111,36 +124,37 @@
   @media (min-width: 1024px) {
     display: none;
   }
-}
 
-.userAvatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  .userAvatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.2);
 
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
   }
-}
 
-.userInfo {
-  display: flex;
-  flex-direction: column;
-}
+  .userInfo {
+    display: flex;
+    flex-direction: column;
 
-.userName {
-  color: white;
-  font-weight: 600;
-  font-size: 0.875rem;
-}
+    .userName {
+      color: white;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
 
-.userRole {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.75rem;
+    .userRole {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.75rem;
+    }
+
+  }
 }
 
 // Main Content Styles
@@ -156,114 +170,114 @@
   @media (max-width: 1023px) {
     margin-left: 0;
   }
-}
 
-.topBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1.5rem;
-  background: white;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  min-height: 64px;
+  .topBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.5rem;
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    min-height: 64px;
 
-  @media (max-width: 768px) {
-    padding: 0.75rem 1rem;
-  }
-}
+    @media (max-width: 768px) {
+      padding: 0.75rem 1rem;
+    }
 
-.leftSection {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
+    .leftSection {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
 
-.menuButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  background: white;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.2s ease;
+      .menuButton {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        background: white;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s ease;
 
-  &:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-  }
+        &:hover {
+          background: #f8fafc;
+          border-color: #cbd5e1;
+        }
 
-  @media (min-width: 1024px) {
-    display: none;
-  }
-}
-
-.rightSection {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-
-  @media (max-width: 768px) {
-    gap: 0.5rem;
-  }
-}
-
-// Notification and Profile Dropdowns
-.notificationWrapper,
-.profileDropdown {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.iconButton {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  background: white;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
+        @media (min-width: 1024px) {
+          display: none;
+        }
+      }
+    }
   }
 
-  @media (max-width: 768px) {
-    width: 36px;
-    height: 36px;
-  }
-}
+  .rightSection {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 
-.notificationBadge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  background: #ef4444;
-  color: white;
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 0.2rem 0.4rem;
-  border-radius: 10px;
-  min-width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
+    @media (max-width: 768px) {
+      gap: 0.5rem;
+    }
+  }
+
+  // Notification and Profile Dropdowns
+  .notificationWrapper,
+  .profileDropdown {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    .iconButton {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+      }
+
+      @media (max-width: 768px) {
+        width: 36px;
+        height: 36px;
+      }
+    }
+
+    .notificationBadge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #ef4444;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.2rem 0.4rem;
+      border-radius: 10px;
+      min-width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+  }
 }
 
 .userMenu {
@@ -394,7 +408,7 @@
 
   @media (max-width: 480px) {
     gap: 4px;
-    
+
     button {
       font-size: 11px;
     }
@@ -578,12 +592,11 @@
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
 }
-
-
 
 // Content Area
 .contentArea {
@@ -600,23 +613,12 @@
   }
 }
 
-.logoText {
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: white;
-  margin-left: 0.5rem;
-
-  @media (max-width: 480px) {
-    font-size: 1.1rem;
-  }
-}
-
 // Responsive adjustments
 @media (max-width: 480px) {
   .topBar {
     min-height: 56px;
   }
-  
+
   .dropdown {
     position: fixed;
     top: 60px;
