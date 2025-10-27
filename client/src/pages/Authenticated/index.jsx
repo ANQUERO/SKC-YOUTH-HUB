@@ -29,12 +29,8 @@ import {
   LogOut,
   Plus,
   Menu as MenuIcon,
-  ChevronRight,
   Bell,
-  House,
   Megaphone,
-  CalendarRange,
-  MessageCircle,
   Shield
 } from 'lucide-react';
 
@@ -204,11 +200,6 @@ const Authenticated = () => {
               SKC:YouthHub
             </h1>
           </LogoWrapper>
-          {isMobile && (
-            <div className={style.sidebarToggle} onClick={() => setIsSidebarOpen(false)}>
-              <ChevronRight size={16} />
-            </div>
-          )}
         </div>
 
         {/* Create Post Button */}
@@ -261,52 +252,6 @@ const Authenticated = () => {
             >
               <MenuIcon size={20} />
             </ToggleSidebarButton>
-
-            {/* Mobile Navigation Links */}
-            {isMobile && (
-              <ul className={style.mobileNavLinks}>
-                <li>
-                  <NavLink
-                    to="/feed"
-                    className={({ isActive }) =>
-                      isActive ? `${style.mobileNavLink} ${style.active}` : style.mobileNavLink
-                    }
-                  >
-                    <House className={style.mobileNavIcon} />
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to="/feed/announcements"
-                    className={({ isActive }) =>
-                      isActive ? `${style.mobileNavLink} ${style.active}` : style.mobileNavLink
-                    }
-                  >
-                    <Megaphone className={style.mobileNavIcon} />
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to="/feed/activities"
-                    className={({ isActive }) =>
-                      isActive ? `${style.mobileNavLink} ${style.active}` : style.mobileNavLink
-                    }
-                  >
-                    <CalendarRange className={style.mobileNavIcon} />
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to="/feed/feedback"
-                    className={({ isActive }) =>
-                      isActive ? `${style.mobileNavLink} ${style.active}` : style.mobileNavLink
-                    }
-                  >
-                    <MessageCircle className={style.mobileNavIcon} />
-                  </NavLink>
-                </li>
-              </ul>
-            )}
           </div>
 
           <div className={style.rightSection}>

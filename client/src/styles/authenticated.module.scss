@@ -25,7 +25,6 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 1rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .sidebarToggle {
@@ -584,58 +583,7 @@
   }
 }
 
-// Mobile Navigation Links
-.mobileNavLinks {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
 
-  @media (min-width: 1024px) {
-    display: none;
-  }
-
-  @media (max-width: 480px) {
-    gap: 8px;
-  }
-}
-
-.mobileNavLink {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  border-radius: 8px;
-  color: #6b7280;
-  transition: all 0.2s;
-  text-decoration: none;
-
-  &.active {
-    color: #6366f1;
-    background-color: #eef2ff;
-  }
-
-  &:hover {
-    color: #6366f1;
-    background-color: #f8fafc;
-  }
-
-  @media (max-width: 480px) {
-    padding: 6px;
-  }
-}
-
-.mobileNavIcon {
-  width: 20px;
-  height: 20px;
-
-  @media (max-width: 480px) {
-    width: 18px;
-    height: 18px;
-  }
-}
 
 // Content Area
 .contentArea {
