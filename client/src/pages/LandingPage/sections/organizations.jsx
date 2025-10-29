@@ -87,23 +87,6 @@ const Organizations = () => {
                         ))}
                     </div>
                 </div>
-
-                <div className={style.scrollControls}>
-                    <button 
-                        className={style.controlBtn}
-                        onClick={handleMouseEnter}
-                        aria-label="Pause scrolling"
-                    >
-                        ⏸️
-                    </button>
-                    <button 
-                        className={style.controlBtn}
-                        onClick={handleMouseLeave}
-                        aria-label="Resume scrolling"
-                    >
-                        ▶️
-                    </button>
-                </div>
             </div>
 
             <div className={style.organizationStats}>
