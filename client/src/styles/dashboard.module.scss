@@ -204,16 +204,35 @@
     }
 
     .chartContainer {
-      height: 300px;
+      height: 250px;
+      width: 100%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     &.large {
       grid-column: 1 / -1;
 
       .chartContainer {
-        height: 350px;
+        height: 300px;
       }
     }
+  }
+
+  // Chart loading state
+  .chartLoading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    color: #64748b;
+    font-style: italic;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px dashed #e2e8f0;
   }
 
   // Recent Activity
@@ -242,7 +261,7 @@
 
     .activityItem {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       padding: 1rem 1.5rem;
       border-bottom: 1px solid #f1f5f9;
       transition: background-color 0.2s ease;
@@ -256,37 +275,53 @@
       }
 
       .activityIcon {
-        width: 40px;
-        height: 40px;
+        width: 32px;
+        height: 32px;
         border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
         margin-right: 1rem;
+        margin-top: 0.25rem;
         background: #e0f2fe;
         color: #0369a1;
+        flex-shrink: 0;
       }
 
       .activityContent {
         flex: 1;
+        min-width: 0;
 
         .activityTitle {
           font-weight: 500;
           color: #1e293b;
           margin-bottom: 0.25rem;
+          font-size: 0.9rem;
+        }
+
+        .activityDescription {
+          color: #64748b;
+          font-size: 0.8rem;
+          margin-bottom: 0.25rem;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .activityTime {
-          font-size: 0.8rem;
-          color: #64748b;
+          font-size: 0.75rem;
+          color: #94a3b8;
         }
       }
 
       .activityBadge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.7rem;
         font-weight: 500;
+        text-transform: capitalize;
+        flex-shrink: 0;
+        margin-left: 0.5rem;
 
         &.success {
           background: #dcfce7;
@@ -313,6 +348,7 @@
     align-items: center;
     padding: 3rem;
     color: #64748b;
+    font-size: 1.1rem;
   }
 
   .errorState {
@@ -323,6 +359,7 @@
     border-radius: 8px;
     text-align: center;
     margin: 1rem 0;
+    font-weight: 500;
   }
 
   // Custom Tooltip

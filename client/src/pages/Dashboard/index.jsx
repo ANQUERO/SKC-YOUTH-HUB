@@ -131,6 +131,11 @@ const Dashboard = () => {
     }
   ];
 
+  // Check if chart data is available
+  const hasVoterData = voterRegistrationData.length > 0 && voterRegistrationData.some(item => item.value > 0);
+  const hasGenderData = genderData.length > 0 && genderData.some(item => item.value > 0);
+  const hasPurokData = purokData.length > 0 && purokData.some(item => item.residents > 0 || item.voters > 0);
+
   if (loading) {
     return (
       <div className={style.dashboard}>
@@ -225,25 +230,29 @@ const Dashboard = () => {
               </div>
             </div>
             <div className={style.chartContainer}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={voterRegistrationData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                  >
-                    {voterRegistrationData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value) => [value.toLocaleString(), 'Count']} />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+              {hasVoterData ? (
+                <ResponsiveContainer width="100%" height={250} minWidth={0}>
+                  <PieChart>
+                    <Pie
+                      data={voterRegistrationData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                    >
+                      {voterRegistrationData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => [value.toLocaleString(), 'Count']} />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className={style.chartLoading}>No voter data available</div>
+              )}
             </div>
           </div>
 
@@ -258,15 +267,19 @@ const Dashboard = () => {
               </div>
             </div>
             <div className={style.chartContainer}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={genderData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => [value.toLocaleString(), 'Count']} />
-                  <Bar dataKey="value" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              {hasGenderData ? (
+                <ResponsiveContainer width="100%" height={250} minWidth={0}>
+                  <BarChart data={genderData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip formatter={(value) => [value.toLocaleString(), 'Count']} />
+                    <Bar dataKey="value" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className={style.chartLoading}>No gender data available</div>
+              )}
             </div>
           </div>
 
@@ -284,17 +297,21 @@ const Dashboard = () => {
               </div>
             </div>
             <div className={style.chartContainer}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={purokData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => [value.toLocaleString(), 'Count']} />
-                  <Legend />
-                  <Bar dataKey="residents" name="Total Residents" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="voters" name="Registered Voters" fill="#10b981" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              {hasPurokData ? (
+                <ResponsiveContainer width="100%" height={300} minWidth={0}>
+                  <BarChart data={purokData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip formatter={(value) => [value.toLocaleString(), 'Count']} />
+                    <Legend />
+                    <Bar dataKey="residents" name="Total Residents" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="voters" name="Registered Voters" fill="#10b981" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className={style.chartLoading}>No purok data available</div>
+              )}
             </div>
           </div>
         </div>
@@ -311,7 +328,7 @@ const Dashboard = () => {
               </div>
             </div>
             <div className={style.chartContainer}>
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height={250} minWidth={0}>
                 <LineChart data={ageDistributionData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                   <XAxis dataKey="age" />
