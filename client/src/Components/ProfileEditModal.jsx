@@ -23,27 +23,12 @@ import {
     useMediaQuery,
     useTheme,
     IconButton,
-    Card,
-    Grid2
+    Card
 } from '@mui/material';
 import { Edit, Person, LocationOn, School, HowToVote, Event, Close, ArrowBack, ArrowForward } from '@mui/icons-material';
 
 // Import styles
-import {
-    modalStyles,
-    headerStyles,
-    contentStyles,
-    stepperStyles,
-    stepContentStyles,
-    gridStyles,
-    cardStyles,
-    textFieldStyles,
-    formControlStyles,
-    actionsStyles,
-    buttonStyles,
-    alertStyles,
-    animationStyles
-} from '../styles/ProfileEditModalStyles';
+import styles from '../styles/profileEdit.module.scss';
 
 const ProfileEditModal = ({ 
     open, 
@@ -302,11 +287,11 @@ const ProfileEditModal = ({
             switch (step) {
                 case 0:
                     return (
-                        <Box sx={stepContentStyles.root}>
-                            <Typography variant="h6" sx={stepContentStyles.title}>
+                        <div className={styles.stepContent}>
+                            <Typography variant="h6" className={styles.stepTitle}>
                                 <Person /> Basic Information
                             </Typography>
-                            <Box sx={gridStyles.basic(isMobile)}>
+                            <div className={`${styles.gridBasic} ${isMobile ? styles.mobile : ''}`}>
                                 <TextField
                                     fullWidth
                                     label="First Name"
@@ -315,7 +300,7 @@ const ProfileEditModal = ({
                                     onChange={handleChange}
                                     required
                                     variant="outlined"
-                                    sx={textFieldStyles.root}
+                                    className={styles.formField}
                                 />
                                 <TextField
                                     fullWidth
@@ -325,7 +310,7 @@ const ProfileEditModal = ({
                                     onChange={handleChange}
                                     required
                                     variant="outlined"
-                                    sx={textFieldStyles.root}
+                                    className={styles.formField}
                                 />
                                 <TextField
                                     fullWidth
@@ -334,7 +319,7 @@ const ProfileEditModal = ({
                                     value={formData.name?.middle_name || ''}
                                     onChange={handleChange}
                                     variant="outlined"
-                                    sx={textFieldStyles.root}
+                                    className={styles.formField}
                                 />
                                 <TextField
                                     fullWidth
@@ -343,19 +328,19 @@ const ProfileEditModal = ({
                                     value={formData.name?.suffix || ''}
                                     onChange={handleChange}
                                     variant="outlined"
-                                    sx={textFieldStyles.root}
+                                    className={styles.formField}
                                 />
-                            </Box>
-                        </Box>
+                            </div>
+                        </div>
                     );
                 case 1:
                     return (
-                        <Box sx={stepContentStyles.root}>
-                            <Typography variant="h6" sx={stepContentStyles.title}>
+                        <div className={styles.stepContent}>
+                            <Typography variant="h6" className={styles.stepTitle}>
                                 <School /> Demographics & Personal Info
                             </Typography>
-                            <Box sx={gridStyles.demographics(isMobile)}>
-                                <FormControl fullWidth variant="outlined" sx={formControlStyles.root}>
+                            <div className={`${styles.gridDemographics} ${isMobile ? styles.mobile : ''}`}>
+                                <FormControl fullWidth variant="outlined" className={styles.formControl}>
                                     <InputLabel>Gender</InputLabel>
                                     <Select
                                         name="gender.gender"
@@ -379,7 +364,7 @@ const ProfileEditModal = ({
                                     value={formData.info?.age || ''}
                                     onChange={handleChange}
                                     variant="outlined"
-                                    sx={textFieldStyles.root}
+                                    className={styles.formField}
                                 />
 
                                 <TextField
@@ -389,7 +374,7 @@ const ProfileEditModal = ({
                                     value={formData.info?.contact_number || ''}
                                     onChange={handleChange}
                                     variant="outlined"
-                                    sx={textFieldStyles.root}
+                                    className={styles.formField}
                                 />
 
                                 <TextField
@@ -401,10 +386,10 @@ const ProfileEditModal = ({
                                     onChange={handleChange}
                                     InputLabelProps={{ shrink: true }}
                                     variant="outlined"
-                                    sx={textFieldStyles.root}
+                                    className={styles.formField}
                                 />
 
-                                <FormControl fullWidth variant="outlined" sx={formControlStyles.root}>
+                                <FormControl fullWidth variant="outlined" className={styles.formControl}>
                                     <InputLabel>Civil Status</InputLabel>
                                     <Select
                                         name="demographics.civil_status"
@@ -418,7 +403,7 @@ const ProfileEditModal = ({
                                     </Select>
                                 </FormControl>
 
-                                <FormControl fullWidth variant="outlined" sx={formControlStyles.root}>
+                                <FormControl fullWidth variant="outlined" className={styles.formControl}>
                                     <InputLabel>Youth Age Gap</InputLabel>
                                     <Select
                                         name="demographics.youth_age_gap"
@@ -432,7 +417,7 @@ const ProfileEditModal = ({
                                     </Select>
                                 </FormControl>
 
-                                <FormControl fullWidth variant="outlined" sx={formControlStyles.root}>
+                                <FormControl fullWidth variant="outlined" className={styles.formControl}>
                                     <InputLabel>Youth Classification</InputLabel>
                                     <Select
                                         name="demographics.youth_classification"
@@ -446,7 +431,7 @@ const ProfileEditModal = ({
                                     </Select>
                                 </FormControl>
 
-                                <FormControl fullWidth variant="outlined" sx={formControlStyles.root}>
+                                <FormControl fullWidth variant="outlined" className={styles.formControl}>
                                     <InputLabel>Educational Background</InputLabel>
                                     <Select
                                         name="demographics.educational_background"
@@ -460,7 +445,7 @@ const ProfileEditModal = ({
                                     </Select>
                                 </FormControl>
 
-                                <FormControl fullWidth variant="outlined" sx={formControlStyles.root}>
+                                <FormControl fullWidth variant="outlined" className={styles.formControl}>
                                     <InputLabel>Work Status</InputLabel>
                                     <Select
                                         name="demographics.work_status"
@@ -473,26 +458,26 @@ const ProfileEditModal = ({
                                         ))}
                                     </Select>
                                 </FormControl>
-                            </Box>
-                        </Box>
+                            </div>
+                        </div>
                     );
                 case 2:
                     return (
-                        <Box sx={stepContentStyles.root}>
-                            <Typography variant="h6" sx={stepContentStyles.title}>
+                        <div className={styles.stepContent}>
+                            <Typography variant="h6" className={styles.stepTitle}>
                                 <HowToVote /> Voting Survey
                             </Typography>
-                            <Box sx={gridStyles.survey(isMobile)}>
-                                <Card sx={cardStyles.radioCard}>
+                            <div className={`${styles.gridSurvey} ${isMobile ? styles.mobile : ''}`}>
+                                <Card className={styles.radioCard}>
                                     <FormControl component="fieldset" fullWidth>
-                                        <Typography variant="subtitle1" sx={cardStyles.radioLabel}>
+                                        <Typography variant="subtitle1" className={styles.radioLabel}>
                                             Registered Voter
                                         </Typography>
                                         <RadioGroup
                                             name="survey.registered_voter"
                                             value={getRadioValue(formData.survey?.registered_voter)}
                                             onChange={handleRadioChange}
-                                            sx={cardStyles.radioGroup(isMobile)}
+                                            className={`${styles.radioGroup} ${isMobile ? styles.radioGroupMobile : ''}`}
                                         >
                                             <FormControlLabel value="yes" control={<Radio color="primary" />} label="Yes" />
                                             <FormControlLabel value="no" control={<Radio color="primary" />} label="No" />
@@ -500,16 +485,16 @@ const ProfileEditModal = ({
                                     </FormControl>
                                 </Card>
 
-                                <Card sx={cardStyles.radioCard}>
+                                <Card className={styles.radioCard}>
                                     <FormControl component="fieldset" fullWidth>
-                                        <Typography variant="subtitle1" sx={cardStyles.radioLabel}>
+                                        <Typography variant="subtitle1" className={styles.radioLabel}>
                                             Registered National Voter
                                         </Typography>
                                         <RadioGroup
                                             name="survey.registered_national_voter"
                                             value={getRadioValue(formData.survey?.registered_national_voter)}
                                             onChange={handleRadioChange}
-                                            sx={cardStyles.radioGroup(isMobile)}
+                                            className={`${styles.radioGroup} ${isMobile ? styles.radioGroupMobile : ''}`}
                                         >
                                             <FormControlLabel value="yes" control={<Radio color="primary" />} label="Yes" />
                                             <FormControlLabel value="no" control={<Radio color="primary" />} label="No" />
@@ -517,42 +502,42 @@ const ProfileEditModal = ({
                                     </FormControl>
                                 </Card>
 
-                                <Card sx={cardStyles.radioCard}>
+                                <Card className={styles.radioCard}>
                                     <FormControl component="fieldset" fullWidth>
-                                        <Typography variant="subtitle1" sx={cardStyles.radioLabel}>
+                                        <Typography variant="subtitle1" className={styles.radioLabel}>
                                             Vote Last Election
                                         </Typography>
                                         <RadioGroup
                                             name="survey.vote_last_election"
                                             value={getRadioValue(formData.survey?.vote_last_election)}
                                             onChange={handleRadioChange}
-                                            sx={cardStyles.radioGroup(isMobile)}
+                                            className={`${styles.radioGroup} ${isMobile ? styles.radioGroupMobile : ''}`}
                                         >
                                             <FormControlLabel value="yes" control={<Radio color="primary" />} label="Yes" />
                                             <FormControlLabel value="no" control={<Radio color="primary" />} label="No" />
                                         </RadioGroup>
                                     </FormControl>
                                 </Card>
-                            </Box>
-                        </Box>
+                            </div>
+                        </div>
                     );
                 case 3:
                     return (
-                        <Box sx={stepContentStyles.root}>
-                            <Typography variant="h6" sx={stepContentStyles.title}>
+                        <div className={styles.stepContent}>
+                            <Typography variant="h6" className={styles.stepTitle}>
                                 <Event /> Meeting Survey
                             </Typography>
-                            <Box sx={gridStyles.meeting(isMobile)}>
-                                <Card sx={cardStyles.radioCard}>
+                            <div className={`${styles.gridMeeting} ${isMobile ? styles.mobile : ''}`}>
+                                <Card className={styles.radioCard}>
                                     <FormControl component="fieldset" fullWidth>
-                                        <Typography variant="subtitle1" sx={cardStyles.radioLabel}>
+                                        <Typography variant="subtitle1" className={styles.radioLabel}>
                                             Attended Meetings
                                         </Typography>
                                         <RadioGroup
                                             name="meetingSurvey.attended"
                                             value={getRadioValue(formData.meetingSurvey?.attended)}
                                             onChange={handleRadioChange}
-                                            sx={cardStyles.radioGroup(isMobile)}
+                                            className={`${styles.radioGroup} ${isMobile ? styles.radioGroupMobile : ''}`}
                                         >
                                             <FormControlLabel value="yes" control={<Radio color="primary" />} label="Yes" />
                                             <FormControlLabel value="no" control={<Radio color="primary" />} label="No" />
@@ -568,7 +553,7 @@ const ProfileEditModal = ({
                                     value={formData.meetingSurvey?.times_attended || ''}
                                     onChange={handleChange}
                                     variant="outlined"
-                                    sx={textFieldStyles.root}
+                                    className={styles.formField}
                                 />
 
                                 <TextField
@@ -580,33 +565,30 @@ const ProfileEditModal = ({
                                     variant="outlined"
                                     multiline
                                     rows={3}
-                                    sx={{ 
-                                        ...textFieldStyles.root,
-                                        gridColumn: isMobile ? 'span 1' : 'span 2' 
-                                    }}
+                                    className={`${styles.formField} ${styles.reasonField}`}
                                 />
-                            </Box>
-                        </Box>
+                            </div>
+                        </div>
                     );
                 default:
                     return (
-                        <Box sx={stepContentStyles.root}>
-                            <Typography variant="h6" sx={stepContentStyles.title}>
+                        <div className={styles.stepContent}>
+                            <Typography variant="h6" className={styles.stepTitle}>
                                 Unknown Step
                             </Typography>
                             <Typography>This step is not configured.</Typography>
-                        </Box>
+                        </div>
                     );
             }
         } else {
             switch (step) {
                 case 0:
                     return (
-                        <Box sx={stepContentStyles.root}>
-                            <Typography variant="h6" sx={stepContentStyles.title}>
+                        <div className={styles.stepContent}>
+                            <Typography variant="h6" className={styles.stepTitle}>
                                 <Person /> Basic Information
                             </Typography>
-                            <Box sx={{ ...gridStyles.basic(isMobile), maxWidth: '600px' }}>
+                            <div className={`${styles.gridBasic} ${isMobile ? styles.mobile : ''}`} style={{ maxWidth: '600px' }}>
                                 <TextField
                                     fullWidth
                                     label="First Name"
@@ -615,7 +597,7 @@ const ProfileEditModal = ({
                                     onChange={handleChange}
                                     required
                                     variant="outlined"
-                                    sx={textFieldStyles.root}
+                                    className={styles.formField}
                                 />
                                 <TextField
                                     fullWidth
@@ -625,7 +607,7 @@ const ProfileEditModal = ({
                                     onChange={handleChange}
                                     required
                                     variant="outlined"
-                                    sx={textFieldStyles.root}
+                                    className={styles.formField}
                                 />
                                 <TextField
                                     fullWidth
@@ -634,7 +616,7 @@ const ProfileEditModal = ({
                                     value={formData.name?.middle_name || ''}
                                     onChange={handleChange}
                                     variant="outlined"
-                                    sx={textFieldStyles.root}
+                                    className={styles.formField}
                                 />
                                 <TextField
                                     fullWidth
@@ -643,7 +625,7 @@ const ProfileEditModal = ({
                                     value={formData.name?.suffix || ''}
                                     onChange={handleChange}
                                     variant="outlined"
-                                    sx={textFieldStyles.root}
+                                    className={styles.formField}
                                 />
                                 <TextField
                                     fullWidth
@@ -652,9 +634,9 @@ const ProfileEditModal = ({
                                     value={formData.info?.contact_number || ''}
                                     onChange={handleChange}
                                     variant="outlined"
-                                    sx={textFieldStyles.root}
+                                    className={styles.formField}
                                 />
-                                <FormControl fullWidth variant="outlined" sx={formControlStyles.root}>
+                                <FormControl fullWidth variant="outlined" className={styles.formControl}>
                                     <InputLabel>Gender</InputLabel>
                                     <Select
                                         name="info.gender"
@@ -677,18 +659,18 @@ const ProfileEditModal = ({
                                     value={formData.info?.age || ''}
                                     onChange={handleChange}
                                     variant="outlined"
-                                    sx={textFieldStyles.root}
+                                    className={styles.formField}
                                 />
-                            </Box>
-                        </Box>
+                            </div>
+                        </div>
                     );
                 case 1:
                     return (
-                        <Box sx={stepContentStyles.root}>
-                            <Typography variant="h6" sx={stepContentStyles.title}>
+                        <div className={styles.stepContent}>
+                            <Typography variant="h6" className={styles.stepTitle}>
                                 <LocationOn /> Official Information
                             </Typography>
-                            <Box sx={{ ...gridStyles.basic(isMobile), maxWidth: '600px' }}>
+                            <div className={`${styles.gridBasic} ${isMobile ? styles.mobile : ''}`} style={{ maxWidth: '600px' }}>
                                 <TextField
                                     fullWidth
                                     label="Official Position"
@@ -696,9 +678,9 @@ const ProfileEditModal = ({
                                     value={formData.account?.official_position || ''}
                                     onChange={handleChange}
                                     variant="outlined"
-                                    sx={textFieldStyles.root}
+                                    className={styles.formField}
                                 />
-                                <FormControl fullWidth variant="outlined" sx={formControlStyles.root}>
+                                <FormControl fullWidth variant="outlined" className={styles.formControl}>
                                     <InputLabel>Role</InputLabel>
                                     <Select
                                         name="account.role"
@@ -710,17 +692,17 @@ const ProfileEditModal = ({
                                         <MenuItem value="natural_official">Natural Official</MenuItem>
                                     </Select>
                                 </FormControl>
-                            </Box>
-                        </Box>
+                            </div>
+                        </div>
                     );
                 default:
                     return (
-                        <Box sx={stepContentStyles.root}>
-                            <Typography variant="h6" sx={stepContentStyles.title}>
+                        <div className={styles.stepContent}>
+                            <Typography variant="h6" className={styles.stepTitle}>
                                 Unknown Step
                             </Typography>
                             <Typography>This step is not configured.</Typography>
-                        </Box>
+                        </div>
                     );
             }
         }
@@ -732,39 +714,37 @@ const ProfileEditModal = ({
             onClose={handleClose} 
             maxWidth="xl"
             fullWidth
-            sx={{
-                '& .MuiDialog-paper': modalStyles.dialogPaper
-            }}
+            classes={{ paper: styles.modalPaper }}
         >
-            <DialogTitle sx={headerStyles.root}>
-                <Box sx={headerStyles.title}>
+            <DialogTitle className={styles.headerRoot}>
+                <div className={styles.headerTitle}>
                     <Edit /> 
                     <Typography variant="h5" component="span">
                         Edit {userType === 'youth' ? 'Youth Member' : 'Official'} Profile
                     </Typography>
-                </Box>
+                </div>
                 <IconButton 
                     onClick={handleClose}
-                    sx={headerStyles.closeButton}
+                    className={styles.closeButton}
                     size="large"
                 >
                     <Close />
                 </IconButton>
             </DialogTitle>
             
-            <DialogContent sx={contentStyles.root}>
+            <DialogContent className={styles.contentRoot}>
                 {updateError && (
-                    <Alert severity="error" sx={alertStyles.root} onClose={() => setUpdateError(null)}>
+                    <Alert severity="error" className={styles.alertMessage} onClose={() => setUpdateError(null)}>
                         {updateError}
                     </Alert>
                 )}
                 {updateSuccess && (
-                    <Alert severity="success" sx={alertStyles.root}>
+                    <Alert severity="success" className={styles.alertMessage}>
                         {updateSuccess}
                     </Alert>
                 )}
 
-                <Stepper activeStep={activeStep} sx={stepperStyles.root}>
+                <Stepper activeStep={activeStep} className={styles.stepperRoot}>
                     {steps.map((step, index) => (
                         <Step key={step.label}>
                             <StepLabel 
@@ -781,30 +761,30 @@ const ProfileEditModal = ({
                     ))}
                 </Stepper>
 
-                <Box component="form" onSubmit={handleSubmit} sx={contentStyles.formContainer}>
-                    <Box sx={animationStyles.fadeIn}>
+                <Box component="form" onSubmit={handleSubmit} className={styles.formContainer}>
+                    <div className={styles.fadeIn}>
                         {renderStepContent(activeStep)}
-                    </Box>
+                    </div>
                 </Box>
             </DialogContent>
             
-            <DialogActions sx={actionsStyles.root}>
+            <DialogActions className={styles.modalActions}>
                 <Button 
                     onClick={handleClose} 
                     disabled={loading}
                     variant="outlined"
-                    sx={buttonStyles.cancel}
+                    className={styles.cancelButton}
                     startIcon={<Close />}
                 >
                     Cancel
                 </Button>
                 
-                <Box sx={actionsStyles.navigationButtons}>
+                <div className={styles.navigationButtons}>
                     {activeStep > 0 && (
                         <Button 
                             onClick={handleBack}
                             variant="outlined"
-                            sx={buttonStyles.navigation}
+                            className={styles.navButton}
                             startIcon={<ArrowBack />}
                         >
                             Back
@@ -815,7 +795,7 @@ const ProfileEditModal = ({
                         <Button 
                             variant="contained" 
                             onClick={handleNext}
-                            sx={buttonStyles.primary}
+                            className={styles.primaryButton}
                             endIcon={<ArrowForward />}
                         >
                             Next
@@ -826,12 +806,12 @@ const ProfileEditModal = ({
                             variant="contained"
                             disabled={loading}
                             startIcon={loading ? <CircularProgress size={20} /> : <Edit />}
-                            sx={buttonStyles.primary}
+                            className={styles.primaryButton}
                         >
                             {loading ? 'Updating...' : 'Update Profile'}
                         </Button>
                     )}
-                </Box>
+                </div>
             </DialogActions>
         </Dialog>
     );
