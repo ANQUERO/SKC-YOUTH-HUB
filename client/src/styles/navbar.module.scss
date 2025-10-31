@@ -53,6 +53,7 @@
   display: none;
   flex: 1;
   justify-content: center;
+  color: #fff;
 
   @media (min-width: 768px) {
     display: flex;
@@ -73,7 +74,7 @@
 .nav.scrolled .title,
 .nav.scrolled .titleSpan,
 .nav.scrolled .nav_links a {
-  color: #000;
+  color: #fff;
 }
 
 /* MENU BUTTON (hamburger) */
@@ -314,7 +315,7 @@
   font-weight: 500;
   font-size: 0.9rem;
   text-decoration: none;
-  color: #4b5563;
+  color: #fff;
   background: transparent;
   border: none;
   cursor: pointer;

@@ -55,7 +55,7 @@ export default function Navbar() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // lock body scroll while mobile menu is open and ensure it's reset
+    // lock body scroll while mobile menu is open and ensure it's reset 
     useEffect(() => {
         const previous = document.body.style.overflow;
         if (isMenuOpen) {
@@ -79,9 +79,9 @@ export default function Navbar() {
     }, [isMenuOpen]);
 
     const mainLinks = [
-        { to: '/about', text: 'About' },
-        { to: '/discover', text: 'Discover' },
-        { to: '/officials', text: 'Officials' },
+        { to: '#about', text: 'About' },
+        { to: '#discover', text: 'Discover' },
+        { to: '#officials', text: 'Officials' },
     ];
 
     const authLinks = [
