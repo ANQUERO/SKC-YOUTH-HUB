@@ -105,3 +105,24 @@ export const getResidentsPerPurok = async (req, res) => {
         });
     }
 }
+
+export const ageDistribution = async (req, res) => {
+    const user = req.user;
+
+    if (!user || user.userType !== 'official') {
+        return res.status(404).json({
+            status: 'Error',
+            message: "Forbidden - Only admins can access this resource"
+        });
+    }
+
+    try {
+        const result = await pool.query(`
+            SELECT 
+            
+            
+            `)
+    } catch (error) {
+        
+    }
+}
