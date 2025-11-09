@@ -29,7 +29,7 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
     ];
 
     const youthClassificationOptions = [
-        'In-School Youth',
+        'In-School Youth',  
         'Out-of-School Youth',
         'Working Youth',
         'Youth with Special Needs',

@@ -119,7 +119,7 @@ export const ageDistribution = async (req, res) => {
     try {
         const result = await pool.query(`
             SELECT 
-            
+            age FROM WHERE 
             
             `)
     } catch (error) {
