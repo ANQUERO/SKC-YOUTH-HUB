@@ -119,113 +119,145 @@ export const resetPassword = async (req, res) => {
 
 
 export const signup = async (req, res) => {
-    const client = await pool.connect();
     try {
-        await client.query('BEGIN');
-
-        const {
-            email, password,
-            first_name, middle_name, last_name, suffix,
-            region, province, municipality, barangay, purok_id,
-            gender, age, contact_number, birthday,
-            civil_status, youth_age_gap, youth_classification, educational_background, work_status,
-            registered_voter, registered_national_voter, vote_last_election,
-            attended, times_attended, reason_not_attend,
-            household
-        } = req.body;
-
-        const file = req.file;
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Generate verification token
-        const verificationToken = crypto.randomBytes(32).toString('hex');
-
-        // Insert into sk_youth (unverified by default)
-        const youthResult = await client.query(`
-      INSERT INTO sk_youth (email, password, verified, reset_token, reset_token_expiry)
-      VALUES ($1, $2, false, $3, NOW() + INTERVAL '24 hours') RETURNING youth_id;
-    `, [email, hashedPassword, verificationToken]);
-
-        const youth_id = youthResult.rows[0].youth_id;
-
-        // Insert name
-        await client.query(`
-      INSERT INTO sk_youth_name (youth_id, first_name, middle_name, last_name, suffix)
-      VALUES ($1, $2, $3, $4, $5);
-    `, [youth_id, first_name, middle_name, last_name, suffix]);
-
-        // Location
-        await client.query(`
-      INSERT INTO sk_youth_location (youth_id, region, province, municipality, barangay, purok_id)
-      VALUES ($1, $2, $3, $4, $5, $6);
-    `, [youth_id, region, province, municipality, barangay, purok_id]);
-
-        // Gender
-        await client.query(`
-      INSERT INTO sk_youth_gender (youth_id, gender)
-      VALUES ($1, $2);
-    `, [youth_id, gender]);
-
-        // Info
-        await client.query(`
-      INSERT INTO sk_youth_info (youth_id, age, contact_number, birthday)
-      VALUES ($1, $2, $3, $4);
-    `, [youth_id, age, contact_number, birthday]);
-
-        // Demographics
-        await client.query(`
-      INSERT INTO sk_youth_demographics (youth_id, civil_status, youth_age_gap, youth_classification, educational_background, work_status)
-      VALUES ($1, $2, $3, $4, $5, $6);
-    `, [youth_id, civil_status, youth_age_gap, youth_classification, educational_background, work_status]);
-
-        // Voter survey
-        await client.query(`
-      INSERT INTO sk_youth_survey (youth_id, registered_voter, registered_national_voter, vote_last_election)
-      VALUES ($1, $2, $3, $4);
-    `, [youth_id, registered_voter, registered_national_voter, vote_last_election]);
-
-        // Meeting attendance
-        await client.query(`
-      INSERT INTO sk_youth_meeting_survey (youth_id, attended, times_attended, reason_not_attend)
-      VALUES ($1, $2, $3, $4);
-    `, [youth_id, attended, times_attended, reason_not_attend]);
-
-        // Household
-        await client.query(`
-      INSERT INTO sk_youth_household (youth_id, household)
-      VALUES ($1, $2);
-    `, [youth_id, household]);
-
-        // Attachment
-        if (file) {
-            await client.query(`
-        INSERT INTO sk_youth_attachments (youth_id, file_name, file_type, file_url)
-        VALUES ($1, $2, $3, $4);
-      `, [youth_id, file.originalname, file.mimetype, `/uploads/${file.filename}`]);
+        // Check for validation errors from express-validator BEFORE starting transaction
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                errors: validationErrors(errors)
+            });
         }
 
-        // Send verification email
+        const client = await pool.connect();
         try {
-            await sendVerificationEmail(email, verificationToken);
-        } catch (emailError) {
-            console.error('Failed to send verification email:', emailError);
-            // Don't fail the signup if email fails, just log it
+            await client.query('BEGIN');
+
+            const {
+                email, password,
+                first_name, middle_name, last_name, suffix,
+                region, province, municipality, barangay, purok_id,
+                gender, age, contact_number, birthday,
+                civil_status, youth_age_gap, youth_classification, educational_background, work_status,
+                registered_voter, registered_national_voter, vote_last_election,
+                attended, times_attended, reason_not_attend,
+                household
+            } = req.body;
+
+            // Convert age to number if it's a string (FormData sends everything as strings)
+            const ageNum = age ? parseInt(age, 10) : null;
+
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            // Generate verification token
+            const verificationToken = crypto.randomBytes(32).toString('hex');
+
+            // Insert into sk_youth (unverified by default)
+            const youthResult = await client.query(`
+                INSERT INTO sk_youth (email, password, verified, reset_token, reset_token_expiry)
+                VALUES ($1, $2, false, $3, NOW() + INTERVAL '24 hours') RETURNING youth_id;
+            `, [email, hashedPassword, verificationToken]);
+
+            const youth_id = youthResult.rows[0].youth_id;
+
+            // Insert name
+            await client.query(`
+                INSERT INTO sk_youth_name (youth_id, first_name, middle_name, last_name, suffix)
+                VALUES ($1, $2, $3, $4, $5);
+            `, [youth_id, first_name, middle_name || '', last_name, suffix || '']);
+
+            // Location
+            await client.query(`
+                INSERT INTO sk_youth_location (youth_id, region, province, municipality, barangay, purok_id)
+                VALUES ($1, $2, $3, $4, $5, $6);
+            `, [youth_id, region, province, municipality, barangay, purok_id || null]);
+
+            // Gender
+            await client.query(`
+                INSERT INTO sk_youth_gender (youth_id, gender)
+                VALUES ($1, $2);
+            `, [youth_id, gender]);
+
+            // Info
+            await client.query(`
+                INSERT INTO sk_youth_info (youth_id, age, contact_number, birthday)
+                VALUES ($1, $2, $3, $4);
+            `, [youth_id, ageNum, contact_number || '', birthday || null]);
+
+            // Demographics
+            await client.query(`
+                INSERT INTO sk_youth_demographics (youth_id, civil_status, youth_age_gap, youth_classification, educational_background, work_status)
+                VALUES ($1, $2, $3, $4, $5, $6);
+            `, [youth_id, civil_status, youth_age_gap || '', youth_classification, educational_background, work_status]);
+
+            // Voter survey
+            await client.query(`
+                INSERT INTO sk_youth_survey (youth_id, registered_voter, registered_national_voter, vote_last_election)
+                VALUES ($1, $2, $3, $4);
+            `, [youth_id, registered_voter, registered_national_voter, vote_last_election]);
+
+            // Meeting attendance
+            await client.query(`
+                INSERT INTO sk_youth_meeting_survey (youth_id, attended, times_attended, reason_not_attend)
+                VALUES ($1, $2, $3, $4);
+            `, [youth_id, attended, times_attended || '', reason_not_attend || '']);
+
+            // Household
+            await client.query(`
+                INSERT INTO sk_youth_household (youth_id, household)
+                VALUES ($1, $2);
+            `, [youth_id, household || '']);
+
+            // Attachment - use Cloudinary URL from res.locals.uploaded_images
+            if (res.locals.uploaded_images && res.locals.uploaded_images.length > 0) {
+                const fileUrl = res.locals.uploaded_images[0];
+                // Get file info from req.files if available
+                const file = req.files && req.files[0] ? req.files[0] : null;
+                await client.query(`
+                    INSERT INTO sk_youth_attachments (youth_id, file_name, file_type, file_url)
+                    VALUES ($1, $2, $3, $4);
+                `, [youth_id, file ? file.originalname : 'attachment', file ? file.mimetype : 'application/octet-stream', fileUrl]);
+            }
+
+            // Send verification email
+            try {
+                await sendVerificationEmail(email, verificationToken);
+            } catch (emailError) {
+                console.error('Failed to send verification email:', emailError);
+                // Don't fail the signup if email fails, just log it
+            }
+
+            await client.query('COMMIT');
+            res.status(201).json({
+                message: 'Signup completed successfully. Please check your email for verification.',
+                youth_id,
+                verificationSent: true
+            });
+
+        } catch (error) {
+            await client.query('ROLLBACK');
+            console.error('Signup error:', error);
+            
+            // Handle specific database errors
+            if (error.message && error.message.includes('duplicate key')) {
+                return res.status(400).json({ 
+                    error: 'Email already exists',
+                    message: 'An account with this email already exists'
+                });
+            }
+            
+            res.status(500).json({ 
+                error: 'Signup failed',
+                message: error.message || 'An error occurred during registration'
+            });
+        } finally {
+            client.release();
         }
-
-        await client.query('COMMIT');
-        res.status(201).json({
-            message: 'Signup completed successfully. Please check your email for verification.',
-            youth_id,
-            verificationSent: true
-        });
-
     } catch (error) {
-        await client.query('ROLLBACK');
-        console.error('Signup error:', error);
-        res.status(500).json({ message: 'Signup failed' });
-    } finally {
-        client.release();
+        console.error('Signup error (outside transaction):', error);
+        res.status(500).json({ 
+            error: 'Server error',
+            message: 'An error occurred during registration'
+        });
     }
 };
 

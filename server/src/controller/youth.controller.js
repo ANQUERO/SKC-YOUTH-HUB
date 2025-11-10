@@ -168,7 +168,7 @@ export const store = async (req, res) => {
         location,
         gender,
         info,
-        demographics,  // This should contain youth_age_gap
+        demographics,  
         survey,
         meetingSurvey,
         attachments,

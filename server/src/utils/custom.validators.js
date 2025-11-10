@@ -34,7 +34,10 @@ const normalize = value =>
 export const isRegion = value => normalize(value) === "region vii";
 export const isProvince = value => normalize(value) === "cebu";
 export const isMunicipality = value => normalize(value) === "cordova";
-export const isBarangay = value => normalize(value) === "catarman";
+export const isBarangay = value => {
+    const normalized = normalize(value);
+    return normalized === "catarman" || normalized.startsWith("catarman");
+};
 
 // Password: 8 characters, at least 1 number, 1 special character, rest letters
 export const isPassword = value => {

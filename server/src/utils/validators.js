@@ -55,9 +55,17 @@ export const signupYouthValidator = [
     body("last_name")
         .custom(isLastName).withMessage("Invalid Last Name"),
     body("middle_name")
-        .custom(isMiddleName).withMessage("Invalid Middle Name"),
+        .optional({ checkFalsy: true })
+        .custom((value) => {
+            if (!value || value.trim() === '') return true;
+            return isMiddleName(value);
+        }).withMessage("Invalid Middle Name"),
     body("suffix")
-        .custom(isSuffix).withMessage("Invalid Suffix"),
+        .optional({ checkFalsy: true })
+        .custom((value) => {
+            if (!value || value.trim() === '') return true;
+            return isSuffix(value);
+        }).withMessage("Invalid Suffix"),
     body("gender")
         .custom(isGender).withMessage("Invalid Gender"),
     body("region")
@@ -67,9 +75,39 @@ export const signupYouthValidator = [
     body("municipality")
         .custom(isMunicipality).withMessage("Invalid Municipality"),
     body("barangay")
-        .custom(isBarangay).withMessage("Invalaid Barangay"),
+        .custom(isBarangay).withMessage("Invalid Barangay"),
     body("age")
-        .custom(isAge).withMessage("Invalid Age")
+        .custom(isAge).withMessage("Invalid Age"),
+    body("birthday")
+        .notEmpty()
+        .withMessage("Birthday is required")
+        .isISO8601()
+        .withMessage("Invalid birthday format")
+        .custom((birthday, { req }) => {
+            // Verify birthday is not in the future
+            const birthDate = new Date(birthday);
+            const today = new Date();
+            if (birthDate > today) {
+                throw new Error('Birthday cannot be in the future');
+            }
+            
+            // If age is provided, verify they match
+            if (req.body.age) {
+                let calculatedAge = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                    calculatedAge--;
+                }
+                
+                const providedAge = parseInt(req.body.age, 10);
+                // Age should match exactly (calculated age from birthday should match provided age)
+                if (calculatedAge !== providedAge) {
+                    throw new Error('Birthday and age do not match');
+                }
+            }
+            return true;
+        }).withMessage("Invalid birthday")
 ]
 
 export const loginValidator = [

@@ -49,10 +49,13 @@ const YouthSignup = () => {
     region: "Region VII",
     province: "Cebu",
     municipality: "Cordova",
-    barangay: "Catarman ",
+    barangay: "Catarman",
     purok_id: "",
 
     // Demographics, Survey, Meeting, Household (Step 3)
+    age: "",
+    contact_number: "",
+    birthday: "",
     civil_status: "",
     youth_age_gap: "",
     youth_classification: "",
@@ -130,10 +133,38 @@ const YouthSignup = () => {
         break;
 
       case 2: // Demographics, Survey, Meeting, Household
+        // Validate birthday
+        if (!formData.birthday) {
+          newErrors.birthday = "Birthday is required";
+        } else {
+          // Calculate age from birthday to validate
+          const today = new Date();
+          const birthDate = new Date(formData.birthday);
+          let age = today.getFullYear() - birthDate.getFullYear();
+          const monthDiff = today.getMonth() - birthDate.getMonth();
+          
+          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+          }
+          
+          if (age < 16) {
+            newErrors.birthday = "You must be at least 16 years old to register";
+            newErrors.age = "Age must be at least 16 years old";
+          } else if (age > 30) {
+            newErrors.birthday = "You must be 30 years old or younger to register";
+            newErrors.age = "Age must be 30 years old or younger";
+          } else if (!formData.age) {
+            newErrors.age = "Age could not be calculated from birthday";
+          }
+        }
+        
+        // Validate youth_age_gap (should be auto-calculated, but check if it's valid)
+        if (!formData.youth_age_gap || formData.youth_age_gap.includes('not')) {
+          newErrors.youth_age_gap = "Invalid age range for youth registration";
+        }
+        
         if (!formData.civil_status)
           newErrors.civil_status = "Civil status is required";
-        if (!formData.youth_age_gap)
-          newErrors.youth_age_gap = "Youth age gap is required";
         if (!formData.youth_classification)
           newErrors.youth_classification = "Youth classification is required";
         if (!formData.educational_background)
@@ -192,6 +223,14 @@ const YouthSignup = () => {
         window.location.href = "/login";
       } catch (err) {
         console.error("Signup error:", err);
+        // If there are field-specific errors from backend, set them in form errors
+        if (err.response?.data?.errors && typeof err.response.data.errors === 'object') {
+          const fieldErrors = {};
+          Object.keys(err.response.data.errors).forEach(field => {
+            fieldErrors[field] = err.response.data.errors[field];
+          });
+          setErrors(prev => ({ ...prev, ...fieldErrors }));
+        }
       }
     }
   };
@@ -252,7 +291,9 @@ const YouthSignup = () => {
 
           {error && (
             <Alert severity="error" sx={{ mb: 3 }}>
-              {error}
+              <Typography variant="body2" component="div">
+                {typeof error === 'string' ? error : 'Please fix the errors below and try again.'}
+              </Typography>
             </Alert>
           )}
 

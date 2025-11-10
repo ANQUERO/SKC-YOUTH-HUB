@@ -80,29 +80,56 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
         'Other'
     ];
 
+    // Function to calculate age from birthday
+    const calculateAge = (birthday) => {
+        if (!birthday) return null;
+        
+        const today = new Date();
+        const birthDate = new Date(birthday);
+        
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        
+        // Adjust age if birthday hasn't occurred this year
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        
+        return age;
+    };
+
     // Function to determine youth age gap based on age
     const getYouthAgeGap = (age) => {
         const ageNum = parseInt(age);
+        if (isNaN(ageNum)) return '';
+        
         if (ageNum >= 16 && ageNum <= 17) {
             return 'Child Youth (16–17 years old)';
         } else if (ageNum >= 18 && ageNum <= 24) {
             return 'Core Youth (18–24 years old)';
         } else if (ageNum >= 25 && ageNum <= 30) {
             return 'Young Adult (25–30 years old)';
+        } else if (ageNum < 16) {
+            return 'Age is below youth range (must be 16+)';
         } else {
-            return 'Age is not for youth'; 
+            return 'Age is above youth range (must be 30 or below)';
         }
     };
 
-    // Handle age change - update both age and youth_age_gap
-    const handleAgeChange = (value) => {
-        onChange('age', value);
+    // Handle birthday change - calculate age and youth_age_gap
+    const handleBirthdayChange = (birthday) => {
+        onChange('birthday', birthday);
         
-        if (value && value >= 16 && value <= 30) {
-            const youthAgeGap = getYouthAgeGap(value);
-            onChange('youth_age_gap', youthAgeGap);
+        if (birthday) {
+            const calculatedAge = calculateAge(birthday);
+            if (calculatedAge !== null) {
+                onChange('age', calculatedAge.toString());
+                const youthAgeGap = getYouthAgeGap(calculatedAge);
+                onChange('youth_age_gap', youthAgeGap);
+            }
         } else {
-            onChange('youth_age_gap', 'Age is not for youth');
+            onChange('age', '');
+            onChange('youth_age_gap', '');
         }
     };
 
@@ -115,21 +142,35 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
                 </Typography>
 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    {/* Age Input Field */}
+                    {/* Birthday Input Field - Primary input */}
                     <TextField
                         fullWidth
-                        label="Age *"
-                        type="number"
-                        value={formData.age || ''}
-                        onChange={(e) => handleAgeChange(e.target.value)}
-                        error={!!errors.age}
-                        helperText={errors.age || "Enter your age (16-30 years old)"}
+                        label="Birthday *"
+                        type="date"
+                        value={formData.birthday || ''}
+                        onChange={(e) => handleBirthdayChange(e.target.value)}
+                        error={!!errors.birthday || !!errors.age}
+                        helperText={errors.birthday || errors.age || "Select your birthday (you must be between 16-30 years old)"}
                         required
-                        inputProps={{ 
-                            min: 16, 
-                            max: 30,
-                            onWheel: (e) => e.target.blur() // Prevent scroll wheel from changing number
+                        InputLabelProps={{
+                            shrink: true,
                         }}
+                        inputProps={{
+                            max: new Date(new Date().setFullYear(new Date().getFullYear() - 16)).toISOString().split('T')[0], // Max: 16 years ago (youngest, born most recently)
+                            min: new Date(new Date().setFullYear(new Date().getFullYear() - 30)).toISOString().split('T')[0] // Min: 30 years ago (oldest, born longest ago)
+                        }}
+                    />
+
+                    {/* Display Calculated Age (read-only) */}
+                    <TextField
+                        fullWidth
+                        label="Age"
+                        value={formData.age ? `${formData.age} years old` : ''}
+                        InputProps={{
+                            readOnly: true,
+                        }}
+                        helperText="This is automatically calculated from your birthday"
+                        variant="outlined"
                     />
 
                     {/* Display Youth Age Gap (read-only) */}
@@ -140,8 +181,21 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
                         InputProps={{
                             readOnly: true,
                         }}
-                        helperText="This is automatically determined based on your age"
+                        helperText="This is automatically determined based on your calculated age"
                         variant="outlined"
+                        error={formData.youth_age_gap && formData.youth_age_gap.includes('not')}
+                    />
+
+                    {/* Contact Number */}
+                    <TextField
+                        fullWidth
+                        label="Contact Number"
+                        type="tel"
+                        value={formData.contact_number || ''}
+                        onChange={(e) => onChange('contact_number', e.target.value)}
+                        error={!!errors.contact_number}
+                        helperText={errors.contact_number || "Optional: Enter your contact number"}
+                        placeholder="e.g., 09123456789"
                     />
 
                     <FormControl fullWidth error={!!errors.civil_status} required>
