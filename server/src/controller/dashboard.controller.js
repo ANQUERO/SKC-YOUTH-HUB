@@ -124,5 +124,5 @@ export const ageDistribution = async (req, res) => {
             `)
     } catch (error) {
         
-    }
+    } 
 }

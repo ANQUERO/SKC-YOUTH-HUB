@@ -168,7 +168,7 @@ export const store = async (req, res) => {
         location,
         gender,
         info,
-        demographics,
+        demographics,  // This should contain youth_age_gap
         survey,
         meetingSurvey,
         attachments,
@@ -245,6 +245,7 @@ export const store = async (req, res) => {
             VALUES ($1, $2, $3, $4)
         `, [youth_id, info.age, info.contact, info.birthday]);
 
+        // FIXED: Make sure demographics contains youth_age_gap
         await client.query(`
             INSERT INTO sk_youth_demographics (
                 youth_id, civil_status, youth_age_gap, youth_classification,
@@ -253,7 +254,7 @@ export const store = async (req, res) => {
         `, [
             youth_id,
             demographics.civil_status,
-            demographics.youth_age_gap,
+            demographics.youth_age_gap,  // This should come from the frontend
             demographics.youth_classification,
             demographics.educational_background,
             demographics.work_status

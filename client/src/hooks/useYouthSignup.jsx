@@ -6,59 +6,64 @@ const useYouthSignup = () => {
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
 
-    const signup = async (formData) => {
+      const signup = async (formData) => {
         setLoading(true);
         setError(null);
         setSuccess(null);
 
         try {
-            // Create FormData for file upload
-            const submitData = new FormData();
+            // Structure the data as nested objects to match backend expectations
+            const requestData = {
+                email: formData.email,
+                password: formData.password,
+                name: {
+                    first_name: formData.first_name,
+                    middle_name: formData.middle_name || '',
+                    last_name: formData.last_name,
+                    suffix: formData.suffix || ''
+                },
+                location: {
+                    region: formData.region,
+                    province: formData.province,
+                    municipality: formData.municipality,
+                    barangay: formData.barangay,
+                    purok_id: formData.purok_id || null
+                },
+                gender: {
+                    gender: formData.gender
+                },
+                info: {
+                    age: formData.age,
+                    contact: formData.contact_number || '',
+                    birthday: formData.birthday || ''
+                },
+                demographics: {
+                    civil_status: formData.civil_status,
+                    youth_age_gap: formData.youth_age_gap,
+                    youth_classification: formData.youth_classification,
+                    educational_background: formData.educational_background,
+                    work_status: formData.work_status
+                },
+                survey: {
+                    registered_voter: formData.registered_voter,
+                    registered_national_voter: formData.registered_national_voter,
+                    vote_last_election: formData.vote_last_election
+                },
+                meetingSurvey: {
+                    attended: formData.attended,
+                    times_attended: formData.times_attended || '',
+                    reason_not_attend: formData.reason_not_attend || ''
+                },
+                household: {
+                    household: formData.household
+                }
+            };
 
-            // Add all form fields
-            submitData.append('email', formData.email);
-            submitData.append('password', formData.password);
-            submitData.append('first_name', formData.first_name);
-            submitData.append('middle_name', formData.middle_name || '');
-            submitData.append('last_name', formData.last_name);
-            submitData.append('suffix', formData.suffix || '');
-            submitData.append('gender', formData.gender);
+            console.log('Sending data:', requestData);
 
-            // Location data
-            submitData.append('region', formData.region);
-            submitData.append('province', formData.province);
-            submitData.append('municipality', formData.municipality);
-            submitData.append('barangay', formData.barangay);
-            submitData.append('purok_id', formData.purok_id);
-
-            // Demographics
-            submitData.append('civil_status', formData.civil_status);
-            submitData.append('youth_age_gap', formData.youth_age_gap);
-            submitData.append('youth_classification', formData.youth_classification);
-            submitData.append('educational_background', formData.educational_background);
-            submitData.append('work_status', formData.work_status);
-
-            // Survey
-            submitData.append('registered_voter', formData.registered_voter);
-            submitData.append('registered_national_voter', formData.registered_national_voter);
-            submitData.append('vote_last_election', formData.vote_last_election);
-
-            // Meeting Survey
-            submitData.append('attended', formData.attended);
-            submitData.append('times_attended', formData.times_attended || '');
-            submitData.append('reason_not_attend', formData.reason_not_attend || '');
-
-            // Household
-            submitData.append('household', formData.household);
-
-            // Add file attachment if exists
-            if (formData.attachment) {
-                submitData.append('attachment', formData.attachment);
-            }
-
-            const response = await axiosInstance.post('/auth/signup', submitData, {
+            const response = await axiosInstance.post('/auth/signup', requestData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data',
+                    'Content-Type': 'application/json',
                 },
             });
 
@@ -69,7 +74,7 @@ const useYouthSignup = () => {
             console.error('Signup error:', err);
             const errorMessage = err.response?.data?.message ||
                 err.response?.data?.error ||
-                'Registration failed. Please try again.';
+                'Registration failed. Please check all required fields.';
             setError(errorMessage);
             throw err;
         } finally {

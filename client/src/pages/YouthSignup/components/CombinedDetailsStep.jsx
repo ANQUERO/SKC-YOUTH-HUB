@@ -22,12 +22,6 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
         'Unknown'
     ];
 
-    const youthAgeGapOptions = [
-        'Child Youth (16–17 years old)',
-        'Core Youth (18–24 years old)',
-        'Young Adult (25–30 years old)'
-    ];
-
     const youthClassificationOptions = [
         'In-School Youth',  
         'Out-of-School Youth',
@@ -72,14 +66,7 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
         { value: '1', label: '1 time' },
         { value: '2', label: '2 times' },
         { value: '3', label: '3 times' },
-        { value: '4', label: '4 times' },
-        { value: '5', label: '5 times' },
-        { value: '6', label: '6 times' },
-        { value: '7', label: '7 times' },
-        { value: '8', label: '8 times' },
-        { value: '9', label: '9 times' },
-        { value: '10', label: '10 times' },
-        { value: 'more', label: 'More than 10 times' }
+        { value: 'more', label: 'More than 3 times' }
     ];
 
     const reasonNotAttendOptions = [
@@ -93,6 +80,32 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
         'Other'
     ];
 
+    // Function to determine youth age gap based on age
+    const getYouthAgeGap = (age) => {
+        const ageNum = parseInt(age);
+        if (ageNum >= 16 && ageNum <= 17) {
+            return 'Child Youth (16–17 years old)';
+        } else if (ageNum >= 18 && ageNum <= 24) {
+            return 'Core Youth (18–24 years old)';
+        } else if (ageNum >= 25 && ageNum <= 30) {
+            return 'Young Adult (25–30 years old)';
+        } else {
+            return 'Age is not for youth'; 
+        }
+    };
+
+    // Handle age change - update both age and youth_age_gap
+    const handleAgeChange = (value) => {
+        onChange('age', value);
+        
+        if (value && value >= 16 && value <= 30) {
+            const youthAgeGap = getYouthAgeGap(value);
+            onChange('youth_age_gap', youthAgeGap);
+        } else {
+            onChange('youth_age_gap', 'Age is not for youth');
+        }
+    };
+
     return (
         <Box sx={{ maxWidth: 800, mx: 'auto', p: 2 }}>
             {/* Demographics Section */}
@@ -102,10 +115,39 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
                 </Typography>
 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {/* Age Input Field */}
+                    <TextField
+                        fullWidth
+                        label="Age *"
+                        type="number"
+                        value={formData.age || ''}
+                        onChange={(e) => handleAgeChange(e.target.value)}
+                        error={!!errors.age}
+                        helperText={errors.age || "Enter your age (16-30 years old)"}
+                        required
+                        inputProps={{ 
+                            min: 16, 
+                            max: 30,
+                            onWheel: (e) => e.target.blur() // Prevent scroll wheel from changing number
+                        }}
+                    />
+
+                    {/* Display Youth Age Gap (read-only) */}
+                    <TextField
+                        fullWidth
+                        label="Youth Age Gap"
+                        value={formData.youth_age_gap || ''}
+                        InputProps={{
+                            readOnly: true,
+                        }}
+                        helperText="This is automatically determined based on your age"
+                        variant="outlined"
+                    />
+
                     <FormControl fullWidth error={!!errors.civil_status} required>
                         <InputLabel>Civil Status</InputLabel>
                         <Select
-                            value={formData.civil_status}
+                            value={formData.civil_status || ''}
                             onChange={(e) => onChange('civil_status', e.target.value)}
                             label="Civil Status"
                         >
@@ -117,25 +159,10 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
                         </Select>
                     </FormControl>
 
-                    <FormControl fullWidth error={!!errors.youth_age_gap} required>
-                        <InputLabel>Youth Age Gap</InputLabel>
-                        <Select
-                            value={formData.youth_age_gap}
-                            onChange={(e) => onChange('youth_age_gap', e.target.value)}
-                            label="Youth Age Gap"
-                        >
-                            {youthAgeGapOptions.map((option) => (
-                                <MenuItem key={option} value={option}>
-                                    {option}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-
                     <FormControl fullWidth error={!!errors.educational_background} required>
                         <InputLabel>Educational Background</InputLabel>
                         <Select
-                            value={formData.educational_background}
+                            value={formData.educational_background || ''}
                             onChange={(e) => onChange('educational_background', e.target.value)}
                             label="Educational Background"
                         >
@@ -150,7 +177,7 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
                     <FormControl fullWidth error={!!errors.work_status} required>
                         <InputLabel>Work Status</InputLabel>
                         <Select
-                            value={formData.work_status}
+                            value={formData.work_status || ''}
                             onChange={(e) => onChange('work_status', e.target.value)}
                             label="Work Status"
                         >
@@ -165,7 +192,7 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
                     <FormControl fullWidth error={!!errors.youth_classification} required>
                         <InputLabel>Youth Classification</InputLabel>
                         <Select
-                            value={formData.youth_classification}
+                            value={formData.youth_classification || ''}
                             onChange={(e) => onChange('youth_classification', e.target.value)}
                             label="Youth Classification"
                         >
@@ -191,7 +218,7 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
                     <FormControl fullWidth error={!!errors.registered_voter} required>
                         <InputLabel>Registered Voter in Barangay?</InputLabel>
                         <Select
-                            value={formData.registered_voter}
+                            value={formData.registered_voter || ''}
                             onChange={(e) => onChange('registered_voter', e.target.value)}
                             label="Registered Voter in Barangay?"
                         >
@@ -206,7 +233,7 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
                     <FormControl fullWidth error={!!errors.registered_national_voter} required>
                         <InputLabel>Registered National Voter?</InputLabel>
                         <Select
-                            value={formData.registered_national_voter}
+                            value={formData.registered_national_voter || ''}
                             onChange={(e) => onChange('registered_national_voter', e.target.value)}
                             label="Registered National Voter?"
                         >
@@ -221,7 +248,7 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
                     <FormControl fullWidth error={!!errors.vote_last_election} required>
                         <InputLabel>Voted in Last Election?</InputLabel>
                         <Select
-                            value={formData.vote_last_election}
+                            value={formData.vote_last_election || ''}
                             onChange={(e) => onChange('vote_last_election', e.target.value)}
                             label="Voted in Last Election?"
                         >
@@ -248,7 +275,7 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
                         <FormControl sx={{ minWidth: 200 }} error={!!errors.attended} required>
                             <InputLabel>Attended SK Meetings?</InputLabel>
                             <Select
-                                value={formData.attended}
+                                value={formData.attended || ''}
                                 onChange={(e) => onChange('attended', e.target.value)}
                                 label="Attended SK Meetings?"
                             >
@@ -264,7 +291,7 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
                             <FormControl sx={{ minWidth: 200 }} error={!!errors.times_attended} required>
                                 <InputLabel>How Many Times?</InputLabel>
                                 <Select
-                                    value={formData.times_attended}
+                                    value={formData.times_attended || ''}
                                     onChange={(e) => onChange('times_attended', e.target.value)}
                                     label="How Many Times?"
                                 >
@@ -281,7 +308,7 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
                             <FormControl sx={{ minWidth: 300, flex: 1 }} error={!!errors.reason_not_attend} required>
                                 <InputLabel>Reason for Not Attending</InputLabel>
                                 <Select
-                                    value={formData.reason_not_attend}
+                                    value={formData.reason_not_attend || ''}
                                     onChange={(e) => onChange('reason_not_attend', e.target.value)}
                                     label="Reason for Not Attending"
                                 >
@@ -309,7 +336,7 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
                     fullWidth
                     label="Household Information"
                     placeholder="e.g., Family of 5, living with parents, etc."
-                    value={formData.household}
+                    value={formData.household || ''}
                     onChange={(e) => onChange('household', e.target.value)}
                     error={!!errors.household}
                     helperText="Please provide detailed information about your household composition and living situation"
