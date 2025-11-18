@@ -5,8 +5,6 @@ import LandingPage from "@pages/LandingPage";
 import PrivacyPolicy from "@pages/LandingPage/privacy/policy"
 import TermsConditions from "@pages/LandingPage/privacy/terms";
 
-
-
 import Signin from "@pages/Signin";
 import YouthSignup from "@pages/YouthSignup";
 import VerifyEmail from "@pages/VerifyEmail";
@@ -18,7 +16,6 @@ import Authenticated from "@pages/Authenticated";
 import Dashboard from "@pages/Dashboard";
 import Youth from "@pages/Youth";
 import Purok from "@pages/Purok";
-import Inbox from "@pages/Inbox";
 import Verification from "@pages/Verification";
 import Officials from "@pages/Officials";
 import Settings from "@pages/Settings";
@@ -120,18 +117,6 @@ export const routes = [
             </ProtectedRoute>
         ),
         children: [{ index: true, element: <Purok /> }],
-    },
-    {
-        path: "/inbox",
-        element: (
-            <ProtectedRoute allowedRoles={[
-                "super_official",
-                "natural_official"
-            ]}>
-                <Authenticated />
-            </ProtectedRoute>
-        ),
-        children: [{ index: true, element: <Inbox /> }],
     },
     {
         path: "/verification",
