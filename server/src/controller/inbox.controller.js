@@ -121,7 +121,7 @@ export const update = async (req, re) => {
   try {
     const result = await pool.query(
       `
-        UPDATE forms
+        UPDATE forms 
         SET 
         title = COALSCE($1, title),
         description = COALSCE($2, description),
