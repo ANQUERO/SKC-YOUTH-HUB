@@ -39,15 +39,15 @@ const Hero = () => {
 
                 <div className={style.cards}>
                     <div className={style.card}>
-                        <img src={Card2} alt="" />
+                        <img src={Card2} alt="Card 1" />
 
                     </div>
                     <div className={style.card}>
-                        <img src={Card1} alt="" />
+                        <img src={Card1} alt="Card " />
 
                     </div>
                     <div className={style.card}>
-                        <img src={Card2} alt="" />
+                        <img src={Card2} alt="Card 3" />
                     </div>
                 </div>
             </div>

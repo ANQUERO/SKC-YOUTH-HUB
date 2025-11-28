@@ -41,6 +41,7 @@ const AboutUs = () => {
 
                 {/**Left Side */}
                 <div className={style.content}>
+                    
                     <Taglines
                         text1="Know your right demand"
                         text2="transparent leadership."
@@ -53,6 +54,7 @@ const AboutUs = () => {
                         <button className={style.primaryButton}>Get to know us</button>
                         <button className={style.secondaryButton}>See Features</button>
                     </article>
+
                 </div>
 
                 {/** Right Side */}

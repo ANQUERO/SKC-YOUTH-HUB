@@ -20,7 +20,7 @@ const MenuButton = ({ isMenuOpen, setIsMenuOpen }) => (
 );
 
 const NavLinks = ({ links, onLinkClick, className }) => (
-    <ul className={className || style.nav_links}>
+    <ul className={className}>
         {links.map((link, idx) => (
             <li key={idx}>
                 {link.external ? (
@@ -45,123 +45,116 @@ const NavLinks = ({ links, onLinkClick, className }) => (
     </ul>
 );
 
+
 export default function Navbar() {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isScrolled, setIsScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
-    useEffect(() => {
-        const handleScroll = () => setIsScrolled(window.scrollY > 20);
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+  // Scroll detection
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-    // lock body scroll while mobile menu is open and ensure it's reset 
-    useEffect(() => {
-        const previous = document.body.style.overflow;
-        if (isMenuOpen) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = previous || '';
-        }
-        return () => {
-            document.body.style.overflow = previous || '';
-        };
-    }, [isMenuOpen]);
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = isMenuOpen ? "hidden" : "auto";
+  }, [isMenuOpen]);
 
-    // close menu on escape
-    useEffect(() => {
-        if (!isMenuOpen) return;
-        const onKey = (e) => {
-            if (e.key === 'Escape') setIsMenuOpen(false);
-        };
-        window.addEventListener('keydown', onKey);
-        return () => window.removeEventListener('keydown', onKey);
-    }, [isMenuOpen]);
+  // Close on ESC key
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const onKeyDown = (e) => e.key === "Escape" && setIsMenuOpen(false);
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isMenuOpen]);
 
-    const mainLinks = [
-        { to: '#about', text: 'About' },
-        { to: '#discover', text: 'Discover' },
-        { to: '#officials', text: 'Officials' },
-    ];
+  const mainLinks = [
+    { to: "#about", text: "About" },
+    { to: "#discover", text: "Discover" },
+    { to: "#officials", text: "Officials" },
+  ];
 
-    const authLinks = [
-        { to: '/login', text: 'Sign-in' },
-        { to: '/signup', text: 'Sign-up' },
-    ];
+  const authLinks = [
+    { to: "/login", text: "Sign-in" },
+    { to: "/signup", text: "Sign-up" },
+  ];
 
-    const handleLinkClick = () => setIsMenuOpen(false);
+  const handleLinkClick = () => {
+    setIsMenuOpen(false);
+  };
 
-    // close when clicking on overlay background (not inside the centered content)
-    const handleOverlayClick = (e) => {
-        if (e.target === e.currentTarget) {
-            setIsMenuOpen(false);
-        }
-    };
+  return (
+    <header className={style.header}>
+      <nav className={`${style.nav} ${isScrolled ? style.scrolled : ""}`}>
+        <div className={style.navContent}>
+          {/* LEFT */}
+          <div className={style.leftSide}>
+            <Logo />
+            <h1 className={style.title}>
+              SANGGUNIANG <span className={style.titleSpan}>KABATAAN</span>
+            </h1>
+          </div>
 
-    return (
-        <header className={style.header}>
-            <nav className={`${style.nav} ${isScrolled ? style.scrolled : ''}`}>
-                <div className={style.navContent}>
-                    {/* LEFT */}
-                    <div className={style.leftSide}>
-                        <Logo />
-                        <h1 className={style.title}>
-                            SANGGUNIANG <span className={style.titleSpan}>KABATAAN</span>
-                        </h1>
-                    </div>
+          {/* DESKTOP CENTER */}
+          <div className={style.centerLinks}>
+            <NavLinks 
+              links={mainLinks} 
+              onLinkClick={handleLinkClick} 
+              className={style.nav_links}
+            />
+          </div>
 
-                    {/* DESKTOP CENTER & RIGHT */}
-                    <div className={style.centerLinks}>
-                        <NavLinks links={mainLinks} onLinkClick={handleLinkClick} />
-                    </div>
+          {/* DESKTOP RIGHT */}
+          <div className={style.rightSide}>
+            <NavLinks 
+              links={authLinks} 
+              onLinkClick={handleLinkClick} 
+              className={style.nav_links}
+            />
+          </div>
 
-                    <div className={style.rightSide}>
-                        <NavLinks links={authLinks} onLinkClick={handleLinkClick} />
-                    </div>
+          {/* MOBILE MENU BUTTON */}
+          <MenuButton
+            isMenuOpen={isMenuOpen}
+            setIsMenuOpen={setIsMenuOpen}
+          />
+        </div>
 
-                    {/* Mobile Menu Button (visible on small screens) */}
-                    <MenuButton isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
-                </div>
+        {/* MOBILE OVERLAY */}
+        <div
+          className={`${style.mobileMenu} ${isMenuOpen ? style.open : ""}`}
+          onClick={(e) => e.target === e.currentTarget && setIsMenuOpen(false)}
+        >
+          <div className={style.slidePanel}>
+            <div className={style.mobileHeader}>
+              <Logo />
+              <button 
+                className={style.mobileClose} 
+                onClick={() => setIsMenuOpen(false)}
+                aria-label="Close menu"
+              >
+                <X size={26} />
+              </button>
+            </div>
 
-                {/* MOBILE FULLSCREEN OVERLAY */}
-                <div
-                    className={`${style.mobileMenu} ${isMenuOpen ? style.open : ''}`}
-                    onClick={handleOverlayClick}
-                    role="presentation"
-                >
-                    {/* Close button inside overlay (top-right) */}
-                    <button
-                        className={style.mobileClose}
-                        onClick={() => setIsMenuOpen(false)}
-                        aria-label="Close menu"
-                    >
-                        <X size={24} />
-                    </button>
+            <NavLinks
+              links={mainLinks}
+              onLinkClick={handleLinkClick}
+              className={style.mobile_nav_links}
+            />
 
-                    <div className={style.mobileInner}>
-                        <div className={style.mobileTop}>
-                            <Logo />
-                            <h2 className={style.titleMobile}>
-                                SANGGUNIANG <span className={style.titleSpan}>KABATAAN</span>
-                            </h2>
-                        </div>
-
-                        <NavLinks
-                            links={mainLinks}
-                            onLinkClick={handleLinkClick}
-                            className={style.mobile_nav_links}
-                        />
-
-                        <NavLinks
-                            links={authLinks}
-                            onLinkClick={handleLinkClick}
-                            className={style.mobile_auth_links}
-                        />
-                    </div>
-                </div>
-            </nav>
-        </header>
-    );
+            <NavLinks
+              links={authLinks}
+              onLinkClick={handleLinkClick}
+              className={style.mobile_auth_links}
+            />
+          </div>
+        </div>
+      </nav>
+    </header>
+  );
 }
 
 const ProfileNavLinks = ({ links, mobile = false, onLinkClick }) => {
