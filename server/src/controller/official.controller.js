@@ -1,19 +1,19 @@
-import { pool } from '../db/config.js';
-import bcrypt from 'bcrypt';
+import { pool } from "../db/config.js";
+import bcrypt from "bcrypt";
 
 const inferMediaType = (url) => {
     try {
         const u = String(url).toLocaleLowerCase();
-        if (u.includes('/image/') || u.match(/\.(png|jpg|jpeg|gif|webp)$/)) return 'image';
-        if (u.includes('/video/') || u.match(/\.(mp4|webm|mov|m4v)$/)) return 'video';
+        if (u.includes("/image/") || u.match(/\.(png|jpg|jpeg|gif|webp)$/)) {return "image";}
+        if (u.includes("/video/") || u.match(/\.(mp4|webm|mov|m4v)$/)) {return "video";}
     } catch { }
-    return 'null';
+    return "null";
 };
 
 export const index = async (req, res) => {
     const user = req.user;
 
-    if (!user || user.userType !== 'official') {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"
@@ -22,9 +22,9 @@ export const index = async (req, res) => {
 
     try {
 
-        const result = await pool.query('SELECT * FROM fetch_sk_officials()');
+        const result = await pool.query("SELECT * FROM fetch_sk_officials()");
 
-        console.log('SK Officials', result.rows);
+        console.log("SK Officials", result.rows);
         res.status(200).json({
             status: "Success",
             data: result.rows
@@ -49,7 +49,7 @@ export const show = async (req, res) => {
         });
     }
 
-    if (!user || user.userType !== 'official') {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"
@@ -58,14 +58,14 @@ export const show = async (req, res) => {
 
     try {
         const result = await pool.query(
-            'SELECT * FROM fetch_sk_official($1)',
+            "SELECT * FROM fetch_sk_official($1)",
             [parseInt(official_id)]
         );
 
         if (result.rows.length === 0) {
             return res.status(404).json({
-                status: 'Error',
-                message: 'Official not found'
+                status: "Error",
+                message: "Official not found"
             });
         }
 
@@ -87,7 +87,7 @@ export const update = async (req, res) => {
     const { id: official_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'admin' || parseInt(official_id) !== user.official_id) {
+    if (!user || user.userType !== "admin" || parseInt(official_id) !== user.official_id) {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - You can only update your own account"
@@ -116,7 +116,7 @@ export const update = async (req, res) => {
         // Build dynamic query
         const setClause = entries
             .map(([key], i) => `${key} = $${i + 1}`)
-            .join(', ');
+            .join(", ");
 
         const values = entries.map(([_, v]) => v);
 
@@ -143,7 +143,7 @@ export const update = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Update error:', error);
+        console.error("Update error:", error);
         return res.status(500).json({
             status: "Error",
             message: "Internal Server Error",
@@ -156,7 +156,7 @@ export const destroy = async (req, res) => {
     const { id: official_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== "admin") {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"
@@ -165,7 +165,7 @@ export const destroy = async (req, res) => {
 
     try {
         const result = await pool.query(
-            'UPDATE sk_official_admin SET is_active = false WHERE official_id = $1 RETURNING *',
+            "UPDATE sk_official_admin SET is_active = false WHERE official_id = $1 RETURNING *",
             [official_id]
         );
 
@@ -188,13 +188,13 @@ export const destroy = async (req, res) => {
             message: "Internal server error"
         });
     }
-}
+};
 
 export const enable = async (req, res) => {
     const { id: official_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== "admin") {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"
@@ -203,7 +203,7 @@ export const enable = async (req, res) => {
 
     try {
         const result = await pool.query(
-            'UPDATE sk_official_admin SET is_active = true WHERE official_id = $1 RETURNING *',
+            "UPDATE sk_official_admin SET is_active = true WHERE official_id = $1 RETURNING *",
             [official_id]
         );
 
@@ -226,13 +226,13 @@ export const enable = async (req, res) => {
             message: "Internal server error"
         });
     }
-}
+};
 
 export const disableComment = async (req, res) => {
     const { id: official_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== "admin") {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"
@@ -241,7 +241,7 @@ export const disableComment = async (req, res) => {
 
     try {
         const result = await pool.query(
-            'UPDATE sk_official_admin SET comment_at = true WHERE official_id = $1 RETURNING *',
+            "UPDATE sk_official_admin SET comment_at = true WHERE official_id = $1 RETURNING *",
             [official_id]
         );
 
@@ -264,13 +264,13 @@ export const disableComment = async (req, res) => {
             message: "Internal server error"
         });
     }
-}
+};
 
 export const enableComment = async (req, res) => {
     const { id: official_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== "admin") {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"
@@ -279,7 +279,7 @@ export const enableComment = async (req, res) => {
 
     try {
         const result = await pool.query(
-            'UPDATE sk_official_admin SET comment_at = false WHERE official_id = $1 RETURNING *',
+            "UPDATE sk_official_admin SET comment_at = false WHERE official_id = $1 RETURNING *",
             [official_id]
         );
 
@@ -303,13 +303,13 @@ export const enableComment = async (req, res) => {
         });
     }
 
-}
+};
 
 export const indexContent = async (req, res) => {
     const { id: official_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== "admin") {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"
@@ -318,7 +318,7 @@ export const indexContent = async (req, res) => {
 
     try {
         const result = await pool.query(
-            'SELECT * FROM landing_page_content WHERE official_id = $1 ORDER BY created_at DESC',
+            "SELECT * FROM landing_page_content WHERE official_id = $1 ORDER BY created_at DESC",
             [parseInt(official_id)]
         );
         
@@ -327,19 +327,19 @@ export const indexContent = async (req, res) => {
             data: result.rows
         });
     } catch (error) {
-        console.error('Error fetching content:', error);
+        console.error("Error fetching content:", error);
         res.status(500).json({
             status: "Error",
             message: "Internal server error"
         });
     }
-}
+};
 
 export const showContent = async (req, res) => {
     const { id: content_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== "admin") {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"
@@ -348,7 +348,7 @@ export const showContent = async (req, res) => {
 
     try {
         const result = await pool.query(
-            'SELECT * FROM landing_page_content WHERE content_id = $1',
+            "SELECT * FROM landing_page_content WHERE content_id = $1",
             [parseInt(content_id)]
         );
         
@@ -364,19 +364,19 @@ export const showContent = async (req, res) => {
             data: result.rows[0]
         });
     } catch (error) {
-        console.error('Error fetching content:', error);
+        console.error("Error fetching content:", error);
         res.status(500).json({
             status: "Error",
             message: "Internal server error"
         });
     }
-}
+};
 
 export const storeContent = async (req, res) => {
     const user = req.user;
     const { official_name, official_title, media_url } = req.body;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== "admin") {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"
@@ -394,7 +394,7 @@ export const storeContent = async (req, res) => {
     // Infer media_type from media_url
     const media_type = inferMediaType(media_url);
     
-    if (media_type !== 'image') {
+    if (media_type !== "image") {
         return res.status(400).json({
             status: "Error",
             message: "Only image media type is allowed"
@@ -416,20 +416,20 @@ export const storeContent = async (req, res) => {
             data: result.rows[0]
         });
     } catch (error) {
-        console.error('Error creating content:', error);
+        console.error("Error creating content:", error);
         res.status(500).json({
             status: "Error",
             message: "Internal server error"
         });
     }
-}
+};
 
 export const updateContent = async (req, res) => {
     const { id: content_id } = req.params;
     const user = req.user;
     const { official_name, official_title, media_type, media_url } = req.body;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== "admin") {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"
@@ -437,7 +437,7 @@ export const updateContent = async (req, res) => {
     }
 
     // Validation
-    if (media_type && media_type !== 'image') {
+    if (media_type && media_type !== "image") {
         return res.status(400).json({
             status: "Error",
             message: "Media type must be 'image'"
@@ -447,7 +447,7 @@ export const updateContent = async (req, res) => {
     try {
         // First check if content exists
         const existingContent = await pool.query(
-            'SELECT * FROM landing_page_content WHERE content_id = $1',
+            "SELECT * FROM landing_page_content WHERE content_id = $1",
             [parseInt(content_id)]
         );
 
@@ -488,13 +488,13 @@ export const updateContent = async (req, res) => {
         }
 
         // Always update the updated_at timestamp
-        updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
+        updateFields.push("updated_at = CURRENT_TIMESTAMP");
         
         values.push(parseInt(content_id));
 
         const result = await pool.query(
             `UPDATE landing_page_content 
-             SET ${updateFields.join(', ')} 
+             SET ${updateFields.join(", ")} 
              WHERE content_id = $${paramCount} 
              RETURNING *`,
             values
@@ -506,19 +506,19 @@ export const updateContent = async (req, res) => {
             data: result.rows[0]
         });
     } catch (error) {
-        console.error('Error updating content:', error);
+        console.error("Error updating content:", error);
         res.status(500).json({
             status: "Error",
             message: "Internal server error"
         });
     }
-}
+};
 
 export const deleteContent = async (req, res) => {
     const { id: content_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'admin') {
+    if (!user || user.userType !== "admin") {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"
@@ -528,7 +528,7 @@ export const deleteContent = async (req, res) => {
     try {
         // First check if content exists
         const existingContent = await pool.query(
-            'SELECT * FROM landing_page_content WHERE content_id = $1',
+            "SELECT * FROM landing_page_content WHERE content_id = $1",
             [parseInt(content_id)]
         );
 
@@ -540,7 +540,7 @@ export const deleteContent = async (req, res) => {
         }
 
         await pool.query(
-            'DELETE FROM landing_page_content WHERE content_id = $1',
+            "DELETE FROM landing_page_content WHERE content_id = $1",
             [parseInt(content_id)]
         );
         
@@ -549,10 +549,10 @@ export const deleteContent = async (req, res) => {
             message: "Content deleted successfully"
         });
     } catch (error) {
-        console.error('Error deleting content:', error);
+        console.error("Error deleting content:", error);
         res.status(500).json({
             status: "Error",
             message: "Internal server error"
         });
     }
-}
+};

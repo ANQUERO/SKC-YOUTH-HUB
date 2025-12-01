@@ -243,5 +243,4 @@ export const reply = async (req, res) => {
 export const replied = async (req, res) => {
   const user = req.user;
 
-
-}
+};

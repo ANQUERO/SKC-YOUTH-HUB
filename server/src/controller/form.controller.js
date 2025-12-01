@@ -1,21 +1,21 @@
-import { pool } from '../db/config.js'
+import { pool } from "../db/config.js";
 
 export const index = async (req, res) => {
     const user = req.user;
 
-    if (!user || user.userType !== 'official') {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
-            status: 'Error',
-            message: 'Forbidden - Only admins can access this resource'
+            status: "Error",
+            message: "Forbidden - Only admins can access this resource"
         });
     }
 
     try {
-        const result = await pool.query('SELECT * FROM forms');
-        console.log('Forms', result.rows);
+        const result = await pool.query("SELECT * FROM forms");
+        console.log("Forms", result.rows);
         res.status(200).json({
-            status: 'Error',
-            message: 'Internal server error'
+            status: "Error",
+            message: "Internal server error"
         });
     } catch (error) {
         console.error("Failed to fetch Forms:", error);
@@ -24,16 +24,16 @@ export const index = async (req, res) => {
             message: "Internal server error"
         });
     }
-}
+};
 
 export const show = async (req, res) => {
     const { id: form_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'official') {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
-            status: 'Error',
-            message: 'Forbidden - Only admins can access this resource'
+            status: "Error",
+            message: "Forbidden - Only admins can access this resource"
         });
     }
 
@@ -66,8 +66,8 @@ export const show = async (req, res) => {
 
         if (rows.length === 0) {
             return res.status(404).json({
-                status: 'Error',
-                message: 'Form not found'
+                status: "Error",
+                message: "Form not found"
             });
         }
 
@@ -93,35 +93,34 @@ export const show = async (req, res) => {
         };
 
         return res.status(200).json({
-            status: 'Success',
+            status: "Success",
             data: form
         });
 
-
     } catch (error) {
-        console.error('Failed to fetch form details: ', error);
+        console.error("Failed to fetch form details: ", error);
         res.status(500).json({
-            status: 'Error',
-            message: 'Internal server error'
+            status: "Error",
+            message: "Internal server error"
         });
     }
-}
+};
 
 export const createForm = async (req, res) => {
     const user = req.user;
     const { title, description } = req.body;
 
-    if (!user || user.userType !== 'official') {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
-            status: 'Error',
-            message: 'Forbidden - Only admins can access this resource'
+            status: "Error",
+            message: "Forbidden - Only admins can access this resource"
         });
     }
 
-    if (!title || title.trim() === '' || !description || description.trim() === '') {
+    if (!title || title.trim() === "" || !description || description.trim() === "") {
         return res.status(400).json({
-            status: 'Error',
-            message: 'Title and description is required'
+            status: "Error",
+            message: "Title and description is required"
         });
     }
 
@@ -134,41 +133,40 @@ export const createForm = async (req, res) => {
             `, [user.official_id, title.trim(), description.trim()]
         );
 
-
         return res.status(201).json({
-            status: 'Success',
-            message: 'Form created successfully',
+            status: "Success",
+            message: "Form created successfully",
             data: rows[0]
         });
 
     } catch (error) {
-        console.error('Failed to create a form: ', error);
+        console.error("Failed to create a form: ", error);
         res.status(500).json({
-            status: 'Error',
-            message: 'Internal server error'
+            status: "Error",
+            message: "Internal server error"
         });
     }
-}
+};
 
 export const updateForm = async (req, res) => {
     const user = req.user;
-    const { id: form_id } = req.params
+    const { id: form_id } = req.params;
     const {
         title,
         description
-    } = req.body
+    } = req.body;
 
-    if (!user || user.userType !== 'official') {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
-            status: 'Error',
-            message: 'Forbidden - Only officials can update forms'
+            status: "Error",
+            message: "Forbidden - Only officials can update forms"
         });
     }
 
-    if (!title || title.trim() === '' || !description || description.trim() === '') {
+    if (!title || title.trim() === "" || !description || description.trim() === "") {
         return res.status(400).json({
-            status: 'Error',
-            message: 'Title and description is required'
+            status: "Error",
+            message: "Title and description is required"
         });
     }
 
@@ -195,35 +193,35 @@ export const updateForm = async (req, res) => {
 
         if (rows.length === 0) {
             return res.status(404).json({
-                status: 'Error',
-                message: 'Form not found'
+                status: "Error",
+                message: "Form not found"
             });
         }
 
         return res.status(200).json({
-            status: 'Success',
-            message: 'Form updated successfully',
+            status: "Success",
+            message: "Form updated successfully",
             data: rows[0]
         });
     } catch (error) {
 
-        console.error('Error updating form:', error);
+        console.error("Error updating form:", error);
         return res.status(500).json({
-            status: 'Error',
-            message: 'Internal Server Error'
+            status: "Error",
+            message: "Internal Server Error"
         });
 
     }
-}
+};
 
 export const deletForm = async (req, res) => {
     const user = req.user;
     const { id: form_id } = req.params;
 
-    if (!user || user.userType !== 'official') {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
-            status: 'Error',
-            message: 'Forbidden - Only officials can update forms'
+            status: "Error",
+            message: "Forbidden - Only officials can update forms"
         });
     }
 
@@ -244,22 +242,22 @@ export const deletForm = async (req, res) => {
 
         if (rows.length === 0) {
             return res.status(404).json({
-                status: 'Error',
-                message: 'Form not found or already deleted'
+                status: "Error",
+                message: "Form not found or already deleted"
             });
         }
 
         return res.status(200).json({
-            status: 'Success',
-            message: 'Form deleted successfully',
+            status: "Success",
+            message: "Form deleted successfully",
             data: rows[0]
         });
 
     } catch (error) {
-        console.error('Error deleting form:', error);
+        console.error("Error deleting form:", error);
         return res.status(500).json({
-            status: 'Error',
-            message: 'Internal Server Error'
+            status: "Error",
+            message: "Internal Server Error"
         });
     }
-}
+};

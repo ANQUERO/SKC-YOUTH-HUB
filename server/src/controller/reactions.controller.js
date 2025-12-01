@@ -21,7 +21,7 @@ export const createReaction = async (req, res) => {
     }
 
     try {
-        const authorId = user.userType === 'official' ? user.official_id : user.youth_id;
+        const authorId = user.userType === "official" ? user.official_id : user.youth_id;
         // Check if user already reacted to this post
         const check = await pool.query(
             `
@@ -86,7 +86,7 @@ export const removeReaction = async (req, res) => {
     }
 
     try {
-        const authorId = user.userType === 'official' ? user.official_id : user.youth_id;
+        const authorId = user.userType === "official" ? user.official_id : user.youth_id;
         const result = await pool.query(
             `
             DELETE FROM post_reactions

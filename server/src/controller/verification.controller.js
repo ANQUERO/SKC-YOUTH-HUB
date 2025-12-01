@@ -1,12 +1,12 @@
-import { pool } from '../db/config.js';
+import { pool } from "../db/config.js";
 
 export const unverified = async (req, res) => {
     const user = req.user;
 
-    if (!user || user.userType !== 'official') {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
-            status: 'Error',
-            message: 'Forbidden - Only admins can access this resource'
+            status: "Error",
+            message: "Forbidden - Only admins can access this resource"
         });
     }
 
@@ -28,14 +28,14 @@ export const unverified = async (req, res) => {
         `);
 
         res.status(200).json({
-            status: 'Success',
+            status: "Success",
             youth: result.rows
         });
     } catch (error) {
-        console.error('Failed to fetch unverified youth data:', error);
+        console.error("Failed to fetch unverified youth data:", error);
         res.status(500).json({
-            status: 'Error',
-            message: 'Internal server error'
+            status: "Error",
+            message: "Internal server error"
         });
     }
 };
@@ -44,10 +44,10 @@ export const getYouthDetails = async (req, res) => {
     const { id: youth_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'official') {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
-            status: 'Error',
-            message: 'Forbidden - Only admins can access this resource',
+            status: "Error",
+            message: "Forbidden - Only admins can access this resource",
         });
     }
 
@@ -103,8 +103,8 @@ export const getYouthDetails = async (req, res) => {
 
         if (rows.length === 0) {
             return res.status(404).json({
-                status: 'Error',
-                message: 'Youth not found',
+                status: "Error",
+                message: "Youth not found",
             });
         }
 
@@ -125,7 +125,7 @@ export const getYouthDetails = async (req, res) => {
         );
 
         res.status(200).json({
-            status: 'Success',
+            status: "Success",
             data: {
                 ...youth,
                 attachments,
@@ -133,10 +133,10 @@ export const getYouthDetails = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error('Failed to fetch youth details:', error);
+        console.error("Failed to fetch youth details:", error);
         res.status(500).json({
-            status: 'Error',
-            message: 'Internal server error'
+            status: "Error",
+            message: "Internal server error"
         });
     }
 };
@@ -145,35 +145,35 @@ export const verifying = async (req, res) => {
     const { id: youth_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'official') {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
-            status: 'Error',
-            message: 'Forbidden - Only admins can access this resource'
+            status: "Error",
+            message: "Forbidden - Only admins can access this resource"
         });
     }
 
     try {
         const result = await pool.query(
-            'UPDATE sk_youth SET verified = true, updated_at = CURRENT_TIMESTAMP WHERE youth_id = $1',
+            "UPDATE sk_youth SET verified = true, updated_at = CURRENT_TIMESTAMP WHERE youth_id = $1",
             [youth_id]
         );
 
         if (result.rowCount === 0) {
             return res.status(404).json({
-                status: 'Error',
-                message: 'Youth not found'
+                status: "Error",
+                message: "Youth not found"
             });
         }
 
         res.status(200).json({
-            status: 'Success',
-            message: 'Youth verified successfully'
+            status: "Success",
+            message: "Youth verified successfully"
         });
     } catch (error) {
-        console.error('Failed to verify youth:', error);
+        console.error("Failed to verify youth:", error);
         res.status(500).json({
-            status: 'Error',
-            message: 'Internal server error'
+            status: "Error",
+            message: "Internal server error"
         });
     }
 };
@@ -182,35 +182,35 @@ export const deleteSignup = async (req, res) => {
     const { id: youth_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'official') {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
-            status: 'Error',
-            message: 'Forbidden - Only admins can access this resource'
+            status: "Error",
+            message: "Forbidden - Only admins can access this resource"
         });
     }
 
     try {
         const result = await pool.query(
-            'UPDATE sk_youth SET deleted_at = CURRENT_TIMESTAMP WHERE youth_id = $1',
+            "UPDATE sk_youth SET deleted_at = CURRENT_TIMESTAMP WHERE youth_id = $1",
             [youth_id]
         );
 
         if (result.rowCount === 0) {
             return res.status(404).json({
-                status: 'Error',
-                message: 'Youth signup not found'
+                status: "Error",
+                message: "Youth signup not found"
             });
         }
 
         res.status(200).json({
-            status: 'Success',
-            message: 'Youth signup deleted successfully'
+            status: "Success",
+            message: "Youth signup deleted successfully"
         });
     } catch (error) {
-        console.error('Failed to delete youth signup:', error);
+        console.error("Failed to delete youth signup:", error);
         res.status(500).json({
-            status: 'Error',
-            message: 'Internal server error'
+            status: "Error",
+            message: "Internal server error"
         });
     }
 };
@@ -218,7 +218,7 @@ export const deleteSignup = async (req, res) => {
 export const deletedSignup = async (req, res) => {
     const user = req.user;
 
-    if (!user || user.userType !== 'official') {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"

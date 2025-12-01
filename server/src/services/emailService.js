@@ -1,12 +1,12 @@
-import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 
 dotenv.config();
 
 // Create transporter for SMTP
 const createTransporter = () => {
     return nodemailer.createTransport({
-        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        host: process.env.SMTP_HOST || "smtp.gmail.com",
         port: process.env.SMTP_PORT || 587,
         secure: false, // true for port 465, false for others
         auth: {
@@ -21,12 +21,12 @@ export const sendVerificationEmail = async (email, verificationToken) => {
     try {
         const transporter = createTransporter();
 
-        const verificationUrl = `${process.env.APP_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
+        const verificationUrl = `${process.env.APP_URL || "http://localhost:3000"}/verify-email?token=${verificationToken}`;
 
         const mailOptions = {
             from: `"SK Youth Hub" <${process.env.SMTP_USER}>`,
             to: email,
-            subject: 'Verify Your Email - SK Youth Hub',
+            subject: "Verify Your Email - SK Youth Hub",
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; color: white;">
@@ -57,12 +57,12 @@ export const sendVerificationEmail = async (email, verificationToken) => {
         };
 
         const result = await transporter.sendMail(mailOptions);
-        console.log('Verification email sent:', result.messageId);
+        console.log("Verification email sent:", result.messageId);
         return { success: true, messageId: result.messageId };
 
     } catch (error) {
-        console.error('Error sending verification email:', error);
-        throw new Error('Failed to send verification email');
+        console.error("Error sending verification email:", error);
+        throw new Error("Failed to send verification email");
     }
 };
 
@@ -70,12 +70,12 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
     try {
         const transporter = createTransporter();
 
-        const resetUrl = `${process.env.APP_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+        const resetUrl = `${process.env.APP_URL || "http://localhost:3000"}/reset-password?token=${resetToken}`;
 
         const mailOptions = {
             from: `"SK Youth Hub" <${process.env.SMTP_USER}>`,
             to: email,
-            subject: 'Reset Your Password - SK Youth Hub',
+            subject: "Reset Your Password - SK Youth Hub",
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; color: white;">
@@ -105,11 +105,11 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
         };
 
         const result = await transporter.sendMail(mailOptions);
-        console.log('Password reset email sent:', result.messageId);
+        console.log("Password reset email sent:", result.messageId);
         return { success: true, messageId: result.messageId };
 
     } catch (error) {
-        console.error('Error sending password reset email:', error);
-        throw new Error('Failed to send password reset email');
+        console.error("Error sending password reset email:", error);
+        throw new Error("Failed to send password reset email");
     }
 };

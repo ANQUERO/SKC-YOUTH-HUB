@@ -8,7 +8,7 @@ export const isLastName = value => {
 
 export const isMiddleName = value => {
     return /^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$/.test(value);
-}
+};
 
 export const isEmail = value => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -16,7 +16,7 @@ export const isEmail = value => {
 
 export const isSuffix = value => {
     return /\b(Jr\.|Sr\.|I{2,4}|IV|V|VI{0,3}|X)\b/.test(value);
-}
+};
 
 export const isGender = value => {
     const val = String(value).toLowerCase();
@@ -29,7 +29,7 @@ export const isRole = value => {
 };
 
 const normalize = value =>
-    typeof value === 'string' ? value.trim().toLowerCase() : '';
+    typeof value === "string" ? value.trim().toLowerCase() : "";
 
 export const isRegion = value => normalize(value) === "region vii";
 export const isProvince = value => normalize(value) === "cebu";
@@ -50,11 +50,10 @@ export const isPassword = value => {
 
 export const isContact = value => {
     return /^(\+63|63|0)9\d{9}$/.text(value);
-}
+};
 
 export const isAge = value => {
     const age = Number(value);
     return Number.isInteger(age) && age >= 16 && age <= 30;
-}
-
+};
 

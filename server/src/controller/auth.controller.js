@@ -2,10 +2,10 @@ import bcrypt from "bcrypt";
 import { generateTokenAndSetCookies } from "../utils/jwt.js";
 import { validationErrors } from "../utils/validators.js";
 import { validationResult } from "express-validator";
-import { pool } from '../db/config.js';
-import { sendVerificationEmail } from '../services/emailService.js';
-import crypto from 'crypto';
-import { OAuth2Client } from 'google-auth-library';
+import { pool } from "../db/config.js";
+import { sendVerificationEmail } from "../services/emailService.js";
+import crypto from "crypto";
+import { OAuth2Client } from "google-auth-library";
 
 export const signupAdmin = async (req, res) => {
     try {
@@ -48,18 +48,18 @@ export const signupAdmin = async (req, res) => {
                 official_position,
                 role,
                 first_name,
-                middle_name || '',
+                middle_name || "",
                 last_name,
-                suffix || '',
-                contact_number_number || '',
-                gender || '',
+                suffix || "",
+                contact_number_number || "",
+                gender || "",
                 age
             ]
         );
 
         const official = result.rows[0];
 
-        generateTokenAndSetCookies(official, res, 'official');
+        generateTokenAndSetCookies(official, res, "official");
 
         return res.status(201).json({
             message: "SK Official registered successfully",
@@ -69,9 +69,9 @@ export const signupAdmin = async (req, res) => {
     } catch (error) {
         console.error("Signup error:", error);
 
-        if (error.message.includes('Email already exists')) {
+        if (error.message.includes("Email already exists")) {
             return res.status(400).json({
-                error: 'Email already exists'
+                error: "Email already exists"
             });
         }
 
@@ -87,36 +87,35 @@ export const resetPassword = async (req, res) => {
         const { currentPassword, newPassword } = req.body;
         const user = req.user;
 
-        if (!user) return res.status(401).json({ message: 'Unauthorized' });
+        if (!user) {return res.status(401).json({ message: "Unauthorized" });}
 
         let table, idField;
-        if (user.userType === 'official') {
-            table = 'sk_official';
-            idField = 'official_id';
-        } else if (user.userType === 'youth') {
-            table = 'sk_youth';
-            idField = 'youth_id';
+        if (user.userType === "official") {
+            table = "sk_official";
+            idField = "official_id";
+        } else if (user.userType === "youth") {
+            table = "sk_youth";
+            idField = "youth_id";
         } else {
-            return res.status(400).json({ message: 'Invalid user type' });
+            return res.status(400).json({ message: "Invalid user type" });
         }
 
         const { rows } = await pool.query(`SELECT password FROM ${table} WHERE ${idField} = $1`, [user[idField]]);
-        if (rows.length === 0) return res.status(404).json({ message: 'User not found' });
+        if (rows.length === 0) {return res.status(404).json({ message: "User not found" });}
 
         const ok = await bcrypt.compare(currentPassword, rows[0].password);
-        if (!ok) return res.status(400).json({ message: 'Current password is incorrect' });
+        if (!ok) {return res.status(400).json({ message: "Current password is incorrect" });}
 
         const salt = await bcrypt.genSalt(10);
         const hashed = await bcrypt.hash(newPassword, salt);
         await pool.query(`UPDATE ${table} SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE ${idField} = $2`, [hashed, user[idField]]);
 
-        return res.status(200).json({ message: 'Password updated successfully' });
+        return res.status(200).json({ message: "Password updated successfully" });
     } catch (err) {
-        console.error('Reset password error:', err);
-        return res.status(500).json({ message: 'Server error' });
+        console.error("Reset password error:", err);
+        return res.status(500).json({ message: "Server error" });
     }
 };
-
 
 export const signup = async (req, res) => {
     try {
@@ -130,7 +129,7 @@ export const signup = async (req, res) => {
 
         const client = await pool.connect();
         try {
-            await client.query('BEGIN');
+            await client.query("BEGIN");
 
             const {
                 email, password,
@@ -149,7 +148,7 @@ export const signup = async (req, res) => {
             const hashedPassword = await bcrypt.hash(password, 10);
 
             // Generate verification token
-            const verificationToken = crypto.randomBytes(32).toString('hex');
+            const verificationToken = crypto.randomBytes(32).toString("hex");
 
             // Insert into sk_youth (unverified by default)
             const youthResult = await client.query(`
@@ -163,7 +162,7 @@ export const signup = async (req, res) => {
             await client.query(`
                 INSERT INTO sk_youth_name (youth_id, first_name, middle_name, last_name, suffix)
                 VALUES ($1, $2, $3, $4, $5);
-            `, [youth_id, first_name, middle_name || '', last_name, suffix || '']);
+            `, [youth_id, first_name, middle_name || "", last_name, suffix || ""]);
 
             // Location
             await client.query(`
@@ -181,13 +180,13 @@ export const signup = async (req, res) => {
             await client.query(`
                 INSERT INTO sk_youth_info (youth_id, age, contact_number, birthday)
                 VALUES ($1, $2, $3, $4);
-            `, [youth_id, ageNum, contact_number || '', birthday || null]);
+            `, [youth_id, ageNum, contact_number || "", birthday || null]);
 
             // Demographics
             await client.query(`
                 INSERT INTO sk_youth_demographics (youth_id, civil_status, youth_age_gap, youth_classification, educational_background, work_status)
                 VALUES ($1, $2, $3, $4, $5, $6);
-            `, [youth_id, civil_status, youth_age_gap || '', youth_classification, educational_background, work_status]);
+            `, [youth_id, civil_status, youth_age_gap || "", youth_classification, educational_background, work_status]);
 
             // Voter survey
             await client.query(`
@@ -199,13 +198,13 @@ export const signup = async (req, res) => {
             await client.query(`
                 INSERT INTO sk_youth_meeting_survey (youth_id, attended, times_attended, reason_not_attend)
                 VALUES ($1, $2, $3, $4);
-            `, [youth_id, attended, times_attended || '', reason_not_attend || '']);
+            `, [youth_id, attended, times_attended || "", reason_not_attend || ""]);
 
             // Household
             await client.query(`
                 INSERT INTO sk_youth_household (youth_id, household)
                 VALUES ($1, $2);
-            `, [youth_id, household || '']);
+            `, [youth_id, household || ""]);
 
             // Attachment - use Cloudinary URL from res.locals.uploaded_images
             if (res.locals.uploaded_images && res.locals.uploaded_images.length > 0) {
@@ -215,48 +214,48 @@ export const signup = async (req, res) => {
                 await client.query(`
                     INSERT INTO sk_youth_attachments (youth_id, file_name, file_type, file_url)
                     VALUES ($1, $2, $3, $4);
-                `, [youth_id, file ? file.originalname : 'attachment', file ? file.mimetype : 'application/octet-stream', fileUrl]);
+                `, [youth_id, file ? file.originalname : "attachment", file ? file.mimetype : "application/octet-stream", fileUrl]);
             }
 
             // Send verification email
             try {
                 await sendVerificationEmail(email, verificationToken);
             } catch (emailError) {
-                console.error('Failed to send verification email:', emailError);
+                console.error("Failed to send verification email:", emailError);
                 // Don't fail the signup if email fails, just log it
             }
 
-            await client.query('COMMIT');
+            await client.query("COMMIT");
             res.status(201).json({
-                message: 'Signup completed successfully. Please check your email for verification.',
+                message: "Signup completed successfully. Please check your email for verification.",
                 youth_id,
                 verificationSent: true
             });
 
         } catch (error) {
-            await client.query('ROLLBACK');
-            console.error('Signup error:', error);
+            await client.query("ROLLBACK");
+            console.error("Signup error:", error);
             
             // Handle specific database errors
-            if (error.message && error.message.includes('duplicate key')) {
+            if (error.message && error.message.includes("duplicate key")) {
                 return res.status(400).json({ 
-                    error: 'Email already exists',
-                    message: 'An account with this email already exists'
+                    error: "Email already exists",
+                    message: "An account with this email already exists"
                 });
             }
             
             res.status(500).json({ 
-                error: 'Signup failed',
-                message: error.message || 'An error occurred during registration'
+                error: "Signup failed",
+                message: error.message || "An error occurred during registration"
             });
         } finally {
             client.release();
         }
     } catch (error) {
-        console.error('Signup error (outside transaction):', error);
+        console.error("Signup error (outside transaction):", error);
         res.status(500).json({ 
-            error: 'Server error',
-            message: 'An error occurred during registration'
+            error: "Server error",
+            message: "An error occurred during registration"
         });
     }
 };
@@ -266,37 +265,37 @@ export const verifyEmail = async (req, res) => {
         const { token } = req.body;
 
         if (!token) {
-            return res.status(400).json({ message: 'Verification token is required' });
+            return res.status(400).json({ message: "Verification token is required" });
         }
 
         // Find user with this token
         const result = await pool.query(
-            'SELECT youth_id, reset_token_expiry FROM sk_youth WHERE reset_token = $1 AND verified = false',
+            "SELECT youth_id, reset_token_expiry FROM sk_youth WHERE reset_token = $1 AND verified = false",
             [token]
         );
 
         if (result.rows.length === 0) {
-            return res.status(400).json({ message: 'Invalid or expired verification token' });
+            return res.status(400).json({ message: "Invalid or expired verification token" });
         }
 
         const user = result.rows[0];
 
         // Check if token is expired
         if (new Date() > new Date(user.reset_token_expiry)) {
-            return res.status(400).json({ message: 'Verification token has expired' });
+            return res.status(400).json({ message: "Verification token has expired" });
         }
 
         // Mark user as verified and clear token
         await pool.query(
-            'UPDATE sk_youth SET verified = true, reset_token = NULL, reset_token_expiry = NULL WHERE youth_id = $1',
+            "UPDATE sk_youth SET verified = true, reset_token = NULL, reset_token_expiry = NULL WHERE youth_id = $1",
             [user.youth_id]
         );
 
-        res.status(200).json({ message: 'Email verified successfully' });
+        res.status(200).json({ message: "Email verified successfully" });
 
     } catch (error) {
-        console.error('Email verification error:', error);
-        res.status(500).json({ message: 'Server error' });
+        console.error("Email verification error:", error);
+        res.status(500).json({ message: "Server error" });
     }
 };
 
@@ -305,7 +304,7 @@ export const googleLogin = async (req, res) => {
         const { credential } = req.body;
 
         if (!credential) {
-            return res.status(400).json({ message: 'Google credential is required' });
+            return res.status(400).json({ message: "Google credential is required" });
         }
 
         const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -321,7 +320,7 @@ export const googleLogin = async (req, res) => {
 
         // Check if user exists
         const userResult = await pool.query(
-            'SELECT youth_id, email, verified FROM sk_youth WHERE email = $1',
+            "SELECT youth_id, email, verified FROM sk_youth WHERE email = $1",
             [email]
         );
 
@@ -330,18 +329,18 @@ export const googleLogin = async (req, res) => {
         if (userResult.rows.length === 0) {
             // Create new user if doesn't exist
             const newUserResult = await pool.query(
-                'INSERT INTO sk_youth (email, password, verified) VALUES ($1, $2, true) RETURNING youth_id',
-                [email, 'google_oauth_user'] // Dummy password for Google users
+                "INSERT INTO sk_youth (email, password, verified) VALUES ($1, $2, true) RETURNING youth_id",
+                [email, "google_oauth_user"] // Dummy password for Google users
             );
             youth_id = newUserResult.rows[0].youth_id;
 
             // Create basic name record
-            const nameParts = name.split(' ');
-            const firstName = nameParts[0] || '';
-            const lastName = nameParts.slice(1).join(' ') || '';
+            const nameParts = name.split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
 
             await pool.query(
-                'INSERT INTO sk_youth_name (youth_id, first_name, last_name) VALUES ($1, $2, $3)',
+                "INSERT INTO sk_youth_name (youth_id, first_name, last_name) VALUES ($1, $2, $3)",
                 [youth_id, firstName, lastName]
             );
         } else {
@@ -351,29 +350,29 @@ export const googleLogin = async (req, res) => {
             if (!userResult.rows[0].verified) {
                 // Auto-verify Google users
                 await pool.query(
-                    'UPDATE sk_youth SET verified = true WHERE youth_id = $1',
+                    "UPDATE sk_youth SET verified = true WHERE youth_id = $1",
                     [youth_id]
                 );
             }
         }
 
         // Generate JWT token
-        const token = generateTokenAndSetCookies(res, youth_id, 'youth');
+        const token = generateTokenAndSetCookies(res, youth_id, "youth");
 
         res.status(200).json({
             success: true,
-            message: 'Google login successful',
+            message: "Google login successful",
             user: {
                 youth_id,
                 email,
-                userType: 'youth'
+                userType: "youth"
             },
             token
         });
 
     } catch (error) {
-        console.error('Google login error:', error);
-        res.status(500).json({ message: 'Google login failed' });
+        console.error("Google login error:", error);
+        res.status(500).json({ message: "Google login failed" });
     }
 };
 
@@ -459,7 +458,6 @@ export const login = async (req, res) => {
     }
 };
 
-
 export const logout = (req, res) => {
     res.clearCookie("jwt", {
         httpOnly: true,
@@ -471,7 +469,7 @@ export const logout = (req, res) => {
     return res.status(200).json({
         message: "Logged out successfully"
     });
-}
+};
 
 // Forgot password - send reset email
 export const forgotPassword = async (req, res) => {
@@ -527,7 +525,7 @@ export const forgotPassword = async (req, res) => {
 
         // Store reset token in database
         await pool.query(
-            `UPDATE ${userType === 'official' ? 'sk_official' : 'sk_youth'} 
+            `UPDATE ${userType === "official" ? "sk_official" : "sk_youth"} 
              SET reset_token = $1, reset_token_expiry = $2, updated_at = CURRENT_TIMESTAMP 
              WHERE ${idField} = $3`,
             [resetToken, resetTokenExpiry, user[idField]]
@@ -539,7 +537,7 @@ export const forgotPassword = async (req, res) => {
             status: "Success",
             message: "Password reset instructions have been sent to your email",
             // Remove this in production - only for development
-            resetToken: process.env.NODE_ENV === 'development' ? resetToken : undefined
+            resetToken: process.env.NODE_ENV === "development" ? resetToken : undefined
         });
 
     } catch (error) {
@@ -620,7 +618,7 @@ export const resetPasswordWithToken = async (req, res) => {
 
         // Update password and clear reset token
         await pool.query(
-            `UPDATE ${userType === 'official' ? 'sk_official' : 'sk_youth'} 
+            `UPDATE ${userType === "official" ? "sk_official" : "sk_youth"} 
              SET password = $1, reset_token = NULL, reset_token_expiry = NULL, updated_at = CURRENT_TIMESTAMP 
              WHERE ${idField} = $2`,
             [hashedPassword, user[idField]]

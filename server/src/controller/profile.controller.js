@@ -1,17 +1,17 @@
-import { pool } from '../db/config.js'
+import { pool } from "../db/config.js";
 
 export const showProfile = async (req, res) => {
     const user = req.user;
 
     if (!user) {
         return res.status(401).json({
-            status: 'Error',
-            message: 'Unauthorized - No user found'
+            status: "Error",
+            message: "Unauthorized - No user found"
         });
     }
 
     try {
-        if (user.userType === 'youth') {
+        if (user.userType === "youth") {
             const youth_id = user.youth_id; // make sure this matches your middleware
 
             const [
@@ -77,7 +77,7 @@ export const showProfile = async (req, res) => {
             });
         }
 
-        if (user.userType === 'official') {
+        if (user.userType === "official") {
             const official_id = user.official_id;
 
             const [account, name, info, profilePicture] = await Promise.all([
@@ -122,8 +122,8 @@ export const showProfile = async (req, res) => {
         }
 
         return res.status(403).json({
-            status: 'Error',
-            message: 'Forbidden - Unsupported user type'
+            status: "Error",
+            message: "Forbidden - Unsupported user type"
         });
 
     } catch (error) {
@@ -141,15 +141,15 @@ export const updateProfilePicture = async (req, res) => {
 
     if (!user) {
         return res.status(401).json({
-            status: 'Error',
-            message: 'Unauthorized - No user found'
+            status: "Error",
+            message: "Unauthorized - No user found"
         });
     }
 
     if (!uploadedImages || uploadedImages.length === 0) {
         return res.status(400).json({
-            status: 'Error',
-            message: 'No image uploaded'
+            status: "Error",
+            message: "No image uploaded"
         });
     }
 
@@ -158,7 +158,7 @@ export const updateProfilePicture = async (req, res) => {
         const fileName = req.files[0].originalname;
         const fileType = req.files[0].mimetype;
 
-        if (user.userType === 'youth') {
+        if (user.userType === "youth") {
             const youth_id = user.youth_id;
 
             // Insert profile picture into sk_youth_attachments table
@@ -169,13 +169,13 @@ export const updateProfilePicture = async (req, res) => {
             );
 
             return res.status(200).json({
-                status: 'Success',
-                message: 'Profile picture updated successfully',
+                status: "Success",
+                message: "Profile picture updated successfully",
                 profile_picture: profilePictureUrl
             });
         }
 
-        if (user.userType === 'official') {
+        if (user.userType === "official") {
             const official_id = user.official_id;
 
             // Insert profile picture into sk_official_avatar table
@@ -186,15 +186,15 @@ export const updateProfilePicture = async (req, res) => {
             );
 
             return res.status(200).json({
-                status: 'Success',
-                message: 'Profile picture updated successfully',
+                status: "Success",
+                message: "Profile picture updated successfully",
                 profile_picture: profilePictureUrl
             });
         }
 
         return res.status(403).json({
-            status: 'Error',
-            message: 'Forbidden - Unsupported user type'
+            status: "Error",
+            message: "Forbidden - Unsupported user type"
         });
 
     } catch (error) {
@@ -212,18 +212,18 @@ export const updateProfile = async (req, res) => {
 
     if (!user) {
         return res.status(401).json({
-            status: 'Error',
-            message: 'Unauthorized - No user found'
+            status: "Error",
+            message: "Unauthorized - No user found"
         });
     }
 
     try {
-        if (user.userType === 'youth') {
+        if (user.userType === "youth") {
             const youth_id = user.youth_id;
             const client = await pool.connect();
 
             try {
-                await client.query('BEGIN');
+                await client.query("BEGIN");
 
                 // Update youth name if provided
                 if (updateData.name) {
@@ -308,15 +308,15 @@ export const updateProfile = async (req, res) => {
                     ]);
                 }
 
-                await client.query('COMMIT');
+                await client.query("COMMIT");
 
                 return res.status(200).json({
-                    status: 'Success',
-                    message: 'Youth profile updated successfully'
+                    status: "Success",
+                    message: "Youth profile updated successfully"
                 });
 
             } catch (error) {
-                await client.query('ROLLBACK');
+                await client.query("ROLLBACK");
                 console.error("Database error in youth update:", error);
                 throw error;
             } finally {
@@ -324,12 +324,12 @@ export const updateProfile = async (req, res) => {
             }
         }
 
-        if (user.userType === 'official') {
+        if (user.userType === "official") {
             const official_id = user.official_id;
             const client = await pool.connect();
 
             try {
-                await client.query('BEGIN');
+                await client.query("BEGIN");
 
                 // Update official name if provided
                 if (updateData.name) {
@@ -373,15 +373,15 @@ export const updateProfile = async (req, res) => {
                     ]);
                 }
 
-                await client.query('COMMIT');
+                await client.query("COMMIT");
 
                 return res.status(200).json({
-                    status: 'Success',
-                    message: 'Official profile updated successfully'
+                    status: "Success",
+                    message: "Official profile updated successfully"
                 });
 
             } catch (error) {
-                await client.query('ROLLBACK');
+                await client.query("ROLLBACK");
                 console.error("Database error in official update:", error);
                 throw error;
             } finally {
@@ -390,8 +390,8 @@ export const updateProfile = async (req, res) => {
         }
 
         return res.status(403).json({
-            status: 'Error',
-            message: 'Forbidden - Unsupported user type'
+            status: "Error",
+            message: "Forbidden - Unsupported user type"
         });
 
     } catch (error) {

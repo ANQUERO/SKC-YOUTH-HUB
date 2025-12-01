@@ -3,8 +3,8 @@ import { pool } from "../db/config.js";
 const inferMediaType = (url) => {
     try {
         const u = String(url).toLowerCase();
-        if (u.includes('/image/') || u.match(/\.(png|jpg|jpeg|gif|webp)$/)) return 'image';
-        if (u.includes('/video/') || u.match(/\.(mp4|webm|mov|m4v)$/)) return 'video';
+        if (u.includes("/image/") || u.match(/\.(png|jpg|jpeg|gif|webp)$/)) {return "image";}
+        if (u.includes("/video/") || u.match(/\.(mp4|webm|mov|m4v)$/)) {return "video";}
     } catch { }
     return null;
 };
@@ -14,9 +14,9 @@ export const index = async (req, res) => {
 
     try {
         // Build the query with conditional filtering for hidden posts
-        let whereClause = '';
-        if (!user || user.userType !== 'official') {
-            whereClause = 'WHERE p.is_hidden = FALSE';
+        let whereClause = "";
+        if (!user || user.userType !== "official") {
+            whereClause = "WHERE p.is_hidden = FALSE";
         }
 
         const result = await pool.query(
@@ -57,7 +57,7 @@ export const index = async (req, res) => {
         const posts = result.rows.map(row => ({
             post_id: row.post_id,
             description: row.description,
-            type: row.post_type || 'post',
+            type: row.post_type || "post",
             media_type: row.media_type,
             media_url: row.media_url,
             is_hidden: row.is_hidden,
@@ -91,10 +91,10 @@ export const index = async (req, res) => {
 export const createPost = async (req, res) => {
     const user = req.user;
     const body = req.body || {};
-    const description = body.description || '';
-    const post_type = body.type || body.post_type || 'post';
-    const media_type = body.media_type || '';
-    const media_url = body.media_url || '';
+    const description = body.description || "";
+    const post_type = body.type || body.post_type || "post";
+    const media_type = body.media_type || "";
+    const media_url = body.media_url || "";
 
     if (!user || user.userType !== "official") {
         return res.status(403).json({
@@ -104,7 +104,7 @@ export const createPost = async (req, res) => {
     }
 
     // Validate post_type
-    const validTypes = ['post', 'announcement', 'activity'];
+    const validTypes = ["post", "announcement", "activity"];
     if (!validTypes.includes(post_type)) {
         return res.status(400).json({
             status: "Error",
@@ -148,7 +148,6 @@ export const createPost = async (req, res) => {
     }
 };
 
-
 // Update post
 export const updatePost = async (req, res) => {
     const user = req.user;
@@ -165,7 +164,7 @@ export const updatePost = async (req, res) => {
 
     // Validate post_type if provided
     if (finalPostType) {
-        const validTypes = ['post', 'announcement', 'activity'];
+        const validTypes = ["post", "announcement", "activity"];
         if (!validTypes.includes(finalPostType)) {
             return res.status(400).json({
                 status: "Error",
@@ -262,7 +261,7 @@ export const hidePost = async (req, res) => {
     const { reason } = req.body;
     const user = req.user;
 
-    if (!user || user.userType !== 'official') {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only officials can hide posts"
@@ -277,7 +276,7 @@ export const hidePost = async (req, res) => {
             WHERE post_id = $3
             RETURNING *
             `,
-            [user.official_id, reason || 'Hidden by moderator', post_id]
+            [user.official_id, reason || "Hidden by moderator", post_id]
         );
 
         if (rows.length === 0) {
@@ -307,7 +306,7 @@ export const unhidePost = async (req, res) => {
     const { post_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'official') {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only officials can unhide posts"
@@ -346,7 +345,6 @@ export const unhidePost = async (req, res) => {
         });
     }
 };
-
 
 export const destroy = async (req, res) => {
   const { id: form_id } = req.params;

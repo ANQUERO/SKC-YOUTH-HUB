@@ -1,5 +1,5 @@
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -14,16 +14,16 @@ export const getSecretKey = () => {
 export const generateTokenAndSetCookies = (user, res, userType) => {
     const secret = getSecretKey();
 
-    const normalizedType = typeof userType === 'string' ? userType.trim().toLowerCase() : '';
+    const normalizedType = typeof userType === "string" ? userType.trim().toLowerCase() : "";
 
     const payload = { userType: normalizedType };
 
-    if (normalizedType === 'official') {
+    if (normalizedType === "official") {
         payload.official_id = user.official_id;
         payload.role = Array.isArray(user.role) ? user.role : [user.role];
         payload.email = user.email;
         payload.official_position = user.official_position;
-    } else if (normalizedType === 'youth') {
+    } else if (normalizedType === "youth") {
         payload.youth_id = user.youth_id;
         payload.email = user.email;
     } else {
@@ -31,17 +31,17 @@ export const generateTokenAndSetCookies = (user, res, userType) => {
     }
 
     const token = jwt.sign(payload, secret, {
-        expiresIn: '15d'
+        expiresIn: "15d"
     });
 
-    const isDevMode = process.env.NODE_ENV === 'development';
+    const isDevMode = process.env.NODE_ENV === "development";
 
-    res.cookie('jwt', token, {
+    res.cookie("jwt", token, {
         maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: "lax",
         secure: !isDevMode,
-        path: '/'
+        path: "/"
     });
 
     return token;

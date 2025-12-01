@@ -52,7 +52,7 @@ export const NotificationProvider = ({ children }) => {
                 }, reactions: {}
             });
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [seenKey]);
     useEffect(() => {
         if (!seenKey) return;

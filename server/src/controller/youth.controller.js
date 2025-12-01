@@ -1,10 +1,10 @@
-import { pool } from '../db/config.js';
-import bcrypt from 'bcrypt'
+import { pool } from "../db/config.js";
+import bcrypt from "bcrypt";
 
 export const index = async (req, res) => {
     const user = req.user;
 
-    if (!user || user.userType !== 'official') {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"
@@ -37,10 +37,10 @@ export const index = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Database query failed:', error);
+        console.error("Database query failed:", error);
         res.status(500).json({
-            status: 'Error',
-            message: 'Internal server error'
+            status: "Error",
+            message: "Internal server error"
         });
     }
 };
@@ -49,12 +49,12 @@ export const show = async (req, res) => {
     const { id: youth_id } = req.params;
     const user = req.user;
 
-    const isSelf = user.userType === 'youth' && user.youth_id === parseInt(youth_id);
-    const isAdmin = user.userType === 'official';
+    const isSelf = user.userType === "youth" && user.youth_id === parseInt(youth_id);
+    const isAdmin = user.userType === "official";
 
     if (!isSelf && !isAdmin) {
         return res.status(403).json({
-            message: 'Forbidden - You cannot access this youth\'s data'
+            message: "Forbidden - You cannot access this youth's data"
         });
     }
 
@@ -109,8 +109,8 @@ export const show = async (req, res) => {
 
         if (rows.length === 0) {
             return res.status(404).json({
-                status: 'Error',
-                message: 'Youth not found'
+                status: "Error",
+                message: "Youth not found"
             });
         }
 
@@ -133,7 +133,7 @@ export const show = async (req, res) => {
         );
 
         res.status(200).json({
-            status: 'Success',
+            status: "Success",
             data: {
                 ...youth,
                 attachments,
@@ -142,7 +142,7 @@ export const show = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Failed to fetch youth details:', error);
+        console.error("Failed to fetch youth details:", error);
         res.status(500).json({
             status: "Error",
             message: "Internal Server Error"
@@ -150,14 +150,13 @@ export const show = async (req, res) => {
     }
 };
 
-
 export const store = async (req, res) => {
     const user = req.user;
 
-    if (!user || user.userType !== 'official') {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
-            status: 'Error',
-            message: 'Forbidden - Only admins can create youth profiles'
+            status: "Error",
+            message: "Forbidden - Only admins can create youth profiles"
         });
     }
 
@@ -178,8 +177,8 @@ export const store = async (req, res) => {
     // Basic validation
     if (!email || !password || !name?.first_name || !name?.last_name) {
         return res.status(400).json({
-            status: 'Error',
-            message: 'Missing required fields: email, password, first_name, last_name'
+            status: "Error",
+            message: "Missing required fields: email, password, first_name, last_name"
         });
     }
 
@@ -187,11 +186,11 @@ export const store = async (req, res) => {
     let purokId = location.purok_id || null;
 
     try {
-        await client.query('BEGIN');
+        await client.query("BEGIN");
 
         if (!purokId && location?.purok) {
             const purokResult = await client.query(
-                `SELECT purok_id FROM purok WHERE name = $1 LIMIT 1`,
+                "SELECT purok_id FROM purok WHERE name = $1 LIMIT 1",
                 [location.purok]
             );
 
@@ -297,20 +296,20 @@ export const store = async (req, res) => {
             `, [youth_id, household.household]);
         }
 
-        await client.query('COMMIT');
+        await client.query("COMMIT");
 
         return res.status(201).json({
-            status: 'Success',
-            message: 'Youth profile created successfully',
+            status: "Success",
+            message: "Youth profile created successfully",
             youth_id
         });
 
     } catch (error) {
-        await client.query('ROLLBACK');
-        console.error('Insert error:', error);
+        await client.query("ROLLBACK");
+        console.error("Insert error:", error);
         return res.status(500).json({
-            status: 'Error',
-            message: 'Failed to create youth profile',
+            status: "Error",
+            message: "Failed to create youth profile",
             error: error.message
         });
     } finally {
@@ -318,26 +317,24 @@ export const store = async (req, res) => {
     }
 };
 
-
 export const update = async (req, res) => {
     const { id: youth_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== 'youth' || user.youth_id !== parseInt(youth_id)) {
+    if (!user || user.userType !== "youth" || user.youth_id !== parseInt(youth_id)) {
         return res.status(403).json({
-            status: 'Error',
-            message: 'Forbidden - You can only update your own profile',
+            status: "Error",
+            message: "Forbidden - You can only update your own profile",
         });
     }
 
     try {
 
-
     } catch (err) {
-        console.error('Update error:', err);
+        console.error("Update error:", err);
         res.status(500).json({
-            status: 'Error',
-            message: 'Something went wrong during update',
+            status: "Error",
+            message: "Something went wrong during update",
             error: err.message
         });
     }

@@ -6,7 +6,12 @@
     "start": "node index.js",
     "server": "nodemon index.js --ignore client",
     "dev": "concurently \"npm run server\" \"npm run client\"",
-    "client": "npm start "
+    "client": "npm start ",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "keywords": [],
   "author": "",
@@ -31,5 +36,9 @@
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
     "streamifier": "^0.1.1"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.1",
+    "jest": "^30.2.0"
   }
 }

@@ -1,4 +1,4 @@
-import { body } from 'express-validator';
+import { body } from "express-validator";
 import {
     isFirstName,
     isLastName,
@@ -13,20 +13,19 @@ import {
     isMunicipality,
     isBarangay,
     isAge
-} from './custom.validators.js';
-
+} from "./custom.validators.js";
 
 export const validationErrors = (errors) => {
     const validationErrors = {};
 
     errors.array().forEach((error) => {
-        if ('path' in error && 'msg' in error) {
+        if ("path" in error && "msg" in error) {
             validationErrors[error.path] = error.msg;
         }
     });
 
     return validationErrors;
-}
+};
 
 export const signupAdminValidator = [
     body("first_name")
@@ -41,7 +40,7 @@ export const signupAdminValidator = [
         ),
     body("role")
         .custom(isRole).withMessage(
-            'Role must be either "super_official" or "natural_official"'
+            "Role must be either \"super_official\" or \"natural_official\""
         )
 ];
 
@@ -57,20 +56,20 @@ export const signupYouthValidator = [
     body("middle_name")
         .optional({ checkFalsy: true })
         .custom((value) => {
-            if (!value || value.trim() === '') return true;
+            if (!value || value.trim() === "") {return true;}
             return isMiddleName(value);
         }).withMessage("Invalid Middle Name"),
     body("suffix")
         .optional({ checkFalsy: true })
         .custom((value) => {
-            if (!value || value.trim() === '') return true;
+            if (!value || value.trim() === "") {return true;}
             return isSuffix(value);
         }).withMessage("Invalid Suffix"),
     body("gender")
         .custom(isGender).withMessage("Invalid Gender"),
     body("region")
         .custom(isRegion).withMessage("Invalid Region"),
-    body('province')
+    body("province")
         .custom(isProvince).withMessage("Invalid Province"),
     body("municipality")
         .custom(isMunicipality).withMessage("Invalid Municipality"),
@@ -88,7 +87,7 @@ export const signupYouthValidator = [
             const birthDate = new Date(birthday);
             const today = new Date();
             if (birthDate > today) {
-                throw new Error('Birthday cannot be in the future');
+                throw new Error("Birthday cannot be in the future");
             }
             
             // If age is provided, verify they match
@@ -103,12 +102,12 @@ export const signupYouthValidator = [
                 const providedAge = parseInt(req.body.age, 10);
                 // Age should match exactly (calculated age from birthday should match provided age)
                 if (calculatedAge !== providedAge) {
-                    throw new Error('Birthday and age do not match');
+                    throw new Error("Birthday and age do not match");
                 }
             }
             return true;
         }).withMessage("Invalid birthday")
-]
+];
 
 export const loginValidator = [
     body("email").isEmail().withMessage("Invalid email"),
@@ -117,5 +116,5 @@ export const loginValidator = [
 
 export const posts = async (req, res) => {
     body("description")
-    .custom()
-}
+    .custom();
+};

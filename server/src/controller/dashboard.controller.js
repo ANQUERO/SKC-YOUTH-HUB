@@ -3,10 +3,10 @@ import { pool } from "../db/config.js";
 export const getTotalVoters = async (req, res) => {
     const user = req.user;
 
-    if (!user || user.userType !== 'official') {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
-            status: 'Error',
-            message: 'Forbidden - Only admins can access this resource'
+            status: "Error",
+            message: "Forbidden - Only admins can access this resource"
         });
     }
 
@@ -20,29 +20,28 @@ export const getTotalVoters = async (req, res) => {
             `);
 
         res.status(200).json({
-            status: 'Success',
+            status: "Success",
             registered_voters: result.rows[0].registered_voters,
             unregistered_voters: result.rows[0].unregistered_voters,
             total_youths: result.rows[0].total_youths
         });
 
     } catch (error) {
-        console.error('Database query failed', error);
+        console.error("Database query failed", error);
         res.status(500).json({
-            status: 'Error',
-            message: 'Internal server error'
+            status: "Error",
+            message: "Internal server error"
         });
     }
-}
-
+};
 
 export const getTotalGender = async (req, res) => {
     const user = req.user;
 
-    if (!user || user.userType !== 'official') {
+    if (!user || user.userType !== "official") {
         return res.status(404).json({
-            status: 'Error',
-            message: 'Forbidden - Only admins can access this resource'
+            status: "Error",
+            message: "Forbidden - Only admins can access this resource"
         });
     }
 
@@ -56,26 +55,26 @@ export const getTotalGender = async (req, res) => {
             `);
 
         res.status(200).json({
-            status: 'Success',
+            status: "Success",
             data: result.rows
         });
 
     } catch (error) {
-        console.error('Database query failed', error);
+        console.error("Database query failed", error);
         res.status(500).json({
-            status: 'Error',
-            message: 'Internal server error'
+            status: "Error",
+            message: "Internal server error"
         });
     }
-}
+};
 
 export const getResidentsPerPurok = async (req, res) => {
     const user = req.user;
 
-    if (!user || user.userType !== 'official') {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
-            status: 'Error',
-            message: 'Forbidden - Only admins can access this resource'
+            status: "Error",
+            message: "Forbidden - Only admins can access this resource"
         });
     }
 
@@ -93,25 +92,25 @@ export const getResidentsPerPurok = async (req, res) => {
             `);
 
         res.status(200).json({
-            status: 'Success',
+            status: "Success",
             data: result.rows
         });
 
     } catch (error) {
-        console.error('Database query failed', error);
+        console.error("Database query failed", error);
         res.status(500).json({
-            status: 'Error',
-            message: 'Internal server error'
+            status: "Error",
+            message: "Internal server error"
         });
     }
-}
+};
 
 export const ageDistribution = async (req, res) => {
     const user = req.user;
 
-    if (!user || user.userType !== 'official') {
+    if (!user || user.userType !== "official") {
         return res.status(404).json({
-            status: 'Error',
+            status: "Error",
             message: "Forbidden - Only admins can access this resource"
         });
     }
@@ -121,8 +120,8 @@ export const ageDistribution = async (req, res) => {
             SELECT 
             age FROM WHERE 
             
-            `)
+            `);
     } catch (error) {
         
     } 
-}
+};

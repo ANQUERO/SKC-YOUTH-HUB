@@ -1,5 +1,5 @@
-import pg from 'pg';
-import dotenv from 'dotenv';
+import pg from "pg";
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -15,12 +15,12 @@ export const pool = new Pool({
 
 export const initDB = async () => {
     try {
-        const res = await pool.query('SELECT NOW()');
+        const res = await pool.query("SELECT NOW()");
         console.log(
-            'Database Connected: ',
+            "Database Connected: ",
             res.rows[0]
         );
     } catch (error) {
-        console.error('Error connecting to the database', error);
+        console.error("Error connecting to the database", error);
     }
-}
+};
