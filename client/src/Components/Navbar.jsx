@@ -50,28 +50,52 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // Scroll detection
+  /* ---- Improved Scroll Detection (Smooth + High Performance) ---- */
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
+    let ticking = false;
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsScrolled(window.scrollY > 20);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Lock body scroll when mobile menu is open
+  /* ---- Lock body scroll when mobile menu is open (No layout shift) ---- */
   useEffect(() => {
-    document.body.style.overflow = isMenuOpen ? "hidden" : "auto";
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+    }
   }, [isMenuOpen]);
 
-  // Close on ESC key
+  /* ---- Close menu using ESC key ---- */
   useEffect(() => {
     if (!isMenuOpen) return;
-    const onKeyDown = (e) => e.key === "Escape" && setIsMenuOpen(false);
+
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") setIsMenuOpen(false);
+    };
+
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [isMenuOpen]);
 
   const mainLinks = [
-    { to: "#about", text: "About" },
+    { 
+      to: "#about", text: "About" },
     { to: "#discover", text: "Discover" },
     { to: "#officials", text: "Officials" },
   ];
@@ -81,14 +105,13 @@ export default function Navbar() {
     { to: "/signup", text: "Sign-up" },
   ];
 
-  const handleLinkClick = () => {
-    setIsMenuOpen(false);
-  };
+  const handleLinkClick = () => setIsMenuOpen(false);
 
   return (
     <header className={style.header}>
       <nav className={`${style.nav} ${isScrolled ? style.scrolled : ""}`}>
         <div className={style.navContent}>
+          
           {/* LEFT */}
           <div className={style.leftSide}>
             <Logo />
@@ -99,18 +122,18 @@ export default function Navbar() {
 
           {/* DESKTOP CENTER */}
           <div className={style.centerLinks}>
-            <NavLinks 
-              links={mainLinks} 
-              onLinkClick={handleLinkClick} 
+            <NavLinks
+              links={mainLinks}
+              onLinkClick={handleLinkClick}
               className={style.nav_links}
             />
           </div>
 
           {/* DESKTOP RIGHT */}
           <div className={style.rightSide}>
-            <NavLinks 
-              links={authLinks} 
-              onLinkClick={handleLinkClick} 
+            <NavLinks
+              links={authLinks}
+              onLinkClick={handleLinkClick}
               className={style.nav_links}
             />
           </div>
@@ -130,8 +153,8 @@ export default function Navbar() {
           <div className={style.slidePanel}>
             <div className={style.mobileHeader}>
               <Logo />
-              <button 
-                className={style.mobileClose} 
+              <button
+                className={style.mobileClose}
                 onClick={() => setIsMenuOpen(false)}
                 aria-label="Close menu"
               >

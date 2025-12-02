@@ -20,14 +20,14 @@
       .title {
         color: white;
         font-weight: bold;
-        font-size: 55px;
+        font-size: clamp(24px, 6vw, 55px);
       }
 
       .paragraph {
         color: white;
         font-weight: lighter;
         letter-spacing: 2px;
-        font-size: 30px;
+        font-size: clamp(16px, 4vw, 40px);
       }
 
       .cta {
@@ -94,9 +94,6 @@
         }
       }
     }
-
-
-
   }
 
   //About us Section
@@ -308,7 +305,7 @@
   }
 
   //Organiztions
-.organizations {
+  .organizations {
     width: 100%;
     overflow: hidden;
     padding: 4rem 0;
@@ -316,330 +313,332 @@
     color: white;
 
     .sectionHeader {
-        text-align: center;
-        margin-bottom: 3rem;
+      text-align: center;
+      margin-bottom: 3rem;
 
-        .sectionTitle {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+      .sectionTitle {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
 
-        .sectionSubtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
+      .sectionSubtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+      }
     }
 
     .scrollWrapper {
-        position: relative;
+      position: relative;
+      width: 100%;
+      margin: 2rem 0;
+
+      .scrollContainer {
         width: 100%;
-        margin: 2rem 0;
+        overflow: hidden;
+        position: relative;
+        padding: 1rem 0;
 
-        .scrollContainer {
-            width: 100%;
-            overflow: hidden;
+        &::before,
+        &::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: 100px;
+          z-index: 2;
+          pointer-events: none;
+        }
+
+        .scrollContent {
+          display: flex;
+          gap: 1.5rem;
+          animation: scroll 40s linear infinite;
+
+          &.paused {
+            animation-play-state: paused;
+          }
+
+          .orgCard {
+            flex: 0 0 320px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
             position: relative;
-            padding: 1rem 0;
+            overflow: hidden;
 
-            &::before,
-            &::after {
-                content: '';
-                position: absolute;
-                top: 0;
-                bottom: 0;
-                width: 100px;
-                z-index: 2;
-                pointer-events: none;
+            &::before {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: -100%;
+              width: 100%;
+              height: 100%;
+              background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+              transition: left 0.5s ease;
             }
 
-            .scrollContent {
-                display: flex;
-                gap: 1.5rem;
-                animation: scroll 40s linear infinite;
+            &:hover {
+              background: rgba(255, 255, 255, 0.15);
+              transform: translateY(-8px) scale(1.02);
+              box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 
-                &.paused {
-                    animation-play-state: paused;
-                }
+              &::before {
+                left: 100%;
+              }
 
-                .orgCard {
-                    flex: 0 0 320px;
-                    background: rgba(255, 255, 255, 0.1);
-                    backdrop-filter: blur(20px);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    border-radius: 20px;
-                    padding: 1.5rem;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    position: relative;
-                    overflow: hidden;
-
-                    &::before {
-                        content: '';
-                        position: absolute;
-                        top: 0;
-                        left: -100%;
-                        width: 100%;
-                        height: 100%;
-                        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-                        transition: left 0.5s ease;
-                    }
-
-                    &:hover {
-                        background: rgba(255, 255, 255, 0.15);
-                        transform: translateY(-8px) scale(1.02);
-                        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-
-                        &::before {
-                            left: 100%;
-                        }
-
-                        .orgHoverIndicator {
-                            opacity: 1;
-                            transform: translateY(0);
-                        }
-                    }
-
-                    .orgLogo {
-                        width: 60px;
-                        height: 60px;
-                        background: rgba(255, 255, 255, 0.2);
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        margin-bottom: 1rem;
-
-                        .logoText {
-                            font-size: 1.5rem;
-                            font-weight: bold;
-                            color: white;
-                        }
-                    }
-
-                    .orgContent {
-                        .orgName {
-                            font-size: 1.4rem;
-                            font-weight: 700;
-                            margin-bottom: 0.5rem;
-                            color: white;
-                        }
-
-                        .orgFullName {
-                            font-size: 0.9rem;
-                            opacity: 0.9;
-                            margin-bottom: 0.75rem;
-                            line-height: 1.4;
-                        }
-
-                        .orgDescription {
-                            font-size: 0.85rem;
-                            opacity: 0.8;
-                            line-height: 1.5;
-                        }
-                    }
-
-                    .orgHoverIndicator {
-                        position: absolute;
-                        bottom: 1rem;
-                        left: 1.5rem;
-                        right: 1.5rem;
-                        background: rgba(255, 255, 255, 0.2);
-                        padding: 0.5rem;
-                        border-radius: 10px;
-                        text-align: center;
-                        font-size: 0.8rem;
-                        opacity: 0;
-                        transform: translateY(10px);
-                        transition: all 0.3s ease;
-                    }
-                }
+              .orgHoverIndicator {
+                opacity: 1;
+                transform: translateY(0);
+              }
             }
-        }
 
-        .scrollControls {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 2rem;
+            .orgLogo {
+              width: 60px;
+              height: 60px;
+              background: rgba(255, 255, 255, 0.2);
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin-bottom: 1rem;
 
-            .controlBtn {
-                background: rgba(255, 255, 255, 0.1);
-                border: 1px solid rgba(255, 255, 255, 0.3);
+              .logoText {
+                font-size: 1.5rem;
+                font-weight: bold;
                 color: white;
-                padding: 0.75rem 1.5rem;
-                border-radius: 50px;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                backdrop-filter: blur(10px);
-
-                &:hover {
-                    background: rgba(255, 255, 255, 0.2);
-                    transform: translateY(-2px);
-                }
+              }
             }
+
+            .orgContent {
+              .orgName {
+                font-size: 1.4rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+                color: white;
+              }
+
+              .orgFullName {
+                font-size: 0.9rem;
+                opacity: 0.9;
+                margin-bottom: 0.75rem;
+                line-height: 1.4;
+              }
+
+              .orgDescription {
+                font-size: 0.85rem;
+                opacity: 0.8;
+                line-height: 1.5;
+              }
+            }
+
+            .orgHoverIndicator {
+              position: absolute;
+              bottom: 1rem;
+              left: 1.5rem;
+              right: 1.5rem;
+              background: rgba(255, 255, 255, 0.2);
+              padding: 0.5rem;
+              border-radius: 10px;
+              text-align: center;
+              font-size: 0.8rem;
+              opacity: 0;
+              transform: translateY(10px);
+              transition: all 0.3s ease;
+            }
+          }
         }
+      }
+
+      .scrollControls {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 2rem;
+
+        .controlBtn {
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          color: white;
+          padding: 0.75rem 1.5rem;
+          border-radius: 50px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          backdrop-filter: blur(10px);
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+          }
+        }
+      }
     }
 
     .organizationStats {
-        display: flex;
-        justify-content: center;
-        gap: 3rem;
-        margin-top: 3rem;
-        padding-top: 2rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
 
-        .statItem {
-            text-align: center;
+      .statItem {
+        text-align: center;
 
-            .statNumber {
-                display: block;
-                font-size: 2.5rem;
-                font-weight: 700;
-                margin-bottom: 0.5rem;
-                background: linear-gradient(45deg, #fff, #e0e7ff);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-            }
-
-            .statLabel {
-                font-size: 1rem;
-                opacity: 0.9;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-            }
+        .statNumber {
+          display: block;
+          font-size: 2.5rem;
+          font-weight: 700;
+          margin-bottom: 0.5rem;
+          background: linear-gradient(45deg, #fff, #e0e7ff);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
         }
+
+        .statLabel {
+          font-size: 1rem;
+          opacity: 0.9;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+      }
     }
 
     // Responsive design
     @media (max-width: 1024px) {
-        .sectionHeader .sectionTitle {
-            font-size: 2rem;
-        }
+      .sectionHeader .sectionTitle {
+        font-size: 2rem;
+      }
 
-        .scrollContainer .scrollContent .orgCard {
-            flex: 0 0 280px;
-        }
+      .scrollContainer .scrollContent .orgCard {
+        flex: 0 0 280px;
+      }
 
-        .organizationStats {
-            gap: 2rem;
+      .organizationStats {
+        gap: 2rem;
 
-            .statItem .statNumber {
-                font-size: 2rem;
-            }
+        .statItem .statNumber {
+          font-size: 2rem;
         }
+      }
     }
 
     @media (max-width: 768px) {
-        padding: 2rem 0;
+      padding: 2rem 0;
 
-        .sectionHeader {
-            margin-bottom: 2rem;
+      .sectionHeader {
+        margin-bottom: 2rem;
 
-            .sectionTitle {
-                font-size: 1.75rem;
-            }
-
-            .sectionSubtitle {
-                font-size: 1rem;
-                padding: 0 1rem;
-            }
+        .sectionTitle {
+          font-size: 1.75rem;
         }
 
-        .scrollContainer {
-            &::before,
-            &::after {
-                width: 50px;
-            }
+        .sectionSubtitle {
+          font-size: 1rem;
+          padding: 0 1rem;
+        }
+      }
 
-            .scrollContent {
-                animation: scroll 30s linear infinite;
-                gap: 1rem;
+      .scrollContainer {
 
-                .orgCard {
-                    flex: 0 0 250px;
-                    padding: 1.25rem;
-
-                    .orgLogo {
-                        width: 50px;
-                        height: 50px;
-
-                        .logoText {
-                            font-size: 1.25rem;
-                        }
-                    }
-
-                    .orgContent {
-                        .orgName {
-                            font-size: 1.2rem;
-                        }
-
-                        .orgFullName {
-                            font-size: 0.85rem;
-                        }
-
-                        .orgDescription {
-                            font-size: 0.8rem;
-                        }
-                    }
-                }
-            }
+        &::before,
+        &::after {
+          width: 50px;
         }
 
-        .organizationStats {
-            gap: 1.5rem;
-            flex-wrap: wrap;
+        .scrollContent {
+          animation: scroll 30s linear infinite;
+          gap: 1rem;
 
-            .statItem {
-                flex: 1;
-                min-width: 120px;
+          .orgCard {
+            flex: 0 0 250px;
+            padding: 1.25rem;
 
-                .statNumber {
-                    font-size: 1.75rem;
-                }
+            .orgLogo {
+              width: 50px;
+              height: 50px;
 
-                .statLabel {
-                    font-size: 0.9rem;
-                }
+              .logoText {
+                font-size: 1.25rem;
+              }
             }
+
+            .orgContent {
+              .orgName {
+                font-size: 1.2rem;
+              }
+
+              .orgFullName {
+                font-size: 0.85rem;
+              }
+
+              .orgDescription {
+                font-size: 0.8rem;
+              }
+            }
+          }
         }
+      }
+
+      .organizationStats {
+        gap: 1.5rem;
+        flex-wrap: wrap;
+
+        .statItem {
+          flex: 1;
+          min-width: 120px;
+
+          .statNumber {
+            font-size: 1.75rem;
+          }
+
+          .statLabel {
+            font-size: 0.9rem;
+          }
+        }
+      }
     }
 
     @media (max-width: 480px) {
-        .sectionHeader .sectionTitle {
-            font-size: 1.5rem;
-        }
+      .sectionHeader .sectionTitle {
+        font-size: 1.5rem;
+      }
 
-        .scrollContainer .scrollContent .orgCard {
-            flex: 0 0 220px;
-            padding: 1rem;
-        }
+      .scrollContainer .scrollContent .orgCard {
+        flex: 0 0 220px;
+        padding: 1rem;
+      }
 
-        .organizationStats {
-            gap: 1rem;
+      .organizationStats {
+        gap: 1rem;
 
-            .statItem .statNumber {
-                font-size: 1.5rem;
-            }
+        .statItem .statNumber {
+          font-size: 1.5rem;
         }
+      }
     }
 
     @keyframes scroll {
-        0% {
-            transform: translateX(0);
-        }
-        100% {
-            transform: translateX(calc(-320px * 6 - 1.5rem * 6));
-        }
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(calc(-320px * 6 - 1.5rem * 6));
+      }
     }
-}
+  }
 
   //Discover
   .discover {
@@ -1128,4 +1127,3 @@
         #68A1E1 37%,
         #FFFFFF 99%);
   }
-
