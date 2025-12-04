@@ -8,6 +8,7 @@ import { Navbar } from "@components/NavbarFeed";
 import { NewsFeed } from "./newsFeed";
 import { Announcement } from "./announcements";
 import { Activities } from "./activities";
+import { FeedBack } from "./feedback";
 
 const NewsFeedLayout = () => {
   return (
@@ -27,6 +28,7 @@ export default function NewsFeedRoutes() {
         <Route index element={<NewsFeed />} />
         <Route path="announcements" element={<Announcement />} />
         <Route path="activities" element={<Activities />} />
+        <Route path="feedback" element={<FeedBack />} />
       </Route>
     </Routes>
   );

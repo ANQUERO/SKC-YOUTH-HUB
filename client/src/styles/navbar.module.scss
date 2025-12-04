@@ -3,7 +3,7 @@
   top: 0;
   z-index: 1000;
 }
-b 
+
 /* TOP NAV */
 .nav {
   display: flex;
@@ -12,6 +12,10 @@ b
   padding: 0.85rem 1rem;
   background: rgba(104, 161, 225, 0.65);
   backdrop-filter: blur(6px);
+}
+
+.nav.scrolled {
+  background: #68a1e1;  
 }
 
 @media (min-width: 768px) {

@@ -134,6 +134,71 @@ export const createPost = async (req, res) => {
             [officialId, description, post_type, finalMediaType, finalMediaUrl]
         );
 
+        const postId = result.rows[0].post_id;
+
+        // Notify everyone about the new post
+        try {
+            // Get post author's name
+            const authorNameResult = await pool.query(
+                `SELECT CONCAT(first_name, ' ', last_name) as name 
+                 FROM sk_official_name WHERE official_id = $1`,
+                [officialId]
+            );
+            const actorName = authorNameResult.rows[0]?.name || "An official";
+
+            // Get all active officials (excluding the post author)
+            const officialsResult = await pool.query(
+                `SELECT official_id FROM sk_official 
+                 WHERE is_active = TRUE AND deleted_at IS NULL AND official_id != $1`,
+                [officialId]
+            );
+
+            // Get all verified and active youth members
+            const youthResult = await pool.query(
+                `SELECT youth_id FROM sk_youth 
+                 WHERE verified = TRUE AND is_active = TRUE AND deleted_at IS NULL`
+            );
+
+            // Create notifications for all officials
+            for (const official of officialsResult.rows) {
+                await pool.query(
+                    `
+                    INSERT INTO notifications 
+                    (recipient_type, recipient_id, notification_type, post_id, actor_type, actor_id, actor_name)
+                    VALUES ('official', $1, 'post', $2, 'official', $3, $4)
+                    `,
+                    [official.official_id, postId, officialId, actorName]
+                );
+            }
+
+            // Create notifications for all youth members
+            console.log(`Creating notifications for ${youthResult.rows.length} youth members`);
+            for (const youth of youthResult.rows) {
+                try {
+                    await pool.query(
+                        `
+                        INSERT INTO notifications 
+                        (recipient_type, recipient_id, notification_type, post_id, actor_type, actor_id, actor_name)
+                        VALUES ('youth', $1, 'post', $2, 'official', $3, $4)
+                        `,
+                        [youth.youth_id, postId, officialId, actorName]
+                    );
+                } catch (insertError) {
+                    console.error(`Error creating notification for youth ${youth.youth_id}:`, insertError);
+                }
+            }
+            console.log(`Successfully created ${youthResult.rows.length} notifications for youth members`);
+        } catch (notifError) {
+            // Log error but don't fail the post creation
+            console.error("Error creating notifications:", notifError);
+            console.error("Notification error details:", {
+                message: notifError.message,
+                stack: notifError.stack,
+                postId,
+                officialId
+            });
+        }
+
         res.status(201).json({
             status: "Success",
             message: "Post created successfully",

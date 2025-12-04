@@ -4,7 +4,7 @@ import {
     useQueryClient,
 } from "@tanstack/react-query";
 import axiosInstance from "@lib/axios";
-import { useNotifications } from "@context/NotificationContext";
+import { useToast } from "@context/ToastContext";
 import { useAuthContext } from "@context/AuthContext";
 
 const usePosts = () => {
@@ -14,7 +14,7 @@ const usePosts = () => {
         isSkNaturalAdmin
     } = useAuthContext();
     const queryClient = useQueryClient();
-    const { pushNotification } = useNotifications();
+    const { showSuccess } = useToast();
 
     const managePosts = isSkSuperAdmin || isSkNaturalAdmin;
     const viewPosts = isSkYouth || managePosts;
@@ -38,11 +38,7 @@ const usePosts = () => {
             return data.data;
         },
         onSuccess: (data) => {
-            pushNotification({
-                type: 'post',
-                message: data?.title || 'Your post has been published.',
-                meta: { post_id: data?.post_id }
-            });
+            showSuccess('Your post has been published successfully');
             queryClient.invalidateQueries(["posts"]);
         },
     });
@@ -54,11 +50,7 @@ const usePosts = () => {
             return data.data;
         },
         onSuccess: (data) => {
-            pushNotification({
-                type: 'post',
-                message: data?.title || 'Your post has been updated.',
-                meta: { post_id: data?.post_id }
-            });
+            showSuccess('Your post has been updated successfully');
             queryClient.invalidateQueries(["posts"]);
         },
     });
@@ -70,11 +62,7 @@ const usePosts = () => {
             return data.data;
         },
         onSuccess: (data) => {
-            pushNotification({
-                type: 'post',
-                message: 'Your post has been deleted.',
-                meta: { post_id: data?.post_id }
-            });
+            showSuccess('Your post has been deleted successfully');
             queryClient.invalidateQueries(["posts"]);
         },
     });

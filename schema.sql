@@ -224,3 +224,18 @@ CREATE TABLE landing_page_content (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Notifications table: for post reactions and comments
+CREATE TABLE notifications (
+    notification_id SERIAL PRIMARY KEY,
+    recipient_type VARCHAR(10) NOT NULL CHECK (recipient_type IN ('official', 'youth')),
+    recipient_id INTEGER NOT NULL,
+    notification_type VARCHAR(20) NOT NULL CHECK (notification_type IN ('reaction', 'comment', 'post')),
+    post_id INTEGER NOT NULL REFERENCES posts(post_id),
+    comment_id INTEGER REFERENCES post_comments(comment_id),
+    actor_type VARCHAR(10) NOT NULL CHECK (actor_type IN ('official', 'youth')),
+    actor_id INTEGER NOT NULL,
+    actor_name VARCHAR(255),
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+

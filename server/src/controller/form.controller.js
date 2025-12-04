@@ -11,11 +11,25 @@ export const index = async (req, res) => {
     }
 
     try {
-        const result = await pool.query("SELECT * FROM forms");
-        console.log("Forms", result.rows);
+        const result = await pool.query(
+            `SELECT 
+                f.form_id,
+                f.title,
+                f.description,
+                f.is_hidden,
+                f.created_at,
+                f.updated_at,
+                COUNT(r.replied_id) as reply_count
+            FROM forms f
+            LEFT JOIN replied_forms r ON f.form_id = r.form_id
+            WHERE f.deleted_at IS NULL
+            GROUP BY f.form_id, f.title, f.description, f.is_hidden, f.created_at, f.updated_at
+            ORDER BY f.created_at DESC`
+        );
+        
         res.status(200).json({
-            status: "Error",
-            message: "Internal server error"
+            status: "Success",
+            data: result.rows
         });
     } catch (error) {
         console.error("Failed to fetch Forms:", error);
@@ -39,57 +53,66 @@ export const show = async (req, res) => {
 
     try {
 
-        const { rows } = await pool.query(
+        // Get form details
+        const formResult = await pool.query(
             `
-           SELECT 
+            SELECT 
                 f.form_id,
                 f.title,
                 f.description,
                 f.created_at,
                 f.updated_at,
                 f.deleted_at,
-                o.official_id,
-                o.full_name AS official_name,
-                o.position AS official_position,
-                r.replied_id,
-                r.youth_id,
-                r.response
+                f.official_id,
+                CONCAT(n.first_name, ' ', n.last_name) AS official_name,
+                o.official_position
             FROM forms f
-            INNER JOIN sk_official o 
-                ON f.official_id = o.official_id
-            LEFT JOIN replied_forms r 
-                ON f.form_id = r.form_id
-            WHERE f.form_id = $1
-            AND f.deleted_at IS NULL
+            INNER JOIN sk_official o ON f.official_id = o.official_id
+            LEFT JOIN sk_official_name n ON o.official_id = n.official_id
+            WHERE f.form_id = $1 AND f.deleted_at IS NULL
             `, [form_id]
         );
 
-        if (rows.length === 0) {
+        if (formResult.rows.length === 0) {
             return res.status(404).json({
                 status: "Error",
                 message: "Form not found"
             });
         }
 
+        // Get replies with youth names
+        const repliesResult = await pool.query(
+            `
+            SELECT 
+                r.replied_id,
+                r.youth_id,
+                r.response,
+                CONCAT(yn.first_name, ' ', yn.last_name) AS youth_name
+            FROM replied_forms r
+            LEFT JOIN sk_youth_name yn ON r.youth_id = yn.youth_id
+            WHERE r.form_id = $1
+            ORDER BY r.replied_id DESC
+            `, [form_id]
+        );
+
         const form = {
-            form_id: rows[0].form_id,
-            title: rows[0].title,
-            description: rows[0].description,
-            created_at: rows[0].created_at,
-            updated_at: rows[0].updated_at,
-            deleted_at: rows[0].deleted_at,
+            form_id: formResult.rows[0].form_id,
+            title: formResult.rows[0].title,
+            description: formResult.rows[0].description,
+            created_at: formResult.rows[0].created_at,
+            updated_at: formResult.rows[0].updated_at,
+            deleted_at: formResult.rows[0].deleted_at,
             official: {
-                official_id: rows[0].official_id,
-                name: rows[0].official_name,
-                position: rows[0].official_position
+                official_id: formResult.rows[0].official_id,
+                name: formResult.rows[0].official_name,
+                position: formResult.rows[0].official_position
             },
-            replies: rows
-                .filter(row => row.replied_id)
-                .map(row => ({
-                    replied_id: row.replied_id,
-                    youth_id: row.youth_id,
-                    response: row.response
-                }))
+            replies: repliesResult.rows.map(row => ({
+                replied_id: row.replied_id,
+                youth_id: row.youth_id,
+                youth_name: row.youth_name,
+                response: row.response
+            }))
         };
 
         return res.status(200).json({
@@ -127,9 +150,9 @@ export const createForm = async (req, res) => {
     try {
         const { rows } = await pool.query(
             `
-            INSERT INTO froms (official_Id, title, description)
+            INSERT INTO forms (official_id, title, description)
             VALUES ($1, $2, $3)
-            RETURNNING form_id, official_id, title, description, created_at, updated_at
+            RETURNING form_id, official_id, title, description, created_at, updated_at
             `, [user.official_id, title.trim(), description.trim()]
         );
 
@@ -174,12 +197,12 @@ export const updateForm = async (req, res) => {
 
         const { rows } = await pool.query(
             `
-            UPDATE form 
-            SET title = $1
-                description = $2
+            UPDATE forms 
+            SET title = $1,
+                description = $2,
                 updated_at = CURRENT_TIMESTAMP
             WHERE form_id = $3
-              AND official_id = 4
+              AND official_id = $4
               AND deleted_at IS NULL
             RETURNING form_id, official_id, title, description, created_at, updated_at
             `,

@@ -5,7 +5,7 @@ import { useAuthContext } from '@context/AuthContext';
 import { useNotifications } from '@context/NotificationContext';
 import { useLogout } from '@hooks/useLogout';
 import useCurrentUser from '@hooks/useCurrentUser';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Bell,
   House,
@@ -23,11 +23,34 @@ import { NavLink } from 'react-router-dom';
 export const Navbar = () => {
   const [isNotifOpen, setNotifOpen] = useState(false);
   const [isProfileOpen, setProfileOpen] = useState(false);
+  const navigate = useNavigate();
   const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
   const { userData, profilePicture, loading: userLoading } = useCurrentUser();
   const logout = useLogout();
   const canManage = isSkSuperAdmin || isSkNaturalAdmin;
-  const { notifications, unreadCount } = useNotifications();
+  const { notifications, unreadCount, markRead } = useNotifications();
+
+  // Handle notification click - redirect to post (and comment if applicable)
+  const handleNotificationClick = (notification) => {
+    if (notification.meta?.post_id || notification._apiData?.post_id) {
+      const postId = notification.meta?.post_id || notification._apiData?.post_id;
+      const commentId = notification.meta?.comment_id || notification._apiData?.comment_id;
+      
+      // Mark as read
+      if (!notification.read) {
+        markRead(notification.id);
+      }
+      // Close notification dropdown
+      setNotifOpen(false);
+      
+      // Navigate to feed with post focus and comment hash if it's a comment notification
+      if (commentId && notification.type === 'comment') {
+        navigate(`/feed?post=${postId}#comment-${commentId}`);
+      } else {
+        navigate(`/feed?post=${postId}`);
+      }
+    }
+  };
 
   return (
     <>
@@ -138,7 +161,12 @@ export const Navbar = () => {
                   </div>
                 ) : (
                   notifications.slice(0, 5).map((notification) => (
-                    <div key={notification.id} className={style.dropdownItem}>
+                    <div 
+                      key={notification.id} 
+                      className={style.dropdownItem}
+                      onClick={() => handleNotificationClick(notification)}
+                      style={{ cursor: (notification.meta?.post_id || notification._apiData?.post_id) ? 'pointer' : 'default' }}
+                    >
                       <Bell className={style.itemIcon} />
                       <div className={style.itemContent}>
                         <div className={style.itemTitle}>{notification.title}</div>

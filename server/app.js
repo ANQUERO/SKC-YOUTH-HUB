@@ -14,6 +14,9 @@ import postContent from "./src/routes/post.route.js";
 import comment from "./src/routes/comments.route.js";
 import reaction from "./src/routes/reactions.route.js";
 import profile from "./src/routes/profile.route.js";
+import notification from "./src/routes/notification.route.js";
+import feedback from "./src/routes/feedback.route.js";
+import inbox from "./src/routes/inbox.route.js";
 
 dotenv.config();
 
@@ -52,6 +55,9 @@ app.use("/api", postContent);
 app.use("/api", comment);
 app.use("/api", reaction);
 app.use("/api", profile);
+app.use("/api/notifications", notification);
+app.use("/api/feedback", feedback);
+app.use("/api/inbox", inbox);
 
 app.use((req, res, next) => {
     res.status(404).json({ error: "Not Found" });

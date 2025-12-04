@@ -20,6 +20,7 @@ import Verification from "@pages/Verification";
 import Officials from "@pages/Officials";
 import Settings from "@pages/Settings";
 import NotFound from "@pages/NotFound";
+import Inbox from "@pages/Inbox";
 
 import { useAuthContext } from "@context/AuthContext";
 import YouthProfile from "@pages/YouthProfile";
@@ -141,6 +142,18 @@ export const routes = [
             </ProtectedRoute>
         ),
         children: [{ index: true, element: <Officials /> }],
+    },
+    {
+        path: "/inbox",
+        element: (
+            <ProtectedRoute allowedRoles={[
+                "super_official",
+                "natural_official"
+            ]}>
+                <Authenticated />
+            </ProtectedRoute>
+        ),
+        children: [{ index: true, element: <Inbox /> }],
     },
     {
         path: "/account",

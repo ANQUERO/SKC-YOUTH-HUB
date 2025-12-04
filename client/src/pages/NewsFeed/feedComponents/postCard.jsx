@@ -1,18 +1,12 @@
 import React, { useEffect, useState } from "react";
 import style from "@styles/newsFeed.module.scss";
 import axiosInstance from "@lib/axios";
-import { useNotifications } from "@context/NotificationContext";
 import { useAuthContext } from "@context/AuthContext";
 import CommentSystem from "@components/CommentSystem";
 import PostOptions from "@components/PostOptions";
 
 
 export const PostCard = ({ post, onPostDeleted }) => {
-    const {
-        pushNotification,
-        hasSeen,
-        markItemSeen
-    } = useNotifications();
     const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
     const isOfficial = isSkSuperAdmin || isSkNaturalAdmin;
     const [reactionsCount, setReactionsCount] = useState({
@@ -30,29 +24,11 @@ export const PostCard = ({ post, onPostDeleted }) => {
             setReactionsCount(counts);
         }).catch(() => { });
 
-        // Periodic polling for officials to generate notifications for unseen reactions
-        if (isOfficial) {
-            const interval = setInterval(async () => {
-                try {
-                    const rRes = await axiosInstance.get(`/post/${post.post_id}/reactions`);
-                    const reacts = rRes.data?.data || [];
-                    reacts.forEach(r => {
-                        if (!hasSeen('reactions', r.reaction_id)) {
-                            pushNotification({ type: 'reaction', title: 'New reaction', message: `${r.user_name || r.user_type} reacted: ${r.type}` });
-                            markItemSeen('reactions', r.reaction_id);
-                        }
-                    });
-                } catch { }
-            }, 10000);
-
-            return () => clearInterval(interval);
-        }
-    }, [post.post_id, isOfficial, hasSeen, markItemSeen, pushNotification]);
+    }, [post.post_id]);
 
     const handleReact = async (type) => {
         try {
             await axiosInstance.post(`/post/${post.post_id}/react`, { type });
-            pushNotification({ type: 'reaction', title: 'Reaction added', message: `You reacted: ${type}` });
             setReactionsCount((prev) => ({ ...prev, [type]: (prev[type] || 0) + 1 }));
         } catch (e) {
             console.error(e);

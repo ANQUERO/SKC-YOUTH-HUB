@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axiosInstance from '@lib/axios';
 import { useAuthContext } from '@context/AuthContext';
-import { useNotifications } from '@context/NotificationContext';
+import { useToast } from '@context/ToastContext';
 import './CommentSystem.scss';
 
 const CommentSystem = ({ postId, postAuthor }) => {
     const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
-    const { pushNotification } = useNotifications();
+    const { showSuccess, showError } = useToast();
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [loading, setLoading] = useState(false);
@@ -22,6 +22,28 @@ const CommentSystem = ({ postId, postAuthor }) => {
     useEffect(() => {
         fetchComments();
     }, [postId]);
+
+    // Handle scrolling to specific comment from URL hash
+    useEffect(() => {
+        const hash = window.location.hash;
+        if (hash && hash.startsWith('#comment-')) {
+            const commentId = parseInt(hash.replace('#comment-', ''));
+            if (commentId && comments.length > 0) {
+                // Wait a bit for comments to render, then scroll
+                setTimeout(() => {
+                    const commentElement = document.getElementById(`comment-${commentId}`);
+                    if (commentElement) {
+                        commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Highlight the comment briefly
+                        commentElement.style.backgroundColor = 'rgba(25, 118, 210, 0.1)';
+                        setTimeout(() => {
+                            commentElement.style.backgroundColor = '';
+                        }, 2000);
+                    }
+                }, 500);
+            }
+        }
+    }, [comments, postId]);
 
     const fetchComments = async () => {
         try {
@@ -43,18 +65,10 @@ const CommentSystem = ({ postId, postAuthor }) => {
             });
             setNewComment('');
             fetchComments();
-            pushNotification({
-                type: 'success',
-                title: 'Comment posted',
-                message: 'Your comment was posted successfully'
-            });
+            showSuccess('Your comment was posted successfully');
         } catch (error) {
             console.error('Error posting comment:', error);
-            pushNotification({
-                type: 'error',
-                title: 'Error',
-                message: error.response?.data?.message || 'Failed to post comment'
-            });
+            showError(error.response?.data?.message || 'Failed to post comment');
         } finally {
             setLoading(false);
         }
@@ -72,18 +86,10 @@ const CommentSystem = ({ postId, postAuthor }) => {
             setReplyContent('');
             setReplyingTo(null);
             fetchComments();
-            pushNotification({
-                type: 'success',
-                title: 'Reply posted',
-                message: 'Your reply was posted successfully'
-            });
+            showSuccess('Your reply was posted successfully');
         } catch (error) {
             console.error('Error posting reply:', error);
-            pushNotification({
-                type: 'error',
-                title: 'Error',
-                message: error.response?.data?.message || 'Failed to post reply'
-            });
+            showError(error.response?.data?.message || 'Failed to post reply');
         } finally {
             setLoading(false);
         }
@@ -95,18 +101,10 @@ const CommentSystem = ({ postId, postAuthor }) => {
         try {
             await axiosInstance.delete(`/post/comments/${commentId}`);
             fetchComments();
-            pushNotification({
-                type: 'success',
-                title: 'Comment deleted',
-                message: 'Comment has been deleted'
-            });
+            showSuccess('Comment has been deleted');
         } catch (error) {
             console.error('Error deleting comment:', error);
-            pushNotification({
-                type: 'error',
-                title: 'Error',
-                message: error.response?.data?.message || 'Failed to delete comment'
-            });
+            showError(error.response?.data?.message || 'Failed to delete comment');
         }
     };
 
@@ -114,18 +112,10 @@ const CommentSystem = ({ postId, postAuthor }) => {
         try {
             await axiosInstance.put(`/post/comments/${commentId}/hide`, { reason });
             fetchComments();
-            pushNotification({
-                type: 'success',
-                title: 'Comment hidden',
-                message: 'Comment has been hidden'
-            });
+            showSuccess('Comment has been hidden');
         } catch (error) {
             console.error('Error hiding comment:', error);
-            pushNotification({
-                type: 'error',
-                title: 'Error',
-                message: error.response?.data?.message || 'Failed to hide comment'
-            });
+            showError(error.response?.data?.message || 'Failed to hide comment');
         }
     };
 
@@ -133,18 +123,10 @@ const CommentSystem = ({ postId, postAuthor }) => {
         try {
             await axiosInstance.put(`/post/comments/${commentId}/unhide`);
             fetchComments();
-            pushNotification({
-                type: 'success',
-                title: 'Comment unhidden',
-                message: 'Comment has been made visible'
-            });
+            showSuccess('Comment has been made visible');
         } catch (error) {
             console.error('Error unhiding comment:', error);
-            pushNotification({
-                type: 'error',
-                title: 'Error',
-                message: error.response?.data?.message || 'Failed to unhide comment'
-            });
+            showError(error.response?.data?.message || 'Failed to unhide comment');
         }
     };
 
@@ -154,18 +136,10 @@ const CommentSystem = ({ postId, postAuthor }) => {
 
         try {
             await axiosInstance.put(`/post/ban/${userType}/${userId}`, { reason });
-            pushNotification({
-                type: 'success',
-                title: 'User banned',
-                message: `${userType} has been banned from commenting`
-            });
+            showSuccess(`${userType} has been banned from commenting`);
         } catch (error) {
             console.error('Error banning user:', error);
-            pushNotification({
-                type: 'error',
-                title: 'Error',
-                message: error.response?.data?.message || 'Failed to ban user'
-            });
+            showError(error.response?.data?.message || 'Failed to ban user');
         }
     };
 
@@ -206,7 +180,10 @@ const CommentSystem = ({ postId, postAuthor }) => {
         const canBan = canModerate && !isOwner;
 
         return (
-            <div className={`comment-item ${depth > 0 ? 'reply' : ''}`}>
+            <div 
+                id={`comment-${comment.comment_id}`}
+                className={`comment-item ${depth > 0 ? 'reply' : ''}`}
+            >
                 <div className="comment-header">
                     <div className="user-info">
                         <div className="avatar">

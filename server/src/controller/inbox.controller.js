@@ -1,246 +1,133 @@
 import { pool } from "../db/config.js";
 
+// Get all feedback forms with replies for inbox (officials only)
 export const index = async (req, res) => {
-  const user = req.user;
+    const user = req.user;
 
-  if (!user || user.userType !== "offcial") {
-    return res.status(403).json({
-      status: "Error",
-      message: "Forbidden - Only admins can access this resource",
-    });
-  }
+    if (!user || user.userType !== "official") {
+        return res.status(403).json({
+            status: "Error",
+            message: "Forbidden - Only officials can access inbox",
+        });
+    }
 
-  try {
-    const result = await pool.query("SELECT * FROM forms");
+    try {
+        const result = await pool.query(
+            `
+            SELECT 
+                f.form_id,
+                f.title,
+                f.description,
+                f.created_at,
+                f.updated_at,
+                COUNT(DISTINCT r.replied_id) as reply_count,
+                COUNT(DISTINCT CASE WHEN r.replied_id IS NOT NULL THEN r.youth_id END) as unique_repliers
+            FROM forms f
+            LEFT JOIN replied_forms r ON f.form_id = r.form_id
+            WHERE f.deleted_at IS NULL
+            GROUP BY f.form_id, f.title, f.description, f.created_at, f.updated_at
+            ORDER BY f.created_at DESC
+            `
+        );
 
-    res.status(200).json({
-      status: "Success",
-      data: result.rows,
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: "Error",
-      message: "Internal Server Error",
-    });
-  }
+        res.status(200).json({
+            status: "Success",
+            data: result.rows,
+        });
+    } catch (error) {
+        console.error("Failed to fetch inbox:", error);
+        res.status(500).json({
+            status: "Error",
+            message: "Internal Server Error",
+        });
+    }
 };
 
+// Get feedback form with all replies (for inbox detail view)
 export const show = async (req, res) => {
-  const { id: form_id } = req.params;
-  const user = req.user;
+    const { id: form_id } = req.params;
+    const user = req.user;
 
-  if (!user || user.userType !== "official") {
-    return res.status(403).json({
-      status: "Error",
-      message: "Forbidden - Only admin can access this resource",
-    });
-  }
-
-  try {
-    const result = await pool.query(
-      `
-            SELECT * FROM forms WHERE form_id = $1
-            `,
-      [form_id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        status: "Error",
-        message: "Form not found ",
-      });
+    if (!user || user.userType !== "official") {
+        return res.status(403).json({
+            status: "Error",
+            message: "Forbidden - Only officials can access inbox",
+        });
     }
 
-    res.status(200).json({
-      status: "Success",
-      data: result.rows[0],
-    });
-  } catch (error) {
-    console.error("Failed to fetch forms data: ", error);
-    res.status(500).json({
-      status: "Error",
-      message: "Internal server error",
-    });
-  }
-};
+    try {
+        // Get form details
+        const formResult = await pool.query(
+            `
+            SELECT 
+                f.form_id,
+                f.title,
+                f.description,
+                f.created_at,
+                f.updated_at,
+                CONCAT(n.first_name, ' ', n.last_name) AS official_name,
+                o.official_position
+            FROM forms f
+            INNER JOIN sk_official o ON f.official_id = o.official_id
+            LEFT JOIN sk_official_name n ON o.official_id = n.official_id
+            WHERE f.form_id = $1 AND f.deleted_at IS NULL
+            `, [form_id]
+        );
 
-export const store = async (req, res) => {
-  const user = req.user;
-  const { title, description } = body.description || body.title || "";
+        if (formResult.rows.length === 0) {
+            return res.status(404).json({
+                status: "Error",
+                message: "Feedback form not found",
+            });
+        }
 
-  if (!user || user.userType !== "official") {
-    return res.status(403).json({
-      status: "Error",
-      message: "Forbidden - Only officials can create this inbox",
-    });
-  }
+        // Get all replies with youth information
+        const repliesResult = await pool.query(
+            `
+            SELECT 
+                r.replied_id,
+                r.youth_id,
+                r.response,
+                r.form_id,
+                CONCAT(yn.first_name, ' ', yn.last_name) AS youth_name,
+                y.email AS youth_email
+            FROM replied_forms r
+            INNER JOIN sk_youth y ON r.youth_id = y.youth_id
+            LEFT JOIN sk_youth_name yn ON r.youth_id = yn.youth_id
+            WHERE r.form_id = $1
+            ORDER BY r.replied_id DESC
+            `, [form_id]
+        );
 
-  if (!title || description) {
-    return res.status(400).json({
-      status: "Error",
-      message: "Both title and description are required",
-    });
-  }
+        const form = {
+            form_id: formResult.rows[0].form_id,
+            title: formResult.rows[0].title,
+            description: formResult.rows[0].description,
+            created_at: formResult.rows[0].created_at,
+            updated_at: formResult.rows[0].updated_at,
+            official: {
+                official_id: formResult.rows[0].official_id,
+                name: formResult.rows[0].official_name,
+                position: formResult.rows[0].official_position
+            },
+            replies: repliesResult.rows.map(row => ({
+                replied_id: row.replied_id,
+                youth_id: row.youth_id,
+                youth_name: row.youth_name,
+                youth_email: row.youth_email,
+                response: row.response
+            }))
+        };
 
-  try {
-    const result = await pool.query(
-      `
-        INSERT INTO forms (official_id, title, description)
-        VALUES ($1, $2, $3)
-        RETURNING *
-        `,
-      [user.official_id, title, description]
-    );
-
-    return res.status(201).json({
-      status: "Success",
-      message: "Form created successfully",
-      data: result.rows[0],
-    });
-  } catch (error) {
-    console.error("Failed to create form: ", error);
-    return res.status(500).json({
-      status: "Error",
-      message: "Internal Server Error",
-    });
-  }
-};
-
-export const update = async (req, re) => {
-  const { id: form_id } = req.params;
-  const user = req.user;
-  const { title, description, is_hidden } = req.body;
-
-  if (!user || user.userType !== "official") {
-    return res.status(403).json({
-      status: "Error",
-      message: "Forbidden - Only officials can update forms",
-    });
-  }
-
-  try {
-    const result = await pool.query(
-      `
-        UPDATE forms 
-        SET 
-        title = COALSCE($1, title),
-        description = COALSCE($2, description),
-        is_hidden = COALSCE($3, is_hidden),
-        updated_at = CURRENT_TIMESTAMP
-        WHERE form_id = $4 AND deleted_at IS_NULL
-        RETURNING *
-        `,
-      [title, description, is_hidden, form_id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(400).json({
-        status: "Error",
-        message: "Form not found",
-      });
+        res.status(200).json({
+            status: "Success",
+            data: form,
+        });
+    } catch (error) {
+        console.error("Failed to fetch inbox details:", error);
+        res.status(500).json({
+            status: "Error",
+            message: "Internal server error",
+        });
     }
-
-    return res.status(200).json({
-      status: "Success",
-      message: "Form updated successfully",
-      data: result.rows[0],
-    });
-  } catch (error) {
-    console.error("Error updating form:", error);
-    return res.status(500).json({
-      status: "Error",
-      message: "Internal Server Error",
-    });
-  }
-};
-
-export const destroy = async (req, res) => {
-  const user = req.user;
-  const { id: form_id } = req.params;
-
-  if (!user || user.userType !== "official") {
-    return res.status(403).json({
-      status: "Error",
-      message: "Forbidden - Only officials can delte this form",
-    });
-  }
-
-  try {
-    const result = await pool.query(
-      `
-      UPDATE forms
-      SET deleted_at = CURRENT_TIMESTAMP
-      WHERE form_id = $1 AND deleted_at IS NULL
-      RETURNING *
-      `,
-      [form_id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        status: "Error",
-        message: "Form not found",
-      });
-    }
-
-    return res.status(200).json({
-      status: "Success",
-      message: "Form deleted successfully",
-    });
-  } catch (error) {
-    console.error("Error deleting form: ", error);
-    return res.status(500).json({
-      status: "Error",
-      message: "Internal Server Error",
-    });
-  }
-};
-
-export const reply = async (req, res) => {
-  const { id: form_id } = req.params;
-  const user = req.user;
-  const { response } = req.body;
-
-  if (!user || user.userType !== "youth") {
-    return res.status(403).json({
-      status: "Error",
-      message: "Forbidden - Only youth can reply to forms",
-    });
-  }
-
-  if (!response) {
-    return res.status(400).json({
-      status: "Error",
-      message: "Response text is required"
-    });
-  }
-
-  try {
-    const result = await pool.query(
-      `
-      INSERT INTO replied_forms(form_id, youth_id, response)
-      VALUES ($1, $2, $3)
-      RETURNING *
-      `,
-      [form_id, user.youth_id, response]
-    );
-
-    return res.status(201).json({
-      status: "Success",
-      message: "Reply submitted successfully",
-      data: result.rows[0],
-    });
-    
-  } catch (error) {
-    console.error("Error submitted reply:", error);
-    return res.status(500).json({
-      status: "Error",
-      message: "Internal Server Error"
-    });
-  }
-};
-
-export const replied = async (req, res) => {
-  const user = req.user;
-
 };

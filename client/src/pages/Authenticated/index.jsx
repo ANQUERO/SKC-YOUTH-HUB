@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, Link, NavLink } from 'react-router-dom';
+import { Outlet, Link, NavLink, useNavigate } from 'react-router-dom';
 import { useLogout } from '@hooks/useLogout';
 import { useAuthContext } from '@context/AuthContext';
 import { useNotifications } from '@context/NotificationContext';
@@ -49,11 +49,34 @@ const Authenticated = () => {
   } = useCurrentUser();
   
   const [isMobile, setIsMobile] = useState(false);
+  const navigate = useNavigate();
   const logout = useLogout();
   const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
-  const { notifications, unreadCount, markAllRead, clear, clearRead } = useNotifications();
+  const { notifications, unreadCount, markAllRead, clear, clearRead, markRead } = useNotifications();
   
   const canManage = isSkSuperAdmin || isSkNaturalAdmin;
+
+  // Handle notification click - redirect to post (and comment if applicable)
+  const handleNotificationClick = (notification) => {
+    if (notification.meta?.post_id || notification._apiData?.post_id) {
+      const postId = notification.meta?.post_id || notification._apiData?.post_id;
+      const commentId = notification.meta?.comment_id || notification._apiData?.comment_id;
+      
+      // Mark as read
+      if (!notification.read) {
+        markRead(notification.id);
+      }
+      // Close notification dropdown
+      setNotifOpen(false);
+      
+      // Navigate to feed with post focus and comment hash if it's a comment notification
+      if (commentId && notification.type === 'comment') {
+        navigate(`/feed?post=${postId}#comment-${commentId}`);
+      } else {
+        navigate(`/feed?post=${postId}`);
+      }
+    }
+  };
 
   // Handle responsive behavior
   useEffect(() => {
@@ -293,12 +316,14 @@ const Authenticated = () => {
                         <div
                           key={n.id}
                           className={`${style.notifItem} ${n.read ? "" : style.unread}`}
+                          onClick={() => handleNotificationClick(n)}
+                          style={{ cursor: (n.meta?.post_id || n._apiData?.post_id) ? 'pointer' : 'default' }}
                         >
                           <div className={style.notifContent}>
                             <strong>{n.title}</strong>
                             <p>{n.message}</p>
                             <span className={style.timestamp}>
-                              {new Date(n.createdAt).toLocaleString()}
+                              {new Date(n.createdAt || n.created_at).toLocaleString()}
                             </span>
                           </div>
                         </div>

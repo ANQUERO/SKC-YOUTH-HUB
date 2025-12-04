@@ -1,0 +1,58 @@
+.inboxContainer {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .backButton {
+    background: #6366f1;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #4f46e5;
+    }
+  }
+
+  .formCard {
+    margin-top: 1rem;
+  }
+
+  .repliesList {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .replyCard {
+    background: #f9fafb;
+    border-left: 3px solid #6366f1;
+  }
+
+  .replyText {
+    white-space: pre-wrap;
+    line-height: 1.6;
+  }
+
+  .viewButton {
+    background: #6366f1;
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.4rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #4f46e5;
+    }
+  }
+}
+

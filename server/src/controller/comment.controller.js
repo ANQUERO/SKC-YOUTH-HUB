@@ -56,6 +56,100 @@ export const createComment = async (req, res) => {
             [post_id, user.userType, authorId, content.trim(), parent_comment_id || null]
         );
 
+        // Notify everyone about the new comment/reply
+        try {
+            // Get actor's name
+            let actorName = "";
+            if (user.userType === "official") {
+                const nameResult = await pool.query(
+                    `SELECT CONCAT(first_name, ' ', last_name) as name 
+                     FROM sk_official_name WHERE official_id = $1`,
+                    [authorId]
+                );
+                actorName = nameResult.rows[0]?.name || "An official";
+            } else {
+                const nameResult = await pool.query(
+                    `SELECT CONCAT(first_name, ' ', last_name) as name 
+                     FROM sk_youth_name WHERE youth_id = $1`,
+                    [authorId]
+                );
+                actorName = nameResult.rows[0]?.name || "A youth member";
+            }
+
+            // Get all active officials (excluding the comment author if they're an official)
+            let officialsResult;
+            if (user.userType === "official") {
+                officialsResult = await pool.query(
+                    `SELECT official_id FROM sk_official 
+                     WHERE is_active = TRUE AND deleted_at IS NULL AND official_id != $1`,
+                    [authorId]
+                );
+            } else {
+                officialsResult = await pool.query(
+                    `SELECT official_id FROM sk_official 
+                     WHERE is_active = TRUE AND deleted_at IS NULL`
+                );
+            }
+
+            // Get all verified and active youth members (excluding the comment author if they're a youth)
+            let youthResult;
+            if (user.userType === "youth") {
+                youthResult = await pool.query(
+                    `SELECT youth_id FROM sk_youth 
+                     WHERE verified = TRUE AND is_active = TRUE AND deleted_at IS NULL AND youth_id != $1`,
+                    [authorId]
+                );
+            } else {
+                youthResult = await pool.query(
+                    `SELECT youth_id FROM sk_youth 
+                     WHERE verified = TRUE AND is_active = TRUE AND deleted_at IS NULL`
+                );
+            }
+
+            const commentId = rows[0].comment_id;
+
+            // Create notifications for all officials
+            for (const official of officialsResult.rows) {
+                await pool.query(
+                    `
+                    INSERT INTO notifications 
+                    (recipient_type, recipient_id, notification_type, post_id, comment_id, actor_type, actor_id, actor_name)
+                    VALUES ('official', $1, 'comment', $2, $3, $4, $5, $6)
+                    `,
+                    [official.official_id, post_id, commentId, user.userType, authorId, actorName]
+                );
+            }
+
+            // Create notifications for all youth members
+            console.log(`Creating notifications for ${youthResult.rows.length} youth members`);
+            for (const youth of youthResult.rows) {
+                try {
+                    await pool.query(
+                        `
+                        INSERT INTO notifications 
+                        (recipient_type, recipient_id, notification_type, post_id, comment_id, actor_type, actor_id, actor_name)
+                        VALUES ('youth', $1, 'comment', $2, $3, $4, $5, $6)
+                        `,
+                        [youth.youth_id, post_id, commentId, user.userType, authorId, actorName]
+                    );
+                } catch (insertError) {
+                    console.error(`Error creating notification for youth ${youth.youth_id}:`, insertError);
+                }
+            }
+            console.log(`Successfully created ${youthResult.rows.length} notifications for youth members`);
+        } catch (notifError) {
+            // Log error but don't fail the comment creation
+            console.error("Error creating notifications:", notifError);
+            console.error("Notification error details:", {
+                message: notifError.message,
+                stack: notifError.stack,
+                post_id,
+                commentId,
+                authorId,
+                userType: user.userType
+            });
+        }
+
         return res.status(201).json({
             status: "Success",
             message: "Comment added successfully",
