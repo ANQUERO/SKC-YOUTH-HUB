@@ -106,6 +106,8 @@ const Verification = () => {
       return aVal < bVal ? 1 : -1;
     });
 
+  
+
   const getFullName = (youth) => {
     return `${youth.suffix ? `${youth.suffix}. ` : ''}${youth.first_name} ${youth.middle_name || ''} ${youth.last_name}`.trim();
   };
@@ -266,7 +268,10 @@ const Verification = () => {
                       <TableCell>
                         <Box>
                           <Typography variant="subtitle2" fontWeight="medium">
-                            {getFullName(youth)}
+                            {getFullName(youth).split(' ')
+                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                            .join(' ')
+                            }
                           </Typography>
                           {showDrafts && (
                             <Chip 

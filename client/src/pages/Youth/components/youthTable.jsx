@@ -12,6 +12,7 @@ import {
     Avatar,
     Typography,
     Chip,
+    useTheme
 } from "@mui/material";
 import { 
     ShieldCheck 
@@ -47,6 +48,7 @@ const YouthTable = ({
         const isAsc = orderBy === property && order === "asc";
         onRequestSort(isAsc ? "desc" : "asc", property);
     };
+    const theme = useTheme();
 
     return (
         <TableContainer sx={{ maxHeight: 600 }}>
@@ -106,7 +108,11 @@ const YouthTable = ({
                                         </Avatar>
                                         <Box>
                                             <Typography variant="body2" fontWeight="medium">
-                                                {row.name}
+                                                {row.name
+                                                .split(' ')
+                                                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                                .join(' ')
+                                                }
                                             </Typography>
                                         </Box>
                                     </Box>
@@ -124,7 +130,7 @@ const YouthTable = ({
                                     <Chip 
                                         label={row.verified ? "Verified" : "Unverified"} 
                                         size="small"
-                                        color={row.verified ? "success" : "default"}
+                                        color={row.verified ? "primary" : "default"}
                                         variant={row.verified ? "filled" : "outlined"}
                                         icon={row.verified ? <ShieldCheck /> : null}
                                     />
@@ -132,7 +138,7 @@ const YouthTable = ({
                                 <TableCell>{row.age}</TableCell>
                                 <TableCell>
                                     <Chip 
-                                        label={row.gender} 
+                                        label={row.gender.charAt(0).toUpperCase() + row.gender.slice(1)} 
                                         size="small"
                                         variant="outlined"
                                     />
