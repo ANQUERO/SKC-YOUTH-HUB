@@ -45,7 +45,10 @@ const getComparator = (order, orderBy) =>
 
 function YouthPage() {
   const theme = useTheme();
-  const { youthData, fetchYouths } = useYouth();
+  const { 
+    youthData, 
+    fetchYouths, 
+  } = useYouth();
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
