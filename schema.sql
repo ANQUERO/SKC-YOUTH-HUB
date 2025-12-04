@@ -215,6 +215,7 @@ CREATE TABLE replied_forms(
 -- Official Landing Page Content --
 CREATE TABLE landing_page_content (
     content_id SERIAL PRIMARY KEY,
+    official_id INT NOT NULL REFERENCES sk_official(official_id),
     official_name VARCHAR(50) NOT NULL,
     official_title VARCHAR(255) NOT NULL,
     media_type VARCHAR(10) CHECK (media_type IN ('image')),
