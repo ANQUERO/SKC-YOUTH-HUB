@@ -79,7 +79,6 @@ export const getUnreadCount = async (req, res) => {
     try {
         const recipientId = user.userType === "official" ? user.official_id : user.youth_id;
         
-        console.log(`Fetching unread count for ${user.userType} with ID: ${recipientId} (type: ${typeof recipientId})`);
         
         const result = await pool.query(
             `
@@ -91,7 +90,6 @@ export const getUnreadCount = async (req, res) => {
         );
 
         const unreadCount = parseInt(result.rows[0].unread_count);
-        console.log(`Unread count for ${user.userType} ID ${recipientId}: ${unreadCount}`);
 
         return res.status(200).json({
             status: "Success",
