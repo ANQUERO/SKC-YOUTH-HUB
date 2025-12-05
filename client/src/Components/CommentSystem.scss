@@ -275,6 +275,47 @@ $green: #42b883;
             .comment-actions {
                 margin-left: 40px;
                 margin-bottom: 8px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex-wrap: wrap;
+
+                .reaction-buttons {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+
+                    .reaction-btn {
+                        background: none;
+                        border: none;
+                        color: $text-gray;
+                        font-size: 12px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        padding: 4px 8px;
+                        border-radius: 4px;
+                        transition: all 0.2s ease;
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;
+
+                        &:hover {
+                            background: $light-gray;
+                            color: $text-dark;
+                        }
+
+                        &.active {
+                            background: rgba($primary-blue, 0.1);
+                            color: $primary-blue;
+                        }
+
+                        span {
+                            font-size: 11px;
+                            min-width: 16px;
+                            text-align: center;
+                        }
+                    }
+                }
 
                 .action-btn {
                     background: none;

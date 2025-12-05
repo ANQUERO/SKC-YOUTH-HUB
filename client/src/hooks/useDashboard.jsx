@@ -88,6 +88,30 @@ const useDashboard = () => {
         }
     }
 
+    const fetchRecentActivity = async (limit = 20) => {
+        if (!isAuthorized) {
+            setError("Unauthorized access");
+            return;
+        };
+
+        setLoading(true);
+        setSucces(null);
+        setError(null);
+
+        try {
+            const res = await axiosInstance.get(`/dashboard/activity?limit=${limit}`);
+            setDashboardData(prev => ({
+                ...prev,
+                recent_activity: res.data.data
+            }));
+            setSucces('Fetched successfully');
+        } catch (error) {
+            setError("Failed to fetch activity data");
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return {
         setDashboardData,
         dashboardData,
@@ -96,7 +120,8 @@ const useDashboard = () => {
         success,
         fetchTotalVoters,
         fetchTotalGender,
-        fetchResidentsPerPurok
+        fetchResidentsPerPurok,
+        fetchRecentActivity
     }
 
 }

@@ -47,7 +47,11 @@ function YouthPage() {
   const theme = useTheme();
   const { 
     youthData, 
-    fetchYouths, 
+    fetchYouths,
+    destroyYouth,
+    loading,
+    error,
+    success
   } = useYouth();
 
   const [search, setSearch] = useState("");
@@ -171,6 +175,36 @@ function YouthPage() {
   const handleChangeRowsPerPage = (e) => {
     setRowsPerPage(parseInt(e.target.value, 10));
     setPage(0);
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selected.length === 0) return;
+    
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${selected.length} youth member(s)? This action cannot be undone.`
+    );
+    
+    if (!confirmed) return;
+
+    try {
+      // Delete each selected youth
+      const deletePromises = selected.map(youthId => destroyYouth(youthId));
+      await Promise.all(deletePromises);
+      
+      // Refresh the list
+      await fetchYouths();
+      
+      // Clear selection
+      setSelected([]);
+      
+      // Show success message
+      if (success) {
+        alert(success);
+      }
+    } catch (err) {
+      console.error('Error deleting youth:', err);
+      alert(error || 'Failed to delete youth member(s)');
+    }
   };
 
   const exportToCSV = () => {
@@ -336,7 +370,8 @@ function YouthPage() {
                 variant="outlined"
                 color="error"
                 startIcon={<DeleteIcon />}
-                disabled={selected.length === 0}
+                disabled={selected.length === 0 || loading}
+                onClick={handleDeleteSelected}
                 className={`${style.toolbarButton} ${style.deleteButton}`}
               >
                 Delete ({selected.length})

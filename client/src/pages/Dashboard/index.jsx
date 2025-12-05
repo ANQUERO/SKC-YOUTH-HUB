@@ -26,7 +26,12 @@ import {
   TrendingUp,
   UserPlus,
   FileText,
-  Shield
+  Shield,
+  MessageSquare,
+  Reply,
+  Heart,
+  ThumbsUp,
+  Smile
 } from 'lucide-react';
 import style from '@styles/dashboard.module.scss';
 import useDashboard from '@hooks/useDashboard';
@@ -50,6 +55,7 @@ const Dashboard = () => {
     fetchTotalVoters,
     fetchTotalGender,
     fetchResidentsPerPurok,
+    fetchRecentActivity,
     loading,
     error
   } = useDashboard();
@@ -58,6 +64,7 @@ const Dashboard = () => {
     fetchTotalVoters();
     fetchTotalGender();
     fetchResidentsPerPurok();
+    fetchRecentActivity(20);
   }, []);
 
   // Calculate totals for stats cards
@@ -95,41 +102,77 @@ const Dashboard = () => {
     { age: '36-40', count: 25 }
   ];
 
-  // Mock recent activity data
-  const recentActivities = [
-    {
-      id: 1,
-      title: 'New youth registration',
-      description: 'Juan Dela Cruz registered as a new youth member',
-      time: '2 minutes ago',
-      type: 'success',
-      icon: <UserPlus size={16} />
-    },
-    {
-      id: 2,
-      title: 'Voter status updated',
-      description: 'Maria Santos voter status changed to registered',
-      time: '1 hour ago',
-      type: 'info',
-      icon: <UserCheck size={16} />
-    },
-    {
-      id: 3,
-      title: 'Monthly report generated',
-      description: 'August 2024 youth demographic report',
-      time: '3 hours ago',
-      type: 'warning',
-      icon: <FileText size={16} />
-    },
-    {
-      id: 4,
-      title: 'System maintenance',
-      description: 'Regular system update completed',
-      time: '5 hours ago',
-      type: 'info',
-      icon: <Shield size={16} />
+  // Format time ago
+  const formatTimeAgo = (dateString) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    
+    if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+    return date.toLocaleDateString();
+  };
+
+  // Get activity icon based on type
+  const getActivityIcon = (type) => {
+    switch (type) {
+      case 'comment':
+        return <MessageSquare size={16} />;
+      case 'reply':
+        return <Reply size={16} />;
+      case 'reaction':
+        return <Heart size={16} />;
+      case 'signup':
+        return <UserPlus size={16} />;
+      default:
+        return <FileText size={16} />;
     }
-  ];
+  };
+
+  // Get activity type badge
+  const getActivityType = (activity) => {
+    switch (activity.type) {
+      case 'comment':
+        return 'Commented';
+      case 'reply':
+        return 'Replied to a comment';
+      case 'reaction':
+        return activity.activity_type || 'Reacted';
+      case 'signup':
+        return 'Signed up';
+      default:
+        return activity.activity_type || 'Activity';
+    }
+  };
+
+  // Format activity description
+  const getActivityDescription = (activity) => {
+    switch (activity.type) {
+      case 'comment':
+        return `${activity.user_name} commented: "${activity.content?.substring(0, 50)}${activity.content?.length > 50 ? '...' : ''}"`;
+      case 'reply':
+        return `${activity.user_name} replied: "${activity.content?.substring(0, 50)}${activity.content?.length > 50 ? '...' : ''}"`;
+      case 'reaction':
+        const emoji = activity.reaction_type === 'like' ? '👍' : activity.reaction_type === 'heart' ? '❤️' : '😮';
+        return `${activity.user_name} reacted ${emoji} to a post`;
+      case 'signup':
+        return `${activity.user_name} joined the platform`;
+      default:
+        return activity.content || 'Activity';
+    }
+  };
+
+  const recentActivities = (dashboardData.recent_activity || []).map(activity => ({
+    id: activity.id,
+    title: getActivityType(activity),
+    description: getActivityDescription(activity),
+    time: formatTimeAgo(activity.created_at),
+    type: activity.type === 'signup' ? 'success' : activity.type === 'reaction' ? 'info' : 'warning',
+    icon: getActivityIcon(activity.type),
+    activity: activity
+  }));
 
   // Check if chart data is available
   const hasVoterData = voterRegistrationData.length > 0 && voterRegistrationData.some(item => item.value > 0);
@@ -352,21 +395,27 @@ const Dashboard = () => {
               <h3>Recent Activity</h3>
             </div>
             <div className={style.activityList}>
-              {recentActivities.map(activity => (
-                <div key={activity.id} className={style.activityItem}>
-                  <div className={style.activityIcon}>
-                    {activity.icon}
+              {loading && recentActivities.length === 0 ? (
+                <div className={style.chartLoading}>Loading activity...</div>
+              ) : recentActivities.length === 0 ? (
+                <div className={style.chartLoading}>No recent activity</div>
+              ) : (
+                recentActivities.map(activity => (
+                  <div key={activity.id} className={style.activityItem}>
+                    <div className={style.activityIcon}>
+                      {activity.icon}
+                    </div>
+                    <div className={style.activityContent}>
+                      <div className={style.activityTitle}>{activity.title}</div>
+                      <div className={style.activityDescription}>{activity.description}</div>
+                      <div className={style.activityTime}>{activity.time}</div>
+                    </div>
+                    <div className={`${style.activityBadge} ${style[activity.type]}`}>
+                      {activity.type}
+                    </div>
                   </div>
-                  <div className={style.activityContent}>
-                    <div className={style.activityTitle}>{activity.title}</div>
-                    <div className={style.activityDescription}>{activity.description}</div>
-                    <div className={style.activityTime}>{activity.time}</div>
-                  </div>
-                  <div className={`${style.activityBadge} ${style[activity.type]}`}>
-                    {activity.type}
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>

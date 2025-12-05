@@ -1,50 +1,36 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import axiosInstance from '@lib/axios'
 import style from '@styles/landingpage.module.scss'
 
-const officials = [
-    {
-        name: "Leester Q. Cruspero",
-        title: "Chairman",
-        img: '/'
-    },
-    {
-        name: "Clifford A. Casquejo",
-        title: "Chairman",
-        img: ''
-    },
-    {
-        name: "Lelanie Andales",
-        title: "Chairman",
-        img: ''
-    },
-    {
-        name: "Demi Wilkinson",
-        title: "Chairman",
-        img: ''
-    },
-    {
-        name: "Gon Killue",
-        title: "Chairman",
-        img: ''
-    },
-    {
-        name: "Natalie Yuz",
-        title: "Chairman",
-        img: ''
-    },
-    {
-        name: "Natalie Yuz",
-        title: "Chairman",
-        img: ''
-    },
-    {
-        name: "Natalie Yuz",
-        title: "Chairman",
-        img: ''
-    },
-]
-
 const Officials = () => {
+    const [officials, setOfficials] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+
+    useEffect(() => {
+        fetchOfficials()
+    }, [])
+
+    const fetchOfficials = async () => {
+        try {
+            setLoading(true)
+            setError(null)
+            const { data } = await axiosInstance.get('/api/public/officials')
+            if (data.status === 'Success') {
+                setOfficials(data.data || [])
+            } else {
+                setError('Failed to load officials')
+            }
+        } catch (err) {
+            console.error('Error fetching officials:', err)
+            setError('Failed to load officials')
+            // Fallback to empty array on error
+            setOfficials([])
+        } finally {
+            setLoading(false)
+        }
+    }
+
     return (
         <section id='officials' className={style.officials}>
             <div className={style.container}>
@@ -59,18 +45,35 @@ const Officials = () => {
                     </p>
                 </div>
 
-                <div className={style.officials_grid}>
-                    {officials.map((person, index) => (
-                        <div className={style.profile} key={index}>
-                            <img
-                                src={person.img || '/default-profile.png'}
-                                alt={`${person.name}'s profile`}
-                            />
-                            <h3>{person.name}</h3>
-                            <h5>{person.title}</h5>
-                        </div>
-                    ))}
-                </div>
+                {loading ? (
+                    <div className={style.loading}>
+                        <p>Loading officials...</p>
+                    </div>
+                ) : error ? (
+                    <div className={style.error}>
+                        <p>{error}</p>
+                    </div>
+                ) : officials.length === 0 ? (
+                    <div className={style.noOfficials}>
+                        <p>No officials available at this time.</p>
+                    </div>
+                ) : (
+                    <div className={style.officials_grid}>
+                        {officials.map((person) => (
+                            <div className={style.profile} key={person.id}>
+                                <img
+                                    src={person.img || '/default-profile.png'}
+                                    alt={`${person.name}'s profile`}
+                                    onError={(e) => {
+                                        e.target.src = '/default-profile.png'
+                                    }}
+                                />
+                                <h3>{person.name}</h3>
+                                <h5>{person.title}</h5>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </section>
     )

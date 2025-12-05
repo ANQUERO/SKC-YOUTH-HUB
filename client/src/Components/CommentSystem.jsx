@@ -14,6 +14,8 @@ const CommentSystem = ({ postId, postAuthor }) => {
     const [replyContent, setReplyContent] = useState('');
     const [showReplies, setShowReplies] = useState({});
     const [showOptions, setShowOptions] = useState({});
+    const [commentReactions, setCommentReactions] = useState({});
+    const [userReactions, setUserReactions] = useState({});
     const commentInputRef = useRef(null);
 
     const isOfficial = isSkSuperAdmin || isSkNaturalAdmin;
@@ -48,9 +50,117 @@ const CommentSystem = ({ postId, postAuthor }) => {
     const fetchComments = async () => {
         try {
             const response = await axiosInstance.get(`/post/${postId}/comments`);
-            setComments(response.data.data || []);
+            const commentsData = response.data.data || [];
+            setComments(commentsData);
+            
+            // Fetch reactions for all comments and replies
+            const reactionsPromises = [];
+            
+            const fetchReactionsRecursively = (comments) => {
+                comments.forEach(comment => {
+                    reactionsPromises.push(fetchCommentReactions(comment.comment_id));
+                    if (comment.replies && comment.replies.length > 0) {
+                        fetchReactionsRecursively(comment.replies);
+                    }
+                });
+            };
+            
+            fetchReactionsRecursively(commentsData);
+            await Promise.all(reactionsPromises);
         } catch (error) {
             console.error('Error fetching comments:', error);
+        }
+    };
+
+    const fetchCommentReactions = async (commentId) => {
+        try {
+            const response = await axiosInstance.get(`/comment/${commentId}/reactions`);
+            const reactions = response.data.data || [];
+            
+            // Count reactions by type
+            const counts = { like: 0, heart: 0, wow: 0 };
+            reactions.forEach(r => {
+                counts[r.type] = (counts[r.type] || 0) + 1;
+            });
+            
+            setCommentReactions(prev => ({
+                ...prev,
+                [commentId]: counts
+            }));
+
+            // Check if current user has reacted
+            if (authUser) {
+                const userId = authUser.userType === 'official' ? authUser.official_id : authUser.youth_id;
+                const userReaction = reactions.find(r => 
+                    r.user_type === authUser.userType && r.user_id === userId
+                );
+                if (userReaction) {
+                    setUserReactions(prev => ({
+                        ...prev,
+                        [commentId]: userReaction.type
+                    }));
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching comment reactions:', error);
+        }
+    };
+
+    const handleCommentReact = async (commentId, type) => {
+        try {
+            const currentReaction = userReactions[commentId];
+            
+            if (currentReaction === type) {
+                // Remove reaction if clicking the same type
+                await axiosInstance.delete(`/comment/${commentId}/react`);
+                setUserReactions(prev => {
+                    const updated = { ...prev };
+                    delete updated[commentId];
+                    return updated;
+                });
+                // Update counts
+                setCommentReactions(prev => ({
+                    ...prev,
+                    [commentId]: {
+                        ...prev[commentId],
+                        [type]: Math.max(0, (prev[commentId]?.[type] || 0) - 1)
+                    }
+                }));
+            } else {
+                // Add or update reaction
+                await axiosInstance.post(`/comment/${commentId}/react`, { type });
+                
+                // Update user reaction
+                setUserReactions(prev => ({
+                    ...prev,
+                    [commentId]: type
+                }));
+                
+                // Update counts
+                setCommentReactions(prev => {
+                    const current = prev[commentId] || { like: 0, heart: 0, wow: 0 };
+                    const updated = { ...current };
+                    
+                    // Remove old reaction count if exists
+                    if (currentReaction) {
+                        updated[currentReaction] = Math.max(0, (updated[currentReaction] || 0) - 1);
+                    }
+                    
+                    // Add new reaction count
+                    updated[type] = (updated[type] || 0) + 1;
+                    
+                    return {
+                        ...prev,
+                        [commentId]: updated
+                    };
+                });
+            }
+            
+            // Refresh reactions to get accurate data
+            await fetchCommentReactions(commentId);
+        } catch (error) {
+            console.error('Error reacting to comment:', error);
+            showError(error.response?.data?.message || 'Failed to react to comment');
         }
     };
 
@@ -266,6 +376,29 @@ const CommentSystem = ({ postId, postAuthor }) => {
                 </div>
 
                 <div className="comment-actions">
+                    <div className="reaction-buttons">
+                        <button
+                            className={`reaction-btn ${userReactions[comment.comment_id] === 'like' ? 'active' : ''}`}
+                            onClick={() => handleCommentReact(comment.comment_id, 'like')}
+                            title="Like"
+                        >
+                            👍 <span>{commentReactions[comment.comment_id]?.like || 0}</span>
+                        </button>
+                        <button
+                            className={`reaction-btn ${userReactions[comment.comment_id] === 'heart' ? 'active' : ''}`}
+                            onClick={() => handleCommentReact(comment.comment_id, 'heart')}
+                            title="Heart"
+                        >
+                            ❤️ <span>{commentReactions[comment.comment_id]?.heart || 0}</span>
+                        </button>
+                        <button
+                            className={`reaction-btn ${userReactions[comment.comment_id] === 'wow' ? 'active' : ''}`}
+                            onClick={() => handleCommentReact(comment.comment_id, 'wow')}
+                            title="Wow"
+                        >
+                            😮 <span>{commentReactions[comment.comment_id]?.wow || 0}</span>
+                        </button>
+                    </div>
                     <button
                         className="action-btn reply-btn"
                         onClick={() => {

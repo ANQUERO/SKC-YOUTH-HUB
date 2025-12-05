@@ -223,8 +223,8 @@ const ProfileNavLinks = ({ links, mobile = false, onLinkClick }) => {
 export function ProfileNavbar() {
   const logout = useLogout();
   const { authUser } = useAuthContext();
-  const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
-  const canManage = isSkSuperAdmin || isSkNaturalAdmin;
+  const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = useAuthContext();
+  const canManage = isSkSuperAdmin || isSkNaturalAdmin || isSkYouth;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // Use the useCurrentUser hook
@@ -240,7 +240,7 @@ export function ProfileNavbar() {
       text: "News Feed",
     },
     {
-      to: "/account",
+      to: isSkYouth ? "/settings" : "/account",
       text: "Settings",
     },
     {

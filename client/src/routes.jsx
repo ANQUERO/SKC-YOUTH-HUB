@@ -21,6 +21,7 @@ import Officials from "@pages/Officials";
 import Settings from "@pages/Settings";
 import NotFound from "@pages/NotFound";
 import Inbox from "@pages/Inbox";
+import YouthSettings from "@pages/YouthSettings";
 
 import { useAuthContext } from "@context/AuthContext";
 import YouthProfile from "@pages/YouthProfile";
@@ -186,6 +187,16 @@ export const routes = [
                 allowedRoles={["youth"]}
             >
                 <YouthProfile />
+            </ProtectedRoute>
+        ),
+    },
+    {
+        path: "/settings",
+        element: (
+            <ProtectedRoute
+                allowedRoles={["youth"]}
+            >
+                <YouthSettings />
             </ProtectedRoute>
         ),
     },

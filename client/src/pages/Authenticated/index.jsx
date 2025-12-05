@@ -51,7 +51,7 @@ const Authenticated = () => {
   const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
   const logout = useLogout();
-  const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
+  const { authUser, isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = useAuthContext();
   const { notifications, unreadCount, markAllRead, clear, clearRead, markRead } = useNotifications();
   
   const canManage = isSkSuperAdmin || isSkNaturalAdmin;
@@ -414,7 +414,7 @@ const Authenticated = () => {
                       </li>
                     )}
                     <li>
-                      <Link to="/account" className={style.dropdownItem}>
+                      <Link to={isSkYouth ? "/settings" : "/account"} className={style.dropdownItem}>
                         <SettingsIcon className={style.dropdownIcon} />
                         Settings
                       </Link>

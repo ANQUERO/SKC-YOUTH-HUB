@@ -10,7 +10,7 @@ const useContent = () => {
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState(null);
 
-  const fetchContents = async (content_id) => {
+  const fetchContents = async (content_id = null, official_id = null) => {
     if (!isAuthorized) {
       setError("Unauthorized access");
       return;
@@ -21,7 +21,21 @@ const useContent = () => {
     setError(null);
 
     try {
-      const res = await axiosInstance.get(`/contents?content_id=${content_id}`);
+      let url = '/contents';
+      const params = new URLSearchParams();
+      
+      if (content_id) {
+        params.append('content_id', content_id);
+      }
+      if (official_id) {
+        params.append('official_id', official_id);
+      }
+      
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+      
+      const res = await axiosInstance.get(url);
       setSuccess("Contents fetched successfully");
       return res.data.data;
     } catch (error) {

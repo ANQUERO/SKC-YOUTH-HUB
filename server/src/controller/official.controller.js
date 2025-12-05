@@ -10,6 +10,41 @@ const inferMediaType = (url) => {
     return "null";
 };
 
+// Public endpoint for landing page - fetches from landing_page_content table (no auth required)
+export const getPublicOfficials = async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT 
+                content_id,
+                official_name,
+                official_title,
+                media_url,
+                created_at
+            FROM landing_page_content
+            ORDER BY created_at DESC
+        `);
+
+        // Format the data for the landing page
+        const formattedOfficials = result.rows.map(content => ({
+            id: content.content_id,
+            name: content.official_name || 'Unknown',
+            title: content.official_title || 'Official',
+            img: content.media_url || '/default-profile.png'
+        }));
+
+        res.status(200).json({
+            status: "Success",
+            data: formattedOfficials
+        });
+    } catch (error) {
+        console.error("Failed to fetch public officials:", error);
+        res.status(500).json({
+            status: "Error",
+            message: "Internal server error"
+        });
+    }
+};
+
 export const index = async (req, res) => {
     const user = req.user;
 
@@ -306,10 +341,10 @@ export const enableComment = async (req, res) => {
 };
 
 export const indexContent = async (req, res) => {
-    const { id: official_id } = req.params;
     const user = req.user;
+    const { content_id, official_id } = req.query;
 
-    if (!user || user.userType !== "admin") {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only admins can access this resource"
@@ -317,10 +352,28 @@ export const indexContent = async (req, res) => {
     }
 
     try {
-        const result = await pool.query(
-            "SELECT * FROM landing_page_content WHERE official_id = $1 ORDER BY created_at DESC",
-            [parseInt(official_id)]
-        );
+        let result;
+        
+        // If content_id is provided, fetch specific content
+        if (content_id) {
+            result = await pool.query(
+                "SELECT * FROM landing_page_content WHERE content_id = $1 ORDER BY created_at DESC",
+                [parseInt(content_id)]
+            );
+        }
+        // If official_id is provided, fetch contents for that official
+        else if (official_id) {
+            result = await pool.query(
+                "SELECT * FROM landing_page_content WHERE official_id = $1 ORDER BY created_at DESC",
+                [parseInt(official_id)]
+            );
+        }
+        // Otherwise, fetch all contents
+        else {
+            result = await pool.query(
+                "SELECT * FROM landing_page_content ORDER BY created_at DESC"
+            );
+        }
         
         res.status(200).json({
             status: "Success",
@@ -339,10 +392,10 @@ export const showContent = async (req, res) => {
     const { id: content_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== "admin") {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
             status: "Error",
-            message: "Forbidden - Only admins can access this resource"
+            message: "Forbidden - Only officials can access this resource"
         });
     }
 
@@ -374,13 +427,22 @@ export const showContent = async (req, res) => {
 
 export const storeContent = async (req, res) => {
     const user = req.user;
-    const { official_name, official_title, media_url } = req.body;
-
-    if (!user || user.userType !== "admin") {
+    
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
             status: "Error",
-            message: "Forbidden - Only admins can access this resource"
+            message: "Forbidden - Only officials can access this resource"
         });
+    }
+
+    // Get data from body or uploaded files
+    const official_name = req.body.official_name;
+    const official_title = req.body.official_title;
+    let media_url = req.body.media_url;
+    
+    // If file was uploaded, use the uploaded image URL
+    if (res.locals.uploaded_images && res.locals.uploaded_images.length > 0) {
+        media_url = res.locals.uploaded_images[0];
     }
 
     // Validation
@@ -427,13 +489,20 @@ export const storeContent = async (req, res) => {
 export const updateContent = async (req, res) => {
     const { id: content_id } = req.params;
     const user = req.user;
-    const { official_name, official_title, media_type, media_url } = req.body;
-
-    if (!user || user.userType !== "admin") {
+    
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
             status: "Error",
-            message: "Forbidden - Only admins can access this resource"
+            message: "Forbidden - Only officials can access this resource"
         });
+    }
+
+    const { official_name, official_title, media_type } = req.body;
+    let media_url = req.body.media_url;
+    
+    // If file was uploaded, use the uploaded image URL
+    if (res.locals.uploaded_images && res.locals.uploaded_images.length > 0) {
+        media_url = res.locals.uploaded_images[0];
     }
 
     // Validation
@@ -518,10 +587,10 @@ export const deleteContent = async (req, res) => {
     const { id: content_id } = req.params;
     const user = req.user;
 
-    if (!user || user.userType !== "admin") {
+    if (!user || user.userType !== "official") {
         return res.status(403).json({
             status: "Error",
-            message: "Forbidden - Only admins can access this resource"
+            message: "Forbidden - Only officials can access this resource"
         });
     }
 

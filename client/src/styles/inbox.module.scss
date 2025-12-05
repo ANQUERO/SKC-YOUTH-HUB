@@ -1,58 +1,429 @@
+// @styles/inbox.module.scss
+
+// Variables
+$primary-color: #5894E2;
+$primary-hover: #4a7bc9;
+$secondary-color: #f8fafc;
+$text-primary: #1e293b;
+$text-secondary: #64748b;
+$border-color: #e2e8f0;
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 1px 3px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.05);
+$radius-sm: 0.25rem;
+$radius-md: 0.375rem;
+$radius-lg: 0.5rem;
+$transition: all 0.2s ease;
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Container
 .inboxContainer {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 1rem;
+  min-height: 100vh;
+  background: #f9fafb;
+  
+  @media (min-width: 768px) {
+    padding: 1.5rem;
+  }
+  
+  @media (min-width: 1024px) {
+    padding: 2rem;
+    max-width: 100%;
+  }
+}
 
-  .backButton {
-    background: #6366f1;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-    transition: background 0.2s;
+// Header
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: $primary-color;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: $transition;
+  margin-bottom: 1.5rem;
+  
+  &:hover {
+    background: $primary-hover;
+  }
+}
 
-    &:hover {
-      background: #4f46e5;
+// Form Card (View Reply State)
+.formCard {
+  background: white;
+  border-radius: $radius-md;
+  border: 1px solid $border-color;
+  box-shadow: $shadow-sm;
+  
+  .cardContent {
+    padding: 1.5rem;
+    
+    @media (min-width: 768px) {
+      padding: 2rem;
     }
   }
-
-  .formCard {
-    margin-top: 1rem;
+  
+  .formTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: 1rem;
   }
-
-  .repliesList {
-    margin-top: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .replyCard {
-    background: #f9fafb;
-    border-left: 3px solid #6366f1;
-  }
-
-  .replyText {
-    white-space: pre-wrap;
+  
+  .formDescription {
+    color: $text-secondary;
     line-height: 1.6;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: $radius-sm;
+    border-left: 2px solid $primary-color;
+    font-size: 0.95rem;
   }
+}
 
-  .viewButton {
-    background: #6366f1;
-    color: white;
-    border: none;
-    padding: 0.4rem 0.8rem;
-    border-radius: 0.4rem;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: background 0.2s;
-
-    &:hover {
-      background: #4f46e5;
+// Form Metadata
+.formMetadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  
+  .metadataChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    background: #f1f5f9;
+    border-radius: $radius-sm;
+    color: $text-primary;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: 1px solid $border-color;
+    
+    svg {
+      width: 14px;
+      height: 14px;
+      color: $text-secondary;
+    }
+  }
+  
+  .chipPrimary {
+    background: #eff6ff;
+    color: $primary-color;
+    border-color: #bae6fd;
+    
+    svg {
+      color: $primary-color;
     }
   }
 }
 
+// Replies Section
+.repliesSection {
+  .repliesTitle {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid $border-color;
+  }
+}
+
+// Replies List
+.repliesList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  
+  .replyCard {
+    background: white;
+    border-radius: $radius-sm;
+    border: 1px solid $border-color;
+    border-left: 2px solid $primary-color;
+    
+    .cardContent {
+      padding: 1rem;
+      
+      .replyHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+        
+        .youthName {
+          font-weight: 600;
+          color: $text-primary;
+          font-size: 0.9375rem;
+        }
+        
+        .youthEmail {
+          color: $text-secondary;
+          font-size: 0.8125rem;
+        }
+      }
+      
+      .replyText {
+        white-space: pre-wrap;
+        line-height: 1.6;
+        color: $text-primary;
+        font-size: 0.9375rem;
+      }
+    }
+  }
+}
+
+// No Replies State
+.noReplies {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: $text-secondary;
+  font-size: 0.9375rem;
+}
+
+// Main Inbox List View
+.headerSection {
+  margin-bottom: 1.5rem;
+  
+  .headerContent {
+    @include flex-center;
+    gap: 0.75rem;
+    
+    .inboxIcon {
+      color: $primary-color;
+    }
+    
+    .headerTitle {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: $text-primary;
+    }
+  }
+}
+
+// Table Container
+.tableContainer {
+  background: white;
+  border-radius: $radius-md;
+  border: 1px solid $border-color;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    
+    thead {
+      background: #f8fafc;
+      
+      tr {
+        border-bottom: 1px solid $border-color;
+        
+        th {
+          padding: 1rem;
+          text-align: left;
+          color: $text-primary;
+          font-weight: 600;
+          font-size: 0.875rem;
+          text-transform: none;
+          letter-spacing: normal;
+          white-space: nowrap;
+          
+          @media (min-width: 768px) {
+            padding: 1.125rem 1rem;
+          }
+        }
+      }
+    }
+    
+    tbody {
+      tr {
+        border-bottom: 1px solid $border-color;
+        cursor: pointer;
+        transition: $transition;
+        
+        &:hover {
+          background: #f8fafc;
+        }
+        
+        &:last-child {
+          border-bottom: none;
+        }
+        
+        td {
+          padding: 1rem;
+          color: $text-primary;
+          font-size: 0.9375rem;
+          
+          @media (min-width: 768px) {
+            padding: 1.125rem 1rem;
+          }
+          
+          .titleCell {
+            font-weight: 600;
+            color: $text-primary;
+          }
+          
+          .descriptionCell {
+            color: $text-secondary;
+            font-size: 0.875rem;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            
+            @media (min-width: 1024px) {
+              max-width: 400px;
+            }
+          }
+          
+          .dateCell {
+            color: $text-secondary;
+            font-size: 0.875rem;
+            white-space: nowrap;
+          }
+          
+          .replyCount {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 1.5rem;
+            padding: 0.125rem 0.5rem;
+            background: #eff6ff;
+            color: $primary-color;
+            border-radius: $radius-sm;
+            font-weight: 500;
+            font-size: 0.8125rem;
+            border: 1px solid #bae6fd;
+          }
+        }
+      }
+    }
+  }
+}
+
+// View Button
+.viewButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: $primary-color;
+  color: white;
+  border: none;
+  padding: 0.375rem 0.75rem;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition: $transition;
+  
+  &:hover {
+    background: $primary-hover;
+  }
+}
+
+// Empty State
+.emptyState {
+  background: white;
+  border-radius: $radius-md;
+  border: 1px solid $border-color;
+  padding: 2rem;
+  text-align: center;
+  
+  .emptyStateText {
+    color: $text-secondary;
+    font-size: 0.9375rem;
+  }
+}
+
+// Loading State
+.loadingContainer {
+  min-height: 400px;
+  @include flex-center;
+  
+  .loadingSpinner {
+    color: $primary-color;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .inboxContainer {
+    padding: 0.75rem;
+  }
+  
+  .tableContainer {
+    border: none;
+    border-radius: 0;
+    
+    table {
+      display: block;
+      overflow-x: auto;
+      
+      thead {
+        display: none;
+      }
+      
+      tbody {
+        display: block;
+        
+        tr {
+          display: block;
+          border-bottom: 1px solid $border-color;
+          padding: 1rem;
+          
+          &:hover {
+            background: transparent;
+          }
+          
+          td {
+            display: block;
+            padding: 0.25rem 0;
+            border: none;
+            
+            &::before {
+              content: attr(data-label);
+              font-weight: 600;
+              color: $text-primary;
+              display: block;
+              font-size: 0.75rem;
+              margin-bottom: 0.125rem;
+            }
+            
+            .viewButton {
+              margin-top: 0.5rem;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .formMetadata {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .replyCard {
+    .cardContent {
+      .replyHeader {
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+    }
+  }
+}

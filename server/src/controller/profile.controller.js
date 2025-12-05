@@ -242,16 +242,36 @@ export const updateProfile = async (req, res) => {
 
                 // Update youth info if provided
                 if (updateData.info) {
-                    await client.query(`
-                        UPDATE sk_youth_info 
-                        SET age = $1, contact_number = $2, birthday = $3
-                        WHERE youth_id = $4
-                    `, [
-                        updateData.info.age,
-                        updateData.info.contact_number,
-                        updateData.info.birthday,
-                        youth_id
-                    ]);
+                    let infoFields = [];
+                    let infoValues = [];
+                    let infoParamCount = 1;
+                    
+                    if (updateData.info.age !== undefined) {
+                        infoFields.push(`age = $${infoParamCount}`);
+                        infoValues.push(updateData.info.age);
+                        infoParamCount++;
+                    }
+                    
+                    if (updateData.info.contact_number !== undefined) {
+                        infoFields.push(`contact_number = $${infoParamCount}`);
+                        infoValues.push(updateData.info.contact_number);
+                        infoParamCount++;
+                    }
+                    
+                    if (updateData.info.birthday !== undefined) {
+                        infoFields.push(`birthday = $${infoParamCount}`);
+                        infoValues.push(updateData.info.birthday);
+                        infoParamCount++;
+                    }
+                    
+                    if (infoFields.length > 0) {
+                        infoValues.push(youth_id);
+                        await client.query(`
+                            UPDATE sk_youth_info 
+                            SET ${infoFields.join(", ")}
+                            WHERE youth_id = $${infoParamCount}
+                        `, infoValues);
+                    }
                 }
 
                 // Update youth gender if provided
@@ -399,6 +419,107 @@ export const updateProfile = async (req, res) => {
         return res.status(500).json({
             status: "Error",
             message: "Internal server error"
+        });
+    }
+};
+
+// Get youth activity (reactions, comments, replies)
+export const getYouthActivity = async (req, res) => {
+    const user = req.user;
+
+    if (!user || user.userType !== "youth") {
+        return res.status(403).json({
+            status: "Error",
+            message: "Forbidden - Only youth members can access this"
+        });
+    }
+
+    try {
+        const youth_id = user.youth_id;
+
+        // Get reactions
+        const reactionsResult = await pool.query(`
+            SELECT 
+                pr.reaction_id,
+                pr.post_id,
+                pr.type,
+                pr.reacted_at,
+                p.description AS post_description,
+                p.media_type,
+                p.media_url
+            FROM post_reactions pr
+            INNER JOIN posts p ON pr.post_id = p.post_id
+            WHERE pr.user_type = 'youth' AND pr.user_id = $1
+            ORDER BY pr.reacted_at DESC
+            LIMIT 50
+        `, [youth_id]);
+
+        // Get comments (including replies)
+        const commentsResult = await pool.query(`
+            SELECT 
+                pc.comment_id,
+                pc.post_id,
+                pc.content,
+                pc.parent_comment_id,
+                pc.created_at,
+                p.description AS post_description,
+                p.media_type,
+                p.media_url,
+                CASE 
+                    WHEN pc.parent_comment_id IS NOT NULL THEN 'reply'
+                    ELSE 'comment'
+                END AS activity_type
+            FROM post_comments pc
+            INNER JOIN posts p ON pc.post_id = p.post_id
+            WHERE pc.user_type = 'youth' AND pc.user_id = $1
+            ORDER BY pc.created_at DESC
+            LIMIT 50
+        `, [youth_id]);
+
+        // Transform and combine activities
+        const activities = [
+            ...reactionsResult.rows.map(r => ({
+                id: `reaction-${r.reaction_id}`,
+                type: 'reaction',
+                reaction_type: r.type,
+                post_id: r.post_id,
+                post_description: r.post_description,
+                media_type: r.media_type,
+                media_url: r.media_url,
+                created_at: r.reacted_at
+            })),
+            ...commentsResult.rows.map(c => ({
+                id: `comment-${c.comment_id}`,
+                type: c.activity_type,
+                comment_id: c.comment_id,
+                content: c.content,
+                post_id: c.post_id,
+                post_description: c.post_description,
+                media_type: c.media_type,
+                media_url: c.media_url,
+                parent_comment_id: c.parent_comment_id,
+                created_at: c.created_at
+            }))
+        ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        return res.status(200).json({
+            status: "Success",
+            data: {
+                activities,
+                stats: {
+                    total_reactions: reactionsResult.rows.length,
+                    total_comments: commentsResult.rows.filter(c => !c.parent_comment_id).length,
+                    total_replies: commentsResult.rows.filter(c => c.parent_comment_id).length
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error("Error fetching youth activity:", error);
+        return res.status(500).json({
+            status: "Error",
+            message: "Internal server error",
+            error: error.message
         });
     }
 };
