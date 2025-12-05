@@ -14,14 +14,12 @@ export const getNotifications = async (req, res) => {
     try {
         const recipientId = user.userType === "official" ? user.official_id : user.youth_id;
         
-        console.log(`Fetching notifications for ${user.userType} with ID: ${recipientId} (type: ${typeof recipientId})`);
         
         // Debug: Check if there are any notifications for this user at all
         const debugQuery = await pool.query(
             `SELECT COUNT(*) as total FROM notifications WHERE recipient_type = $1 AND recipient_id = $2`,
             [user.userType, recipientId]
         );
-        console.log(`Total notifications (including read) for ${user.userType} ID ${recipientId}: ${debugQuery.rows[0].total}`);
         
         const result = await pool.query(
             `
@@ -46,7 +44,6 @@ export const getNotifications = async (req, res) => {
             [user.userType, recipientId]
         );
 
-        console.log(`Found ${result.rows.length} notifications for ${user.userType} ID ${recipientId}`);
 
         return res.status(200).json({
             status: "Success",
@@ -60,7 +57,6 @@ export const getNotifications = async (req, res) => {
             message: error.message,
             stack: error.stack,
             userType: user.userType,
-            recipientId: user.userType === "official" ? user.official_id : user.youth_id
         });
         return res.status(500).json({
             status: "Error",
