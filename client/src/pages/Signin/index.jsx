@@ -246,40 +246,7 @@ const Signin = () => {
               {loading ? 'Signing In...' : 'Sign In'}
             </Button>
 
-            <Box sx={{ mb: 3 }}>
-              <Typography
-                variant="body2"
-                align="center"
-                sx={{
-                  mb: 2,
-                  color: '#64748b',
-                  position: 'relative',
-                  '&::before, &::after': {
-                    content: '""',
-                    position: 'absolute',
-                    top: '50%',
-                    width: '30%',
-                    height: '1px',
-                    backgroundColor: '#e2e8f0',
-                  },
-                  '&::before': {
-                    left: 0,
-                  },
-                  '&::after': {
-                    right: 0,
-                  }
-                }}
-              >
-                Or continue with
-              </Typography>
-              <GoogleOAuth
-                onSuccess={handleGoogleSuccess}
-                onError={handleGoogleError}
-                disabled={loading}
-              />
-            </Box>
-
-            <Typography
+            <Typography 
               variant="body2"
               align="center"
               sx={{

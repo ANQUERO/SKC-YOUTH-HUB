@@ -199,10 +199,10 @@ const VerificationStep = ({ formData, errors, onChange, isVerified, onVerified }
 
             <Alert severity="info" sx={{ mt: 3 }}>
                 <Typography variant="body2">
-                    After submitting this form, you will receive an email verification link.
-                    Please check your email and click the verification link to activate your account.
+                    After submitting this form, the SK Officials will verify your credebility if you are verified.
                 </Typography>
             </Alert>
+
         </Box>
     );
 };

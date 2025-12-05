@@ -7,7 +7,8 @@ import {
     Select,
     MenuItem,
     Typography,
-    Divider
+    Divider,
+    Alert
 } from '@mui/material';
 
 const CombinedDetailsStep = ({ formData, errors, onChange }) => {
@@ -80,6 +81,9 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
         'Other'
     ];
 
+    // State to track age validation error
+    const [ageError, setAgeError] = React.useState('');
+
     // Function to calculate age from birthday
     const calculateAge = (birthday) => {
         if (!birthday) return null;
@@ -103,31 +107,65 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
         const ageNum = parseInt(age);
         if (isNaN(ageNum)) return '';
         
-        if (ageNum >= 16 && ageNum <= 17) {
-            return 'Child Youth (16–17 years old)';
+        if (ageNum >= 15 && ageNum <= 17) {
+            return 'Child Youth (15–17 years old)';
         } else if (ageNum >= 18 && ageNum <= 24) {
             return 'Core Youth (18–24 years old)';
         } else if (ageNum >= 25 && ageNum <= 30) {
             return 'Young Adult (25–30 years old)';
-        } else if (ageNum < 16) {
-            return 'Age is below youth range (must be 16+)';
+        } else if (ageNum < 15) {
+            return 'Age is below youth range (must be 15+)';
         } else {
             return 'Age is above youth range (must be 30 or below)';
         }
     };
 
+    // Function to validate age for registration (16-30 years old)
+    const validateAgeForRegistration = (age) => {
+        const ageNum = parseInt(age);
+        if (isNaN(ageNum)) return 'Invalid age input';
+
+        if (ageNum < 16) {
+            return 'Age must be 16 or older to register';
+        } else if (ageNum > 30) {
+            return 'Age must be 30 or younger to register';
+        }
+
+        return null; // No error - age is valid
+    };
+
     // Handle birthday change - calculate age and youth_age_gap
     const handleBirthdayChange = (birthday) => {
+        // Clear previous errors
+        setAgeError('');
+        
+        // Update birthday field
         onChange('birthday', birthday);
         
         if (birthday) {
             const calculatedAge = calculateAge(birthday);
             if (calculatedAge !== null) {
-                onChange('age', calculatedAge.toString());
-                const youthAgeGap = getYouthAgeGap(calculatedAge);
-                onChange('youth_age_gap', youthAgeGap);
+                const ageStr = calculatedAge.toString();
+                
+                // Validate age for registration (16-30 years)
+                const validationError = validateAgeForRegistration(ageStr);
+                
+                if (validationError) {
+                    // Age is not valid for registration (16-30)
+                    setAgeError(validationError);
+                    // Still show the calculated age for transparency
+                    onChange('age', ageStr);
+                    const youthAgeGap = getYouthAgeGap(calculatedAge);
+                    onChange('youth_age_gap', youthAgeGap);
+                } else {
+                    // Age is valid (16-30), update all fields normally
+                    onChange('age', ageStr);
+                    const youthAgeGap = getYouthAgeGap(calculatedAge);
+                    onChange('youth_age_gap', youthAgeGap);
+                }
             }
         } else {
+            // Birthday cleared
             onChange('age', '');
             onChange('youth_age_gap', '');
         }
@@ -135,6 +173,17 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
 
     return (
         <Box sx={{ maxWidth: 800, mx: 'auto', p: 2 }}>
+            {/* Age validation error alert - shows when age is outside 16-30 range */}
+            {ageError && (
+                <Alert 
+                    severity="error" 
+                    sx={{ mb: 2 }}
+                    onClose={() => setAgeError('')}
+                >
+                    {ageError}
+                </Alert>
+            )}
+
             {/* Demographics Section */}
             <Box sx={{ mb: 4 }}>
                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
@@ -149,8 +198,8 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
                         type="date"
                         value={formData.birthday || ''}
                         onChange={(e) => handleBirthdayChange(e.target.value)}
-                        error={!!errors.birthday || !!errors.age}
-                        helperText={errors.birthday || errors.age || "Select your birthday (you must be between 16-30 years old)"}
+                        error={!!errors.birthday || !!errors.age || !!ageError}
+                        helperText={errors.birthday || errors.age || ageError || "Select your birthday (you must be between 16-30 years old)"}
                         required
                         InputLabelProps={{
                             shrink: true,
@@ -171,6 +220,7 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
                         }}
                         helperText="This is automatically calculated from your birthday"
                         variant="outlined"
+                        error={!!ageError}
                     />
 
                     {/* Display Youth Age Gap (read-only) */}

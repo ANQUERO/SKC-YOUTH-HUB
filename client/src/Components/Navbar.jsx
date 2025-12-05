@@ -180,6 +180,8 @@ export default function Navbar() {
   );
 }
 
+
+//For the Profile 
 const ProfileNavLinks = ({ links, mobile = false, onLinkClick }) => {
   const handleClick = (link) => {
     if (link.onClick) {
@@ -198,6 +200,7 @@ const ProfileNavLinks = ({ links, mobile = false, onLinkClick }) => {
             <button
               className={mobile ? style.mobileLink : style.link}
               onClick={() => handleClick(link)}
+              aria-label={link.text}
             >
               {link.text}
             </button>
@@ -206,6 +209,7 @@ const ProfileNavLinks = ({ links, mobile = false, onLinkClick }) => {
               to={link.to} 
               className={mobile ? style.mobileLink : style.link}
               onClick={() => onLinkClick && onLinkClick()}
+              aria-current={window.location.pathname === link.to ? "page" : undefined}
             >
               {link.text}
             </Link>
@@ -248,6 +252,21 @@ export function ProfileNavbar() {
     },
   ].filter(Boolean);
 
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.classList.add('mobile-menu-open');
+      document.body.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`;
+    } else {
+      document.body.classList.remove('mobile-menu-open');
+      document.body.style.paddingRight = '';
+    }
+
+    return () => {
+      document.body.classList.remove('mobile-menu-open');
+      document.body.style.paddingRight = '';
+    };
+  }, [isMobileMenuOpen]);
+
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
@@ -255,6 +274,7 @@ export function ProfileNavbar() {
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
+  
 
   // Use data from useCurrentUser hook with fallbacks
   const displayName = userData?.name || authUser?.name || 'User';
@@ -286,50 +306,46 @@ export function ProfileNavbar() {
           className={style.hamburgerMenu}
           onClick={toggleMobileMenu}
           aria-label="Toggle menu"
+          aria-expanded={isMobileMenuOpen}
         >
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
-        <div 
-          className={style.mobileMenuOverlay}
-          data-open={isMobileMenuOpen}
-          onClick={closeMobileMenu}
-        />
+        {isMobileMenuOpen && (
+          <div 
+            className={style.mobileMenuOverlay}
+            onClick={closeMobileMenu}
+          />
+        )}
 
         <div 
-          className={style.mobileMenu}
-          data-open={isMobileMenuOpen}
+          className={`${style.mobileMenu} ${isMobileMenuOpen ? style.open : ''}`}
         >
-          <div className={style.mobileMenuHeader}>
-            <div className={style.mobileUserInfo}>
-              <img
-                src={displayProfilePicture}
-                alt="User Avatar"
-                className={style.mobileAvatar}
-              />
-              <div>
-                <div className={style.mobileUserName}>
-                  {displayName}
-                </div>
-                <div className={style.mobileUserEmail}>
-                  {displayEmail}
+          <div className={style.mobileMenuContent}>
+            <div className={style.mobileMenuHeader}>
+              <div className={style.mobileUserInfo}>
+                <img
+                  src={displayProfilePicture}
+                  alt="User Avatar"
+                  className={style.mobileAvatar}
+                />
+                <div className={style.mobileUserDetails}>
+                  <div className={style.mobileUserName}>
+                    {displayName}
+                  </div>
+                  <div className={style.mobileUserEmail}>
+                    {displayEmail}
+                  </div>
                 </div>
               </div>
             </div>
-            <button 
-              className={style.closeButton}
-              onClick={closeMobileMenu}
-              aria-label="Close menu"
-            >
-              <X size={24} />
-            </button>
-          </div>
 
-          <ProfileNavLinks 
-            links={links} 
-            mobile={true}
-            onLinkClick={closeMobileMenu}
-          />
+            <ProfileNavLinks 
+              links={links} 
+              mobile={true}
+              onLinkClick={closeMobileMenu}
+            />
+          </div>
         </div>
       </nav>
     </header>

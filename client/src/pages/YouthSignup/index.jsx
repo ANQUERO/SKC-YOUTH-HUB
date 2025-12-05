@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 
 import { Person, LocationOn, School } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom"
 
 //  Step components
 import BasicInfoStep from "./components/BasicInfoStep";
@@ -36,6 +37,7 @@ const YouthSignup = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [errors, setErrors] = useState({});
   const [isVerified, setIsVerified] = useState(false);
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     // Basic Info (Step 1)
@@ -220,7 +222,7 @@ const YouthSignup = () => {
       try {
         await signup(formData);
         // Registration complete, redirect to login
-        window.location.href = "/login";
+         navigate('/login')
       } catch (err) {
         console.error("Signup error:", err);
         // If there are field-specific errors from backend, set them in form errors

@@ -35,8 +35,8 @@ export const FeedBack = () => {
                 </button>
 
                 <div className={style.feedbackForm}>
-                    <h2>{selectedForm.title}</h2>
-                    <p className={style.formDescription}>{selectedForm.description}</p>
+                    <h2>{selectedForm.title.charAt(0).toUpperCase() + selectedForm.title.slice(1)}</h2>
+                    <p className={style.formDescription}>{selectedForm.description.charAt(0).toUpperCase() + selectedForm.description.slice(1)}</p>
                     <p className={style.formMeta}>
                         Created by {selectedForm.official_name} ({selectedForm.official_position})
                     </p>
@@ -81,8 +81,8 @@ export const FeedBack = () => {
                             className={style.feedbackCard}
                             onClick={() => setSelectedForm(form)}
                         >
-                            <h3>{form.title}</h3>
-                            <p className={style.formDescription}>{form.description}</p>
+                            <h3>{form.title.charAt(0).toUpperCase() + form.title.slice(1)}</h3>
+                            <p className={style.formDescription}>{form.description.charAt(0).toUpperCase() + form.description.slice(1)}</p>
                             <div className={style.formMeta}>
                                 <span>By {form.official_name}</span>
                                 <span>{new Date(form.created_at).toLocaleDateString()}</span>
@@ -114,7 +114,7 @@ const FeedbackReplyForm = ({ formId, response, setResponse, onSuccess }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className={style.replyForm}>
+        <form onSubmit={handleSubmit} className={style.replyForm} id="Reply Form">
             <div className={style.formGroup}>
                 <label htmlFor="response">Your Feedback</label>
                 <textarea

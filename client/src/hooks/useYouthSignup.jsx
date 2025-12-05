@@ -104,26 +104,6 @@ const useYouthSignup = () => {
         }
     };
 
-    const sendVerificationEmail = async (email) => {
-        setLoading(true);
-        setError(null);
-
-        try {
-            const response = await axiosInstance.post('/auth/send-verification', { email });
-            setSuccess('Verification email sent successfully!');
-            return response.data;
-        } catch (err) {
-            console.error('Send verification error:', err);
-            const errorMessage = err.response?.data?.message ||
-                err.response?.data?.error ||
-                'Failed to send verification email. Please try again.';
-            setError(errorMessage);
-            throw err;
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const verifyEmail = async (token) => {
         setLoading(true);
         setError(null);
@@ -189,7 +169,6 @@ const useYouthSignup = () => {
 
     return {
         signup,
-        sendVerificationEmail,
         verifyEmail,
         forgotPassword,
         resetPassword,
