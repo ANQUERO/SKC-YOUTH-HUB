@@ -30,7 +30,7 @@ const Inbox = () => {
         },
     });
 
-    const { data: formDetails, isLoading: isLoadingDetails } = useQuery({
+    const { data: formDetails } = useQuery({
         queryKey: ["inbox", selectedForm],
         queryFn: async () => {
             const { data } = await axiosInstance.get(`/inbox/${selectedForm}`);

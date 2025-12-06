@@ -5,10 +5,9 @@ import { useAuthContext } from "@context/AuthContext";
 import CommentSystem from "@components/CommentSystem";
 import PostOptions from "@components/PostOptions";
 
-
 export const PostCard = ({ post, onPostDeleted }) => {
-    const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
-    const isOfficial = isSkSuperAdmin || isSkNaturalAdmin;
+    const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = useAuthContext();
+    const isSK = isSkSuperAdmin || isSkNaturalAdmin || isSkYouth;
     const [reactionsCount, setReactionsCount] = useState({
         like: 0,
         heart: 0,
@@ -16,27 +15,34 @@ export const PostCard = ({ post, onPostDeleted }) => {
     });
     const [postHidden, setPostHidden] = useState(false);
 
-        if (!isOfficial) {
+    // Move useEffect to the top, before any conditional returns
+    useEffect(() => {
+        if (!isSK) return; // Don't fetch if not authorized
+        
+        // Load reactions summary
+        axiosInstance.get(`/post/${post.post_id}/reactions`).then(({ data }) => {
+            const counts = { like: 0, heart: 0, wow: 0 };
+            (data.data || []).forEach(r => { 
+                counts[r.type] = (counts[r.type] || 0) + 1; 
+            });
+            setReactionsCount(counts);
+        }).catch(() => { });
+    }, [post.post_id, isSK]);
+
+    // Early return after hooks
+    if (!isSK) {
         return (
             <div className={style.card}>
                 <div className={style.unauthorizedPost}>
-                    <p>You need to be an official to view this content.</p>
+                    <p>You need to be logged in to view this content.</p>
                 </div>
             </div>
         );
     }
 
-    useEffect(() => {
-        // Load reactions summary
-        axiosInstance.get(`/post/${post.post_id}/reactions`).then(({ data }) => {
-            const counts = { like: 0, heart: 0, wow: 0 };
-            (data.data || []).forEach(r => { counts[r.type] = (counts[r.type] || 0) + 1; });
-            setReactionsCount(counts);
-        }).catch(() => { });
-
-    }, [post.post_id]);
-
     const handleReact = async (type) => {
+        if (!isSK) return; // Safety check
+        
         try {
             await axiosInstance.post(`/post/${post.post_id}/react`, { type });
             setReactionsCount((prev) => ({ ...prev, [type]: (prev[type] || 0) + 1 }));
@@ -46,17 +52,19 @@ export const PostCard = ({ post, onPostDeleted }) => {
     };
 
     const handleRemoveReaction = async () => {
+        if (!isSK) return; // Safety check
+        
         try {
             await axiosInstance.delete(`/post/${post.post_id}/react`);
 
             // Reload reactions after removal
-
             axiosInstance.get(`/post/${post.post_id}/reactions`).then(({ data }) => {
                 const counts = { like: 0, heart: 0, wow: 0 };
-                (data.data || []).forEach(r => { counts[r.type] = (counts[r.type] || 0) + 1; });
+                (data.data || []).forEach(r => { 
+                    counts[r.type] = (counts[r.type] || 0) + 1; 
+                });
                 setReactionsCount(counts);
             }).catch(() => { });
-
         } catch (e) {
             console.error(e);
         }
@@ -150,8 +158,6 @@ export const PostCard = ({ post, onPostDeleted }) => {
                 postId={post.post_id}
                 postAuthor={post.author || post.official?.name}
             />
-
         </div>
     );
 };
-

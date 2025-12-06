@@ -24,7 +24,7 @@ import YouthSettings from "@pages/YouthSettings";
 import YouthProfile from "@pages/YouthProfile";
 import OfficialsProfile from "@pages/OfficialsProfile";
 
-import ProtectedRoute from "@lib/ProtectedRoute";
+import { ProtectedRoute } from "@lib/ProtectedRoute";
 
 
 export const routes = [
