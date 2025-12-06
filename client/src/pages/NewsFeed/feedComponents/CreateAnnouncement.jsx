@@ -25,23 +25,27 @@ export const CreateAnnouncement = () => {
     if (updated.length === 0) setFileType(null);
   };
 
-  const handlePost = () => {
+const handlePost = () => {
     if (description.trim() === "") return;
 
     const newPost = new FormData();
     newPost.append("description", description);
-    newPost.append("type", "announcement"); // Always set as announcement
-    if (fileType) newPost.append("media_type", fileType);
-    files.forEach((f) => newPost.append("media", f));
+    newPost.append("type", "activity"); // Always set as activity
+    
+    // Append all files
+    files.forEach((file) => {
+        newPost.append("media", file); // Use "media" not "media[]"
+    });
 
     createPost.mutate(newPost, {
-      onSuccess: () => {
-        setDescription("");
-        setFiles([]);
-        setFileType(null);
-      },
+        onSuccess: () => {
+            setDescription("");
+            setFiles([]);
+            setFilePreviews([]);
+            setFileType(null);
+        },
     });
-  };
+};
 
   return (
     <div className={style.createPost}>

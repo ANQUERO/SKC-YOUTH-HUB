@@ -249,3 +249,22 @@ CREATE TABLE comment_reactions (
     UNIQUE(comment_id, user_type, user_id)
 );
 
+CREATE TABLE post_media (
+    media_id SERIAL PRIMARY KEY,
+    post_id INTEGER NOT NULL REFERENCES posts(post_id) ON DELETE CASCADE,
+    media_url TEXT NOT NULL,
+    media_type VARCHAR(10) CHECK (media_type IN ('image', 'video')),
+    mimetype VARCHAR(100),
+    file_size INTEGER,
+    width INTEGER,
+    height INTEGER,
+    duration INTEGER, -- for videos in seconds
+    thumbnail_url TEXT,
+    display_order INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_post_media_post_id ON post_media(post_id);
+CREATE INDEX idx_post_media_display_order ON post_media(display_order);
+CREATE INDEX idx_post_media_media_type ON post_media(media_type);

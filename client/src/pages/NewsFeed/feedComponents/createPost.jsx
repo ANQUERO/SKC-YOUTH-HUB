@@ -8,42 +8,68 @@ export const CreatePost = () => {
     const [description, setDescription] = useState("");
     const [files, setFiles] = useState([]);
     const [fileType, setFileType] = useState(null);
+    const [filePreviews, setFilePreviews] = useState([]);
     const [type, setType] = useState("post");
     const { createPost } = usePostContext();
     const { userData, profilePicture, loading: userLoading } = useCurrentUser();
 
     const handleFileChange = (e, kind) => {
-        const list = Array.from(e.target.files || []);
-        if (list.length > 0) {
-            setFiles(list);
+        const newFiles = Array.from(e.target.files || []);
+        if (newFiles.length > 0) {
+            // Add new files to existing ones
+            const updatedFiles = [...files, ...newFiles];
+            setFiles(updatedFiles);
             setFileType(kind);
+            
+            // Create previews
+            const previews = newFiles.map(file => ({
+                url: URL.createObjectURL(file),
+                type: kind,
+                file
+            }));
+            setFilePreviews([...filePreviews, ...previews]);
         }
     };
 
     const handleRemoveFile = (index) => {
-        const updated = files.filter((_, i) => i !== index);
-        setFiles(updated);
-        if (updated.length === 0) setFileType(null);
+        const updatedFiles = files.filter((_, i) => i !== index);
+        const updatedPreviews = filePreviews.filter((_, i) => i !== index);
+        
+        setFiles(updatedFiles);
+        setFilePreviews(updatedPreviews);
+        
+        if (updatedFiles.length === 0) {
+            setFileType(null);
+        }
     };
 
     const handlePost = () => {
-        if (description.trim() === "") return;
+    if (description.trim() === "") return;
 
-        const newPost = new FormData();
-        newPost.append("description", description);
-        newPost.append("type", type);
-        if (fileType) newPost.append("media_type", fileType);
-        files.forEach((f) => newPost.append("media", f));
+    const newPost = new FormData();
+    newPost.append("description", description);
+    newPost.append("type", type);
+    
+    // Append all files - backend expects field name "media" for multiple files
+    files.forEach((file) => {
+        newPost.append("media", file); // Changed from "media[]" to "media"
+    });
 
-        createPost.mutate(newPost, {
-            onSuccess: () => {
-                setDescription("");
-                setFiles([]);
-                setFileType(null);
-                setType("post");
-            },
-        });
-    };
+    createPost.mutate(newPost, {
+        onSuccess: () => {
+            setDescription("");
+            setFiles([]);
+            setFilePreviews([]);
+            setFileType(null);
+            setType("post");
+            
+            // Revoke object URLs to prevent memory leaks
+            filePreviews.forEach(preview => {
+                URL.revokeObjectURL(preview.url);
+            });
+        },
+    });
+};
 
     return (
         <div className={style.createPost}>
@@ -88,31 +114,36 @@ export const CreatePost = () => {
             />
 
             {/* --- PREVIEW SECTION --- */}
-            {files.length > 0 && (
+          {filePreviews.length > 0 && (
                 <div className={style.previewSection}>
-                    {files.map((file, idx) => (
-                        <div key={idx} className={style.previewItem}>
-                            {fileType === "image" ? (
-                                <img
-                                    src={URL.createObjectURL(file)}
-                                    alt="preview"
-                                    className={style.previewMedia}
-                                />
-                            ) : (
-                                <video
-                                    src={URL.createObjectURL(file)}
-                                    className={style.previewMedia}
-                                    controls
-                                />
-                            )}
-                            <button
-                                className={style.removeBtn}
-                                onClick={() => handleRemoveFile(idx)}
-                            >
-                                <X size={16} />
-                            </button>
-                        </div>
-                    ))}
+                    <div className={style.previewGrid}>
+                        {filePreviews.map((preview, idx) => (
+                            <div key={idx} className={style.previewItem}>
+                                {preview.type === "image" ? (
+                                    <img
+                                        src={preview.url}
+                                        alt="preview"
+                                        className={style.previewMedia}
+                                    />
+                                ) : (
+                                    <video
+                                        src={preview.url}
+                                        className={style.previewMedia}
+                                        controls
+                                    />
+                                )}
+                                <button
+                                    className={style.removeBtn}
+                                    onClick={() => handleRemoveFile(idx)}
+                                >
+                                    <X size={16} />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                    <div className={style.fileCount}>
+                        {filePreviews.length} file{filePreviews.length !== 1 ? 's' : ''} selected
+                    </div>
                 </div>
             )}
 

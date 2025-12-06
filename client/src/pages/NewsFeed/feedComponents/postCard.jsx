@@ -4,6 +4,7 @@ import axiosInstance from "@lib/axios";
 import { useAuthContext } from "@context/AuthContext";
 import CommentSystem from "@components/CommentSystem";
 import PostOptions from "@components/PostOptions";
+import { MediaGallery } from "Components/MediaGallery";
 
 export const PostCard = ({ post, onPostDeleted }) => {
     const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = useAuthContext();
@@ -14,6 +15,14 @@ export const PostCard = ({ post, onPostDeleted }) => {
         wow: 0
     });
     const [postHidden, setPostHidden] = useState(false);
+
+       const mediaItems = post.media || [];
+
+       const allMediaItems = mediaItems.map(item => ({
+    url: item.url,
+    type: item.type || (item.mimetype?.includes('image') ? 'image' : 'video')
+}));
+
 
     // Move useEffect to the top, before any conditional returns
     useEffect(() => {
@@ -128,6 +137,12 @@ export const PostCard = ({ post, onPostDeleted }) => {
             </div>
 
             <p className={style.content}>{post.description || post.content}</p>
+
+      {allMediaItems.length > 0 && (
+    <MediaGallery 
+        mediaItems={allMediaItems}
+    />
+)}
 
             {post.media_type === "image" && (
                 <img src={post.media_url} alt="Post visual" className={style.postMedia} />

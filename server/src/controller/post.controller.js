@@ -1,14 +1,46 @@
+// controller/post.controller.js
 import { pool } from "../db/config.js";
 
 const inferMediaType = (url) => {
     try {
         const u = String(url).toLowerCase();
-        if (u.includes("/image/") || u.match(/\.(png|jpg|jpeg|gif|webp)$/)) {return "image";}
-        if (u.includes("/video/") || u.match(/\.(mp4|webm|mov|m4v)$/)) {return "video";}
-    } catch (error){
-        console.error("Error", error);
-     }
-    return null;
+        
+        // Check for video extensions
+        if (u.match(/\.(mp4|webm|mov|m4v|avi|mkv|flv|wmv|mpg|mpeg)$/)) {
+            return "video";
+        }
+        
+        // Check for image extensions
+        if (u.match(/\.(png|jpg|jpeg|gif|webp|svg|bmp)$/)) {
+            return "image";
+        }
+        
+        // Check Cloudinary URL patterns
+        if (u.includes("/video/") || u.includes("/upload/v")) {
+            return "video";
+        }
+        if (u.includes("/image/") || u.includes("/upload/i")) {
+            return "image";
+        }
+    } catch (error) {
+        console.error("Error inferring media type", error);
+    }
+    return "unknown";
+};
+
+// Helper function to process Cloudinary uploaded files
+const processCloudinaryFiles = (uploadedUrls = [], originalFiles = []) => {
+    return uploadedUrls.map((url, index) => {
+        const originalFile = originalFiles[index] || {};
+        return {
+            url: url,
+            mimetype: originalFile.mimetype,
+            size: originalFile.size,
+            originalName: originalFile.originalname,
+            mediaType: inferMediaType(url, originalFile.mimetype),
+            displayOrder: index
+        };
+    });
 };
 
 export const index = async (req, res) => {
@@ -27,31 +59,45 @@ export const index = async (req, res) => {
                 p.post_id,
                 p.description,
                 p.post_type,
-                p.media_type,
-                p.media_url,
                 p.is_hidden,
                 p.hidden_by,
                 p.hidden_reason,
                 p.created_at,
                 p.updated_at,
+                p.deleted_at,
                 o.official_id,
                 o.official_position,
                 n.first_name,
                 n.middle_name,
                 n.last_name,
                 n.suffix,
+                -- Get all media for this post as JSON array
+                COALESCE(
+                    json_agg(
+                        json_build_object(
+                            'media_id', pm.media_id,
+                            'url', pm.media_url,
+                            'type', pm.media_type,
+                            'mimetype', pm.mimetype,
+                            'file_size', pm.file_size,
+                            'display_order', pm.display_order
+                        ) ORDER BY pm.display_order ASC
+                    ) FILTER (WHERE pm.media_id IS NOT NULL),
+                    '[]'::json
+                ) as media,
                 COUNT(DISTINCT c.comment_id) AS comments_count,
                 COUNT(DISTINCT r.reaction_id) AS reactions_count
             FROM posts p
             INNER JOIN sk_official o ON p.official_id = o.official_id
             LEFT JOIN sk_official_name n ON o.official_id = n.official_id
+            LEFT JOIN post_media pm ON p.post_id = pm.post_id
             LEFT JOIN post_comments c ON p.post_id = c.post_id
             LEFT JOIN post_reactions r ON p.post_id = r.post_id
             ${whereClause}
+            AND p.deleted_at IS NULL
             GROUP BY 
                 p.post_id, o.official_id, o.official_position,
-                n.first_name, n.middle_name, n.last_name, n.suffix,
-                p.post_type, p.is_hidden, p.hidden_by, p.hidden_reason
+                n.first_name, n.middle_name, n.last_name, n.suffix
             ORDER BY p.created_at DESC
             `
         );
@@ -60,8 +106,7 @@ export const index = async (req, res) => {
             post_id: row.post_id,
             description: row.description,
             type: row.post_type || "post",
-            media_type: row.media_type,
-            media_url: row.media_url,
+            media: row.media, // Array of media objects
             is_hidden: row.is_hidden,
             hidden_by: row.hidden_by,
             hidden_reason: row.hidden_reason,
@@ -89,14 +134,12 @@ export const index = async (req, res) => {
     }
 };
 
-// Create post
+// Create post with multiple media files
 export const createPost = async (req, res) => {
     const user = req.user;
     const body = req.body || {};
     const description = body.description || "";
     const post_type = body.type || body.post_type || "post";
-    const media_type = body.media_type || "";
-    const media_url = body.media_url || "";
 
     if (!user || user.userType !== "official") {
         return res.status(403).json({
@@ -123,24 +166,119 @@ export const createPost = async (req, res) => {
             });
         }
 
-        const uploaded = Array.isArray(res.locals.uploaded_images) ? res.locals.uploaded_images : [];
-        const finalMediaUrl = uploaded[0] || media_url || null;
-        const finalMediaType = finalMediaUrl ? (media_type || inferMediaType(finalMediaUrl)) : null;
+        // Get uploaded files from middleware
+        const uploadedUrls = Array.isArray(res.locals.uploaded_images) 
+            ? res.locals.uploaded_images 
+            : [];
 
-        const result = await pool.query(
+        // Start transaction
+        await pool.query("BEGIN");
+
+        // Insert the post (without media_type and media_url in the main posts table)
+        const postResult = await pool.query(
             `
-            INSERT INTO posts (official_id, description, post_type, media_type, media_url)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING post_id, description, post_type, media_type, media_url, created_at, updated_at
+            INSERT INTO posts (official_id, description, post_type)
+            VALUES ($1, $2, $3)
+            RETURNING post_id, description, post_type, created_at, updated_at
             `,
-            [officialId, description, post_type, finalMediaType, finalMediaUrl]
+            [officialId, description, post_type]
         );
 
-        const postId = result.rows[0].post_id;
+        const postId = postResult.rows[0].post_id;
+
+        // Insert media files if any
+        if (uploadedUrls.length > 0) {
+            const processedMedia = processCloudinaryFiles(uploadedUrls, req.files || []);
+            
+            for (const [index, media] of processedMedia.entries()) {
+                await pool.query(
+                    `
+                    INSERT INTO post_media 
+                    (post_id, media_url, media_type, mimetype, file_size, display_order)
+                    VALUES ($1, $2, $3, $4, $5, $6)
+                    `,
+                    [
+                        postId,
+                        media.url,
+                        media.mediaType,
+                        media.mimetype,
+                        media.size,
+                        index
+                    ]
+                );
+            }
+
+            // For backward compatibility, update the first media to the posts table
+            await pool.query(
+                `
+                UPDATE posts 
+                SET media_type = $1, media_url = $2 
+                WHERE post_id = $3
+                `,
+                [processedMedia[0].mediaType, processedMedia[0].url, postId]
+            );
+        }
+
+        await pool.query("COMMIT");
+
+        // Get the complete post with media for response
+        const completePostResult = await pool.query(
+            `
+            SELECT 
+                p.*,
+                COALESCE(
+                    json_agg(
+                        json_build_object(
+                            'media_id', pm.media_id,
+                            'url', pm.media_url,
+                            'type', pm.media_type,
+                            'mimetype', pm.mimetype,
+                            'file_size', pm.file_size,
+                            'display_order', pm.display_order
+                        ) ORDER BY pm.display_order ASC
+                    ) FILTER (WHERE pm.media_id IS NOT NULL),
+                    '[]'::json
+                ) as media,
+                o.official_id,
+                o.official_position,
+                n.first_name,
+                n.middle_name,
+                n.last_name,
+                n.suffix
+            FROM posts p
+            INNER JOIN sk_official o ON p.official_id = o.official_id
+            LEFT JOIN sk_official_name n ON o.official_id = n.official_id
+            LEFT JOIN post_media pm ON p.post_id = pm.post_id
+            WHERE p.post_id = $1
+            GROUP BY 
+                p.post_id, o.official_id, o.official_position,
+                n.first_name, n.middle_name, n.last_name, n.suffix
+            `,
+            [postId]
+        );
+
+        // Format the response
+        const postData = completePostResult.rows[0];
+        const formattedPost = {
+            ...postData,
+            official: {
+                official_id: postData.official_id,
+                position: postData.official_position,
+                name: `${postData.first_name || ""} ${postData.middle_name || ""} ${postData.last_name || ""} ${postData.suffix || ""}`.trim()
+            },
+            media: postData.media || []
+        };
+
+        // Remove the individual name fields from the main object
+        delete formattedPost.first_name;
+        delete formattedPost.middle_name;
+        delete formattedPost.last_name;
+        delete formattedPost.suffix;
+        delete formattedPost.official_id;
+        delete formattedPost.official_position;
 
         // Notify everyone about the new post
         try {
-            // Get post author's name
             const authorNameResult = await pool.query(
                 `SELECT CONCAT(first_name, ' ', last_name) as name 
                  FROM sk_official_name WHERE official_id = $1`,
@@ -191,22 +329,17 @@ export const createPost = async (req, res) => {
             }
             console.log(`Successfully created ${youthResult.rows.length} notifications for youth members`);
         } catch (notifError) {
-            // Log error but don't fail the post creation
             console.error("Error creating notifications:", notifError);
-            console.error("Notification error details:", {
-                message: notifError.message,
-                stack: notifError.stack,
-                postId,
-                officialId
-            });
         }
 
         res.status(201).json({
             status: "Success",
             message: "Post created successfully",
-            data: result.rows[0]
+            data: formattedPost
         });
+
     } catch (error) {
+        await pool.query("ROLLBACK");
         console.error("Failed to create post:", error);
         res.status(500).json({
             status: "Error",
@@ -215,12 +348,100 @@ export const createPost = async (req, res) => {
     }
 };
 
-// Update post
+// Get single post with media
+export const getPost = async (req, res) => {
+    const { id: post_id } = req.params;
+    const user = req.user;
+
+    try {
+        const result = await pool.query(
+            `
+            SELECT 
+                p.*,
+                COALESCE(
+                    json_agg(
+                        json_build_object(
+                            'media_id', pm.media_id,
+                            'url', pm.media_url,
+                            'type', pm.media_type,
+                            'mimetype', pm.mimetype,
+                            'file_size', pm.file_size,
+                            'display_order', pm.display_order
+                        ) ORDER BY pm.display_order ASC
+                    ) FILTER (WHERE pm.media_id IS NOT NULL),
+                    '[]'::json
+                ) as media,
+                o.official_id,
+                o.official_position,
+                n.first_name,
+                n.middle_name,
+                n.last_name,
+                n.suffix,
+                COUNT(DISTINCT c.comment_id) AS comments_count,
+                COUNT(DISTINCT r.reaction_id) AS reactions_count
+            FROM posts p
+            INNER JOIN sk_official o ON p.official_id = o.official_id
+            LEFT JOIN sk_official_name n ON o.official_id = n.official_id
+            LEFT JOIN post_media pm ON p.post_id = pm.post_id
+            LEFT JOIN post_comments c ON p.post_id = c.post_id
+            LEFT JOIN post_reactions r ON p.post_id = r.post_id
+            WHERE p.post_id = $1 
+                AND (p.is_hidden = FALSE OR $2::boolean = true)
+                AND p.deleted_at IS NULL
+            GROUP BY 
+                p.post_id, o.official_id, o.official_position,
+                n.first_name, n.middle_name, n.last_name, n.suffix
+            `,
+            [post_id, user && user.userType === "official"]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                status: "Error",
+                message: "Post not found"
+            });
+        }
+
+        const post = result.rows[0];
+        const formattedPost = {
+            ...post,
+            official: {
+                official_id: post.official_id,
+                position: post.official_position,
+                name: `${post.first_name || ""} ${post.middle_name || ""} ${post.last_name || ""} ${post.suffix || ""}`.trim()
+            },
+            media: post.media || []
+        };
+
+        // Remove the individual name fields from the main object
+        delete formattedPost.first_name;
+        delete formattedPost.middle_name;
+        delete formattedPost.last_name;
+        delete formattedPost.suffix;
+        delete formattedPost.official_id;
+        delete formattedPost.official_position;
+
+        res.status(200).json({
+            status: "Success",
+            data: formattedPost
+        });
+
+    } catch (error) {
+        console.error("Failed to fetch post:", error);
+        res.status(500).json({
+            status: "Error",
+            message: "Internal server error"
+        });
+    }
+};
+
+// Update post with multiple media files
 export const updatePost = async (req, res) => {
     const user = req.user;
     const { id: post_id } = req.params;
-    const { description, type, post_type, media_type, media_url } = req.body;
-    const finalPostType = type || post_type;
+    const body = req.body || {};
+    const description = body.description || "";
+    const post_type = body.type || body.post_type;
 
     if (!user || user.userType !== "official") {
         return res.status(403).json({
@@ -229,10 +450,9 @@ export const updatePost = async (req, res) => {
         });
     }
 
-    // Validate post_type if provided
-    if (finalPostType) {
+    if (post_type) {
         const validTypes = ["post", "announcement", "activity"];
-        if (!validTypes.includes(finalPostType)) {
+        if (!validTypes.includes(post_type)) {
             return res.status(400).json({
                 status: "Error",
                 message: "Invalid post type. Must be one of: post, announcement, activity"
@@ -241,34 +461,138 @@ export const updatePost = async (req, res) => {
     }
 
     try {
-        const result = await pool.query(
+        await pool.query("BEGIN");
+
+        // Update post basic info
+        const postResult = await pool.query(
             `
             UPDATE posts
             SET
                 description = $1,
                 post_type = COALESCE($2, post_type),
-                media_type = $3,
-                media_url = $4,
                 updated_at = CURRENT_TIMESTAMP
-            WHERE post_id = $5 AND official_id = $6
+            WHERE post_id = $3 AND official_id = $4
             RETURNING *
             `,
-            [description, finalPostType || null, media_type || null, media_url || null, post_id, user.official_id]
+            [description, post_type || null, post_id, user.official_id]
         );
 
-        if (result.rows.length === 0) {
+        if (postResult.rows.length === 0) {
+            await pool.query("ROLLBACK");
             return res.status(404).json({
                 status: "Error",
                 message: "Post not found or you do not have permission to update it"
             });
         }
 
+        // Handle media updates if new files are uploaded
+        const uploadedUrls = Array.isArray(res.locals.uploaded_images) 
+            ? res.locals.uploaded_images 
+            : [];
+
+        if (uploadedUrls.length > 0) {
+            // Option: Replace all existing media
+            // Delete existing media
+            await pool.query("DELETE FROM post_media WHERE post_id = $1", [post_id]);
+
+            // Insert new media
+            const processedMedia = processCloudinaryFiles(uploadedUrls, req.files || []);
+            
+            for (const [index, media] of processedMedia.entries()) {
+                await pool.query(
+                    `
+                    INSERT INTO post_media 
+                    (post_id, media_url, media_type, mimetype, file_size, display_order)
+                    VALUES ($1, $2, $3, $4, $5, $6)
+                    `,
+                    [
+                        post_id,
+                        media.url,
+                        media.mediaType,
+                        media.mimetype,
+                        media.size,
+                        index
+                    ]
+                );
+            }
+
+            // Update the first media to the posts table for backward compatibility
+            if (processedMedia.length > 0) {
+                await pool.query(
+                    `
+                    UPDATE posts 
+                    SET media_type = $1, media_url = $2 
+                    WHERE post_id = $3
+                    `,
+                    [processedMedia[0].mediaType, processedMedia[0].url, post_id]
+                );
+            }
+        }
+
+        await pool.query("COMMIT");
+
+        // Get updated post with media
+        const updatedPostResult = await pool.query(
+            `
+            SELECT 
+                p.*,
+                COALESCE(
+                    json_agg(
+                        json_build_object(
+                            'media_id', pm.media_id,
+                            'url', pm.media_url,
+                            'type', pm.media_type,
+                            'mimetype', pm.mimetype,
+                            'display_order', pm.display_order
+                        ) ORDER BY pm.display_order ASC
+                    ) FILTER (WHERE pm.media_id IS NOT NULL),
+                    '[]'::json
+                ) as media,
+                o.official_id,
+                o.official_position,
+                n.first_name,
+                n.middle_name,
+                n.last_name,
+                n.suffix
+            FROM posts p
+            INNER JOIN sk_official o ON p.official_id = o.official_id
+            LEFT JOIN sk_official_name n ON o.official_id = n.official_id
+            LEFT JOIN post_media pm ON p.post_id = pm.post_id
+            WHERE p.post_id = $1
+            GROUP BY 
+                p.post_id, o.official_id, o.official_position,
+                n.first_name, n.middle_name, n.last_name, n.suffix
+            `,
+            [post_id]
+        );
+
+        const updatedPost = updatedPostResult.rows[0];
+        const formattedPost = {
+            ...updatedPost,
+            official: {
+                official_id: updatedPost.official_id,
+                position: updatedPost.official_position,
+                name: `${updatedPost.first_name || ""} ${updatedPost.middle_name || ""} ${updatedPost.last_name || ""} ${updatedPost.suffix || ""}`.trim()
+            },
+            media: updatedPost.media || []
+        };
+
+        // Remove the individual name fields
+        delete formattedPost.first_name;
+        delete formattedPost.middle_name;
+        delete formattedPost.last_name;
+        delete formattedPost.suffix;
+        delete formattedPost.official_id;
+        delete formattedPost.official_position;
+
         res.status(200).json({
             status: "Success",
             message: "Post updated successfully",
-            data: result.rows[0]
+            data: formattedPost
         });
+
     } catch (error) {
+        await pool.query("ROLLBACK");
         console.error("Failed to update post:", error);
         res.status(500).json({
             status: "Error",
@@ -277,7 +601,154 @@ export const updatePost = async (req, res) => {
     }
 };
 
-// Soft delete post
+// Delete media from post
+export const deleteMedia = async (req, res) => {
+    const { post_id, media_id } = req.params;
+    const user = req.user;
+
+    if (!user || user.userType !== "official") {
+        return res.status(403).json({
+            status: "Error",
+            message: "Forbidden - Only officials can delete media"
+        });
+    }
+
+    try {
+        // Verify the post belongs to the user
+        const postCheck = await pool.query(
+            "SELECT 1 FROM posts WHERE post_id = $1 AND official_id = $2",
+            [post_id, user.official_id]
+        );
+
+        if (postCheck.rows.length === 0) {
+            return res.status(404).json({
+                status: "Error",
+                message: "Post not found or you don't have permission"
+            });
+        }
+
+        const result = await pool.query(
+            "DELETE FROM post_media WHERE media_id = $1 AND post_id = $2 RETURNING *",
+            [media_id, post_id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                status: "Error",
+                message: "Media not found"
+            });
+        }
+
+        // Check if this was the first media (for backward compatibility)
+        const remainingMedia = await pool.query(
+            "SELECT media_url, media_type FROM post_media WHERE post_id = $1 ORDER BY display_order ASC LIMIT 1",
+            [post_id]
+        );
+
+        if (remainingMedia.rows.length > 0) {
+            // Update posts table with the first remaining media
+            await pool.query(
+                "UPDATE posts SET media_url = $1, media_type = $2 WHERE post_id = $3",
+                [remainingMedia.rows[0].media_url, remainingMedia.rows[0].media_type, post_id]
+            );
+        } else {
+            // No media left, clear the fields
+            await pool.query(
+                "UPDATE posts SET media_url = NULL, media_type = NULL WHERE post_id = $1",
+                [post_id]
+            );
+        }
+
+        res.status(200).json({
+            status: "Success",
+            message: "Media deleted successfully"
+        });
+
+    } catch (error) {
+        console.error("Failed to delete media:", error);
+        res.status(500).json({
+            status: "Error",
+            message: "Internal server error"
+        });
+    }
+};
+
+// Reorder media
+export const reorderMedia = async (req, res) => {
+    const { post_id } = req.params;
+    const { media_order } = req.body; // Array of media IDs in new order
+    const user = req.user;
+
+    if (!user || user.userType !== "official") {
+        return res.status(403).json({
+            status: "Error",
+            message: "Forbidden - Only officials can reorder media"
+        });
+    }
+
+    if (!Array.isArray(media_order) || media_order.length === 0) {
+        return res.status(400).json({
+            status: "Error",
+            message: "media_order must be a non-empty array"
+        });
+    }
+
+    try {
+        await pool.query("BEGIN");
+
+        // Verify the post belongs to the user
+        const postCheck = await pool.query(
+            "SELECT 1 FROM posts WHERE post_id = $1 AND official_id = $2",
+            [post_id, user.official_id]
+        );
+
+        if (postCheck.rows.length === 0) {
+            await pool.query("ROLLBACK");
+            return res.status(404).json({
+                status: "Error",
+                message: "Post not found or you don't have permission"
+            });
+        }
+
+        // Update display order for each media item
+        for (let i = 0; i < media_order.length; i++) {
+            await pool.query(
+                "UPDATE post_media SET display_order = $1 WHERE media_id = $2 AND post_id = $3",
+                [i, media_order[i], post_id]
+            );
+        }
+
+        // Update the first media in posts table for backward compatibility
+        const firstMedia = await pool.query(
+            "SELECT media_url, media_type FROM post_media WHERE post_id = $1 ORDER BY display_order ASC LIMIT 1",
+            [post_id]
+        );
+
+        if (firstMedia.rows.length > 0) {
+            await pool.query(
+                "UPDATE posts SET media_url = $1, media_type = $2 WHERE post_id = $3",
+                [firstMedia.rows[0].media_url, firstMedia.rows[0].media_type, post_id]
+            );
+        }
+
+        await pool.query("COMMIT");
+
+        res.status(200).json({
+            status: "Success",
+            message: "Media reordered successfully"
+        });
+
+    } catch (error) {
+        await pool.query("ROLLBACK");
+        console.error("Failed to reorder media:", error);
+        res.status(500).json({
+            status: "Error",
+            message: "Internal server error"
+        });
+    }
+};
+
+// Delete post
 export const deletePost = async (req, res) => {
     const user = req.user;
     const { id: post_id } = req.params;
@@ -290,6 +761,9 @@ export const deletePost = async (req, res) => {
     }
 
     try {
+        await pool.query("BEGIN");
+
+        // Soft delete the post
         const result = await pool.query(
             `
             UPDATE posts
@@ -302,18 +776,25 @@ export const deletePost = async (req, res) => {
         );
 
         if (result.rows.length === 0) {
+            await pool.query("ROLLBACK");
             return res.status(404).json({
                 status: "Error",
                 message: "Post not found or already deleted"
             });
         }
 
+        // Note: post_media records will be automatically deleted due to ON DELETE CASCADE
+
+        await pool.query("COMMIT");
+
         res.status(200).json({
             status: "Success",
             message: "Post deleted successfully",
             data: result.rows[0]
         });
+
     } catch (error) {
+        await pool.query("ROLLBACK");
         console.error("Failed to delete post:", error);
         res.status(500).json({
             status: "Error",
@@ -411,93 +892,4 @@ export const unhidePost = async (req, res) => {
             message: "Internal Server Error"
         });
     }
-};
-
-export const destroy = async (req, res) => {
-  const { id: form_id } = req.params;
-  const user = req.user;
-
-  if (!user || user.userType !== "official") {
-    return res.status(403).json({
-      status: "Error",
-      message: "Forbidden - Only officials can delete forms",
-    });
-  }
-
-  try {
-    const result = await pool.query(
-      `
-      UPDATE forms
-      SET deleted_at = CURRENT_TIMESTAMP
-      WHERE form_id = $1 AND deleted_at IS NULL
-      RETURNING *
-      `,
-      [form_id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        status: "Error",
-        message: "Form not found or already deleted",
-      });
-    }
-
-    return res.status(200).json({
-      status: "Success",
-      message: "Form deleted successfully (soft delete)",
-    });
-  } catch (error) {
-    console.error("Error deleting form:", error);
-    return res.status(500).json({
-      status: "Error",
-      message: "Internal Server Error",
-    });
-  }
-};
-
-/**
- * POST /api/forms/:id/reply
- * Add a youth reply to a form
- */
-export const reply = async (req, res) => {
-  const { id: form_id } = req.params;
-  const user = req.user;
-  const { response } = req.body;
-
-  if (!user || user.userType !== "youth") {
-    return res.status(403).json({
-      status: "Error",
-      message: "Forbidden - Only youth can reply to forms",
-    });
-  }
-
-  if (!response) {
-    return res.status(400).json({
-      status: "Error",
-      message: "Response text is required",
-    });
-  }
-
-  try {
-    const result = await pool.query(
-      `
-      INSERT INTO replied_forms (form_id, youth_id, response)
-      VALUES ($1, $2, $3)
-      RETURNING *
-      `,
-      [form_id, user.youth_id, response]
-    );
-
-    return res.status(201).json({
-      status: "Success",
-      message: "Reply submitted successfully",
-      data: result.rows[0],
-    });
-  } catch (error) {
-    console.error("Error submitting reply:", error);
-    return res.status(500).json({
-      status: "Error",
-      message: "Internal Server Error",
-    });
-  }
 };
