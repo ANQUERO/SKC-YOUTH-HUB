@@ -12,9 +12,8 @@ import {
   YAxis,
   XAxis,
   Bar,
-  LineChart,
-  Line
 } from 'recharts';
+
 import {
   Users,
   UserCheck,
@@ -22,11 +21,9 @@ import {
   MapPin,
   Download,
   Filter,
-  MoreVertical,
   TrendingUp,
   UserPlus,
   FileText,
-  Shield,
   MessageSquare,
   Reply,
   Heart,
@@ -60,25 +57,35 @@ const Dashboard = () => {
   ]);
 
   // Totals
-  const totalResidents = (dashboardData.purok_stats || []).reduce(
+const totalResidents = (dashboardData.purok_stats || []).reduce(
     (sum, p) => sum + (Number(p.total_residents) || 0),
     0
-  );
+);
 
-  const totalVoters = Number(dashboardData.registered_voters) || 0;
-  const totalYouths = Number(dashboardData.total_youths) || 0;
+ const totalVoters = Number(dashboardData.registered_voters) || 0;
+const totalYouths = Number(dashboardData.total_youths) || 0;
 
-  const maleCount =
-    dashboardData.gender_stats?.find(g => g.gender === 'male')?.total || 0;
+const maleCount = dashboardData.gender_stats?.find(g => 
+    g.gender?.toLowerCase() === 'male'
+)?.total || 0;
 
-  const femaleCount =
-    dashboardData.gender_stats?.find(g => g.gender === 'female')?.total || 0;
+const femaleCount = dashboardData.gender_stats?.find(g => 
+    g.gender?.toLowerCase() === 'female'
+)?.total || 0;
+
 
   // Charts
-  const voterRegistrationData = [
-    { name: 'Registered', value: totalVoters },
-    { name: 'Unregistered', value: Number(dashboardData.unregistered_voters) || 0 }
-  ];
+const voterRegistrationData = [
+    { 
+        name: 'Registered', 
+        value: totalVoters 
+    },
+    { 
+        name: 'Unregistered', 
+        value: Math.max(0, totalYouths - totalVoters) 
+    }
+];
+
 
   const genderData =
     dashboardData.gender_stats?.map(g => ({
@@ -86,21 +93,11 @@ const Dashboard = () => {
       value: Number(g.total) || 0
     })) || [];
 
-  const purokData =
-    dashboardData.purok_stats?.map(p => ({
-      name: p.purok,
-      residents: Number(p.total_residents) || 0,
-      voters: Number(p.registered_voters) || 0
-    })) || [];
-
-  // Dummy age distribution
-  const ageDistributionData = [
-    { age: '15-20', count: 45 },
-    { age: '21-25', count: 68 },
-    { age: '26-30', count: 52 },
-    { age: '31-35', count: 38 },
-    { age: '36-40', count: 25 }
-  ];
+const purokData = (dashboardData.purok_stats || []).map(p => ({
+    name: p.purok || 'No Purok',
+    residents: Number(p.total_residents) || 0,
+    voters: Number(p.registered_voters) || 0
+}));
 
   // Time formatter
   const formatTimeAgo = (dateString) => {
@@ -207,10 +204,6 @@ const Dashboard = () => {
           </div>
           <div className={style.statValue}>{totalVoters.toLocaleString()}</div>
           <div className={style.statLabel}>Registered Voters</div>
-          <div className={`${style.statTrend} ${style.positive}`}>
-            <TrendingUp size={14} />
-            <span>12% increase</span>
-          </div>
         </div>
 
         <div className={`${style.statCard} ${style.youths}`}>
@@ -219,10 +212,7 @@ const Dashboard = () => {
           </div>
           <div className={style.statValue}>{totalYouths.toLocaleString()}</div>
           <div className={style.statLabel}>Total Youths</div>
-          <div className={`${style.statTrend} ${style.positive}`}>
-            <TrendingUp size={14} />
-            <span>8% increase</span>
-          </div>
+         
         </div>
 
         <div className={`${style.statCard} ${style.gender}`}>
@@ -233,10 +223,6 @@ const Dashboard = () => {
             {((maleCount / (maleCount + femaleCount)) * 100 || 0).toFixed(1)}% M
           </div>
           <div className={style.statLabel}>Gender Distribution</div>
-          <div className={`${style.statTrend} ${style.positive}`}>
-            <TrendingUp size={14} />
-            <span>Balanced</span>
-          </div>
         </div>
 
         <div className={`${style.statCard} ${style.purok}`}>
@@ -245,10 +231,6 @@ const Dashboard = () => {
           </div>
           <div className={style.statValue}>{totalResidents.toLocaleString()}</div>
           <div className={style.statLabel}>Total Residents</div>
-          <div className={`${style.statTrend} ${style.positive}`}>
-            <TrendingUp size={14} />
-            <span>5% increase</span>
-          </div>
         </div>
       </div>
 
@@ -259,14 +241,6 @@ const Dashboard = () => {
           <div className={style.chartCard}>
             <div className={style.chartHeader}>
               <h3>Voter Registration Status</h3>
-              <div className={style.chartActions}>
-                <button title="Download">
-                  <Download size={16} />
-                </button>
-                <button title="Filter">
-                  <Filter size={16} />
-                </button>
-              </div>
             </div>
             <div className={style.chartContainer}>
               {hasVoterData ? (
@@ -299,11 +273,6 @@ const Dashboard = () => {
           <div className={style.chartCard}>
             <div className={style.chartHeader}>
               <h3>Gender Distribution</h3>
-              <div className={style.chartActions}>
-                <button title="Download">
-                  <Download size={16} />
-                </button>
-              </div>
             </div>
             <div className={style.chartContainer}>
               {hasGenderData ? (
@@ -326,14 +295,6 @@ const Dashboard = () => {
           <div className={`${style.chartCard} ${style.large}`}>
             <div className={style.chartHeader}>
               <h3>Residents & Voters by Purok</h3>
-              <div className={style.chartActions}>
-                <button title="Download">
-                  <Download size={16} />
-                </button>
-                <button title="Filter">
-                  <Filter size={16} />
-                </button>
-              </div>
             </div>
             <div className={style.chartContainer}>
               {hasPurokData ? (
@@ -356,34 +317,6 @@ const Dashboard = () => {
         </div>
 
         <div className={style.sideCharts}>
-          {/* Age Distribution */}
-          <div className={style.chartCard}>
-            <div className={style.chartHeader}>
-              <h3>Youth Age Distribution</h3>
-              <div className={style.chartActions}>
-                <button title="More options">
-                  <MoreVertical size={16} />
-                </button>
-              </div>
-            </div>
-            <div className={style.chartContainer}>
-              <ResponsiveContainer width="100%" height={250} minWidth={0}>
-                <LineChart data={ageDistributionData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis dataKey="age" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => [value, 'Count']} />
-                  <Line 
-                    type="monotone" 
-                    dataKey="count" 
-                    stroke="#f59e0b" 
-                    strokeWidth={2}
-                    dot={{ fill: '#f59e0b', strokeWidth: 2, r: 4 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
 
           {/* Recent Activity */}
           <div className={style.recentActivity}>

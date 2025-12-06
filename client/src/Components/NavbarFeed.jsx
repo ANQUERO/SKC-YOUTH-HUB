@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import style from '@styles/navbarFeed.module.scss';
+import styles from '@styles/navbarFeed.module.scss'; // Changed import
 import Logo from '@images/logo.jpg';
 import { useAuthContext } from '@context/AuthContext';
 import { useNotifications } from '@context/NotificationContext';
@@ -30,20 +30,17 @@ export const Navbar = () => {
   const canManage = isSkSuperAdmin || isSkNaturalAdmin;
   const { notifications, unreadCount, markRead } = useNotifications();
 
-  // Handle notification click - redirect to post (and comment if applicable)
+  // Handle notification click
   const handleNotificationClick = (notification) => {
     if (notification.meta?.post_id || notification._apiData?.post_id) {
       const postId = notification.meta?.post_id || notification._apiData?.post_id;
       const commentId = notification.meta?.comment_id || notification._apiData?.comment_id;
       
-      // Mark as read
       if (!notification.read) {
         markRead(notification.id);
       }
-      // Close notification dropdown
       setNotifOpen(false);
       
-      // Navigate to feed with post focus and comment hash if it's a comment notification
       if (commentId && notification.type === 'comment') {
         navigate(`/feed?post=${postId}#comment-${commentId}`);
       } else {
@@ -54,123 +51,141 @@ export const Navbar = () => {
 
   return (
     <>
-      <nav className={style.nav}>
+      <nav className={styles.nav}>
         {/* Left Section - Logo and Search */}
-        <div className={style.leftSection}>
-          <NavLink to="/feed" className={style.logoLink}>
-            <img src={Logo} alt="SKC Youth Hub" className={style.logo} />
+        <div className={styles.left_section}>
+          <NavLink to="/feed" className={styles.logo_link}>
+            <img src={Logo} alt="SKC Youth Hub" className={styles.logo} />
           </NavLink>
           
-          <div className={style.searchWrapper}>
-            <Search className={style.searchIcon} />
+          <div className={styles.search_wrapper}>
+            <Search className={styles.search_icon} />
             <input
               type="text"
               placeholder="Search SKC Youth Hub"
-              className={style.searchInput}
+              className={styles.search_input}
             />
           </div>
         </div>
 
         {/* Center Section - Navigation Links (Desktop) */}
-        <div className={style.centerSection}>
-          <ul className={style.navLinks}>
-            <li className={style.navItem}>
+        <div className={styles.center_section}>
+          <ul className={styles.nav_links}>
+            <li className={styles.nav_item}>
               <NavLink
                 to="/feed"
                 className={({ isActive }) =>
-                  isActive ? `${style.navLink} ${style.active}` : style.navLink
+                  isActive ? `${styles.nav_link} ${styles.active}` : styles.nav_link
                 }
               >
-                <House className={style.navIcon} />
+                <House className={styles.nav_icon} />
               </NavLink>
             </li>
-            <li className={style.navItem}>
+            <li className={styles.nav_item}>
               <NavLink
                 to="/feed/announcements"
                 className={({ isActive }) =>
-                  isActive ? `${style.navLink} ${style.active}` : style.navLink
+                  isActive ? `${styles.nav_link} ${styles.active}` : styles.nav_link
                 }
               >
-                <Megaphone className={style.navIcon} />
+                <Megaphone className={styles.nav_icon} />
               </NavLink>
             </li>
-            <li className={style.navItem}>
+            <li className={styles.nav_item}>
               <NavLink
                 to="/feed/activities"
                 className={({ isActive }) =>
-                  isActive ? `${style.navLink} ${style.active}` : style.navLink
+                  isActive ? `${styles.nav_link} ${styles.active}` : styles.nav_link
                 }
               >
-                <CalendarRange className={style.navIcon} />
+                <CalendarRange className={styles.nav_icon} />
               </NavLink>
             </li>
-            <li className={style.navItem}>
+            <li className={styles.nav_item}>
               <NavLink
                 to="/feed/feedback"
                 className={({ isActive }) =>
-                  isActive ? `${style.navLink} ${style.active}` : style.navLink
+                  isActive ? `${styles.nav_link} ${styles.active}` : styles.nav_link
                 }
               >
-                <MessageCircle className={style.navIcon} />
+                <MessageCircle className={styles.nav_icon} />
               </NavLink>
             </li>
-
           </ul>
         </div>
 
         {/* Right Section - Actions and Profile */}
-        <div className={style.rightSection}>
-          <div className={style.actionIcons}>
-            
+        <div className={styles.right_section}>
+          <div className={styles.action_icons}>
             <div 
-              className={style.actionIcon}
+              className={styles.action_icon}
               onClick={() => setNotifOpen(!isNotifOpen)}
+              role="button"
+              tabIndex={0}
+              onKeyPress={(e) => e.key === 'Enter' && setNotifOpen(!isNotifOpen)}
             >
-              <Bell className={style.icon} />
-              {unreadCount > 0 && <span className={style.badge}>{unreadCount}</span>}
+              <Bell className={styles.icon} />
+              {unreadCount > 0 && <span className={styles.badge}>{unreadCount}</span>}
             </div>
           </div>
 
           <div 
-            className={style.profileWrapper}
+            className={styles.profile_wrapper}
             onClick={() => setProfileOpen(!isProfileOpen)}
+            role="button"
+            tabIndex={0}
+            onKeyPress={(e) => e.key === 'Enter' && setProfileOpen(!isProfileOpen)}
           >
             <img
               src={profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(
                 userData?.name || 'User'
               )}&background=007bff&color=fff`}
               alt="Profile"
-              className={style.avatar}
+              className={styles.avatar}
             />
-            <span className={style.userName}>{userData?.name || 'User'} </span>
+            <span className={styles.user_name}>{userData?.name || 'User'}</span>
           </div>
+
+          {/* Backdrop for mobile */}
+          {(isNotifOpen || isProfileOpen) && (
+            <div 
+              className={styles.dropdown_backdrop}
+              onClick={() => {
+                setNotifOpen(false);
+                setProfileOpen(false);
+              }}
+            />
+          )}
 
           {/* Notifications Dropdown */}
           {isNotifOpen && (
-            <div className={style.dropdown}>
-              <div className={style.dropdownHeader}>
+            <div className={styles.dropdown}>
+              <div className={styles.dropdown_header}>
                 <h4>Notifications</h4>
               </div>
-              <div className={style.dropdownList}>
+              <div className={styles.dropdown_list}>
                 {notifications.length === 0 ? (
-                  <div className={style.dropdownItem}>
-                    <div className={style.itemContent}>
-                      <div className={style.itemTitle}>No notifications</div>
-                      <div className={style.itemDescription}>You're all caught up!</div>
+                  <div className={styles.dropdown_item}>
+                    <div className={styles.item_content}>
+                      <div className={styles.item_title}>No notifications</div>
+                      <div className={styles.item_description}>You're all caught up!</div>
                     </div>
                   </div>
                 ) : (
                   notifications.slice(0, 5).map((notification) => (
                     <div 
                       key={notification.id} 
-                      className={style.dropdownItem}
+                      className={styles.dropdown_item}
                       onClick={() => handleNotificationClick(notification)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyPress={(e) => e.key === 'Enter' && handleNotificationClick(notification)}
                       style={{ cursor: (notification.meta?.post_id || notification._apiData?.post_id) ? 'pointer' : 'default' }}
                     >
-                      <Bell className={style.itemIcon} />
-                      <div className={style.itemContent}>
-                        <div className={style.itemTitle}>{notification.title}</div>
-                        <div className={style.itemDescription}>{notification.message}</div>
+                      <Bell className={styles.item_icon} />
+                      <div className={styles.item_content}>
+                        <div className={styles.item_title}>{notification.title}</div>
+                        <div className={styles.item_description}>{notification.message}</div>
                       </div>
                     </div>
                   ))
@@ -181,9 +196,9 @@ export const Navbar = () => {
 
           {/* Profile Dropdown */}
           {isProfileOpen && (
-            <div className={`${style.dropdown} ${style.profileDropdown}`}>
-              <div className={style.profileHeader}>
-                <div className={style.profileAvatar}>
+            <div className={`${styles.dropdown} ${styles.profile_dropdown}`}>
+              <div className={styles.profile_header}>
+                <div className={styles.profile_avatar}>
                   <img
                     src={profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(
                       userData?.name || 'User'
@@ -191,36 +206,36 @@ export const Navbar = () => {
                     alt="Profile"
                   />
                 </div>
-                <div className={style.profileInfo}>
-                  <div className={style.profileName}>{userData?.name || 'User'}</div>
-                  <div className={style.profileRole}>
+                <div className={styles.profile_info}>
+                  <div className={styles.profile_name}>{userData?.name || 'User'}</div>
+                  <div className={styles.profile_role}>
                     {canManage ? (userData?.position || 'Official') : 'Youth Member'}
                   </div>
                 </div>
               </div>
               
-              <div className={style.dropdownMenu}>
+              <div className={styles.dropdown_menu}>
                 {canManage && (
-                  <Link to="/dashboard" className={style.dropdownItem}>
-                    <Shield className={style.dropdownIcon} />
+                  <Link to="/dashboard" className={styles.dropdown_item}>
+                    <Shield className={styles.dropdown_icon} />
                     Admin Dashboard
                   </Link>
                 )}
                 
-                <Link to={canManage ? "/official-profile" : "/profile"} className={style.dropdownItem}>
-                  <User className={style.dropdownIcon} />
+                <Link to={canManage ? "/official-profile" : "/profile"} className={styles.dropdown_item}>
+                  <User className={styles.dropdown_icon} />
                   My Profile
                 </Link>
                 
-                <Link to={isSkYouth ? "/settings" : "/account"} className={style.dropdownItem}>
-                  <Settings className={style.dropdownIcon} />
+                <Link to={isSkYouth ? "/settings" : "/account"} className={styles.dropdown_item}>
+                  <Settings className={styles.dropdown_icon} />
                   Settings
                 </Link>
                 
-                <div className={style.divider}></div>
+                <div className={styles.divider}></div>
                 
-                <button onClick={logout} className={style.dropdownItem} style={{background: 'none', border: 'none', width: '100%', textAlign: 'left'}}>
-                  <LogOut className={style.dropdownIcon} />
+                <button onClick={logout} className={styles.dropdown_item}>
+                  <LogOut className={styles.dropdown_icon} />
                   Log Out
                 </button>
               </div>
@@ -229,54 +244,55 @@ export const Navbar = () => {
         </div>
 
         {/* Mobile Navigation */}
-        <div className={style.mobileNav}>
-          <div className={style.mobileNavItem}>
+        <div className={styles.mobile_nav}>
+          <div className={styles.mobile_nav_item}>
             <NavLink
               to="/feed"
               className={({ isActive }) =>
-                isActive ? `${style.mobileNavLink} ${style.active}` : style.mobileNavLink
+                isActive ? `${styles.mobile_nav_link} ${styles.active}` : styles.mobile_nav_link
               }
             >
-              <House className={style.mobileNavIcon} />
-              <span className={style.mobileNavLabel}>Home</span>
+              <House className={styles.mobile_nav_icon} />
+              <span className={styles.mobile_nav_label}>Home</span>
             </NavLink>
           </div>
-          <div className={style.mobileNavItem}>
+          <div className={styles.mobile_nav_item}>
             <NavLink
               to="/feed/announcements"
               className={({ isActive }) =>
-                isActive ? `${style.mobileNavLink} ${style.active}` : style.mobileNavLink
+                isActive ? `${styles.mobile_nav_link} ${styles.active}` : styles.mobile_nav_link
               }
             >
-              <Megaphone className={style.mobileNavIcon} />
-              <span className={style.mobileNavLabel}>News</span>
+              <Megaphone className={styles.mobile_nav_icon} />
+              <span className={styles.mobile_nav_label}>News</span>
             </NavLink>
           </div>
-          <div className={style.mobileNavItem}>
+          <div className={styles.mobile_nav_item}>
             <NavLink
               to="/feed/activities"
               className={({ isActive }) =>
-                isActive ? `${style.mobileNavLink} ${style.active}` : style.mobileNavLink
+                isActive ? `${styles.mobile_nav_link} ${styles.active}` : styles.mobile_nav_link
               }
             >
-              <CalendarRange className={style.mobileNavIcon} />
-              <span className={style.mobileNavLabel}>Events</span>
+              <CalendarRange className={styles.mobile_nav_icon} />
+              <span className={styles.mobile_nav_label}>Events</span>
             </NavLink>
           </div>
-          <div className={style.mobileNavItem}>
+          <div className={styles.mobile_nav_item}>
             <NavLink
               to="/feed/feedback"
               className={({ isActive }) =>
-                isActive ? `${style.mobileNavLink} ${style.active}` : style.mobileNavLink
+                isActive ? `${styles.mobile_nav_link} ${styles.active}` : styles.mobile_nav_link
               }
             >
-              <MessageCircle className={style.mobileNavIcon} />
-              <span className={style.mobileNavLabel}>Chat</span>
+              <MessageCircle className={styles.mobile_nav_icon} />
+              <span className={styles.mobile_nav_label}>Chat</span>
             </NavLink>
           </div>
-        
         </div>
       </nav>
     </>
   );
 };
+
+export default Navbar;

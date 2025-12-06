@@ -1,3 +1,4 @@
+// official.module.scss
 .officials_wrapper {
     padding: 2rem;
     max-width: 900px;
@@ -8,22 +9,32 @@
     font-size: 2rem;
     font-weight: bold;
     margin-bottom: 2rem;
+    text-align: center;
+    color: #333;
 }
 
 .officials_message {
     font-size: 1rem;
     color: #555;
+    text-align: center;
+    padding: 2rem;
 }
 
 .officials_error {
     font-size: 1rem;
-    color: red;
+    color: #d32f2f;
+    background-color: #ffebee;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 1rem;
 }
 
 .officials_list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 2rem;
+    margin-top: 2rem;
 }
 
 .official_card {
@@ -36,65 +47,96 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 1rem;
+    padding: 1.5rem;
 }
 
 .official_card:hover {
     transform: translateY(-5px);
     background-color: #f3f4f6;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 
 .card_content {
     text-align: center;
+    width: 100%;
 }
 
 .official_name {
     font-size: 1.25rem;
     font-weight: 600;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
+    color: #333;
+    line-height: 1.3;
 }
 
 .official_info {
     font-size: 0.95rem;
-    color: #333;
+    color: #666;
+    margin-bottom: 0;
 }
 
+/* Modal Styles */
 .modal_overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
 }
 
 .modal_content {
     background: #fff;
-    padding: 2rem;
+    padding: 2.5rem;
     border-radius: 0.75rem;
     max-width: 500px;
-    width: 90%;
+    width: 100%;
     position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .modal_title {
     font-size: 1.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #333;
+    padding-top: 1rem;
+}
+
+.modal_details {
+    margin-top: 1.5rem;
 }
 
 .modal_detail {
-    margin: 0.5rem 0;
+    margin: 1rem 0;
     font-size: 1rem;
+    line-height: 1.6;
+    color: #555;
+}
+
+.modal_detail strong {
+    color: #333;
+    margin-right: 0.5rem;
+    font-weight: 600;
 }
 
 .close_button {
     background: #ef4444;
     color: white;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 1.5rem;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    margin-top: 1rem;
+    margin-top: 1.5rem;
+    font-size: 1rem;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    transition: background-color 0.2s;
 }
 
 .close_button:hover {
@@ -106,6 +148,46 @@
     height: 120px;
     object-fit: cover;
     border-radius: 50%;
-    border: 3px solid #ddd;
-    margin-bottom: 1rem;
+    border: 3px solid #e5e7eb;
+    margin: 0 auto 1.5rem;
+    display: block;
+}
+
+/* Retry button */
+.retry_button {
+    margin-left: 10px;
+    padding: 0.5rem 1rem;
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+    
+    &:hover {
+        background-color: #1565c0;
+    }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .officials_list {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+    }
+    
+    .official_card {
+        padding: 1rem;
+    }
+    
+    .avatar_large {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .modal_content {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
 }

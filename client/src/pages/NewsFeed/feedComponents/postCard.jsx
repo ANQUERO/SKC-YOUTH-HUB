@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
+// Update your PostCard.js to include the updated PostOptions
+import React, { useState, useEffect } from "react";
 import style from "@styles/newsFeed.module.scss";
 import axiosInstance from "@lib/axios";
 import { useAuthContext } from "@context/AuthContext";
 import CommentSystem from "@components/CommentSystem";
-import PostOptions from "@components/PostOptions";
+import PostOptions from "@components/PostOptions"; 
 import { MediaGallery } from "Components/MediaGallery";
 
-export const PostCard = ({ post, onPostDeleted }) => {
+export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
   const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = useAuthContext();
   const isSK = isSkSuperAdmin || isSkNaturalAdmin || isSkYouth;
   const [reactionsCount, setReactionsCount] = useState({
@@ -14,9 +15,10 @@ export const PostCard = ({ post, onPostDeleted }) => {
     heart: 0,
     wow: 0,
   });
-  const [postHidden, setPostHidden] = useState(false);
+  const [postHidden, setPostHidden] = useState(post.is_hidden || false);
+  const [currentPost, setCurrentPost] = useState(post);
 
-  const mediaItems = post.media || [];
+  const mediaItems = currentPost.media || [];
 
   const allMediaItems = mediaItems.map((item) => ({
     url: item.url,
@@ -27,7 +29,7 @@ export const PostCard = ({ post, onPostDeleted }) => {
     if (!isSK) return;
 
     try {
-      await axiosInstance.post(`/post/${post.post_id}/react`, { type });
+      await axiosInstance.post(`/post/${currentPost.post_id}/react`, { type });
       setReactionsCount((prev) => ({ ...prev, [type]: (prev[type] || 0) + 1 }));
     } catch (e) {
       console.error(e);
@@ -35,14 +37,14 @@ export const PostCard = ({ post, onPostDeleted }) => {
   };
 
   const handleRemoveReaction = async () => {
-    if (!isSK) return; // Safety check
+    if (!isSK) return;
 
     try {
-      await axiosInstance.delete(`/post/${post.post_id}/react`);
+      await axiosInstance.delete(`/post/${currentPost.post_id}/react`);
 
       // Reload reactions after removal
       axiosInstance
-        .get(`/post/${post.post_id}/reactions`)
+        .get(`/post/${currentPost.post_id}/reactions`)
         .then(({ data }) => {
           const counts = { like: 0, heart: 0, wow: 0 };
           (data.data || []).forEach((r) => {
@@ -57,11 +59,16 @@ export const PostCard = ({ post, onPostDeleted }) => {
   };
 
   const handlePostDeleted = () => {
-    onPostDeleted && onPostDeleted();
+    onPostDeleted && onPostDeleted(currentPost.post_id);
   };
 
-  const handlePostHidden = () => {
-    setPostHidden(!postHidden);
+  const handlePostHidden = (isHidden) => {
+    setPostHidden(isHidden);
+  };
+
+  const handlePostUpdated = (updatedPost) => {
+    setCurrentPost(updatedPost);
+    onPostUpdated && onPostUpdated(updatedPost);
   };
 
   if (postHidden) {
@@ -69,6 +76,14 @@ export const PostCard = ({ post, onPostDeleted }) => {
       <div className={style.card}>
         <div className={style.hiddenPost}>
           <p>This post has been hidden by a moderator.</p>
+          {isSkSuperAdmin || isSkNaturalAdmin ? (
+            <PostOptions
+              post={currentPost}
+              onPostDeleted={handlePostDeleted}
+              onPostHidden={handlePostHidden}
+              onPostUpdated={handlePostUpdated}
+            />
+          ) : null}
         </div>
       </div>
     );
@@ -85,11 +100,11 @@ export const PostCard = ({ post, onPostDeleted }) => {
     }
   };
 
-  const postTypeInfo = getPostTypeInfo(post.type);
+  const postTypeInfo = getPostTypeInfo(currentPost.type);
 
   useEffect(() => {
     axiosInstance
-      .get(`/post/${post.post_id}/reactions`)
+      .get(`/post/${currentPost.post_id}/reactions`)
       .then(({ data }) => {
         const counts = { like: 0, heart: 0, wow: 0 };
         (data.data || []).forEach((r) => {
@@ -98,20 +113,20 @@ export const PostCard = ({ post, onPostDeleted }) => {
         setReactionsCount(counts);
       })
       .catch(() => {});
-  }, [post.post_id, isSK]);
+  }, [currentPost.post_id, isSK]);
 
   return (
-    <div className={style.card}>
+    <div className={style.card} id={`post-${currentPost.post_id}`}>
       <div className={style.header}>
         <div className={style.author}>
           <img
-            src={post.avatar || "/default-avatar.png"}
+            src={currentPost.avatar || "/default-avatar.png"}
             alt="Author"
             className={style.avatar}
           />
           <div>
-            <h4>{post.author || post.official?.name}</h4>
-            <p>{post.role || post.official?.position}</p>
+            <h4>{currentPost.author || currentPost.official?.name}</h4>
+            <p>{currentPost.role || currentPost.official?.position}</p>
           </div>
         </div>
         <div className={style.headerActions}>
@@ -123,30 +138,20 @@ export const PostCard = ({ post, onPostDeleted }) => {
             <span>{postTypeInfo.label}</span>
           </div>
           <span className={style.time}>
-            {new Date(post.created_at || post.time).toLocaleString()}
+            {new Date(currentPost.created_at || currentPost.time).toLocaleString()}
           </span>
           <PostOptions
-            post={post}
+            post={currentPost}
             onPostDeleted={handlePostDeleted}
             onPostHidden={handlePostHidden}
+            onPostUpdated={handlePostUpdated}
           />
         </div>
       </div>
 
-      <p className={style.content}>{post.description || post.content}</p>
+      <p className={style.content}>{currentPost.description || currentPost.content}</p>
 
       {allMediaItems.length > 0 && <MediaGallery mediaItems={allMediaItems} />}
-
-      {post.media_type === "image" && (
-        <img
-          src={post.media_url}
-          alt="Post visual"
-          className={style.postMedia}
-        />
-      )}
-      {post.media_type === "video" && (
-        <video src={post.media_url} controls className={style.postMedia} />
-      )}
 
       <div className={style.actionsRow}>
         <div className={style.actionGroup}>
@@ -175,8 +180,8 @@ export const PostCard = ({ post, onPostDeleted }) => {
       </div>
 
       <CommentSystem
-        postId={post.post_id}
-        postAuthor={post.author || post.official?.name}
+        postId={currentPost.post_id}
+        postAuthor={currentPost.author || currentPost.official?.name}
       />
     </div>
   );
