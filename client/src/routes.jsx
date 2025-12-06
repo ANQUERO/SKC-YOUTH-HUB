@@ -1,5 +1,4 @@
 import React from "react";
-import { Navigate, useLocation } from "react-router-dom";
 
 import LandingPage from "@pages/LandingPage";
 import PrivacyPolicy from "@pages/LandingPage/privacy/policy"
@@ -22,23 +21,11 @@ import NotFound from "@pages/NotFound";
 import Inbox from "@pages/Inbox";
 import YouthSettings from "@pages/YouthSettings";
 
-import { useAuthContext } from "@context/AuthContext";
 import YouthProfile from "@pages/YouthProfile";
 import OfficialsProfile from "@pages/OfficialsProfile";
 
-const ProtectedRoute = ({ children, allowedRoles }) => {
-    const { authUser, activeRole } = useAuthContext();
-    const location = useLocation();
+import ProtectedRoute from "@lib/ProtectedRoute";
 
-
-    if (!authUser)
-        return <Navigate to="/login" state={{ from: location }} replace />;
-
-    if (allowedRoles && !allowedRoles.includes(activeRole))
-        return <Navigate to="/" replace />;
-
-    return children;
-};
 
 export const routes = [
     {

@@ -1,9 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@lib/axios";
 import { useNavigate } from "react-router-dom";
-import { useNotifications } from "@context/NotificationContext";
 
-export const useNotifications = () => {
+export const useNotificationActions = () => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
 
@@ -59,10 +58,7 @@ export const useNotifications = () => {
                 markAsRead.mutate(notification.notification_id);
             }
             // Navigate to the post (assuming posts are displayed on a feed page)
-            // You may need to adjust the route based on your app structure
             navigate(`/feed?post=${notification.post_id}`);
-            // Or if you have a specific post detail page:
-            // navigate(`/post/${notification.post_id}`);
         }
     };
 
@@ -76,4 +72,3 @@ export const useNotifications = () => {
         refetch: notificationsQuery.refetch,
     };
 };
-

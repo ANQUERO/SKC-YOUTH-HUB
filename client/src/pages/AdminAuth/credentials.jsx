@@ -6,10 +6,14 @@ const Credentials = ({ prev, handleChange, handleSubmit, data, loading, errors }
   const [acceptTerms, setAcceptTerms] = useState(false);
   const navigate = useNavigate();
 
+  // Check if passwords match and confirmPassword is not empty
+  const passwordsMatch = data.confirmPassword && data.password === data.confirmPassword;
+  const showPasswordError = data.confirmPassword && !passwordsMatch;
+
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    if (data.password !== data.confirmPassword) {
+    if (!passwordsMatch) {
       alert("Passwords do not match.");
       return;
     }
@@ -20,7 +24,9 @@ const Credentials = ({ prev, handleChange, handleSubmit, data, loading, errors }
     }
 
     const success = await handleSubmit();
-    if (success) navigate('/login');
+    if (success) {
+      navigate('/login');
+    }
   };
 
   return (
@@ -32,6 +38,7 @@ const Credentials = ({ prev, handleChange, handleSubmit, data, loading, errors }
         placeholder="Email"
         value={data.email}
         onChange={(e) => handleChange("email", e.target.value)}
+        required
       />
       {errors?.email && <p className={style.error}>{errors.email}</p>}
 
@@ -40,6 +47,8 @@ const Credentials = ({ prev, handleChange, handleSubmit, data, loading, errors }
         placeholder="Password"
         value={data.password}
         onChange={(e) => handleChange("password", e.target.value)}
+        required
+        minLength={8}
       />
       {errors?.password && <p className={style.error}>{errors.password}</p>}
 
@@ -48,8 +57,10 @@ const Credentials = ({ prev, handleChange, handleSubmit, data, loading, errors }
         placeholder="Confirm Password"
         value={data.confirmPassword}
         onChange={(e) => handleChange("confirmPassword", e.target.value)}
+        required
+        minLength={8}
       />
-      {data.password !== data.confirmPassword && (
+      {showPasswordError && (
         <p className={style.error}>Passwords do not match.</p>
       )}
 
@@ -59,19 +70,28 @@ const Credentials = ({ prev, handleChange, handleSubmit, data, loading, errors }
           className={style.check}
           checked={acceptTerms}
           onChange={(e) => setAcceptTerms(e.target.checked)}
+          required
         />
         I accept the terms of service.
       </label>
 
-      <button
-        type="submit"
-        className={style.button}
-        disabled={loading}
-      >
-        {loading ? "Signing up..." : "Sign Up"}
-      </button>
-
-      <button type="button" onClick={prev} className={style.back}>Back</button>
+      <div className={style.buttonGroup}>
+        <button
+          type="button"
+          onClick={prev}
+          className={style.back}
+          disabled={loading}
+        >
+          Back
+        </button>
+        <button
+          type="submit"
+          className={style.button}
+          disabled={loading || !acceptTerms || !passwordsMatch}
+        >
+          {loading ? "Signing up..." : "Sign Up"}
+        </button>
+      </div>
     </form>
   );
 };

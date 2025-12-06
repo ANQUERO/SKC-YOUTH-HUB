@@ -24,7 +24,7 @@ const useDashboard = () => {
         try {
             await callback();
             setSuccess("Fetched successfully");
-        } catch (_) {
+        } catch {
             setError("Failed to fetch data");
         } finally {
             setLoading(false);

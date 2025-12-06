@@ -1,20 +1,16 @@
-// components/ProtectedRoute.jsx
 import React from "react";
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuthContext } from "@context/AuthContext";
 
-const ProtectedRoute = ({ allowedRoles, children }) => {
-    const location = useLocation();
+export const ProtectedRoute = ({ children, allowedRoles }) => {
     const { authUser, activeRole } = useAuthContext();
+    const location = useLocation();
 
-    const isAuthenticated = Boolean(authUser?.verified || authUser);
-    const isAuthorized = !allowedRoles || allowedRoles.includes(activeRole);
-
-    if (!isAuthenticated || !isAuthorized) {
+    if (!authUser)
         return <Navigate to="/login" state={{ from: location }} replace />;
-    }
 
-    return children || <Outlet />;
+    if (allowedRoles && !allowedRoles.includes(activeRole))
+        return <Navigate to="/" replace />;
+
+    return children;
 };
-
-export default ProtectedRoute;

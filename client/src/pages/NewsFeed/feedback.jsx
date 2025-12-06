@@ -9,8 +9,7 @@ export const FeedBack = () => {
     const { feedbackForms, isLoading, canManage } = useFeedback();
     const [selectedForm, setSelectedForm] = useState(null);
     const [response, setResponse] = useState("");
-
-    const canView = isSkYouth || canManage;
+    const canView = isSkYouth || isSkSuperAdmin || isSkNaturalAdmin || canManage;
 
     if (!canView) {
         return <div>You don't have permission to view feedback forms.</div>;

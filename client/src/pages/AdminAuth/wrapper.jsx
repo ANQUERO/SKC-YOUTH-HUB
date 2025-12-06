@@ -5,6 +5,7 @@ import useSignupAdmin from "@hooks/useSignupAdmin.jsx";
 
 const StepWrapper = () => {
   const [step, setStep] = useState(1);
+  const [submitError, setSubmitError] = useState("");
 
   const [formData, setFormData] = useState({
     first_name: "",
@@ -25,6 +26,7 @@ const StepWrapper = () => {
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    setSubmitError(""); // Clear error when user makes changes
   };
 
   const handleSubmit = async () => {
@@ -35,8 +37,15 @@ const StepWrapper = () => {
       role: [role],
     };
 
-    return await signupAdmin(submitData);
+    try {
+      const success = await signupAdmin(submitData);
+      return success;
+    } catch (error) {
+      setSubmitError(error.message || "Signup failed. Please try again.");
+      return false;
+    }
   };
+
   switch (step) {
     case 1:
       return (
@@ -44,6 +53,7 @@ const StepWrapper = () => {
           next={nextStep}
           handleChange={handleChange}
           data={formData}
+          errors={errors}
         />
       );
     case 2:
@@ -54,7 +64,7 @@ const StepWrapper = () => {
           handleSubmit={handleSubmit}
           data={formData}
           loading={loading}
-          errors={errors}
+          errors={{ ...errors, submit: submitError }}
         />
       );
     default:

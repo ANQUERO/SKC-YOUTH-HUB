@@ -4,6 +4,12 @@ import { Link } from 'react-router-dom';
 const PersonalDetails = ({ next, handleChange, data }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    if (!data.first_name || !data.last_name || !data.organization || !data.position || !data.role) {
+      alert("Please fill in all required fields");
+      return;
+    }
+    
     next();
   };
 

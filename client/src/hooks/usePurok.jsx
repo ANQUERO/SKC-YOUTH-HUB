@@ -103,10 +103,17 @@ const usePurok = () => {
 
         try {
             const res = await axiosInstance.delete(`/purok/${purok_id}`);
+            if (res.data.status === "Success") {
             setPuroks((prev) => prev.filter((p) => p.purok_id !== purok_id));
+                return res.data;
+            }else {
+                throw new Error(res.data.message || "Failed to delete purok")
+            }
         } catch (error) {
-            setError(error.response?.data?.message || "Failed to delete purok");
-            throw error;
+   const errorMessage = error.response?.data?.message || error.message || "Failed to delete purok";
+        setError(errorMessage);
+        throw error;
+
         } finally {
             setLoading(false);
         }

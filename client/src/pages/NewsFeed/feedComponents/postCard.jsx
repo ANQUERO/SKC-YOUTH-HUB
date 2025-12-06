@@ -16,6 +16,16 @@ export const PostCard = ({ post, onPostDeleted }) => {
     });
     const [postHidden, setPostHidden] = useState(false);
 
+        if (!isOfficial) {
+        return (
+            <div className={style.card}>
+                <div className={style.unauthorizedPost}>
+                    <p>You need to be an official to view this content.</p>
+                </div>
+            </div>
+        );
+    }
+
     useEffect(() => {
         // Load reactions summary
         axiosInstance.get(`/post/${post.post_id}/reactions`).then(({ data }) => {

@@ -86,7 +86,9 @@ export const NotificationProvider = ({ children }) => {
         if (!storageKey) return;
         try {
             localStorage.setItem(storageKey, JSON.stringify(localNotifications));
-        } catch { }
+        } catch { 
+            console.error('Error')
+        }
     }, [localNotifications, storageKey]);
 
     // Persist seen ids per user
@@ -108,7 +110,9 @@ export const NotificationProvider = ({ children }) => {
         if (!seenKey) return;
         try {
             localStorage.setItem(seenKey, JSON.stringify(seen));
-        } catch { }
+        } catch {
+            console.error('Error')
+         }
     }, [seen, seenKey]);
 
     // Combine API notifications with local notifications
