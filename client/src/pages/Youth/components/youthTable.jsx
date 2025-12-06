@@ -29,23 +29,60 @@ const headCells = [
 ];
 
 const YouthTable = ({ 
-    rows, 
-    selected, 
-    order, 
-    orderBy, 
-    dense,
+    rows = [], 
+    selected = [], 
+    order = "asc", 
+    orderBy = "name", 
+    dense = false,
     onSelectAllClick,
     onRequestSort,
     onRowClick,
     isSelected 
 }) => {
     const handleSelectAllClick = (event) => {
+        // FIX: rows now have .id, not .youth_id
         onSelectAllClick(event.target.checked ? rows.map((n) => n.id) : []);
     };
 
     const handleRequestSort = (property) => {
         const isAsc = orderBy === property && order === "asc";
         onRequestSort(isAsc ? "desc" : "asc", property);
+    };
+
+    // Helper function to get display name - FIXED to use transformed data
+    const getDisplayName = (row) => {
+        // Use the transformed name field from YouthPage
+        return row.name || 'Unnamed Youth';
+    };
+
+    // Helper function to get avatar initials
+    const getAvatarInitials = (row) => {
+        const name = getDisplayName(row);
+        if (!name || name === 'Unnamed Youth') return '?';
+        
+        const parts = name.split(' ');
+        if (parts.length >= 2) {
+            return `${parts[0].charAt(0)}${parts[parts.length - 1].charAt(0)}`.toUpperCase();
+        }
+        return name.charAt(0).toUpperCase();
+    };
+
+    // Helper function to format registered voter status - FIXED to use transformed data
+    const getVoterStatus = (registered) => {
+        // Use the transformed registered boolean from YouthPage
+        if (registered === true) {
+            return { label: "Registered", color: "success" };
+        }
+        if (registered === false) {
+            return { label: "Unregistered", color: "default" };
+        }
+        return { label: "Unknown", color: "warning" };
+    };
+
+    // Helper function to format gender
+    const formatGender = (gender) => {
+        if (!gender || gender === "N/A") return "N/A";
+        return gender.charAt(0).toUpperCase() + gender.slice(1);
     };
 
     return (
@@ -84,7 +121,11 @@ const YouthTable = ({
                 </TableHead>
                 <TableBody>
                     {rows.map((row) => {
+                        // FIX: use row.id instead of row.youth_id
                         const isItemSelected = isSelected(row.id);
+                        const displayName = getDisplayName(row);
+                        const voterStatus = getVoterStatus(row.registered);
+                        
                         return (
                             <TableRow 
                                 key={row.id} 
@@ -102,26 +143,22 @@ const YouthTable = ({
                                 <TableCell>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                         <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
-                                            {row.name.charAt(0).toUpperCase()}
+                                            {getAvatarInitials(row)}
                                         </Avatar>
                                         <Box>
                                             <Typography variant="body2" fontWeight="medium">
-                                                {row.name
-                                                .split(' ')
-                                                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                                .join(' ')
-                                                }
+                                                {displayName}
                                             </Typography>
                                         </Box>
                                     </Box>
                                 </TableCell>
-                                <TableCell>{row.email}</TableCell>
+                                <TableCell>{row.email || "N/A"}</TableCell>
                                 <TableCell>
                                     <Chip 
-                                        label={row.registered ? "Registered" : "Unregistered"} 
+                                        label={voterStatus.label} 
                                         size="small"
-                                        color={row.registered ? "success" : "default"}
-                                        variant={row.registered ? "filled" : "outlined"}
+                                        color={voterStatus.color}
+                                        variant="filled"
                                     />
                                 </TableCell>
                                 <TableCell>
@@ -133,17 +170,17 @@ const YouthTable = ({
                                         icon={row.verified ? <ShieldCheck /> : null}
                                     />
                                 </TableCell>
-                                <TableCell>{row.age}</TableCell>
+                                <TableCell>{row.age || "N/A"}</TableCell>
                                 <TableCell>
                                     <Chip 
-                                        label={row.gender.charAt(0).toUpperCase() + row.gender.slice(1)} 
+                                        label={formatGender(row.gender)} 
                                         size="small"
                                         variant="outlined"
                                     />
                                 </TableCell>
                                 <TableCell>
                                     <Chip 
-                                        label={row.purok} 
+                                        label={row.purok || "N/A"} 
                                         size="small"
                                         color="primary"
                                         variant="outlined"

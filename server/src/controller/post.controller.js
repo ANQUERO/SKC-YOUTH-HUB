@@ -47,12 +47,10 @@ export const index = async (req, res) => {
     const user = req.user;
 
     try {
-        // Build the query with conditional filtering for hidden posts
         let whereClause = "";
-        if (!user || user.userType !== "official") {
+         if (!user ) {
             whereClause = "WHERE p.is_hidden = FALSE";
         }
-
         const result = await pool.query(
             `
             SELECT 

@@ -19,7 +19,6 @@ export const FeedBack = () => {
         return <p>Loading feedback forms...</p>;
     }
 
-    // If a form is selected, show the reply form (for youth) or form details (for officials)
     if (selectedForm) {
         return (
             <div className={style.feedbackContainer}>

@@ -6,7 +6,7 @@ const useYouth = () => {
     const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
     const isAuthorized = isSkSuperAdmin || isSkNaturalAdmin;
 
-    const [youthData, setYouthData] = useState([]);
+    const [youthData, setYouthData] = useState([]); // Change to array
     const [youth, setYouth] = useState(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(null);
@@ -23,7 +23,11 @@ const useYouth = () => {
 
         try {
             const res = await axiosInstance.get("/youth");
-            setYouthData({ youth: res.data.youth });
+            console.log("API Response:", res.data); // Debug log
+            
+            // The backend returns { youth: [...] }
+            // Extract the array and set it directly
+            setYouthData(res.data.youth || []);
         } catch (err) {
             console.error("Fetch youth error:", err);
             setError(err.response?.data?.message || "Failed to fetch youth data");
@@ -61,6 +65,8 @@ const useYouth = () => {
             const res = await axiosInstance.post('/youth/', formData);
             if (res.data?.youth_id) {
                 setSuccess("Youth added successfully");
+                // Refresh the list
+                await fetchYouths();
                 return res.data;
             } else {
                 setError("Failed to create youth");
@@ -89,7 +95,6 @@ const useYouth = () => {
                     setYouth(prevYouth => ({
                         ...prevYouth,
                         ...updateData,
-                        // Update nested objects
                         name: updateData.name ? { ...prevYouth.name, ...updateData.name } : prevYouth.name,
                         location: updateData.location ? { ...prevYouth.location, ...updateData.location } : prevYouth.location,
                         info: updateData.info ? { ...prevYouth.info, ...updateData.info } : prevYouth.info,
@@ -98,6 +103,9 @@ const useYouth = () => {
                         meetingSurvey: updateData.meetingSurvey ? { ...prevYouth.meetingSurvey, ...updateData.meetingSurvey } : prevYouth.meetingSurvey
                     }));
                 }
+                
+                // Refresh the list
+                await fetchYouths();
                 
                 return res.data;
             } else {
@@ -130,9 +138,9 @@ const useYouth = () => {
                 setSuccess("Youth profile deleted successfully");
                 
                 // Update local youth data list
-                setYouthData(prevData => ({
-                    youth: prevData.youth?.filter(y => y.youth_id !== youth_id) || []
-                }));
+                setYouthData(prevData => 
+                    prevData.filter(y => y.youth_id !== youth_id)
+                );
                 
                 // Clear current youth if it's the one being deleted
                 if (youth?.youth_id === youth_id) {
@@ -159,7 +167,6 @@ const useYouth = () => {
         
         // Handle different field structures
         if (field.includes('.')) {
-            // Handle nested fields (e.g., 'name.first_name')
             const [parent, child] = field.split('.');
             updateData[parent] = { [child]: value };
         } else {
@@ -176,7 +183,7 @@ const useYouth = () => {
     };
 
     return {
-        youthData,
+        youthData, // Now this is an array
         youth,
         loading,
         error,

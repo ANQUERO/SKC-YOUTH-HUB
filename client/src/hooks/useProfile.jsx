@@ -8,32 +8,42 @@ const useProfile = () => {
 
     // Profile states
     const [accountName, setAccountName] = useState("");
+    const [nameDetails, setNameDetails] = useState(null);
     const [genderInfo, setGenderInfo] = useState(null);
+    const [location, setLocation] = useState(null);
     const [demoSurvey, setDemoSurvey] = useState(null);
     const [meetingHousehold, setMeetingHousehold] = useState(null);
 
-  const [loadingProfile, setLoadingProfile] = useState(false);
+    const [loadingProfile, setLoadingProfile] = useState(false);
     const [updatingProfile, setUpdatingProfile] = useState(false);
     const [error, setError] = useState(null);
     const [updateError, setUpdateError] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
-
 
     const fetchProfile = async () => {
         setLoadingProfile(true);
         setError(null);
         try {
             const res = await axiosInstance.get("/profile");
-            const { accountName, genderInfo, demoSurvey, meetingHousehold } =
-                res.data.data;
+            const { 
+                accountName, 
+                genderInfo, 
+                demoSurvey, 
+                meetingHousehold, 
+                location, 
+                nameDetails 
+            } = res.data.data;
 
             setAccountName(accountName || "");
             setGenderInfo(genderInfo || null);
             setDemoSurvey(demoSurvey || null);
             setMeetingHousehold(meetingHousehold || null);
+            setLocation(location || null);
+            setNameDetails(nameDetails || null);
+            
         } catch (err) {
-            console.error(err);
-            setError(err);
+            console.error("Fetch profile error:", err);
+            setError(err.response?.data?.message || "Failed to load profile");
         } finally {
             setLoadingProfile(false);
         }
@@ -55,7 +65,7 @@ const useProfile = () => {
             return res.data;
         } catch (err) {
             console.error("Update profile error:", err);
-            const errorMessage = err.response?.data?.message || "Failed to update profile";
+            const errorMessage = err.response?.data?.message || err.response?.data?.error || "Failed to update profile";
             setUpdateError(errorMessage);
             throw new Error(errorMessage);
         } finally {
@@ -75,6 +85,8 @@ const useProfile = () => {
         genderInfo,
         demoSurvey,
         meetingHousehold,
+        location,
+        nameDetails,
         loadingProfile,
         updatingProfile,
         error,

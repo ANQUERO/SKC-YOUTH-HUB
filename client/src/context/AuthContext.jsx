@@ -52,23 +52,34 @@ export const AuthContextProvider = ({ children }) => {
         return authUser?.role?.[0] ?? null;
     }, [authUser]);
 
+    // Fix: Separate useEffect for initial setup
     useEffect(() => {
         if (!authUser) {
-            setActiveRoleState(null);
-            localStorage.removeItem("active-role");
+            setLoading(false);
             return;
         }
 
+        // Only run this on initial mount or when authUser changes
         const validRoles = authUser.userType === "youth" ? ["youth"] : authUser.role;
-
+        
+        // Check if current activeRole is valid
         if (!validRoles.includes(activeRole)) {
+            // Update to default role
             const newRole = defaultRole;
+            console.log('Updating activeRole from', activeRole, 'to', newRole);
             setActiveRoleState(newRole);
             localStorage.setItem("active-role", newRole);
         }
-
+        
         setLoading(false);
-    }, [authUser, activeRole, defaultRole]);
+    }, [authUser]); // Only depend on authUser
+
+    // Another effect to handle loading state
+    useEffect(() => {
+        if (authUser && activeRole) {
+            setLoading(false);
+        }
+    }, [authUser, activeRole]);
 
     // Sync auth state across tabs
     useEffect(() => {
@@ -121,5 +132,3 @@ export const AuthContextProvider = ({ children }) => {
         </AuthContext.Provider>
     );
 };
-
-export default AuthContextProvider;

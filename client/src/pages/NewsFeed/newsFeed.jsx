@@ -9,11 +9,21 @@ import { PostCard } from "./feedComponents/postCard";
 export const NewsFeed = () => {
     const [searchParams] = useSearchParams();
     const { posts, isLoading } = usePostContext();
-    const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
+    const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth} = useAuthContext(); 
     const canManage = isSkSuperAdmin || isSkNaturalAdmin;
+    const canView = canManage || isSkYouth; // ADD THIS LINE
     const feed = posts;
 
-    // Scroll to specific post when post query parameter is present
+    console.log('NewsFeed Debug:', {
+        isSkYouth,
+        isSkSuperAdmin,
+        isSkNaturalAdmin,
+        canManage,
+        canView, // Now this will work
+        postsCount: feed.length,
+        isLoading
+    });
+
     useEffect(() => {
         const postId = searchParams.get('post');
         if (postId && !isLoading && feed.length > 0) {
@@ -37,12 +47,14 @@ export const NewsFeed = () => {
             {canManage && <CreatePost />}
             {isLoading ? (
                 <p>Loading posts...</p>
-            ) : (
+            ) : canView ? ( 
                 feed.map((post) => (
                     <div key={post.post_id || post.id} id={`post-${post.post_id || post.id}`}>
                         <PostCard post={post} />
                     </div>
                 ))
+            ) : (
+                <p>You don't have permission to view the feed.</p>
             )}
         </section>
     );

@@ -18,6 +18,8 @@ import {
   Avatar,
   alpha,
   useTheme,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -72,46 +74,65 @@ function YouthPage() {
     fetchYouths();
   }, []);
 
+  // FIX: youthData is now an array, not an object with .youth property
   const rows = useMemo(() => {
-    if (!youthData?.youth) return [];
-    return youthData.youth.map((y) => ({
-      id: y.youth_id,
-      name: y.full_name || "N/A",
-      email: y.email || "N/A",
-      registered: y.registered_voter === "yes",
-      verified: y.verified,
-      age: y.age || "N/A",
-      gender: y.gender || "N/A",
-      purok: y.purok || "N/A",
-    }));
-  }, [youthData]);
+  if (!Array.isArray(youthData)) return [];
+  
+  return youthData.map((y) => ({
+    id: y.youth_id, // This will be used as row.id
+    name: y.full_name || "N/A", // This will be row.name
+    email: y.email || "N/A", // This will be row.email
+    registered: y.registered_voter === true || 
+               y.registered_voter === "yes" || 
+               String(y.registered_voter).toLowerCase() === "true", // This will be row.registered (boolean)
+    verified: y.verified || false, // This will be row.verified (boolean)
+    age: y.age || "N/A", // This will be row.age
+    gender: y.gender || "N/A", // This will be row.gender
+    purok: y.purok || "N/A", // This will be row.purok
+    // Store original data for export
+    originalData: y
+  }));
+}, [youthData]);
 
   const filteredRows = useMemo(() => {
     let r = [...rows];
+    
+    // Search filter
     if (search) {
+      const searchLower = search.toLowerCase();
       r = r.filter(
         (y) =>
-          y.name.toLowerCase().includes(search.toLowerCase()) ||
-          y.email.toLowerCase().includes(search.toLowerCase()) ||
-          y.purok.toLowerCase().includes(search.toLowerCase())
+          y.name.toLowerCase().includes(searchLower) ||
+          y.email.toLowerCase().includes(searchLower) ||
+          y.purok.toLowerCase().includes(searchLower)
       );
     }
+    
+    // Voter registration filter
     if (filter === "registered") {
       r = r.filter((y) => y.registered);
     } else if (filter === "unregistered") {
       r = r.filter((y) => !y.registered);
     }
+    
+    // Verification filter
     if (verifiedFilter !== "all") {
       r = r.filter((y) =>
         verifiedFilter === "yes" ? y.verified : !y.verified
       );
     }
+    
+    // Gender filter
     if (genderFilter !== "all") {
-      r = r.filter((y) => y.gender.toLowerCase() === genderFilter);
+      r = r.filter((y) => y.gender.toLowerCase() === genderFilter.toLowerCase());
     }
+    
+    // Purok filter
     if (purokFilter !== "all") {
       r = r.filter((y) => y.purok === purokFilter);
     }
+    
+    // Sort
     return r.sort(getComparator(order, orderBy));
   }, [
     rows,
@@ -129,16 +150,18 @@ function YouthPage() {
     page * rowsPerPage + rowsPerPage
   );
 
-  const stats = useMemo(
-    () => ({
+  const stats = useMemo(() => {
+    const maleCount = rows.filter((y) => y.gender?.toLowerCase() === "male").length;
+    const femaleCount = rows.filter((y) => y.gender?.toLowerCase() === "female").length;
+    
+    return {
       total: rows.length,
       registered: rows.filter((y) => y.registered).length,
       verified: rows.filter((y) => y.verified).length,
-      male: rows.filter((y) => y.gender.toLowerCase() === "male").length,
-      female: rows.filter((y) => y.gender.toLowerCase() === "female").length,
-    }),
-    [rows]
-  );
+      male: maleCount,
+      female: femaleCount,
+    };
+  }, [rows]);
 
   const handleFilterChange = (newFilter) => {
     setFilter(newFilter);
@@ -161,6 +184,7 @@ function YouthPage() {
   };
 
   const handleSelectAllClick = (selectedIds) => setSelected(selectedIds);
+  
   const handleRowClick = (id) =>
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
@@ -172,6 +196,7 @@ function YouthPage() {
   };
 
   const handleChangePage = (_, newPage) => setPage(newPage);
+  
   const handleChangeRowsPerPage = (e) => {
     setRowsPerPage(parseInt(e.target.value, 10));
     setPage(0);
@@ -197,13 +222,9 @@ function YouthPage() {
       // Clear selection
       setSelected([]);
       
-      // Show success message
-      if (success) {
-        alert(success);
-      }
     } catch (err) {
       console.error('Error deleting youth:', err);
-      alert(error || 'Failed to delete youth member(s)');
+      // Error will be shown from useYouth hook
     }
   };
 
@@ -216,25 +237,42 @@ function YouthPage() {
       "Age",
       "Gender",
       "Purok",
+      "Registered Voter",
+      "Verified Status",
+      "Region",
+      "Province",
+      "Municipality",
+      "Barangay"
     ];
+    
     const csvRows = [headers.join(",")];
+    
+    // Use filtered rows for export
     filteredRows.forEach((row) => {
+      const original = row.originalData || {};
       csvRows.push(
         [
-          row.name,
-          row.email,
+          `"${row.name}"`,
+          `"${row.email}"`,
           row.registered ? "Registered" : "Unregistered",
-          row.verified ? "Yes" : "No",
+          row.verified ? "Verified" : "Unverified",
           row.age,
           row.gender,
           row.purok,
+          original.registered_voter || "",
+          original.verified || "",
+          original.region || "",
+          original.province || "",
+          original.municipality || "",
+          original.barangay || ""
         ].join(",")
       );
     });
+    
     const blob = new Blob([csvRows.join("\n")], {
       type: "text/csv;charset=utf-8;",
     });
-    saveAs(blob, "youth_data.csv");
+    saveAs(blob, `youth_data_${new Date().toISOString().split('T')[0]}.csv`);
   };
 
   const isSelected = (id) => selected.includes(id);
@@ -264,6 +302,29 @@ function YouthPage() {
       </Box>
     </Card>
   );
+
+  // Show loading state
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Alert severity="error">
+          Error loading youth data: {error}
+          <Button onClick={fetchYouths} sx={{ ml: 2 }} size="small">
+            Retry
+          </Button>
+        </Alert>
+      </Box>
+    );
+  }
 
   return (
     <div className={style.youthContainer}>
@@ -327,6 +388,17 @@ function YouthPage() {
         </div>
       </div>
 
+      {/* Success Message */}
+      {success && (
+        <Alert 
+          severity="success" 
+          onClose={() => {}} // You might want to clear success message
+          sx={{ mb: 2 }}
+        >
+          {success}
+        </Alert>
+      )}
+
       {/* Toolbar */}
       <Toolbar className={style.toolbarSection}>
         <div className={style.toolbarInner}>
@@ -362,15 +434,16 @@ function YouthPage() {
                 startIcon={<DownloadIcon />}
                 onClick={exportToCSV}
                 className={`${style.toolbarButton} ${style.exportButton}`}
+                disabled={filteredRows.length === 0}
               >
-                Export
+                Export ({filteredRows.length})
               </Button>
 
               <Button
                 variant="outlined"
                 color="error"
                 startIcon={<DeleteIcon />}
-                disabled={selected.length === 0 || loading}
+                disabled={selected.length === 0}
                 onClick={handleDeleteSelected}
                 className={`${style.toolbarButton} ${style.deleteButton}`}
               >
@@ -428,6 +501,7 @@ function YouthPage() {
         </Card>
       </div>
 
+      {/* Filter Sidebar */}
       <Drawer
         anchor="right"
         open={sidebarOpen}
@@ -448,6 +522,7 @@ function YouthPage() {
         />
       </Drawer>
 
+      {/* Add Youth Modal */}
       <AddYouthModal
         open={addModalOpen}
         onClose={() => setAddModalOpen(false)}

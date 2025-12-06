@@ -7,172 +7,177 @@ import PostOptions from "@components/PostOptions";
 import { MediaGallery } from "Components/MediaGallery";
 
 export const PostCard = ({ post, onPostDeleted }) => {
-    const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = useAuthContext();
-    const isSK = isSkSuperAdmin || isSkNaturalAdmin || isSkYouth;
-    const [reactionsCount, setReactionsCount] = useState({
-        like: 0,
-        heart: 0,
-        wow: 0
-    });
-    const [postHidden, setPostHidden] = useState(false);
+  const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = useAuthContext();
+  const isSK = isSkSuperAdmin || isSkNaturalAdmin || isSkYouth;
+  const [reactionsCount, setReactionsCount] = useState({
+    like: 0,
+    heart: 0,
+    wow: 0,
+  });
+  const [postHidden, setPostHidden] = useState(false);
 
-       const mediaItems = post.media || [];
+  const mediaItems = post.media || [];
 
-       const allMediaItems = mediaItems.map(item => ({
+  const allMediaItems = mediaItems.map((item) => ({
     url: item.url,
-    type: item.type || (item.mimetype?.includes('image') ? 'image' : 'video')
-}));
+    type: item.type || (item.mimetype?.includes("image") ? "image" : "video"),
+  }));
 
+  const handleReact = async (type) => {
+    if (!isSK) return;
 
-    // Move useEffect to the top, before any conditional returns
-    useEffect(() => {
-        if (!isSK) return; // Don't fetch if not authorized
-        
-        // Load reactions summary
-        axiosInstance.get(`/post/${post.post_id}/reactions`).then(({ data }) => {
-            const counts = { like: 0, heart: 0, wow: 0 };
-            (data.data || []).forEach(r => { 
-                counts[r.type] = (counts[r.type] || 0) + 1; 
-            });
-            setReactionsCount(counts);
-        }).catch(() => { });
-    }, [post.post_id, isSK]);
-
-    // Early return after hooks
-    if (!isSK) {
-        return (
-            <div className={style.card}>
-                <div className={style.unauthorizedPost}>
-                    <p>You need to be logged in to view this content.</p>
-                </div>
-            </div>
-        );
+    try {
+      await axiosInstance.post(`/post/${post.post_id}/react`, { type });
+      setReactionsCount((prev) => ({ ...prev, [type]: (prev[type] || 0) + 1 }));
+    } catch (e) {
+      console.error(e);
     }
+  };
 
-    const handleReact = async (type) => {
-        if (!isSK) return; // Safety check
-        
-        try {
-            await axiosInstance.post(`/post/${post.post_id}/react`, { type });
-            setReactionsCount((prev) => ({ ...prev, [type]: (prev[type] || 0) + 1 }));
-        } catch (e) {
-            console.error(e);
-        }
-    };
+  const handleRemoveReaction = async () => {
+    if (!isSK) return; // Safety check
 
-    const handleRemoveReaction = async () => {
-        if (!isSK) return; // Safety check
-        
-        try {
-            await axiosInstance.delete(`/post/${post.post_id}/react`);
+    try {
+      await axiosInstance.delete(`/post/${post.post_id}/react`);
 
-            // Reload reactions after removal
-            axiosInstance.get(`/post/${post.post_id}/reactions`).then(({ data }) => {
-                const counts = { like: 0, heart: 0, wow: 0 };
-                (data.data || []).forEach(r => { 
-                    counts[r.type] = (counts[r.type] || 0) + 1; 
-                });
-                setReactionsCount(counts);
-            }).catch(() => { });
-        } catch (e) {
-            console.error(e);
-        }
-    };
-
-    const handlePostDeleted = () => {
-        onPostDeleted && onPostDeleted();
-    };
-
-    const handlePostHidden = () => {
-        setPostHidden(!postHidden);
-    };
-
-    if (postHidden) {
-        return (
-            <div className={style.card}>
-                <div className={style.hiddenPost}>
-                    <p>This post has been hidden by a moderator.</p>
-                </div>
-            </div>
-        );
+      // Reload reactions after removal
+      axiosInstance
+        .get(`/post/${post.post_id}/reactions`)
+        .then(({ data }) => {
+          const counts = { like: 0, heart: 0, wow: 0 };
+          (data.data || []).forEach((r) => {
+            counts[r.type] = (counts[r.type] || 0) + 1;
+          });
+          setReactionsCount(counts);
+        })
+        .catch(() => {});
+    } catch (e) {
+      console.error(e);
     }
+  };
 
-    const getPostTypeInfo = (type) => {
-        switch (type) {
-            case 'announcement':
-                return { icon: '📢', label: 'Announcement', color: '#1976d2' };
-            case 'activity':
-                return { icon: '🎯', label: 'Activity', color: '#f57c00' };
-            default:
-                return { icon: '📝', label: 'Post', color: '#4caf50' };
-        }
-    };
+  const handlePostDeleted = () => {
+    onPostDeleted && onPostDeleted();
+  };
 
-    const postTypeInfo = getPostTypeInfo(post.type);
+  const handlePostHidden = () => {
+    setPostHidden(!postHidden);
+  };
 
+  if (postHidden) {
     return (
-        <div className={style.card}>
-            <div className={style.header}>
-                <div className={style.author}>
-                    <img src={post.avatar || "/default-avatar.png"} alt="Author" className={style.avatar} />
-                    <div>
-                        <h4>{post.author || post.official?.name}</h4>
-                        <p>{post.role || post.official?.position}</p>
-                    </div>
-                </div>
-                <div className={style.headerActions}>
-                    <div className={style.postTypeBadge} style={{ backgroundColor: postTypeInfo.color }}>
-                        <span>{postTypeInfo.icon}</span>
-                        <span>{postTypeInfo.label}</span>
-                    </div>
-                    <span className={style.time}>
-                        {new Date(post.created_at || post.time).toLocaleString()}
-                    </span>
-                    <PostOptions
-                        post={post}
-                        onPostDeleted={handlePostDeleted}
-                        onPostHidden={handlePostHidden}
-                    />
-                </div>
-            </div>
-
-            <p className={style.content}>{post.description || post.content}</p>
-
-      {allMediaItems.length > 0 && (
-    <MediaGallery 
-        mediaItems={allMediaItems}
-    />
-)}
-
-            {post.media_type === "image" && (
-                <img src={post.media_url} alt="Post visual" className={style.postMedia} />
-            )}
-            {post.media_type === "video" && (
-                <video src={post.media_url} controls className={style.postMedia} />
-            )}
-
-            <div className={style.actionsRow}>
-                <div className={style.actionGroup}>
-                    <span className={style.actionIcon} onClick={() => handleReact("like")}>
-                        👍 <small>{reactionsCount.like}</small>
-                    </span>
-                    <span className={style.actionIcon} onClick={() => handleReact("heart")}>
-                        ❤️ <small>{reactionsCount.heart}</small>
-                    </span>
-                    <span className={style.actionIcon} onClick={() => handleReact("wow")}>
-                        😮 <small>{reactionsCount.wow}</small>
-                    </span>
-                </div>
-
-                <div className={style.actionGroup}>
-                    <span className={style.actionIcon} onClick={handleRemoveReaction}>↩</span>
-                </div>
-            </div>
-
-            <CommentSystem
-                postId={post.post_id}
-                postAuthor={post.author || post.official?.name}
-            />
+      <div className={style.card}>
+        <div className={style.hiddenPost}>
+          <p>This post has been hidden by a moderator.</p>
         </div>
+      </div>
     );
+  }
+
+  const getPostTypeInfo = (type) => {
+    switch (type) {
+      case "announcement":
+        return { icon: "📢", label: "Announcement", color: "#1976d2" };
+      case "activity":
+        return { icon: "🎯", label: "Activity", color: "#f57c00" };
+      default:
+        return { icon: "📝", label: "Post", color: "#4caf50" };
+    }
+  };
+
+  const postTypeInfo = getPostTypeInfo(post.type);
+
+  useEffect(() => {
+    axiosInstance
+      .get(`/post/${post.post_id}/reactions`)
+      .then(({ data }) => {
+        const counts = { like: 0, heart: 0, wow: 0 };
+        (data.data || []).forEach((r) => {
+          counts[r.type] = (counts[r.type] || 0) + 1;
+        });
+        setReactionsCount(counts);
+      })
+      .catch(() => {});
+  }, [post.post_id, isSK]);
+
+  return (
+    <div className={style.card}>
+      <div className={style.header}>
+        <div className={style.author}>
+          <img
+            src={post.avatar || "/default-avatar.png"}
+            alt="Author"
+            className={style.avatar}
+          />
+          <div>
+            <h4>{post.author || post.official?.name}</h4>
+            <p>{post.role || post.official?.position}</p>
+          </div>
+        </div>
+        <div className={style.headerActions}>
+          <div
+            className={style.postTypeBadge}
+            style={{ backgroundColor: postTypeInfo.color }}
+          >
+            <span>{postTypeInfo.icon}</span>
+            <span>{postTypeInfo.label}</span>
+          </div>
+          <span className={style.time}>
+            {new Date(post.created_at || post.time).toLocaleString()}
+          </span>
+          <PostOptions
+            post={post}
+            onPostDeleted={handlePostDeleted}
+            onPostHidden={handlePostHidden}
+          />
+        </div>
+      </div>
+
+      <p className={style.content}>{post.description || post.content}</p>
+
+      {allMediaItems.length > 0 && <MediaGallery mediaItems={allMediaItems} />}
+
+      {post.media_type === "image" && (
+        <img
+          src={post.media_url}
+          alt="Post visual"
+          className={style.postMedia}
+        />
+      )}
+      {post.media_type === "video" && (
+        <video src={post.media_url} controls className={style.postMedia} />
+      )}
+
+      <div className={style.actionsRow}>
+        <div className={style.actionGroup}>
+          <span
+            className={style.actionIcon}
+            onClick={() => handleReact("like")}
+          >
+            👍 <small>{reactionsCount.like}</small>
+          </span>
+          <span
+            className={style.actionIcon}
+            onClick={() => handleReact("heart")}
+          >
+            ❤️ <small>{reactionsCount.heart}</small>
+          </span>
+          <span className={style.actionIcon} onClick={() => handleReact("wow")}>
+            😮 <small>{reactionsCount.wow}</small>
+          </span>
+        </div>
+
+        <div className={style.actionGroup}>
+          <span className={style.actionIcon} onClick={handleRemoveReaction}>
+            ↩
+          </span>
+        </div>
+      </div>
+
+      <CommentSystem
+        postId={post.post_id}
+        postAuthor={post.author || post.official?.name}
+      />
+    </div>
+  );
 };
