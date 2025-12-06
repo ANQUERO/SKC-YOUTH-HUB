@@ -361,7 +361,14 @@ $$ LANGUAGE plpgsql;
 
 
 
+SELECT 
+    conname AS constraint_name,
+    pg_get_constraintdef(oid) AS constraint_definition
+FROM pg_constraint
+WHERE conrelid = 'notifications'::regclass
+AND conname = 'notifications_notification_type_check';
 
-
-
-
+SELECT column_name, data_type, is_nullable
+FROM information_schema.columns
+WHERE table_name = 'notifications'
+AND column_name = 'comment_id';

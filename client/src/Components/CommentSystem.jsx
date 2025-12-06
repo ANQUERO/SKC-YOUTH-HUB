@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import axiosInstance from "@lib/axios";
 import { useAuthContext } from "@context/AuthContext";
 import { useToast } from "@context/ToastContext";
-import "./CommentSystem.scss";
+import style from "../styles/commentSystem.module.scss";
 
 const CommentSystem = ({ postId }) => {
   const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
@@ -49,66 +49,66 @@ const CommentSystem = ({ postId }) => {
   }, [comments, postId]);
 
   const fetchCommentReactions = useCallback(async (commentId) => {
-  try {
-    const response = await axiosInstance.get(`/comment/${commentId}/reactions`);
-    const reactions = response.data.data || [];
+    try {
+      const response = await axiosInstance.get(`/comment/${commentId}/reactions`);
+      const reactions = response.data.data || [];
 
-    const counts = { like: 0, heart: 0, wow: 0 };
-    reactions.forEach((r) => {
-      counts[r.type] = (counts[r.type] || 0) + 1;
-    });
-
-    setCommentReactions((prev) => ({
-      ...prev,
-      [commentId]: counts,
-    }));
-
-    if (authUser) {
-      const userId =
-        authUser.userType === "official"
-          ? authUser.official_id
-          : authUser.youth_id;
-
-      const userReaction = reactions.find(
-        (r) => r.user_type === authUser.userType && r.user_id === userId
-      );
-
-      if (userReaction) {
-        setUserReactions((prev) => ({
-          ...prev,
-          [commentId]: userReaction.type,
-        }));
-      }
-    }
-  } catch (error) {
-    console.error("Error fetching comment reactions:", error);
-  }
-}, [authUser]);
-
-const fetchComments = useCallback(async () => {
-  try {
-    const response = await axiosInstance.get(`/post/${postId}/comments`);
-    const commentsData = response.data.data || [];
-    setComments(commentsData);
-
-    const reactionsPromises = [];
-
-    const fetchReactionsRecursively = (comments) => {
-      comments.forEach((comment) => {
-        reactionsPromises.push(fetchCommentReactions(comment.comment_id));
-
-        if (comment.replies?.length > 0) {
-          fetchReactionsRecursively(comment.replies);
-        }
+      const counts = { like: 0, heart: 0, wow: 0 };
+      reactions.forEach((r) => {
+        counts[r.type] = (counts[r.type] || 0) + 1;
       });
-    };
 
-    fetchReactionsRecursively(commentsData);
-    await Promise.all(reactionsPromises);
-  } catch (error) {
-    console.error("Error fetching comments:", error);
-  }
-}, [postId, fetchCommentReactions]);
+      setCommentReactions((prev) => ({
+        ...prev,
+        [commentId]: counts,
+      }));
+
+      if (authUser) {
+        const userId =
+          authUser.userType === "official"
+            ? authUser.official_id
+            : authUser.youth_id;
+
+        const userReaction = reactions.find(
+          (r) => r.user_type === authUser.userType && r.user_id === userId
+        );
+
+        if (userReaction) {
+          setUserReactions((prev) => ({
+            ...prev,
+            [commentId]: userReaction.type,
+          }));
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching comment reactions:", error);
+    }
+  }, [authUser]);
+
+  const fetchComments = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get(`/post/${postId}/comments`);
+      const commentsData = response.data.data || [];
+      setComments(commentsData);
+
+      const reactionsPromises = [];
+
+      const fetchReactionsRecursively = (comments) => {
+        comments.forEach((comment) => {
+          reactionsPromises.push(fetchCommentReactions(comment.comment_id));
+
+          if (comment.replies?.length > 0) {
+            fetchReactionsRecursively(comment.replies);
+          }
+        });
+      };
+
+      fetchReactionsRecursively(commentsData);
+      await Promise.all(reactionsPromises);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+    }
+  }, [postId, fetchCommentReactions]);
 
   const handleCommentReact = async (commentId, type) => {
     try {
@@ -306,46 +306,46 @@ const fetchComments = useCallback(async () => {
     return (
       <div
         id={`comment-${comment.comment_id}`}
-        className={`comment-item ${depth > 0 ? "reply" : ""}`}
+        className={`${style["comment-item"]} ${depth > 0 ? style.reply : ""}`}
       >
-        <div className="comment-header">
-          <div className="user-info">
-            <div className="avatar">
+        <div className={style["comment-header"]}>
+          <div className={style["user-info"]}>
+            <div className={style.avatar}>
               {comment.user_name
                 ? comment.user_name.charAt(0).toUpperCase()
                 : "U"}
             </div>
-            <div className="user-details">
-              <span className="username">
+            <div className={style["user-details"]}>
+              <span className={style.username}>
                 {comment.user_name || "Unknown User"}
               </span>
               {comment.user_role && (
-                <span className={`role-badge ${comment.user_role}`}>
+                <span className={`${style["role-badge"]} ${style[comment.user_role]}`}>
                   {comment.user_role === "super_official"
                     ? "Super Official"
                     : "Official"}
                 </span>
               )}
-              <span className="timestamp">
+              <span className={style.timestamp}>
                 {formatTimeAgo(comment.created_at)}
               </span>
             </div>
           </div>
 
           {canDelete && (
-            <div className="comment-options">
+            <div className={style["comment-options"]}>
               <button
-                className="options-btn"
+                className={style["options-btn"]}
                 onClick={() => toggleOptions(comment.comment_id)}
               >
                 ⋯
               </button>
 
               {showOptions[comment.comment_id] && (
-                <div className="options-menu">
+                <div className={style["options-menu"]}>
                   {isOwner && (
                     <button
-                      className="option-item delete"
+                      className={`${style["option-item"]} ${style.delete}`}
                       onClick={() => handleDeleteComment(comment.comment_id)}
                     >
                       🗑️ Delete
@@ -355,7 +355,7 @@ const fetchComments = useCallback(async () => {
                     <>
                       {comment.is_hidden ? (
                         <button
-                          className="option-item"
+                          className={style["option-item"]}
                           onClick={() =>
                             handleUnhideComment(comment.comment_id)
                           }
@@ -364,7 +364,7 @@ const fetchComments = useCallback(async () => {
                         </button>
                       ) : (
                         <button
-                          className="option-item"
+                          className={style["option-item"]}
                           onClick={() => handleHideComment(comment.comment_id)}
                         >
                           🙈 Hide
@@ -374,7 +374,7 @@ const fetchComments = useCallback(async () => {
                   )}
                   {canBan && (
                     <button
-                      className="option-item ban"
+                      className={`${style["option-item"]} ${style.ban}`}
                       onClick={() =>
                         handleBanUser(comment.user_id, comment.user_type)
                       }
@@ -388,12 +388,12 @@ const fetchComments = useCallback(async () => {
           )}
         </div>
 
-        <div className="comment-content">
+        <div className={style["comment-content"]}>
           {comment.is_hidden ? (
-            <div className="hidden-comment">
-              <span className="hidden-text">This comment has been hidden</span>
+            <div className={style["hidden-comment"]}>
+              <span className={style["hidden-text"]}>This comment has been hidden</span>
               {comment.hidden_reason && (
-                <span className="hidden-reason">
+                <span className={style["hidden-reason"]}>
                   Reason: {comment.hidden_reason}
                 </span>
               )}
@@ -403,11 +403,11 @@ const fetchComments = useCallback(async () => {
           )}
         </div>
 
-        <div className="comment-actions">
-          <div className="reaction-buttons">
+        <div className={style["comment-actions"]}>
+          <div className={style["reaction-buttons"]}>
             <button
-              className={`reaction-btn ${
-                userReactions[comment.comment_id] === "like" ? "active" : ""
+              className={`${style["reaction-btn"]} ${
+                userReactions[comment.comment_id] === "like" ? style.active : ""
               }`}
               onClick={() => handleCommentReact(comment.comment_id, "like")}
               title="Like"
@@ -415,8 +415,8 @@ const fetchComments = useCallback(async () => {
               👍 <span>{commentReactions[comment.comment_id]?.like || 0}</span>
             </button>
             <button
-              className={`reaction-btn ${
-                userReactions[comment.comment_id] === "heart" ? "active" : ""
+              className={`${style["reaction-btn"]} ${
+                userReactions[comment.comment_id] === "heart" ? style.active : ""
               }`}
               onClick={() => handleCommentReact(comment.comment_id, "heart")}
               title="Heart"
@@ -424,8 +424,8 @@ const fetchComments = useCallback(async () => {
               ❤️ <span>{commentReactions[comment.comment_id]?.heart || 0}</span>
             </button>
             <button
-              className={`reaction-btn ${
-                userReactions[comment.comment_id] === "wow" ? "active" : ""
+              className={`${style["reaction-btn"]} ${
+                userReactions[comment.comment_id] === "wow" ? style.active : ""
               }`}
               onClick={() => handleCommentReact(comment.comment_id, "wow")}
               title="Wow"
@@ -434,7 +434,7 @@ const fetchComments = useCallback(async () => {
             </button>
           </div>
           <button
-            className="action-btn reply-btn"
+            className={`${style["action-btn"]} ${style["reply-btn"]}`}
             onClick={() => {
               setReplyingTo(comment.comment_id);
               setReplyContent("");
@@ -445,8 +445,8 @@ const fetchComments = useCallback(async () => {
         </div>
 
         {replyingTo === comment.comment_id && (
-          <div className="reply-form">
-            <div className="reply-input">
+          <div className={style["reply-form"]}>
+            <div className={style["reply-input"]}>
               <input
                 type="text"
                 placeholder="Write a reply..."
@@ -459,9 +459,9 @@ const fetchComments = useCallback(async () => {
                 }}
                 autoFocus
               />
-              <div className="reply-actions">
+              <div className={style["reply-actions"]}>
                 <button
-                  className="cancel-btn"
+                  className={style["cancel-btn"]}
                   onClick={() => {
                     setReplyingTo(null);
                     setReplyContent("");
@@ -470,7 +470,7 @@ const fetchComments = useCallback(async () => {
                   Cancel
                 </button>
                 <button
-                  className="reply-submit-btn"
+                  className={style["reply-submit-btn"]}
                   onClick={() => handleReply(comment.comment_id)}
                   disabled={!replyContent.trim() || loading}
                 >
@@ -482,9 +482,9 @@ const fetchComments = useCallback(async () => {
         )}
 
         {comment.replies && comment.replies.length > 0 && (
-          <div className="replies-section">
+          <div className={style["replies-section"]}>
             <button
-              className="toggle-replies-btn"
+              className={style["toggle-replies-btn"]}
               onClick={() => toggleReplies(comment.comment_id)}
             >
               {showReplies[comment.comment_id]
@@ -497,7 +497,7 @@ const fetchComments = useCallback(async () => {
             </button>
 
             {showReplies[comment.comment_id] && (
-              <div className="replies-list">
+              <div className={style["replies-list"]}>
                 {comment.replies.map((reply) => (
                   <CommentItem
                     key={reply.comment_id}
@@ -514,14 +514,14 @@ const fetchComments = useCallback(async () => {
   };
 
   return (
-    <div className="comment-system">
-      <div className="comment-form">
+    <div className={style["comment-system"]}>
+      <div className={style["comment-form"]}>
         <form onSubmit={handleSubmitComment}>
-          <div className="comment-input-wrapper">
-            <div className="user-avatar">
+          <div className={style["comment-input-wrapper"]}>
+            <div className={style["user-avatar"]}>
               {authUser?.name ? authUser.name.charAt(0).toUpperCase() : "U"}
             </div>
-            <div className="input-container">
+            <div className={style["input-container"]}>
               <input
                 ref={commentInputRef}
                 type="text"
@@ -532,7 +532,7 @@ const fetchComments = useCallback(async () => {
               />
               <button
                 type="submit"
-                className="submit-btn"
+                className={style["submit-btn"]}
                 disabled={!newComment.trim() || loading}
               >
                 {loading ? "Posting..." : "Post"}
@@ -542,9 +542,9 @@ const fetchComments = useCallback(async () => {
         </form>
       </div>
 
-      <div className="comments-list">
+      <div className={style["comments-list"]}>
         {comments.length === 0 ? (
-          <div className="no-comments">
+          <div className={style["no-comments"]}>
             <p>No comments yet. Be the first to comment!</p>
           </div>
         ) : (

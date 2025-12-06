@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axiosInstance from '@lib/axios';
 import { useAuthContext } from '@context/AuthContext';
 import { useNotifications } from '@context/NotificationContext';
-import './PostOptions.scss';
+import '../styles/postOptions.module.scss';
 
 const PostOptions = ({ post, onPostDeleted, onPostHidden }) => {
     const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();

@@ -1,0 +1,500 @@
+$primary-blue: #1976d2;
+$light-blue: #42a5f5;
+$light-gray: #f0f2f5;
+$border-gray: #dadde1;
+$text-gray: #65676b;
+$text-dark: #1c1e21;
+$white: #ffffff;
+$red: #f02849;
+$green: #42b883;
+
+.comment-system {
+    background: $white;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 12px;
+
+    .comment-form {
+        margin-bottom: 16px;
+
+        form {
+            .comment-input-wrapper {
+                display: flex;
+                align-items: flex-start;
+                gap: 12px;
+
+                .user-avatar {
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, $primary-blue, $light-blue);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: $white;
+                    font-weight: 600;
+                    font-size: 14px;
+                    flex-shrink: 0;
+                }
+
+                .input-container {
+                    flex: 1;
+                    display: flex;
+                    align-items: center;
+                    background: $light-gray;
+                    border-radius: 20px;
+                    padding: 8px 12px;
+                    border: 1px solid transparent;
+                    transition: all 0.2s ease;
+
+                    &:focus-within {
+                        background: $white;
+                        border-color: $primary-blue;
+                        box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+                    }
+
+                    input {
+                        flex: 1;
+                        border: none;
+                        background: transparent;
+                        outline: none;
+                        font-size: 14px;
+                        color: $text-dark;
+                        padding: 4px 8px;
+
+                        &::placeholder {
+                            color: $text-gray;
+                        }
+                    }
+
+                    .submit-btn {
+                        background: $primary-blue;
+                        color: $white;
+                        border: none;
+                        border-radius: 16px;
+                        padding: 6px 16px;
+                        font-size: 14px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+
+                        &:hover:not(:disabled) {
+                            background: #1565c0;
+                            transform: translateY(-1px);
+                        }
+
+                        &:disabled {
+                            background: $text-gray;
+                            cursor: not-allowed;
+                            transform: none;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .comments-list {
+        .no-comments {
+            text-align: center;
+            padding: 24px;
+            color: $text-gray;
+            font-style: italic;
+        }
+
+        .comment-item {
+            margin-bottom: 16px;
+            padding: 12px 0;
+            border-bottom: 1px solid $border-gray;
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            &.reply {
+                margin-left: 44px;
+                padding-left: 16px;
+                border-left: 2px solid $light-gray;
+                border-bottom: none;
+                margin-bottom: 8px;
+            }
+
+            .comment-header {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                margin-bottom: 8px;
+
+                .user-info {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+
+                    .avatar {
+                        width: 32px;
+                        height: 32px;
+                        border-radius: 50%;
+                        background: linear-gradient(135deg, $primary-blue, $light-blue);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: $white;
+                        font-weight: 600;
+                        font-size: 14px;
+                        flex-shrink: 0;
+                    }
+
+                    .user-details {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 2px;
+
+                        .username {
+                            font-weight: 600;
+                            color: $text-dark;
+                            font-size: 14px;
+                        }
+
+                        .role-badge {
+                            font-size: 11px;
+                            padding: 2px 6px;
+                            border-radius: 10px;
+                            font-weight: 500;
+
+                            &.super_official {
+                                background: #ff6b35;
+                                color: $white;
+                            }
+
+                            &.natural_official {
+                                background: $green;
+                                color: $white;
+                            }
+                        }
+
+                        .timestamp {
+                            font-size: 12px;
+                            color: $text-gray;
+                        }
+                    }
+                }
+
+                .comment-options {
+                    position: relative;
+
+                    .options-btn {
+                        background: none;
+                        border: none;
+                        color: $text-gray;
+                        font-size: 18px;
+                        cursor: pointer;
+                        padding: 4px;
+                        border-radius: 50%;
+                        transition: all 0.2s ease;
+
+                        &:hover {
+                            background: $light-gray;
+                            color: $text-dark;
+                        }
+                    }
+
+                    .options-menu {
+                        position: absolute;
+                        top: 100%;
+                        right: 0;
+                        background: $white;
+                        border: 1px solid $border-gray;
+                        border-radius: 8px;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                        z-index: 1000;
+                        min-width: 150px;
+                        overflow: hidden;
+
+                        .option-item {
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            width: 100%;
+                            padding: 12px 16px;
+                            border: none;
+                            background: none;
+                            text-align: left;
+                            font-size: 14px;
+                            cursor: pointer;
+                            transition: background 0.2s ease;
+
+                            &:hover {
+                                background: $light-gray;
+                            }
+
+                            &.delete {
+                                color: $red;
+                            }
+
+                            &.ban {
+                                color: $red;
+                            }
+                        }
+                    }
+                }
+            }
+
+            .comment-content {
+                margin-left: 40px;
+                margin-bottom: 8px;
+
+                p {
+                    margin: 0;
+                    font-size: 14px;
+                    line-height: 1.4;
+                    color: $text-dark;
+                }
+
+                .hidden-comment {
+                    background: $light-gray;
+                    padding: 12px;
+                    border-radius: 8px;
+                    border-left: 3px solid $red;
+
+                    .hidden-text {
+                        display: block;
+                        color: $text-gray;
+                        font-style: italic;
+                        font-size: 14px;
+                    }
+
+                    .hidden-reason {
+                        display: block;
+                        color: $red;
+                        font-size: 12px;
+                        margin-top: 4px;
+                    }
+                }
+            }
+
+            .comment-actions {
+                margin-left: 40px;
+                margin-bottom: 8px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex-wrap: wrap;
+
+                .reaction-buttons {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+
+                    .reaction-btn {
+                        background: none;
+                        border: none;
+                        color: $text-gray;
+                        font-size: 12px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        padding: 4px 8px;
+                        border-radius: 4px;
+                        transition: all 0.2s ease;
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;
+
+                        &:hover {
+                            background: $light-gray;
+                            color: $text-dark;
+                        }
+
+                        &.active {
+                            background: rgba($primary-blue, 0.1);
+                            color: $primary-blue;
+                        }
+
+                        span {
+                            font-size: 11px;
+                            min-width: 16px;
+                            text-align: center;
+                        }
+                    }
+                }
+
+                .action-btn {
+                    background: none;
+                    border: none;
+                    color: $text-gray;
+                    font-size: 12px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    transition: all 0.2s ease;
+
+                    &:hover {
+                        background: $light-gray;
+                        color: $text-dark;
+                    }
+
+                    &.reply-btn {
+                        &:hover {
+                            color: $primary-blue;
+                        }
+                    }
+                }
+            }
+
+            .reply-form {
+                margin-left: 40px;
+                margin-top: 8px;
+
+                .reply-input {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+
+                    input {
+                        padding: 8px 12px;
+                        border: 1px solid $border-gray;
+                        border-radius: 20px;
+                        font-size: 14px;
+                        outline: none;
+                        transition: border-color 0.2s ease;
+
+                        &:focus {
+                            border-color: $primary-blue;
+                        }
+                    }
+
+                    .reply-actions {
+                        display: flex;
+                        gap: 8px;
+                        justify-content: flex-end;
+
+                        .cancel-btn {
+                            background: none;
+                            border: 1px solid $border-gray;
+                            color: $text-gray;
+                            padding: 6px 12px;
+                            border-radius: 16px;
+                            font-size: 12px;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+
+                            &:hover {
+                                background: $light-gray;
+                            }
+                        }
+
+                        .reply-submit-btn {
+                            background: $primary-blue;
+                            color: $white;
+                            border: none;
+                            padding: 6px 16px;
+                            border-radius: 16px;
+                            font-size: 12px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+
+                            &:hover:not(:disabled) {
+                                background: #1565c0;
+                            }
+
+                            &:disabled {
+                                background: $text-gray;
+                                cursor: not-allowed;
+                            }
+                        }
+                    }
+                }
+            }
+
+            .replies-section {
+                margin-left: 40px;
+                margin-top: 8px;
+
+                .toggle-replies-btn {
+                    background: none;
+                    border: none;
+                    color: $text-gray;
+                    font-size: 12px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    transition: all 0.2s ease;
+
+                    &:hover {
+                        background: $light-gray;
+                        color: $primary-blue;
+                    }
+                }
+
+                .replies-list {
+                    margin-top: 8px;
+                }
+            }
+        }
+    }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+    .comment-system {
+        padding: 12px;
+
+        .comment-form {
+            form {
+                .comment-input-wrapper {
+                    .input-container {
+                        flex-direction: column;
+                        align-items: stretch;
+                        gap: 8px;
+
+                        input {
+                            padding: 8px 12px;
+                        }
+
+                        .submit-btn {
+                            align-self: flex-end;
+                        }
+                    }
+                }
+            }
+        }
+
+        .comments-list {
+            .comment-item {
+                &.reply {
+                    margin-left: 20px;
+                    padding-left: 12px;
+                }
+
+                .comment-content,
+                .comment-actions,
+                .reply-form,
+                .replies-section {
+                    margin-left: 20px;
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .comment-system {
+        .comments-list {
+            .comment-item {
+                &.reply {
+                    margin-left: 12px;
+                    padding-left: 8px;
+                }
+
+                .comment-content,
+                .comment-actions,
+                .reply-form,
+                .replies-section {
+                    margin-left: 12px;
+                }
+            }
+        }
+    }
+}
