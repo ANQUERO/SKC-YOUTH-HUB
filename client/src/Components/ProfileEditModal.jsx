@@ -745,7 +745,7 @@ const ProfileEditModal = ({
                 )}
 
                 <Stepper activeStep={activeStep} className={styles.stepperRoot}>
-                    {steps.map((step, index) => (
+                    {steps.map((step) => (
                         <Step key={step.label}>
                             <StepLabel 
                                 icon={step.icon}

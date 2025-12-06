@@ -144,14 +144,14 @@ const Verification = () => {
                 startIcon={<UserCheck size={20} />}
                 onClick={() => setShowDrafts(false)}
               >
-                Unverified ({youthData.filter(y => !showDrafts).length})
+                Unverified ({youthData.filter(() => !showDrafts).length})
               </Button>
               <Button
                 variant={showDrafts ? "contained" : "outlined"}
                 startIcon={<UserX size={20} />}
                 onClick={() => setShowDrafts(true)}
               >
-                Drafts ({youthData.filter(y => showDrafts).length})
+                Drafts ({youthData.filter(() => showDrafts).length})
               </Button>
             </Box>
           </Box>

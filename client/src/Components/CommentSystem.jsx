@@ -4,7 +4,7 @@ import { useAuthContext } from '@context/AuthContext';
 import { useToast } from '@context/ToastContext';
 import './CommentSystem.scss';
 
-const CommentSystem = ({ postId, postAuthor }) => {
+const CommentSystem = ({ postId }) => {
     const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
     const { showSuccess, showError } = useToast();
     const [comments, setComments] = useState([]);
@@ -20,10 +20,6 @@ const CommentSystem = ({ postId, postAuthor }) => {
 
     const isOfficial = isSkSuperAdmin || isSkNaturalAdmin;
     const canModerate = isOfficial;
-
-    useEffect(() => {
-        fetchComments();
-    }, [postId]);
 
     // Handle scrolling to specific comment from URL hash
     useEffect(() => {
@@ -47,30 +43,30 @@ const CommentSystem = ({ postId, postAuthor }) => {
         }
     }, [comments, postId]);
 
-    const fetchComments = async () => {
-        try {
-            const response = await axiosInstance.get(`/post/${postId}/comments`);
-            const commentsData = response.data.data || [];
-            setComments(commentsData);
-            
-            // Fetch reactions for all comments and replies
-            const reactionsPromises = [];
-            
-            const fetchReactionsRecursively = (comments) => {
-                comments.forEach(comment => {
-                    reactionsPromises.push(fetchCommentReactions(comment.comment_id));
-                    if (comment.replies && comment.replies.length > 0) {
-                        fetchReactionsRecursively(comment.replies);
-                    }
-                });
-            };
-            
-            fetchReactionsRecursively(commentsData);
-            await Promise.all(reactionsPromises);
-        } catch (error) {
-            console.error('Error fetching comments:', error);
-        }
-    };
+const fetchComments = useCallback(async () => {
+    try {
+        const response = await axiosInstance.get(`/post/${postId}/comments`);
+        const commentsData = response.data.data || [];
+        setComments(commentsData);
+        
+        // Fetch reactions for all comments and replies
+        const reactionsPromises = [];
+
+        const fetchReactionsRecursively = (comments) => {
+            comments.forEach(comment => {
+                reactionsPromises.push(fetchCommentReactions(comment.comment_id));
+                if (comment.replies && comment.replies.length > 0) {
+                    fetchReactionsRecursively(comment.replies);
+                }
+            });
+        };
+
+        fetchReactionsRecursively(commentsData);
+        await Promise.all(reactionsPromises);
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+    }
+}, [postId]);  
 
     const fetchCommentReactions = async (commentId) => {
         try {
@@ -278,6 +274,10 @@ const CommentSystem = ({ postId, postAuthor }) => {
         if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d`;
         return commentDate.toLocaleDateString();
     };
+
+    useEffect(() => {
+        fetchComments();
+    }, [fetchComments]);
 
     const CommentItem = ({ comment, depth = 0 }) => {
         const isOwner = authUser && (
