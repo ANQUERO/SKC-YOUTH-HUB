@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@lib/axios";
 import { useNavigate } from "react-router-dom";
+import { useNotifications } from "@context/NotificationContext";
 
 export const useNotifications = () => {
     const queryClient = useQueryClient();

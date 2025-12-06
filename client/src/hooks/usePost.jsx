@@ -37,7 +37,7 @@ const usePosts = () => {
             });
             return data.data;
         },
-        onSuccess: (data) => {
+        onSuccess: () => {
             showSuccess('Your post has been published successfully');
             queryClient.invalidateQueries(["posts"]);
         },
@@ -49,7 +49,7 @@ const usePosts = () => {
             const { data } = await axiosInstance.put(`/post/${id}`, updatedPost);
             return data.data;
         },
-        onSuccess: (data) => {
+        onSuccess: () => {
             showSuccess('Your post has been updated successfully');
             queryClient.invalidateQueries(["posts"]);
         },
@@ -61,7 +61,7 @@ const usePosts = () => {
             const { data } = await axiosInstance.delete(`/post/${id}`);
             return data.data;
         },
-        onSuccess: (data) => {
+        onSuccess: () => {
             showSuccess('Your post has been deleted successfully');
             queryClient.invalidateQueries(["posts"]);
         },

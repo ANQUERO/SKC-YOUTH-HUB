@@ -3,11 +3,17 @@ import bcrypt from "bcrypt";
 
 const inferMediaType = (url) => {
     try {
-        const u = String(url).toLocaleLowerCase();
-        if (u.includes("/image/") || u.match(/\.(png|jpg|jpeg|gif|webp)$/)) {return "image";}
-        if (u.includes("/video/") || u.match(/\.(mp4|webm|mov|m4v)$/)) {return "video";}
-    } catch { }
-    return "null";
+        const u = String(url).toLowerCase();
+        if (u.includes("/image/") || u.includes("/images/") || u.match(/\.(png|jpg|jpeg|gif|webp)$/)) {
+            return "image";
+        }
+        if (u.includes("/video/") || u.includes("/videos/") || u.match(/\.(mp4|webm|mov|m4v)$/)) {
+            return "video";
+        }
+    } catch {
+        // Error handling
+    }
+    return null; // Changed from "null" string to null
 };
 
 // Public endpoint for landing page - fetches from landing_page_content table (no auth required)
@@ -27,9 +33,9 @@ export const getPublicOfficials = async (req, res) => {
         // Format the data for the landing page
         const formattedOfficials = result.rows.map(content => ({
             id: content.content_id,
-            name: content.official_name || 'Unknown',
-            title: content.official_title || 'Official',
-            img: content.media_url || '/default-profile.png'
+            name: content.official_name || "Unknown",
+            title: content.official_title || "Official",
+            img: content.media_url || "/default-profile.png"
         }));
 
         res.status(200).json({
@@ -140,7 +146,7 @@ export const update = async (req, res) => {
             delete fields.password; // Remove if not updating
         }
 
-        const entries = Object.entries(fields).filter(([_, v]) => v !== undefined && v !== null);
+        const entries = Object.entries(fields).filter(entry => entry[1] !== undefined && entry[1] !== null);
         if (entries.length === 0) {
             return res.status(400).json({
                 status: "Error",
@@ -153,7 +159,7 @@ export const update = async (req, res) => {
             .map(([key], i) => `${key} = $${i + 1}`)
             .join(", ");
 
-        const values = entries.map(([_, v]) => v);
+        const values = entries.map(entry => entry[1]);
 
         const query = `
             UPDATE sk_official_admin

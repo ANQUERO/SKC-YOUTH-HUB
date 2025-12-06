@@ -378,7 +378,7 @@ export const update = async (req, res) => {
                 paramCount++;
             }
 
-            updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
+            updateFields.push("updated_at = CURRENT_TIMESTAMP");
             values.push(youth_id);
 
             await client.query(
@@ -722,7 +722,6 @@ export const update = async (req, res) => {
         client.release();
     }
 };
-
 
 export const destroy = async (req, res) => {
     const { id: youth_id } = req.params;

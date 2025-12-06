@@ -7,7 +7,6 @@ import TermsConditions from "@pages/LandingPage/privacy/terms";
 
 import Signin from "@pages/Signin";
 import YouthSignup from "@pages/YouthSignup";
-import VerifyEmail from "@pages/VerifyEmail";
 import ForgotPassword from "@pages/ForgotPasword";
 import AdminAuth from "@pages/AdminAuth";
 
@@ -28,7 +27,7 @@ import YouthProfile from "@pages/YouthProfile";
 import OfficialsProfile from "@pages/OfficialsProfile";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-    const { authUser, activeRole, loading } = useAuthContext();
+    const { authUser, activeRole } = useAuthContext();
     const location = useLocation();
 
 
@@ -61,10 +60,6 @@ export const routes = [
     {
         path: "/signup",
         element: <YouthSignup />
-    },
-    {
-        path: "/verify-email",
-        element: <VerifyEmail />
     },
     {
         path: "/forgot",

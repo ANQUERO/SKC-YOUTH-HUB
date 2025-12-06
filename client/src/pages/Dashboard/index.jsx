@@ -30,24 +30,11 @@ import {
   MessageSquare,
   Reply,
   Heart,
-  ThumbsUp,
-  Smile
 } from 'lucide-react';
 import style from '@styles/dashboard.module.scss';
 import useDashboard from '@hooks/useDashboard';
 
 const COLORS = ['#10b981', '#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6', '#f97316'];
-
-const CustomTooltip = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className={style.customTooltip}>
-        <p>{`${label}: ${payload[0].value.toLocaleString()}`}</p>
-      </div>
-    );
-  }
-  return null;
-};
 
 const Dashboard = () => {
   const {
@@ -65,35 +52,48 @@ const Dashboard = () => {
     fetchTotalGender();
     fetchResidentsPerPurok();
     fetchRecentActivity(20);
-  }, []);
+  }, [
+    fetchTotalVoters,
+    fetchTotalGender,
+    fetchResidentsPerPurok,
+    fetchRecentActivity
+  ]);
 
-  // Calculate totals for stats cards
-  const totalResidents = (dashboardData.purok_stats || []).reduce((sum, purok) => 
-    sum + (Number(purok.total_residents) || 0), 0
+  // Totals
+  const totalResidents = (dashboardData.purok_stats || []).reduce(
+    (sum, p) => sum + (Number(p.total_residents) || 0),
+    0
   );
 
   const totalVoters = Number(dashboardData.registered_voters) || 0;
   const totalYouths = Number(dashboardData.total_youths) || 0;
-  const maleCount = (dashboardData.gender_stats || []).find(g => g.gender === 'male')?.total || 0;
-  const femaleCount = (dashboardData.gender_stats || []).find(g => g.gender === 'female')?.total || 0;
 
-  // Chart data
+  const maleCount =
+    dashboardData.gender_stats?.find(g => g.gender === 'male')?.total || 0;
+
+  const femaleCount =
+    dashboardData.gender_stats?.find(g => g.gender === 'female')?.total || 0;
+
+  // Charts
   const voterRegistrationData = [
-    { name: 'Registered', value: Number(dashboardData.registered_voters) || 0 },
-    { name: 'Unregistered', value: Number(dashboardData.unregistered_voters) || 0 },
+    { name: 'Registered', value: totalVoters },
+    { name: 'Unregistered', value: Number(dashboardData.unregistered_voters) || 0 }
   ];
 
-  const genderData = (dashboardData.gender_stats || []).map(g => ({
-    name: g.gender.charAt(0).toUpperCase() + g.gender.slice(1),
-    value: Number(g.total) || 0
-  }));
+  const genderData =
+    dashboardData.gender_stats?.map(g => ({
+      name: g.gender.charAt(0).toUpperCase() + g.gender.slice(1),
+      value: Number(g.total) || 0
+    })) || [];
 
-  const purokData = (dashboardData.purok_stats || []).map(p => ({
-    name: p.purok,
-    residents: Number(p.total_residents) || 0,
-    voters: Number(p.registered_voters) || 0
-  }));
+  const purokData =
+    dashboardData.purok_stats?.map(p => ({
+      name: p.purok,
+      residents: Number(p.total_residents) || 0,
+      voters: Number(p.registered_voters) || 0
+    })) || [];
 
+  // Dummy age distribution
   const ageDistributionData = [
     { age: '15-20', count: 45 },
     { age: '21-25', count: 68 },
@@ -102,92 +102,88 @@ const Dashboard = () => {
     { age: '36-40', count: 25 }
   ];
 
-  // Format time ago
+  // Time formatter
   const formatTimeAgo = (dateString) => {
     const now = new Date();
     const date = new Date(dateString);
-    const diffInSeconds = Math.floor((now - date) / 1000);
-    
-    if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+    const diff = Math.floor((now - date) / 1000);
+
+    if (diff < 60) return `${diff} seconds ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)} minutes ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)} days ago`;
     return date.toLocaleDateString();
   };
 
-  // Get activity icon based on type
+  // Icon by activity
   const getActivityIcon = (type) => {
     switch (type) {
-      case 'comment':
-        return <MessageSquare size={16} />;
-      case 'reply':
-        return <Reply size={16} />;
-      case 'reaction':
-        return <Heart size={16} />;
-      case 'signup':
-        return <UserPlus size={16} />;
-      default:
-        return <FileText size={16} />;
+      case 'comment': return <MessageSquare size={16} />;
+      case 'reply': return <Reply size={16} />;
+      case 'reaction': return <Heart size={16} />;
+      case 'signup': return <UserPlus size={16} />;
+      default: return <FileText size={16} />;
     }
   };
 
-  // Get activity type badge
-  const getActivityType = (activity) => {
-    switch (activity.type) {
-      case 'comment':
-        return 'Commented';
-      case 'reply':
-        return 'Replied to a comment';
-      case 'reaction':
-        return activity.activity_type || 'Reacted';
-      case 'signup':
-        return 'Signed up';
-      default:
-        return activity.activity_type || 'Activity';
+  // Type text
+  const getActivityType = (a) => {
+    switch (a.type) {
+      case 'comment': return 'Commented';
+      case 'reply': return 'Replied';
+      case 'reaction': return a.activity_type || 'Reacted';
+      case 'signup': return 'Signed up';
+      default: return a.activity_type || 'Activity';
     }
   };
 
-  // Format activity description
-  const getActivityDescription = (activity) => {
-    switch (activity.type) {
+  const getActivityDescription = (a) => {
+    switch (a.type) {
       case 'comment':
-        return `${activity.user_name} commented: "${activity.content?.substring(0, 50)}${activity.content?.length > 50 ? '...' : ''}"`;
       case 'reply':
-        return `${activity.user_name} replied: "${activity.content?.substring(0, 50)}${activity.content?.length > 50 ? '...' : ''}"`;
+        return `${a.user_name} said: "${a.content?.substring(0, 50)}${a.content?.length > 50 ? '...' : ''}"`;
       case 'reaction':
-        const emoji = activity.reaction_type === 'like' ? '👍' : activity.reaction_type === 'heart' ? '❤️' : '😮';
-        return `${activity.user_name} reacted ${emoji} to a post`;
+        const emoji =
+          a.reaction_type === 'like'
+            ? '👍'
+            : a.reaction_type === 'heart'
+              ? '❤️'
+              : '😮';
+        return `${a.user_name} reacted ${emoji}`;
       case 'signup':
-        return `${activity.user_name} joined the platform`;
+        return `${a.user_name} joined the platform`;
       default:
-        return activity.content || 'Activity';
+        return a.content || 'Activity';
     }
   };
 
-  const recentActivities = (dashboardData.recent_activity || []).map(activity => ({
-    id: activity.id,
-    title: getActivityType(activity),
-    description: getActivityDescription(activity),
-    time: formatTimeAgo(activity.created_at),
-    type: activity.type === 'signup' ? 'success' : activity.type === 'reaction' ? 'info' : 'warning',
-    icon: getActivityIcon(activity.type),
-    activity: activity
-  }));
+  const recentActivities =
+    dashboardData.recent_activity?.map(a => ({
+      id: a.id,
+      title: getActivityType(a),
+      description: getActivityDescription(a),
+      time: formatTimeAgo(a.created_at),
+      type:
+        a.type === 'signup'
+          ? 'success'
+          : a.type === 'reaction'
+            ? 'info'
+            : 'warning',
+      icon: getActivityIcon(a.type)
+    })) || [];
 
-  // Check if chart data is available
-  const hasVoterData = voterRegistrationData.length > 0 && voterRegistrationData.some(item => item.value > 0);
-  const hasGenderData = genderData.length > 0 && genderData.some(item => item.value > 0);
-  const hasPurokData = purokData.length > 0 && purokData.some(item => item.residents > 0 || item.voters > 0);
+  const hasVoterData = voterRegistrationData.some(i => i.value > 0);
+  const hasGenderData = genderData.some(i => i.value > 0);
+  const hasPurokData = purokData.some(i => i.residents > 0 || i.voters > 0);
 
   if (loading) {
     return (
       <div className={style.dashboard}>
-        <div className={style.loadingState}>
-          <div>Loading dashboard data...</div>
-        </div>
+        <div className={style.loadingState}>Loading dashboard...</div>
       </div>
     );
   }
+
 
   return (
     <div className={style.dashboard}>

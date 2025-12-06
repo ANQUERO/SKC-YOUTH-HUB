@@ -66,10 +66,10 @@ export const showProfile = async (req, res) => {
             return res.status(200).json({
                 status: "Success",
                 data: {
-                    accountName: {
-                        ...accountName.rows[0],
-                        profile_picture: profilePicture.rows[0]?.profile_picture || null
-                    } || null,
+                    accountName: accountName.rows[0] ? {
+            ...accountName.rows[0],
+            profile_picture: profilePicture.rows[0]?.profile_picture || null
+        } : null,
                     genderInfo: genderInfo.rows[0] || null,
                     demoSurvey: demoSurvey.rows[0] || null,
                     meetingHousehold: meetingHousehold.rows[0] || null
@@ -111,12 +111,12 @@ export const showProfile = async (req, res) => {
             return res.status(200).json({
                 status: "Success",
                 data: {
-                    account: {
-                        ...account.rows[0],
-                        profile_picture: profilePicture.rows[0]?.profile_picture || null
-                    } || null,
-                    name: name.rows[0] || null,
-                    info: info.rows[0] || null
+                   account: account.rows[0] ? {
+    ...account.rows[0],
+    profile_picture: profilePicture.rows[0]?.profile_picture || null
+} : null,
+name: name.rows[0] || null,
+info: info.rows[0] || null
                 }
             });
         }
@@ -480,7 +480,7 @@ export const getYouthActivity = async (req, res) => {
         const activities = [
             ...reactionsResult.rows.map(r => ({
                 id: `reaction-${r.reaction_id}`,
-                type: 'reaction',
+                type: "reaction",
                 reaction_type: r.type,
                 post_id: r.post_id,
                 post_description: r.post_description,

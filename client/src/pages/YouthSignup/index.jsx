@@ -281,7 +281,7 @@ const YouthSignup = () => {
     }
   };
 
-  const isStepOptional = (step) => {
+  const isStepOptional = () => {
     return false; // All steps are required
   };
 

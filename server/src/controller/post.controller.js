@@ -5,7 +5,9 @@ const inferMediaType = (url) => {
         const u = String(url).toLowerCase();
         if (u.includes("/image/") || u.match(/\.(png|jpg|jpeg|gif|webp)$/)) {return "image";}
         if (u.includes("/video/") || u.match(/\.(mp4|webm|mov|m4v)$/)) {return "video";}
-    } catch { }
+    } catch (error){
+        console.error("Error", error);
+     }
     return null;
 };
 

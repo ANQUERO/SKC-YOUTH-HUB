@@ -87,7 +87,7 @@ export const getFeedbackForm = async (req, res) => {
         let hasReplied = false;
         if (user.userType === "youth") {
             const replyCheck = await pool.query(
-                `SELECT replied_id FROM replied_forms WHERE form_id = $1 AND youth_id = $2`,
+                "SELECT replied_id FROM replied_forms WHERE form_id = $1 AND youth_id = $2",
                 [form_id, user.youth_id]
             );
             hasReplied = replyCheck.rows.length > 0;
@@ -174,7 +174,7 @@ export const submitFeedbackReply = async (req, res) => {
     try {
         // Check if form exists and is not hidden
         const formCheck = await pool.query(
-            `SELECT form_id FROM forms WHERE form_id = $1 AND deleted_at IS NULL AND is_hidden = FALSE`,
+            "SELECT form_id FROM forms WHERE form_id = $1 AND deleted_at IS NULL AND is_hidden = FALSE",
             [form_id]
         );
 
@@ -187,7 +187,7 @@ export const submitFeedbackReply = async (req, res) => {
 
         // Check if youth has already replied
         const existingReply = await pool.query(
-            `SELECT replied_id FROM replied_forms WHERE form_id = $1 AND youth_id = $2`,
+            "SELECT replied_id FROM replied_forms WHERE form_id = $1 AND youth_id = $2",
             [form_id, user.youth_id]
         );
 

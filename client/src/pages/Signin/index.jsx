@@ -22,7 +22,6 @@ import {
 import Logo from '@images/logo.jpg';
 import style from '@styles/signin.module.scss';
 import useLogin from '@hooks/useSignin';
-import GoogleOAuth from '@components/GoogleOAuth';
 
 const Signin = () => {
   const [form, setForm] = useState({ email: '', password: '', remember: false });
@@ -50,34 +49,6 @@ const Signin = () => {
             : '/';
       navigate(route);
     }
-  };
-
-  const handleGoogleSuccess = async (credential) => {
-    try {
-      const response = await fetch('http://localhost:5000/api/auth/google-login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ credential }),
-        credentials: 'include',
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        const route = data.user.userType === 'official' ? '/dashboard' : '/profile';
-        navigate(route);
-      } else {
-        console.error('Google login failed:', data.message);
-      }
-    } catch (error) {
-      console.error('Google login error:', error);
-    }
-  };
-
-  const handleGoogleError = (error) => {
-    console.error('Google OAuth error:', error);
   };
 
   const renderField = (label, field, type = 'text', showToggle = false) => (

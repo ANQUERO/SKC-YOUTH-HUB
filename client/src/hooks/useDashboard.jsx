@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import axiosInstance from "@lib/axios";
 import { useAuthContext } from "@context/AuthContext";
 
@@ -8,21 +8,32 @@ const useDashboard = () => {
 
     const [dashboardData, setDashboardData] = useState({});
     const [loading, setLoading] = useState(false);
-    const [success, setSucces] = useState(null);
+    const [success, setSuccess] = useState(null);
     const [error, setError] = useState(null);
 
-
-    const fetchTotalVoters = async () => {
+    const runAuthorized = useCallback(async (callback) => {
         if (!isAuthorized) {
             setError("Unauthorized access");
             return;
-        };
+        }
 
         setLoading(true);
-        setSucces(null);
+        setSuccess(null);
         setError(null);
 
         try {
+            await callback();
+            setSuccess("Fetched successfully");
+        } catch (_) {
+            setError("Failed to fetch data");
+        } finally {
+            setLoading(false);
+        }
+    }, [isAuthorized]);
+
+    /** FETCH TOTAL VOTERS */
+    const fetchTotalVoters = useCallback(() => {
+        return runAuthorized(async () => {
             const res = await axiosInstance.get('/dashboard/v1');
             setDashboardData(prev => ({
                 ...prev,
@@ -30,100 +41,54 @@ const useDashboard = () => {
                 unregistered_voters: res.data.unregistered_voters,
                 total_youths: res.data.total_youths,
             }));
-            setSucces('Fetched successfully');
-        } catch (error) {
-            setError("Failed to fetch data");
-        } finally {
-            setLoading(false);
-        }
-    }
+        });
+    }, [runAuthorized]);
 
-    const fetchTotalGender = async () => {
-        if (!isAuthorized) {
-            setError("Unauthorized access");
-            return;
-        };
-
-        setLoading(true);
-        setSucces(null);
-        setError(null);
-
-        try {
+    /** FETCH GENDER STATS */
+    const fetchTotalGender = useCallback(() => {
+        return runAuthorized(async () => {
             const res = await axiosInstance.get('/dashboard/v2');
             setDashboardData(prev => ({
                 ...prev,
-                gender_stats: res.data.data
+                gender_stats: res.data.data,
             }));
-            setSucces('Fetched successfully');
-        } catch (error) {
-            setError("Failed to fetch data");
+        });
+    }, [runAuthorized]);
 
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    const fetchResidentsPerPurok = async () => {
-        if (!isAuthorized) {
-            setError("Unauthorized access");
-            return;
-        };
-
-        setLoading(true);
-        setSucces(null);
-        setError(null);
-
-        try {
+    /** FETCH PUROK RESIDENTS */
+    const fetchResidentsPerPurok = useCallback(() => {
+        return runAuthorized(async () => {
             const res = await axiosInstance.get('/dashboard/v3');
             setDashboardData(prev => ({
                 ...prev,
-                purok_stats: res.data.data
+                purok_stats: res.data.data,
             }));
-            setSucces('Fetched successfully');
-        } catch (error) {
-            setError("Failed to fetch data");
+        });
+    }, [runAuthorized]);
 
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    const fetchRecentActivity = async (limit = 20) => {
-        if (!isAuthorized) {
-            setError("Unauthorized access");
-            return;
-        };
-
-        setLoading(true);
-        setSucces(null);
-        setError(null);
-
-        try {
+    /** FETCH RECENT ACTIVITY */
+    const fetchRecentActivity = useCallback((limit = 20) => {
+        return runAuthorized(async () => {
             const res = await axiosInstance.get(`/dashboard/activity?limit=${limit}`);
             setDashboardData(prev => ({
                 ...prev,
-                recent_activity: res.data.data
+                recent_activity: res.data.data,
             }));
-            setSucces('Fetched successfully');
-        } catch (error) {
-            setError("Failed to fetch activity data");
-        } finally {
-            setLoading(false);
-        }
-    }
+        });
+    }, [runAuthorized]);
 
+    /** RETURN API */
     return {
-        setDashboardData,
         dashboardData,
         loading,
         error,
         success,
+        setDashboardData,
         fetchTotalVoters,
         fetchTotalGender,
         fetchResidentsPerPurok,
         fetchRecentActivity
-    }
+    };
+};
 
-}
-
-export default useDashboard
+export default useDashboard;

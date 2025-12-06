@@ -144,7 +144,7 @@ export const createComment = async (req, res) => {
                 message: notifError.message,
                 stack: notifError.stack,
                 post_id,
-                commentId,
+                commentId: rows[0]?.comment_id,
                 authorId,
                 userType: user.userType
             });
@@ -360,7 +360,6 @@ export const unhideComment = async (req, res) => {
 export const banUserFromCommenting = async (req, res) => {
     const user = req.user;
     const { user_id, user_type } = req.params;
-    const { reason } = req.body;
 
     if (!user || user.userType !== "official") {
         return res.status(403).json({

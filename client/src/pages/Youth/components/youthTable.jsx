@@ -12,7 +12,6 @@ import {
     Avatar,
     Typography,
     Chip,
-    useTheme
 } from "@mui/material";
 import { 
     ShieldCheck 
@@ -48,7 +47,6 @@ const YouthTable = ({
         const isAsc = orderBy === property && order === "asc";
         onRequestSort(isAsc ? "desc" : "asc", property);
     };
-    const theme = useTheme();
 
     return (
         <TableContainer sx={{ maxHeight: 600 }}>

@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { CloudUpload, AttachFile, Delete, Visibility, VisibilityOff } from '@mui/icons-material';
 
-const VerificationStep = ({ formData, errors, onChange, isVerified, onVerified }) => {
+const VerificationStep = ({ formData, errors, onChange }) => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);

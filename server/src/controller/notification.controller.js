@@ -12,14 +12,7 @@ export const getNotifications = async (req, res) => {
     }
 
     try {
-        const recipientId = user.userType === "official" ? user.official_id : user.youth_id;
-        
-        
-        // Debug: Check if there are any notifications for this user at all
-        const debugQuery = await pool.query(
-            `SELECT COUNT(*) as total FROM notifications WHERE recipient_type = $1 AND recipient_id = $2`,
-            [user.userType, recipientId]
-        );
+        const recipientId = user.userType === "official" ? user.official_id : user.youth_id;   
         
         const result = await pool.query(
             `
@@ -43,7 +36,6 @@ export const getNotifications = async (req, res) => {
             `,
             [user.userType, recipientId]
         );
-
 
         return res.status(200).json({
             status: "Success",
@@ -78,7 +70,6 @@ export const getUnreadCount = async (req, res) => {
 
     try {
         const recipientId = user.userType === "official" ? user.official_id : user.youth_id;
-        
         
         const result = await pool.query(
             `
@@ -217,13 +208,13 @@ export const debugNotifications = async (req, res) => {
         
         // Check total notifications
         const totalResult = await pool.query(
-            `SELECT COUNT(*) as total FROM notifications WHERE recipient_type = $1 AND recipient_id = $2`,
+            "SELECT COUNT(*) as total FROM notifications WHERE recipient_type = $1 AND recipient_id = $2",
             [user.userType, recipientId]
         );
 
         // Check unread notifications
         const unreadResult = await pool.query(
-            `SELECT COUNT(*) as unread FROM notifications WHERE recipient_type = $1 AND recipient_id = $2 AND is_read = FALSE`,
+            "SELECT COUNT(*) as unread FROM notifications WHERE recipient_type = $1 AND recipient_id = $2 AND is_read = FALSE",
             [user.userType, recipientId]
         );
 
@@ -240,7 +231,7 @@ export const debugNotifications = async (req, res) => {
         let youthInfo = null;
         if (user.userType === "youth") {
             const youthCheck = await pool.query(
-                `SELECT youth_id, verified, is_active, deleted_at FROM sk_youth WHERE youth_id = $1`,
+                "SELECT youth_id, verified, is_active, deleted_at FROM sk_youth WHERE youth_id = $1",
                 [recipientId]
             );
             youthInfo = youthCheck.rows[0];

@@ -25,7 +25,7 @@ export const Navbar = () => {
   const [isProfileOpen, setProfileOpen] = useState(false);
   const navigate = useNavigate();
   const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = useAuthContext();
-  const { userData, profilePicture, loading } = useCurrentUser();
+  const { userData, profilePicture } = useCurrentUser();
   const logout = useLogout();
   const canManage = isSkSuperAdmin || isSkNaturalAdmin;
   const { notifications, unreadCount, markRead } = useNotifications();

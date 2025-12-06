@@ -105,27 +105,6 @@ export const getResidentsPerPurok = async (req, res) => {
     }
 };
 
-export const ageDistribution = async (req, res) => {
-    const user = req.user;
-
-    if (!user || user.userType !== "official") {
-        return res.status(404).json({
-            status: "Error",
-            message: "Forbidden - Only admins can access this resource"
-        });
-    }
-
-    try {
-        const result = await pool.query(`
-            SELECT 
-            age FROM WHERE 
-            
-            `);
-    } catch (error) {
-        
-    } 
-};
-
 // Get recent activity history (comments, replies, reactions, signups)
 export const getRecentActivity = async (req, res) => {
     const user = req.user;
@@ -227,9 +206,9 @@ export const getRecentActivity = async (req, res) => {
         const activities = [
             ...commentsResult.rows.map(c => ({
                 id: `comment-${c.comment_id}`,
-                type: 'comment',
-                activity_type: 'Commented',
-                user_name: c.user_name || 'Unknown',
+                type: "comment",
+                activity_type: "Commented",
+                user_name: c.user_name || "Unknown",
                 user_type: c.user_type,
                 content: c.content,
                 post_id: c.post_id,
@@ -238,9 +217,9 @@ export const getRecentActivity = async (req, res) => {
             })),
             ...repliesResult.rows.map(r => ({
                 id: `reply-${r.comment_id}`,
-                type: 'reply',
-                activity_type: 'Replied to a comment',
-                user_name: r.user_name || 'Unknown',
+                type: "reply",
+                activity_type: "Replied to a comment",
+                user_name: r.user_name || "Unknown",
                 user_type: r.user_type,
                 content: r.content,
                 post_id: r.post_id,
@@ -250,9 +229,9 @@ export const getRecentActivity = async (req, res) => {
             })),
             ...reactionsResult.rows.map(re => ({
                 id: `reaction-${re.reaction_id}`,
-                type: 'reaction',
-                activity_type: `Reacted ${re.type === 'like' ? '👍' : re.type === 'heart' ? '❤️' : '😮'}`,
-                user_name: re.user_name || 'Unknown',
+                type: "reaction",
+                activity_type: `Reacted ${re.type === "like" ? "👍" : re.type === "heart" ? "❤️" : "😮"}`,
+                user_name: re.user_name || "Unknown",
                 user_type: re.user_type,
                 reaction_type: re.type,
                 post_id: re.post_id,
@@ -261,10 +240,10 @@ export const getRecentActivity = async (req, res) => {
             })),
             ...signupsResult.rows.map(s => ({
                 id: `signup-${s.youth_id}`,
-                type: 'signup',
-                activity_type: 'Signed up',
-                user_name: s.user_name || 'Unknown',
-                user_type: 'youth',
+                type: "signup",
+                activity_type: "Signed up",
+                user_name: s.user_name || "Unknown",
+                user_type: "youth",
                 email: s.email,
                 created_at: s.created_at
             }))

@@ -6,7 +6,7 @@ console.log("Starting server initialization...");
 
 dotenv.config();
 
-console.log("Enviroment loaded, NODE_ENV:", process.env.NODE_ENV);
+console.log("Enviroment loaded, NODE_ENV:", process.env.NODE_EN);
 
 const PORT = process.env.PORT || 4300;
 
@@ -25,13 +25,13 @@ const init = async () => {
     try {
         await initDB();
         startServer();
-    } catch (error) {
+    } catch (_) {
         console.error("Failed to connect to the database");
         process.exit(1);
     }
 };
 
-init().catch(error => {
-    console.error("Fatal error during initialization: ", error);
+init().catch(_ => {
+    console.error("Fatal error during initialization: ", _);
     process.exit(1);
 });
