@@ -414,9 +414,9 @@ export const login = async (req, res) => {
       userType = "official";
       idField = "official_id";
     } else {
-      // Try youth table - check for active accounts only
+      // Try youth table
       result = await pool.query(
-        "SELECT * FROM sk_youth WHERE email = $1 AND is_active = true",
+        "SELECT * FROM sk_youth WHERE email = $1",
         [email]
       );
 
@@ -428,13 +428,23 @@ export const login = async (req, res) => {
     }
 
     if (!user) {
+      console.log("Login failed: User not found for email:", email);
       return res.status(401).json({
         errors: { email: "Invalid credentials" },
       });
     }
 
+    // Check if password exists
+    if (!user.password) {
+      console.log("Login failed: No password found for user:", email);
+      return res.status(401).json({
+        errors: { password: "Invalid credentials" },
+      });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      console.log("Login failed: Password mismatch for email:", email);
       return res.status(401).json({
         errors: { password: "Invalid credentials" },
       });

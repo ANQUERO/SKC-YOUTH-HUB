@@ -23,7 +23,7 @@ export const unverified = async (req, res) => {
                 yn.suffix
             FROM sk_youth y
             LEFT JOIN sk_youth_name yn ON y.youth_id = yn.youth_id
-            WHERE y.verified = false AND y.deleted_at IS NULL
+            WHERE y.verified = false
             ORDER BY y.youth_id
         `);
 
