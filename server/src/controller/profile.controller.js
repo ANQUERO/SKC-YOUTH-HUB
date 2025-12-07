@@ -20,8 +20,8 @@ export const showProfile = async (req, res) => {
         demoSurvey,
         meetingHousehold,
         profilePicture,
-        locationData, // Add location query
-        nameData // Add name query separately if needed
+        locationData,
+        nameData 
       ] = await Promise.all([
         pool.query(
           `
@@ -632,4 +632,75 @@ export const getYouthActivity = async (req, res) => {
       error: error.message,
     });
   }
+};
+
+export const getUserAvatar = async (req, res) => {
+    const { user_type, user_id } = req.params;
+
+    // Debug logging
+    console.log("getUserAvatar called with:", { user_type, user_id, typeof_user_id: typeof user_id });
+
+    // Validate user_id is a number
+    const userIdNum = parseInt(user_id);
+    if (isNaN(userIdNum)) {
+        console.error("Invalid user_id provided:", user_id);
+        return res.status(400).json({
+            status: "Error",
+            message: "Invalid user ID. User ID must be a number."
+        });
+    }
+
+    // Validate user_type
+    if (!["official", "youth"].includes(user_type)) {
+        return res.status(400).json({
+            status: "Error",
+            message: "Invalid user type. Must be 'official' or 'youth'"
+        });
+    }
+
+    try {
+        let query;
+        let params = [userIdNum];
+
+        if (user_type === "official") {
+            query = `
+                SELECT file_url, file_type, file_name
+                FROM sk_official_avatar
+                WHERE official_id = $1
+                ORDER BY attachment_id DESC
+                LIMIT 1
+            `;
+        } else if (user_type === "youth") {
+            query = `
+                SELECT file_url, file_type, file_name
+                FROM sk_youth_avatar
+                WHERE youth_id = $1
+                ORDER BY attachment_id DESC
+                LIMIT 1
+            `;
+        }
+
+        console.log("Executing query:", query, "with params:", params); // Debug log
+
+        const { rows } = await pool.query(query, params);
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                status: "Error",
+                message: "Profile image not found"
+            });
+        }
+
+        return res.status(200).json({
+            status: "Success",
+            data: rows[0]
+        });
+
+    } catch (error) {
+        console.error("Error fetching user avatar:", error);
+        return res.status(500).json({
+            status: "Error",
+            message: "Internal Server Error"
+        });
+    }
 };

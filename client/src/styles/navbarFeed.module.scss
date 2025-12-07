@@ -121,10 +121,6 @@ $nav_bg: linear-gradient(135deg, #5894e2, #478de7);
     color: $text_gray;
   }
 
-  &:focus {
-    background: darken($light_gray, 5%);
-  }
-
   &:focus-visible {
     outline: 2px solid $primary_blue;
   }
@@ -450,7 +446,6 @@ $nav_bg: linear-gradient(135deg, #5894e2, #478de7);
 .dropdown_header {
   padding: 1rem;
   border-bottom: 1px solid $border_gray;
-  background: lighten($light_gray, 5%);
 
   h4 {
     margin: 0;

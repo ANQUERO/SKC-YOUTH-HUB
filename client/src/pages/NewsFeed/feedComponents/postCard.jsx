@@ -1,4 +1,3 @@
-// Update your PostCard.js to include the updated PostOptions
 import React, { useState, useEffect } from "react";
 import style from "@styles/newsFeed.module.scss";
 import axiosInstance from "@lib/axios";
@@ -8,7 +7,7 @@ import PostOptions from "@components/PostOptions";
 import { MediaGallery } from "Components/MediaGallery";
 
 export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
-  const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = useAuthContext();
+  const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth, authUser } = useAuthContext();
   const isSK = isSkSuperAdmin || isSkNaturalAdmin || isSkYouth;
   const [reactionsCount, setReactionsCount] = useState({
     like: 0,
@@ -17,6 +16,14 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
   });
   const [postHidden, setPostHidden] = useState(post.is_hidden || false);
   const [currentPost, setCurrentPost] = useState(post);
+
+  // Extract author information with proper fallbacks
+  const author = currentPost.author || currentPost.official || {};
+  const authorName = author.name || "Unknown User";
+  const authorRole = author.position || author.official_position || "Official";
+  const authorProfilePic = author.profile_picture 
+    ? author.profile_picture 
+    : `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=random&color=fff`;
 
   const mediaItems = currentPost.media || [];
 
@@ -71,6 +78,26 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
     onPostUpdated && onPostUpdated(updatedPost);
   };
 
+  // Format date function
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+
+    if (diffInSeconds < 60) return 'just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+    
+    // Return full date for older posts
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      ...(date.getFullYear() !== now.getFullYear() && { year: 'numeric' })
+    });
+  };
+
   if (postHidden) {
     return (
       <div className={style.card}>
@@ -120,15 +147,20 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
       <div className={style.header}>
         <div className={style.author}>
           <img
-            src={currentPost.avatar || "/default-avatar.png"}
-            alt="Author"
+            src={authorProfilePic}
+            alt={authorName}
             className={style.avatar}
+            onError={(e) => {
+              // Fallback to initials avatar if image fails to load
+              e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=random&color=fff`;
+            }}
           />
-          <div>
-            <h4>{currentPost.author || currentPost.official?.name}</h4>
-            <p>{currentPost.role || currentPost.official?.position}</p>
+          <div className={style.authorDetails}>
+            <h4 className={style.authorName}>{authorName}</h4>
+            <p className={style.authorRole}>{authorRole}</p>
           </div>
         </div>
+        
         <div className={style.headerActions}>
           <div
             className={style.postTypeBadge}
@@ -138,7 +170,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
             <span>{postTypeInfo.label}</span>
           </div>
           <span className={style.time}>
-            {new Date(currentPost.created_at || currentPost.time).toLocaleString()}
+            {formatDate(currentPost.created_at || currentPost.time)}
           </span>
           <PostOptions
             post={currentPost}
@@ -181,7 +213,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
 
       <CommentSystem
         postId={currentPost.post_id}
-        postAuthor={currentPost.author || currentPost.official?.name}
+        postAuthor={authorName}
       />
     </div>
   );

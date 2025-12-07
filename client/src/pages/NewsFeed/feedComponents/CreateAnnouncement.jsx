@@ -8,6 +8,7 @@ export const CreateAnnouncement = () => {
   const [description, setDescription] = useState("");
   const [files, setFiles] = useState([]);
   const [fileType, setFileType] = useState(null);
+  const [filePreviews, setFilePreviews] = useState([]); // Added missing state
   const { createPost } = usePostContext();
   const { userData, profilePicture, loading: userLoading } = useCurrentUser();
 
@@ -16,36 +17,55 @@ export const CreateAnnouncement = () => {
     if (list.length > 0) {
       setFiles(list);
       setFileType(kind);
+      
+      // Create previews for new files
+      const previews = list.map(file => ({
+        url: URL.createObjectURL(file),
+        type: kind,
+        file
+      }));
+      setFilePreviews(previews);
     }
   };
 
   const handleRemoveFile = (index) => {
     const updated = files.filter((_, i) => i !== index);
+    const updatedPreviews = filePreviews.filter((_, i) => i !== index);
+    
     setFiles(updated);
+    setFilePreviews(updatedPreviews);
     if (updated.length === 0) setFileType(null);
+    
+    // Revoke object URL to prevent memory leaks
+    URL.revokeObjectURL(filePreviews[index].url);
   };
 
-const handlePost = () => {
+  const handlePost = () => {
     if (description.trim() === "") return;
 
     const newPost = new FormData();
     newPost.append("description", description);
-    newPost.append("type", "activity"); // Always set as activity
+    newPost.append("type", "announcement");
     
     // Append all files
     files.forEach((file) => {
-        newPost.append("media", file); // Use "media" not "media[]"
+      newPost.append("media", file);
     });
 
     createPost.mutate(newPost, {
-        onSuccess: () => {
-            setDescription("");
-            setFiles([]);
-            setFilePreviews([]);
-            setFileType(null);
-        },
+      onSuccess: () => {
+        setDescription("");
+        setFiles([]);
+        setFilePreviews([]);
+        setFileType(null);
+        
+        // Revoke all object URLs
+        filePreviews.forEach(preview => {
+          URL.revokeObjectURL(preview.url);
+        });
+      },
     });
-};
+  };
 
   return (
     <div className={style.createPost}>
@@ -82,19 +102,19 @@ const handlePost = () => {
       />
 
       {/* --- PREVIEW SECTION --- */}
-      {files.length > 0 && (
+      {filePreviews.length > 0 && (
         <div className={style.previewSection}>
-          {files.map((file, idx) => (
+          {filePreviews.map((preview, idx) => (
             <div key={idx} className={style.previewItem}>
-              {fileType === "image" ? (
+              {preview.type === "image" ? (
                 <img
-                  src={URL.createObjectURL(file)}
+                  src={preview.url}
                   alt="preview"
                   className={style.previewMedia}
                 />
               ) : (
                 <video
-                  src={URL.createObjectURL(file)}
+                  src={preview.url}
                   className={style.previewMedia}
                   controls
                 />

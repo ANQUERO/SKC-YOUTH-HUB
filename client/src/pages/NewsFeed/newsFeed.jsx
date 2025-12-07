@@ -11,28 +11,16 @@ export const NewsFeed = () => {
     const { posts, isLoading } = usePostContext();
     const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth} = useAuthContext(); 
     const canManage = isSkSuperAdmin || isSkNaturalAdmin;
-    const canView = canManage || isSkYouth; // ADD THIS LINE
+    const canView = canManage || isSkYouth;
     const feed = posts;
-
-    console.log('NewsFeed Debug:', {
-        isSkYouth,
-        isSkSuperAdmin,
-        isSkNaturalAdmin,
-        canManage,
-        canView, // Now this will work
-        postsCount: feed.length,
-        isLoading
-    });
 
     useEffect(() => {
         const postId = searchParams.get('post');
         if (postId && !isLoading && feed.length > 0) {
-            // Wait for posts to render, then scroll
             setTimeout(() => {
                 const postElement = document.getElementById(`post-${postId}`);
                 if (postElement) {
                     postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    // Highlight the post briefly
                     postElement.style.backgroundColor = 'rgba(25, 118, 210, 0.05)';
                     setTimeout(() => {
                         postElement.style.backgroundColor = '';

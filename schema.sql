@@ -12,7 +12,6 @@ CREATE TABLE sk_official (
     reset_token_expiry TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP
 );
 
 CREATE TABLE sk_official_name (
@@ -54,7 +53,6 @@ CREATE TABLE sk_youth (
     reset_token_expiry TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP
 );
 
 CREATE TABLE sk_youth_avatar (
@@ -180,7 +178,9 @@ CREATE TABLE post_comments (
     hidden_by INTEGER,
     hidden_reason VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  
+
 );
 
 -- Post Reactions: admin and youth can react to posts
@@ -190,7 +190,10 @@ CREATE TABLE post_reactions (
     user_type VARCHAR(10) NOT NULL CHECK (user_type IN ('official', 'youth')),
     user_id INTEGER NOT NULL,
     type VARCHAR(10) NOT NULL CHECK (type IN ('like', 'heart', 'wow')),
-    reacted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    reacted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
 );
 
  -- Form -- 
@@ -236,7 +239,9 @@ CREATE TABLE notifications (
     actor_id INTEGER NOT NULL,
     actor_name VARCHAR(255),
     is_read BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
 );
 
 CREATE TABLE comment_reactions (
@@ -246,7 +251,8 @@ CREATE TABLE comment_reactions (
     user_id INTEGER NOT NULL,
     type VARCHAR(10) NOT NULL CHECK (type IN ('like', 'heart', 'wow')),
     reacted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(comment_id, user_type, user_id)
+    UNIQUE(comment_id, user_type, user_id),
+    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE post_media (
@@ -258,11 +264,12 @@ CREATE TABLE post_media (
     file_size INTEGER,
     width INTEGER,
     height INTEGER,
-    duration INTEGER, -- for videos in seconds
+    duration INTEGER, 
     thumbnail_url TEXT,
     display_order INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_post_media_post_id ON post_media(post_id);

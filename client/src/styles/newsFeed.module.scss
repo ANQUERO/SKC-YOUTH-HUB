@@ -189,30 +189,30 @@
   align-items: flex-start;
   gap: 0.5rem;
 
-  .author {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+.author {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 
-    .avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-
-    h4 {
-      font-size: 0.95rem;
-      margin: 0;
-      color: #050505;
-    }
-
-    p {
-      font-size: 0.8rem;
-      margin: 0;
-      color: #65676b;
-    }
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
   }
+
+  h4 {
+    font-size: 0.95rem;
+    margin: 0;
+    color: #050505;
+  } 
+  
+  .authorRole {
+    font-size: 0.8rem;
+    margin: 0;
+    color: #65676b;
+  }
+}
 
   .headerActions {
     display: flex;

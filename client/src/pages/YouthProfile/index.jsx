@@ -16,8 +16,8 @@ const YouthProfile = () => {
     genderInfo,
     demoSurvey,
     meetingHousehold,
-    location, // Add location
-    nameDetails, // Add name details
+    location,
+    nameDetails,
     loadingProfile,
     updatingProfile,
     error,
@@ -28,7 +28,7 @@ const YouthProfile = () => {
   const { userData, profilePicture, updateProfilePicture } = useCurrentUser();
   const [editModalOpen, setEditModalOpen] = useState(false);
 
-  // Use useCallback prevent unnecessary recreations
+  // Use useCallback to prevent unnecessary recreations
   const handleProfilePictureUpdate = useCallback(
     (newPictureUrl) => {
       updateProfilePicture(newPictureUrl);
@@ -37,20 +37,23 @@ const YouthProfile = () => {
   );
 
   // Handle profile update from the modal
-  const handleProfileUpdate = useCallback(async (updateData) => {
-    try {
-      await updateProfile(updateData);
-      // Modal will handle closing and any success/error messages
-      return true;
-    } catch (error) {
-      console.error("Profile update failed:", error);
-      return false;
-    }
-  }, [updateProfile]);
+  const handleProfileUpdate = useCallback(
+    async (updateData) => {
+      try {
+        await updateProfile(updateData);
+        // Modal will handle closing and any success/error messages
+        return true;
+      } catch (err) {
+        console.error("Profile update failed:", err);
+        return false;
+      }
+    },
+    [updateProfile]
+  );
 
   useEffect(() => {
     fetchProfile();
-  }, []);
+  }, [fetchProfile]); // Added fetchProfile to dependency array
 
   useEffect(() => {
     // Only update if we have a profile picture and it's different from current
@@ -81,12 +84,13 @@ const YouthProfile = () => {
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     try {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+      return new Date(dateString).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
       });
-    } catch (e) {
+    } catch {
+      // Remove the error parameter since it's not used
       return dateString;
     }
   };
@@ -131,7 +135,9 @@ const YouthProfile = () => {
               {accountName?.email || userData?.email || "No email available"}
             </p>
             <p className={style.verification}>
-              {accountName?.verified ? "✅ Verified" : "⏳ Pending Verification"}
+              {accountName?.verified
+                ? "✅ Verified"
+                : "⏳ Pending Verification"}
             </p>
             <Button
               variant="outlined"
@@ -142,17 +148,13 @@ const YouthProfile = () => {
             >
               {updatingProfile ? "Updating..." : "Edit Profile"}
             </Button>
-            
+
             {/* Success and Error Messages */}
             {successMessage && (
-              <div className={style.successMessage}>
-                ✅ {successMessage}
-              </div>
+              <div className={style.successMessage}>✅ {successMessage}</div>
             )}
             {updateError && (
-              <div className={style.errorMessage}>
-                ⚠️ {updateError}
-              </div>
+              <div className={style.errorMessage}>⚠️ {updateError}</div>
             )}
           </div>
         </aside>
@@ -289,15 +291,16 @@ const YouthProfile = () => {
                     demoSurvey?.registered_voter
                   )}`}
                 >
-                  {demoSurvey?.registered_voter === true || 
-                   demoSurvey?.registered_voter === "yes" || 
-                   String(demoSurvey?.registered_voter).toLowerCase() === "true" 
-                    ? "Yes" 
-                    : demoSurvey?.registered_voter === false || 
-                      demoSurvey?.registered_voter === "no" || 
-                      String(demoSurvey?.registered_voter).toLowerCase() === "false"
-                      ? "No"
-                      : "N/A"}
+                  {demoSurvey?.registered_voter === true ||
+                  demoSurvey?.registered_voter === "yes" ||
+                  String(demoSurvey?.registered_voter).toLowerCase() === "true"
+                    ? "Yes"
+                    : demoSurvey?.registered_voter === false ||
+                      demoSurvey?.registered_voter === "no" ||
+                      String(demoSurvey?.registered_voter).toLowerCase() ===
+                        "false"
+                    ? "No"
+                    : "N/A"}
                 </span>
               </div>
               <div className={style.infoItem}>
@@ -307,15 +310,19 @@ const YouthProfile = () => {
                     demoSurvey?.registered_national_voter
                   )}`}
                 >
-                  {demoSurvey?.registered_national_voter === true || 
-                   demoSurvey?.registered_national_voter === "yes" || 
-                   String(demoSurvey?.registered_national_voter).toLowerCase() === "true" 
-                    ? "Yes" 
-                    : demoSurvey?.registered_national_voter === false || 
-                      demoSurvey?.registered_national_voter === "no" || 
-                      String(demoSurvey?.registered_national_voter).toLowerCase() === "false"
-                      ? "No"
-                      : "N/A"}
+                  {demoSurvey?.registered_national_voter === true ||
+                  demoSurvey?.registered_national_voter === "yes" ||
+                  String(
+                    demoSurvey?.registered_national_voter
+                  ).toLowerCase() === "true"
+                    ? "Yes"
+                    : demoSurvey?.registered_national_voter === false ||
+                      demoSurvey?.registered_national_voter === "no" ||
+                      String(
+                        demoSurvey?.registered_national_voter
+                      ).toLowerCase() === "false"
+                    ? "No"
+                    : "N/A"}
                 </span>
               </div>
               <div className={style.infoItem}>
@@ -325,15 +332,17 @@ const YouthProfile = () => {
                     demoSurvey?.vote_last_election
                   )}`}
                 >
-                  {demoSurvey?.vote_last_election === true || 
-                   demoSurvey?.vote_last_election === "yes" || 
-                   String(demoSurvey?.vote_last_election).toLowerCase() === "true" 
-                    ? "Yes" 
-                    : demoSurvey?.vote_last_election === false || 
-                      demoSurvey?.vote_last_election === "no" || 
-                      String(demoSurvey?.vote_last_election).toLowerCase() === "false"
-                      ? "No"
-                      : "N/A"}
+                  {demoSurvey?.vote_last_election === true ||
+                  demoSurvey?.vote_last_election === "yes" ||
+                  String(demoSurvey?.vote_last_election).toLowerCase() ===
+                    "true"
+                    ? "Yes"
+                    : demoSurvey?.vote_last_election === false ||
+                      demoSurvey?.vote_last_election === "no" ||
+                      String(demoSurvey?.vote_last_election).toLowerCase() ===
+                        "false"
+                    ? "No"
+                    : "N/A"}
                 </span>
               </div>
             </div>
@@ -361,14 +370,15 @@ const YouthProfile = () => {
                   </span>
                 </div>
               )}
-              {!meetingHousehold?.attended && meetingHousehold?.reason_not_attend && (
-                <div className={style.infoItem}>
-                  <span className={style.label}>Reason for Not Attending</span>
-                  <span className={style.value}>
-                    {meetingHousehold?.reason_not_attend || "N/A"}
-                  </span>
-                </div>
-              )}
+              {!meetingHousehold?.attended &&
+                meetingHousehold?.reason_not_attend && (
+                  <div className={style.infoItem}>
+                    <span className={style.label}>Reason for Not Attending</span>
+                    <span className={style.value}>
+                      {meetingHousehold?.reason_not_attend || "N/A"}
+                    </span>
+                  </div>
+                )}
               <div className={style.infoItem}>
                 <span className={style.label}>Household Information</span>
                 <span className={style.value}>
@@ -393,7 +403,7 @@ const YouthProfile = () => {
           demographics: demoSurvey,
           survey: demoSurvey,
           meetingSurvey: meetingHousehold,
-          location: location
+          location: location,
         }}
         loading={updatingProfile}
       />

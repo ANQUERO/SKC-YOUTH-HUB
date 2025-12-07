@@ -13,17 +13,27 @@ export const getTotalVoters = async (req, res) => {
     try {
         const result = await pool.query(`
             SELECT
-            SUM(CASE WHEN registered_voter = 'yes' THEN 1 ELSE 0 END) AS registered_voters,
-            SUM(CASE WHEN registered_voter = 'no' THEN 1 ELSE 0 END) AS unregistered_voters,
-            COUNT (*) AS total_youths 
-            FROM sk_youth_survey
-            `);
+                SUM(CASE 
+                    WHEN LOWER(registered_voter) = 'yes' 
+                    THEN 1 
+                    ELSE 0 
+                END) AS registered_voters,
+                SUM(CASE 
+                    WHEN LOWER(registered_voter) = 'no' 
+                    THEN 1 
+                    ELSE 0 
+                END) AS unregistered_voters,
+                (SELECT COUNT(*) FROM sk_youth WHERE deleted_at IS NULL) AS total_youths
+            FROM sk_youth_survey sys
+            INNER JOIN sk_youth y ON sys.youth_id = y.youth_id
+            WHERE y.deleted_at IS NULL
+        `);
 
         res.status(200).json({
             status: "Success",
-            registered_voters: result.rows[0].registered_voters,
-            unregistered_voters: result.rows[0].unregistered_voters,
-            total_youths: result.rows[0].total_youths
+            registered_voters: parseInt(result.rows[0].registered_voters) || 0,
+            unregistered_voters: parseInt(result.rows[0].unregistered_voters) || 0,
+            total_youths: parseInt(result.rows[0].total_youths) || 0
         });
 
     } catch (error) {
@@ -48,11 +58,14 @@ export const getTotalGender = async (req, res) => {
     try {
         const result = await pool.query(`
             SELECT 
-            gender, 
-            COUNT(*) AS total
-            FROM sk_youth_gender
-            GROUP BY gender
-            `);
+                g.gender, 
+                COUNT(*) AS total
+            FROM sk_youth_gender g
+            INNER JOIN sk_youth y ON g.youth_id = y.youth_id
+            WHERE y.deleted_at IS NULL
+            GROUP BY g.gender
+            ORDER BY g.gender
+        `);
 
         res.status(200).json({
             status: "Success",
@@ -80,16 +93,23 @@ export const getResidentsPerPurok = async (req, res) => {
 
     try {
         const result = await pool.query(`
-           SELECT 
-           p.name AS purok,
-           COUNT(sl.youth_id) AS total_residents
-           FROM purok p 
-           LEFT JOIN sk_youth_location sl ON p.purok_id = sl.purok_id
-           LEFT JOIN sk_youth y ON sl.youth_id = y.youth_id
-           WHERE y.deleted_at IS NULL
-           GROUP BY p.name
-           ORDER BY p.name
-            `);
+            SELECT 
+                COALESCE(p.name, 'No Purok') AS purok,
+                COUNT(DISTINCT yl.youth_id) AS total_residents,
+                COUNT(DISTINCT CASE 
+                    WHEN LOWER(sys.registered_voter) = 'yes' 
+                    THEN yl.youth_id 
+                END) AS registered_voters
+            FROM sk_youth_location yl
+            INNER JOIN sk_youth y ON yl.youth_id = y.youth_id
+            LEFT JOIN purok p ON yl.purok_id = p.purok_id
+            LEFT JOIN sk_youth_survey sys ON y.youth_id = sys.youth_id
+            WHERE y.deleted_at IS NULL
+            GROUP BY p.name
+            ORDER BY 
+                CASE WHEN p.name IS NULL THEN 1 ELSE 0 END,
+                p.name
+        `);
 
         res.status(200).json({
             status: "Success",

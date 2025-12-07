@@ -487,7 +487,7 @@ export const unbanUserFromCommenting = async (req, res) => {
     }
 };
 
-// Fetch all comments (nested structure)
+// In comment.controller.js - Update getComments function
 export const getComments = async (req, res) => {
     const { post_id } = req.params;
     const user = req.user;
@@ -506,14 +506,45 @@ export const getComments = async (req, res) => {
                 c.hidden_reason,
                 c.created_at,
                 c.updated_at,
+                -- Get user name
                 CASE 
-                    WHEN c.user_type = 'official' THEN (SELECT CONCAT(n.first_name, ' ', n.last_name) FROM sk_official_name n WHERE n.official_id = c.user_id)
-                    WHEN c.user_type = 'youth' THEN (SELECT CONCAT(n.first_name, ' ', n.last_name) FROM sk_youth_name n WHERE n.youth_id = c.user_id)
+                    WHEN c.user_type = 'official' THEN (
+                        SELECT CONCAT(n.first_name, ' ', n.last_name) 
+                        FROM sk_official_name n 
+                        WHERE n.official_id = c.user_id
+                    )
+                    WHEN c.user_type = 'youth' THEN (
+                        SELECT CONCAT(n.first_name, ' ', n.last_name) 
+                        FROM sk_youth_name n 
+                        WHERE n.youth_id = c.user_id
+                    )
                 END AS user_name,
+                -- Get user role for officials
                 CASE 
-                    WHEN c.user_type = 'official' THEN (SELECT o.role FROM sk_official o WHERE o.official_id = c.user_id)
+                    WHEN c.user_type = 'official' THEN (
+                        SELECT o.role 
+                        FROM sk_official o 
+                        WHERE o.official_id = c.user_id
+                    )
                     ELSE NULL
-                END AS user_role
+                END AS user_role,
+                -- Get profile image URL
+                CASE 
+                    WHEN c.user_type = 'official' THEN (
+                        SELECT a.file_url 
+                        FROM sk_official_avatar a 
+                        WHERE a.official_id = c.user_id 
+                        ORDER BY a.attachment_id DESC 
+                        LIMIT 1
+                    )
+                    WHEN c.user_type = 'youth' THEN (
+                        SELECT a.file_url 
+                        FROM sk_youth_avatar a 
+                        WHERE a.youth_id = c.user_id 
+                        ORDER BY a.attachment_id DESC 
+                        LIMIT 1
+                    )
+                END AS profile_image
             FROM post_comments c
             WHERE c.post_id = $1
             ORDER BY c.created_at ASC

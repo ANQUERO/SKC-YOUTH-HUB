@@ -138,7 +138,6 @@ AND a.official_id = p_official_id;
 END;
 $$;
 
---Update SK Official
 
 
 --Fetch SK Youths
@@ -360,7 +359,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-
 SELECT 
     conname AS constraint_name,
     pg_get_constraintdef(oid) AS constraint_definition
@@ -372,3 +370,34 @@ SELECT column_name, data_type, is_nullable
 FROM information_schema.columns
 WHERE table_name = 'notifications'
 AND column_name = 'comment_id';
+
+
+-- First check what data you have
+SELECT 
+    youth_id,
+    registered_voter,
+    pg_typeof(registered_voter) as data_type,
+    registered_voter::text as text_value
+FROM sk_youth_survey 
+LIMIT 10;
+
+-- If they're stored as strings like 'yes'/'no' but interpreted as booleans
+UPDATE sk_youth_survey 
+SET registered_voter = 
+    CASE 
+        WHEN registered_voter::text ILIKE '%yes%' THEN true
+        WHEN registered_voter::text ILIKE '%no%' THEN false
+        ELSE registered_voter::boolean
+    END,
+registered_national_voter = 
+    CASE 
+        WHEN registered_national_voter::text ILIKE '%yes%' THEN true
+        WHEN registered_national_voter::text ILIKE '%no%' THEN false
+        ELSE registered_national_voter::boolean
+    END,
+vote_last_election = 
+    CASE 
+        WHEN vote_last_election::text ILIKE '%yes%' THEN true
+        WHEN vote_last_election::text ILIKE '%no%' THEN false
+        ELSE vote_last_election::boolean
+    END;

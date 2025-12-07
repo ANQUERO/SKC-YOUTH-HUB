@@ -43,14 +43,25 @@ const processCloudinaryFiles = (uploadedUrls = [], originalFiles = []) => {
     });
 };
 
+// In the index function, update the query to properly filter deleted posts
 export const index = async (req, res) => {
     const user = req.user;
 
     try {
-        let whereClause = "";
-         if (!user ) {
-            whereClause = "WHERE p.is_hidden = FALSE";
+        console.log('📊 Posts API called by user:', user?.userType);
+
+        // Build WHERE conditions for posts
+        const whereConditions = ["p.deleted_at IS NULL"];
+        
+        // Add condition for non-hidden posts for non-officials
+        if (!user || user.userType !== "official") {
+            whereConditions.push("p.is_hidden = FALSE");
         }
+
+        const whereClause = whereConditions.length > 0 
+            ? `WHERE ${whereConditions.join(" AND ")}` 
+            : "";
+
         const result = await pool.query(
             `
             SELECT 
@@ -62,14 +73,14 @@ export const index = async (req, res) => {
                 p.hidden_reason,
                 p.created_at,
                 p.updated_at,
-                p.deleted_at,
                 o.official_id,
                 o.official_position,
+                a.file_url as profile_picture,
                 n.first_name,
                 n.middle_name,
                 n.last_name,
                 n.suffix,
-                -- Get all media for this post as JSON array
+                -- Get only non-deleted media
                 COALESCE(
                     json_agg(
                         json_build_object(
@@ -80,51 +91,59 @@ export const index = async (req, res) => {
                             'file_size', pm.file_size,
                             'display_order', pm.display_order
                         ) ORDER BY pm.display_order ASC
-                    ) FILTER (WHERE pm.media_id IS NOT NULL),
+                    ) FILTER (WHERE pm.media_id IS NOT NULL AND pm.deleted_at IS NULL),
                     '[]'::json
                 ) as media,
-                COUNT(DISTINCT c.comment_id) AS comments_count,
-                COUNT(DISTINCT r.reaction_id) AS reactions_count
+                -- Count only non-deleted comments
+                COUNT(DISTINCT c.comment_id) FILTER (WHERE c.deleted_at IS NULL) AS comments_count,
+                -- Count only non-deleted reactions
+                COUNT(DISTINCT r.reaction_id) FILTER (WHERE r.deleted_at IS NULL) AS reactions_count
             FROM posts p
-            INNER JOIN sk_official o ON p.official_id = o.official_id
+            INNER JOIN sk_official o ON p.official_id = o.official_id AND o.deleted_at IS NULL
             LEFT JOIN sk_official_name n ON o.official_id = n.official_id
+            LEFT JOIN sk_official_avatar a ON o.official_id = a.official_id
             LEFT JOIN post_media pm ON p.post_id = pm.post_id
             LEFT JOIN post_comments c ON p.post_id = c.post_id
             LEFT JOIN post_reactions r ON p.post_id = r.post_id
             ${whereClause}
-            AND p.deleted_at IS NULL
             GROUP BY 
                 p.post_id, o.official_id, o.official_position,
+                a.file_url,
                 n.first_name, n.middle_name, n.last_name, n.suffix
             ORDER BY p.created_at DESC
             `
         );
 
+        console.log(`📈 Found ${result.rows.length} posts`);
+
         const posts = result.rows.map(row => ({
             post_id: row.post_id,
             description: row.description,
             type: row.post_type || "post",
-            media: row.media, // Array of media objects
+            media: row.media || [],
             is_hidden: row.is_hidden,
             hidden_by: row.hidden_by,
             hidden_reason: row.hidden_reason,
             created_at: row.created_at,
             updated_at: row.updated_at,
-            official: {
-                official_id: row.official_id,
+            author: {
+                id: row.official_id,
+                name: `${row.first_name || ""} ${row.middle_name || ""} ${row.last_name || ""} ${row.suffix || ""}`.trim(),
                 position: row.official_position,
-                name: `${row.first_name || ""} ${row.middle_name || ""} ${row.last_name || ""} ${row.suffix || ""}`.trim()
+                profile_picture: row.profile_picture
             },
-            comments_count: Number(row.comments_count),
-            reactions_count: Number(row.reactions_count)
+            comments_count: Number(row.comments_count) || 0,
+            reactions_count: Number(row.reactions_count) || 0
         }));
 
         res.status(200).json({
             status: "Success",
+            message: "Posts fetched successfully",
+            count: posts.length,
             data: posts
         });
     } catch (error) {
-        console.error("Failed to fetch posts data", error);
+        console.error("Failed to fetch posts:", error);
         res.status(500).json({
             status: "Error",
             message: "Internal server error"
@@ -309,8 +328,6 @@ export const createPost = async (req, res) => {
                 );
             }
 
-            // Create notifications for all youth members
-            console.log(`Creating notifications for ${youthResult.rows.length} youth members`);
             for (const youth of youthResult.rows) {
                 try {
                     await pool.query(
@@ -325,7 +342,6 @@ export const createPost = async (req, res) => {
                     console.error(`Error creating notification for youth ${youth.youth_id}:`, insertError);
                 }
             }
-            console.log(`Successfully created ${youthResult.rows.length} notifications for youth members`);
         } catch (notifError) {
             console.error("Error creating notifications:", notifError);
         }
@@ -338,7 +354,6 @@ export const createPost = async (req, res) => {
 
     } catch (error) {
         await pool.query("ROLLBACK");
-        console.error("Failed to create post:", error);
         res.status(500).json({
             status: "Error",
             message: "Internal server error"
@@ -346,16 +361,25 @@ export const createPost = async (req, res) => {
     }
 };
 
-// Get single post with media
 export const getPost = async (req, res) => {
     const { id: post_id } = req.params;
     const user = req.user;
 
     try {
-        const result = await pool.query(
-            `
+        // Build WHERE conditions
+        const whereConditions = [
+            "p.post_id = $1", 
+            "p.deleted_at IS NULL"
+        ];
+        
+        if (!user || user.userType !== "official") {
+            whereConditions.push("p.is_hidden = FALSE");
+        }
+
+        const query = `
             SELECT 
                 p.*,
+                -- Only get non-deleted media
                 COALESCE(
                     json_agg(
                         json_build_object(
@@ -366,7 +390,7 @@ export const getPost = async (req, res) => {
                             'file_size', pm.file_size,
                             'display_order', pm.display_order
                         ) ORDER BY pm.display_order ASC
-                    ) FILTER (WHERE pm.media_id IS NOT NULL),
+                    ) FILTER (WHERE pm.media_id IS NOT NULL AND pm.deleted_at IS NULL),
                     '[]'::json
                 ) as media,
                 o.official_id,
@@ -375,23 +399,23 @@ export const getPost = async (req, res) => {
                 n.middle_name,
                 n.last_name,
                 n.suffix,
-                COUNT(DISTINCT c.comment_id) AS comments_count,
-                COUNT(DISTINCT r.reaction_id) AS reactions_count
+                -- Count only non-deleted comments
+                COUNT(DISTINCT c.comment_id) FILTER (WHERE c.deleted_at IS NULL) AS comments_count,
+                -- Count only non-deleted reactions
+                COUNT(DISTINCT r.reaction_id) FILTER (WHERE r.deleted_at IS NULL) AS reactions_count
             FROM posts p
-            INNER JOIN sk_official o ON p.official_id = o.official_id
+            INNER JOIN sk_official o ON p.official_id = o.official_id AND o.deleted_at IS NULL
             LEFT JOIN sk_official_name n ON o.official_id = n.official_id
             LEFT JOIN post_media pm ON p.post_id = pm.post_id
             LEFT JOIN post_comments c ON p.post_id = c.post_id
             LEFT JOIN post_reactions r ON p.post_id = r.post_id
-            WHERE p.post_id = $1 
-                AND (p.is_hidden = FALSE OR $2::boolean = true)
-                AND p.deleted_at IS NULL
+            WHERE ${whereConditions.join(" AND ")}
             GROUP BY 
                 p.post_id, o.official_id, o.official_position,
                 n.first_name, n.middle_name, n.last_name, n.suffix
-            `,
-            [post_id, user && user.userType === "official"]
-        );
+        `;
+
+        const result = await pool.query(query, [post_id]);
 
         if (result.rows.length === 0) {
             return res.status(404).json({
@@ -614,7 +638,7 @@ export const deleteMedia = async (req, res) => {
     try {
         // Verify the post belongs to the user
         const postCheck = await pool.query(
-            "SELECT 1 FROM posts WHERE post_id = $1 AND official_id = $2",
+            "SELECT 1 FROM posts WHERE post_id = $1 AND official_id = $2 AND deleted_at IS NULL",
             [post_id, user.official_id]
         );
 
@@ -625,21 +649,22 @@ export const deleteMedia = async (req, res) => {
             });
         }
 
+        // Soft delete the media
         const result = await pool.query(
-            "DELETE FROM post_media WHERE media_id = $1 AND post_id = $2 RETURNING *",
+            "UPDATE post_media SET deleted_at = CURRENT_TIMESTAMP WHERE media_id = $1 AND post_id = $2 AND deleted_at IS NULL RETURNING *",
             [media_id, post_id]
         );
 
         if (result.rows.length === 0) {
             return res.status(404).json({
                 status: "Error",
-                message: "Media not found"
+                message: "Media not found or already deleted"
             });
         }
 
-        // Check if this was the first media (for backward compatibility)
+        // Check for remaining active media
         const remainingMedia = await pool.query(
-            "SELECT media_url, media_type FROM post_media WHERE post_id = $1 ORDER BY display_order ASC LIMIT 1",
+            "SELECT media_url, media_type FROM post_media WHERE post_id = $1 AND deleted_at IS NULL ORDER BY display_order ASC LIMIT 1",
             [post_id]
         );
 
@@ -650,7 +675,7 @@ export const deleteMedia = async (req, res) => {
                 [remainingMedia.rows[0].media_url, remainingMedia.rows[0].media_type, post_id]
             );
         } else {
-            // No media left, clear the fields
+            // No active media left, clear the fields
             await pool.query(
                 "UPDATE posts SET media_url = NULL, media_type = NULL WHERE post_id = $1",
                 [post_id]
@@ -664,6 +689,103 @@ export const deleteMedia = async (req, res) => {
 
     } catch (error) {
         console.error("Failed to delete media:", error);
+        res.status(500).json({
+            status: "Error",
+            message: "Internal server error"
+        });
+    }
+};
+
+export const deletePost = async (req, res) => {
+    const user = req.user;
+    const { id: post_id } = req.params;
+
+    if (!user || user.userType !== "official") {
+        return res.status(403).json({
+            status: "Error",
+            message: "Forbidden - Only officials can delete posts"
+        });
+    }
+
+    try {
+        await pool.query("BEGIN");
+
+        // Verify the post exists and is not deleted
+        const postCheck = await pool.query(
+            "SELECT official_id, deleted_at FROM posts WHERE post_id = $1",
+            [post_id]
+        );
+
+        if (postCheck.rows.length === 0) {
+            await pool.query("ROLLBACK");
+            return res.status(404).json({
+                status: "Error",
+                message: "Post not found"
+            });
+        }
+
+        // Check if already deleted
+        if (postCheck.rows[0].deleted_at) {
+            await pool.query("ROLLBACK");
+            return res.status(400).json({
+                status: "Error",
+                message: "Post is already deleted"
+            });
+        }
+
+        // Check if user is owner or super admin
+        const isOwner = postCheck.rows[0].official_id === user.official_id;
+        const isSuperAdmin = user.role === "super_official";
+
+        if (!isOwner && !isSuperAdmin) {
+            await pool.query("ROLLBACK");
+            return res.status(403).json({
+                status: "Error",
+                message: "You don't have permission to delete this post"
+            });
+        }
+
+        // Soft delete the post
+        const result = await pool.query(
+            `
+            UPDATE posts
+            SET deleted_at = CURRENT_TIMESTAMP,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE post_id = $1
+            RETURNING *
+            `,
+            [post_id]
+        );
+
+        // Soft delete associated media
+        await pool.query(
+            "UPDATE post_media SET deleted_at = CURRENT_TIMESTAMP WHERE post_id = $1",
+            [post_id]
+        );
+
+        // Soft delete reactions
+        await pool.query(
+            "UPDATE post_reactions SET deleted_at = CURRENT_TIMESTAMP WHERE post_id = $1",
+            [post_id]
+        );
+
+        // Soft delete comments
+        await pool.query(
+            "UPDATE post_comments SET deleted_at = CURRENT_TIMESTAMP WHERE post_id = $1",
+            [post_id]
+        );
+
+        await pool.query("COMMIT");
+
+        res.status(200).json({
+            status: "Success",
+            message: "Post deleted successfully",
+            data: result.rows[0]
+        });
+
+    } catch (error) {
+        await pool.query("ROLLBACK");
+        console.error("Failed to delete post:", error);
         res.status(500).json({
             status: "Error",
             message: "Internal server error"
@@ -739,61 +861,6 @@ export const reorderMedia = async (req, res) => {
     } catch (error) {
         await pool.query("ROLLBACK");
         console.error("Failed to reorder media:", error);
-        res.status(500).json({
-            status: "Error",
-            message: "Internal server error"
-        });
-    }
-};
-
-// Delete post
-export const deletePost = async (req, res) => {
-    const user = req.user;
-    const { id: post_id } = req.params;
-
-    if (!user || user.userType !== "official") {
-        return res.status(403).json({
-            status: "Error",
-            message: "Forbidden - Only officials can delete posts"
-        });
-    }
-
-    try {
-        await pool.query("BEGIN");
-
-        // Soft delete the post
-        const result = await pool.query(
-            `
-            UPDATE posts
-            SET deleted_at = CURRENT_TIMESTAMP,
-                updated_at = CURRENT_TIMESTAMP
-            WHERE post_id = $1 AND official_id = $2
-            RETURNING *
-            `,
-            [post_id, user.official_id]
-        );
-
-        if (result.rows.length === 0) {
-            await pool.query("ROLLBACK");
-            return res.status(404).json({
-                status: "Error",
-                message: "Post not found or already deleted"
-            });
-        }
-
-        // Note: post_media records will be automatically deleted due to ON DELETE CASCADE
-
-        await pool.query("COMMIT");
-
-        res.status(200).json({
-            status: "Success",
-            message: "Post deleted successfully",
-            data: result.rows[0]
-        });
-
-    } catch (error) {
-        await pool.query("ROLLBACK");
-        console.error("Failed to delete post:", error);
         res.status(500).json({
             status: "Error",
             message: "Internal server error"

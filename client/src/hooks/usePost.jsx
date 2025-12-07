@@ -17,33 +17,18 @@ const usePosts = () => {
     const queryClient = useQueryClient();
     const { showSuccess } = useToast();
 
-        console.log('🔍 usePosts - auth state:', {
-        isSkYouth,
-        authLoading,
-        timestamp: new Date().toISOString()
-    });
-
-
     const managePosts = isSkSuperAdmin || isSkNaturalAdmin;
     const viewPosts = isSkYouth || managePosts;
 
-        console.log('🔍 usePosts - viewPosts:', viewPosts);
 
     // --- Fetch posts ---
     const postsQuery = useQuery({
         queryKey: ["posts"],
         queryFn: async () => {
             const { data } = await axiosInstance.get("/post");
-            console.log('✅ Posts data:', data);
             return data.data;
         },
         enabled: viewPosts,
-    });
-
-        console.log('🔍 usePosts - query state:', {
-        isFetching: postsQuery.isFetching,
-        isLoading: postsQuery.isLoading,
-        data: postsQuery.data
     });
 
 
