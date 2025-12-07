@@ -167,7 +167,7 @@ export const store = async (req, res) => {
         location,
         gender,
         info,
-        demographics,  
+        demographics,
         survey,
         meetingSurvey,
         attachments,
@@ -201,10 +201,10 @@ export const store = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Insert into sk_youth
+        // Insert into sk_youth - set verified to true for admin-created accounts
         const result = await client.query(`
-            INSERT INTO sk_youth (email, password)
-            VALUES ($1, $2)
+            INSERT INTO sk_youth (email, password, verified)
+            VALUES ($1, $2, true)
             RETURNING youth_id
         `, [email, hashedPassword]);
 
@@ -390,36 +390,36 @@ export const update = async (req, res) => {
         // Update sk_youth_name table - only if name data is provided
         if (updateData.name && Object.keys(updateData.name).length > 0) {
             const { first_name, middle_name, last_name, suffix } = updateData.name;
-            
+
             // Build dynamic query for partial name update
             let nameFields = [];
             let nameValues = [];
             let nameParamCount = 1;
-            
+
             if (first_name !== undefined) {
                 nameFields.push(`first_name = $${nameParamCount}`);
                 nameValues.push(first_name);
                 nameParamCount++;
             }
-            
+
             if (middle_name !== undefined) {
                 nameFields.push(`middle_name = $${nameParamCount}`);
                 nameValues.push(middle_name || null); // Allow null for middle_name
                 nameParamCount++;
             }
-            
+
             if (last_name !== undefined) {
                 nameFields.push(`last_name = $${nameParamCount}`);
                 nameValues.push(last_name);
                 nameParamCount++;
             }
-            
+
             if (suffix !== undefined) {
                 nameFields.push(`suffix = $${nameParamCount}`);
                 nameValues.push(suffix || null); // Allow null for suffix
                 nameParamCount++;
             }
-            
+
             if (nameFields.length > 0) {
                 nameValues.push(youth_id);
                 await client.query(`
@@ -435,35 +435,35 @@ export const update = async (req, res) => {
             let locationFields = [];
             let locationValues = [];
             let locationParamCount = 1;
-            
+
             if (updateData.location.region !== undefined) {
                 locationFields.push(`region = $${locationParamCount}`);
                 locationValues.push(updateData.location.region);
                 locationParamCount++;
             }
-            
+
             if (updateData.location.province !== undefined) {
                 locationFields.push(`province = $${locationParamCount}`);
                 locationValues.push(updateData.location.province);
                 locationParamCount++;
             }
-            
+
             if (updateData.location.municipality !== undefined) {
                 locationFields.push(`municipality = $${locationParamCount}`);
                 locationValues.push(updateData.location.municipality);
                 locationParamCount++;
             }
-            
+
             if (updateData.location.barangay !== undefined) {
                 locationFields.push(`barangay = $${locationParamCount}`);
                 locationValues.push(updateData.location.barangay);
                 locationParamCount++;
             }
-            
+
             // Handle purok/purok_id
             if (updateData.location.purok !== undefined || updateData.location.purok_id !== undefined) {
                 let finalPurokId = updateData.location.purok_id;
-                
+
                 if (!finalPurokId && updateData.location.purok) {
                     const purokResult = await client.query(
                         "SELECT purok_id FROM purok WHERE name = $1 LIMIT 1",
@@ -473,12 +473,12 @@ export const update = async (req, res) => {
                         finalPurokId = purokResult.rows[0].purok_id;
                     }
                 }
-                
+
                 locationFields.push(`purok_id = $${locationParamCount}`);
                 locationValues.push(finalPurokId);
                 locationParamCount++;
             }
-            
+
             if (locationFields.length > 0) {
                 locationValues.push(youth_id);
                 await client.query(`
@@ -503,25 +503,25 @@ export const update = async (req, res) => {
             let infoFields = [];
             let infoValues = [];
             let infoParamCount = 1;
-            
+
             if (updateData.info.age !== undefined) {
                 infoFields.push(`age = $${infoParamCount}`);
                 infoValues.push(updateData.info.age);
                 infoParamCount++;
             }
-            
+
             if (updateData.info.contact_number !== undefined) {
                 infoFields.push(`contact_number = $${infoParamCount}`);
                 infoValues.push(updateData.info.contact_number);
                 infoParamCount++;
             }
-            
+
             if (updateData.info.birthday !== undefined) {
                 infoFields.push(`birthday = $${infoParamCount}`);
                 infoValues.push(updateData.info.birthday);
                 infoParamCount++;
             }
-            
+
             if (infoFields.length > 0) {
                 infoValues.push(youth_id);
                 await client.query(`
@@ -537,39 +537,39 @@ export const update = async (req, res) => {
             let demoFields = [];
             let demoValues = [];
             let demoParamCount = 1;
-            
+
             const demographics = updateData.demographics;
-            
+
             if (demographics.civil_status !== undefined) {
                 demoFields.push(`civil_status = $${demoParamCount}`);
                 demoValues.push(demographics.civil_status);
                 demoParamCount++;
             }
-            
+
             if (demographics.youth_age_gap !== undefined) {
                 demoFields.push(`youth_age_gap = $${demoParamCount}`);
                 demoValues.push(demographics.youth_age_gap);
                 demoParamCount++;
             }
-            
+
             if (demographics.youth_classification !== undefined) {
                 demoFields.push(`youth_classification = $${demoParamCount}`);
                 demoValues.push(demographics.youth_classification);
                 demoParamCount++;
             }
-            
+
             if (demographics.educational_background !== undefined) {
                 demoFields.push(`educational_background = $${demoParamCount}`);
                 demoValues.push(demographics.educational_background);
                 demoParamCount++;
             }
-            
+
             if (demographics.work_status !== undefined) {
                 demoFields.push(`work_status = $${demoParamCount}`);
                 demoValues.push(demographics.work_status);
                 demoParamCount++;
             }
-            
+
             if (demoFields.length > 0) {
                 demoValues.push(youth_id);
                 await client.query(`
@@ -585,27 +585,27 @@ export const update = async (req, res) => {
             let surveyFields = [];
             let surveyValues = [];
             let surveyParamCount = 1;
-            
+
             const survey = updateData.survey;
-            
+
             if (survey.registered_voter !== undefined) {
                 surveyFields.push(`registered_voter = $${surveyParamCount}`);
                 surveyValues.push(survey.registered_voter);
                 surveyParamCount++;
             }
-            
+
             if (survey.registered_national_voter !== undefined) {
                 surveyFields.push(`registered_national_voter = $${surveyParamCount}`);
                 surveyValues.push(survey.registered_national_voter);
                 surveyParamCount++;
             }
-            
+
             if (survey.vote_last_election !== undefined) {
                 surveyFields.push(`vote_last_election = $${surveyParamCount}`);
                 surveyValues.push(survey.vote_last_election);
                 surveyParamCount++;
             }
-            
+
             if (surveyFields.length > 0) {
                 surveyValues.push(youth_id);
                 await client.query(`
@@ -621,27 +621,27 @@ export const update = async (req, res) => {
             let meetingFields = [];
             let meetingValues = [];
             let meetingParamCount = 1;
-            
+
             const meetingSurvey = updateData.meetingSurvey;
-            
+
             if (meetingSurvey.attended !== undefined) {
                 meetingFields.push(`attended = $${meetingParamCount}`);
                 meetingValues.push(meetingSurvey.attended);
                 meetingParamCount++;
             }
-            
+
             if (meetingSurvey.times_attended !== undefined) {
                 meetingFields.push(`times_attended = $${meetingParamCount}`);
                 meetingValues.push(meetingSurvey.times_attended);
                 meetingParamCount++;
             }
-            
+
             if (meetingSurvey.reason_not_attend !== undefined) {
                 meetingFields.push(`reason_not_attend = $${meetingParamCount}`);
                 meetingValues.push(meetingSurvey.reason_not_attend);
                 meetingParamCount++;
             }
-            
+
             if (meetingFields.length > 0) {
                 meetingValues.push(youth_id);
                 await client.query(`
@@ -764,7 +764,7 @@ export const destroy = async (req, res) => {
         await client.query("DELETE FROM sk_youth_gender WHERE youth_id = $1", [youth_id]);
         await client.query("DELETE FROM sk_youth_location WHERE youth_id = $1", [youth_id]);
         await client.query("DELETE FROM sk_youth_name WHERE youth_id = $1", [youth_id]);
-        
+
         // Finally delete from main table
         await client.query("DELETE FROM sk_youth WHERE youth_id = $1", [youth_id]);
 

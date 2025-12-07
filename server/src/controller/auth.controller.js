@@ -170,16 +170,16 @@ export const signup = async (req, res) => {
 
       // Convert all numeric fields to proper values
       const convertToInt = (value) => {
-        if (value === "" || value === null || value === undefined) {return null;}
+        if (value === "" || value === null || value === undefined) { return null; }
         const num = parseInt(value, 10);
         return isNaN(num) ? null : num;
       };
 
       const convertToBoolean = (value) => {
-        if (value === "" || value === null || value === undefined) {return null;}
+        if (value === "" || value === null || value === undefined) { return null; }
 
         // If it's already boolean, return as-is
-        if (typeof value === "boolean") {return value;}
+        if (typeof value === "boolean") { return value; }
 
         // If it's a string, handle specific cases
         if (typeof value === "string") {
@@ -414,9 +414,9 @@ export const login = async (req, res) => {
       userType = "official";
       idField = "official_id";
     } else {
-      // Try youth table
+      // Try youth table - check for active accounts only
       result = await pool.query(
-        "SELECT * FROM sk_youth WHERE email = $1 AND deleted_at IS NULL",
+        "SELECT * FROM sk_youth WHERE email = $1 AND is_active = true",
         [email]
       );
 
@@ -514,7 +514,7 @@ export const forgotPassword = async (req, res) => {
     } else {
       // Check youth table
       result = await pool.query(
-        "SELECT youth_id, email FROM sk_youth WHERE email = $1 AND deleted_at IS NULL",
+        "SELECT youth_id, email FROM sk_youth WHERE email = $1",
         [email]
       );
 
