@@ -89,25 +89,6 @@ const BasicInfoStep = ({ formData, errors, onChange }) => {
               <span className={style.errorText}>{errors.last_name}</span>
             )}
           </div>
-
-          {/* Suffix */}
-          <div className={style.formField}>
-            <label htmlFor="suffix" className={style.label}>
-              Suffix (Jr., Sr., III, etc.)
-            </label>
-            <input
-              id="suffix"
-              type="text"
-              value={formData.suffix}
-              onChange={(e) => handleChange('suffix', e.target.value)}
-              placeholder="e.g., Jr., Sr., III"
-              className={`${style.input} ${errors.suffix ? style.errorInput : ''
-                }`}
-            />
-            {errors.suffix && (
-              <span className={style.errorText}>{errors.suffix}</span>
-            )}
-          </div>
         </div>
 
         {/* Gender Section */}

@@ -69,7 +69,7 @@ CREATE TABLE sk_youth_name (
     first_name VARCHAR(55),
     middle_name VARCHAR(55),
     last_name VARCHAR(55),
-    suffix VARCHAR(10)
+    suffix VARCHAR(10) 
 );
 
 CREATE TABLE sk_youth_gender (
