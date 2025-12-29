@@ -83,6 +83,8 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
 
     // State to track age validation error
     const [ageError, setAgeError] = React.useState('');
+    // State to track phone number validation error
+    const [phoneError, setPhoneError] = React.useState('');
 
     // Function to calculate age from birthday
     const calculateAge = (birthday) => {
@@ -134,6 +136,56 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
         return null; // No error - age is valid
     };
 
+    // Function to validate Philippine phone number
+    const validatePhoneNumber = (phone) => {
+        if (!phone) return null; // Phone is optional, so empty is valid
+        
+        // Remove all non-digit characters
+        const digitsOnly = phone.replace(/\D/g, '');
+        
+        // Check if the number starts with the correct prefixes
+        const validPrefixes = ['09', '08', '07'];
+        const isValidPrefix = validPrefixes.some(prefix => digitsOnly.startsWith(prefix));
+        
+        if (!isValidPrefix) {
+            return 'Phone number must start with 09, 08, or 07';
+        }
+        
+        // Check length (11 digits for mobile numbers)
+        if (digitsOnly.length !== 11) {
+            return 'Phone number must be 11 digits (including prefix)';
+        }
+        
+        // Check if all digits are valid (no special characters slipped through)
+        if (!/^\d+$/.test(digitsOnly)) {
+            return 'Phone number contains invalid characters';
+        }
+        
+        // Check if the number is within valid Philippine mobile ranges
+        const areaCode = digitsOnly.substring(0, 4);
+        const validAreaCodes = [
+            // Globe/TM prefixes
+            '0915', '0916', '0917', '0926', '0927', '0935', '0936', '0937', 
+            '0945', '0946', '0947', '0953', '0954', '0955', '0956', 
+            '0965', '0966', '0967', '0975', '0976', '0977', '0978', 
+            '0979', '0995', '0996', '0997',
+            // Smart/TNT prefixes
+            '0905', '0906', '0907', '0908', '0909', '0910', '0912', '0913', 
+            '0914', '0918', '0919', '0920', '0921', '0928', '0929', '0930', 
+            '0938', '0939', '0946', '0947', '0948', '0949', '0950', '0951',
+            '0961', '0962', '0963', '0970', '0971', '0981', '0989', '0992',
+            '0998', '0999',
+            // DITO prefixes
+            '0895', '0896', '0897', '0898', '0991', '0992', '0993', '0994'
+        ];
+        
+        if (!validAreaCodes.includes(areaCode)) {
+            return 'Phone number prefix is not a valid Philippine mobile prefix';
+        }
+        
+        return null; // Phone number is valid
+    };
+
     // Handle birthday change - calculate age and youth_age_gap
     const handleBirthdayChange = (birthday) => {
         // Clear previous errors
@@ -168,6 +220,38 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
             // Birthday cleared
             onChange('age', '');
             onChange('youth_age_gap', '');
+        }
+    };
+
+    // Handle phone number change with validation
+    const handlePhoneChange = (phone) => {
+        // Clear previous phone errors
+        setPhoneError('');
+        
+        // Update phone field
+        onChange('contact_number', phone);
+        
+        // Validate if phone is provided (optional field)
+        if (phone) {
+            const phoneValidationError = validatePhoneNumber(phone);
+            if (phoneValidationError) {
+                setPhoneError(phoneValidationError);
+            }
+        }
+    };
+
+    // Format phone number as user types
+    const formatPhoneNumber = (value) => {
+        // Remove all non-digit characters
+        const phoneNumber = value.replace(/\D/g, '');
+        
+        // Format: 09XX XXX XXXX
+        if (phoneNumber.length <= 4) {
+            return phoneNumber;
+        } else if (phoneNumber.length <= 7) {
+            return `${phoneNumber.slice(0, 4)} ${phoneNumber.slice(4)}`;
+        } else {
+            return `${phoneNumber.slice(0, 4)} ${phoneNumber.slice(4, 7)} ${phoneNumber.slice(7, 11)}`;
         }
     };
 
@@ -236,16 +320,27 @@ const CombinedDetailsStep = ({ formData, errors, onChange }) => {
                         error={formData.youth_age_gap && formData.youth_age_gap.includes('not')}
                     />
 
-                    {/* Contact Number */}
+                    {/* Contact Number with validation and formatting */}
                     <TextField
                         fullWidth
                         label="Contact Number"
                         type="tel"
                         value={formData.contact_number || ''}
-                        onChange={(e) => onChange('contact_number', e.target.value)}
-                        error={!!errors.contact_number}
-                        helperText={errors.contact_number || "Optional: Enter your contact number"}
-                        placeholder="e.g., 09123456789"
+                        onChange={(e) => {
+                            const formatted = formatPhoneNumber(e.target.value);
+                            handlePhoneChange(formatted);
+                        }}
+                        error={!!errors.contact_number || !!phoneError}
+                        helperText={
+                            phoneError || 
+                            errors.contact_number || 
+                            "Optional: Enter a valid Philippine mobile number (e.g., 0912 345 6789)"
+                        }
+                        placeholder="0912 345 6789"
+                        inputProps={{
+                            maxLength: 13, // 4 + space + 3 + space + 4 = 13 characters
+                            pattern: "^(09|08|07)\\d{2}[\\s]?\\d{3}[\\s]?\\d{4}$"
+                        }}
                     />
 
                     <FormControl fullWidth error={!!errors.civil_status} required>
