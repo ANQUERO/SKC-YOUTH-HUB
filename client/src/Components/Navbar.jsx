@@ -1,50 +1,49 @@
-import style from '@styles/navbar.module.scss';
-import { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useLogout } from '@hooks/useLogout';
-import { useAuthContext } from '@context/AuthContext';
-import useCurrentUser from '@hooks/useCurrentUser';
-import Logo from './Logo';
+import style from "@styles/navbar.module.scss";
+import { useState, useEffect } from "react";
+import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useLogout } from "@hooks/useLogout";
+import { AuthContextProvider } from "@context/AuthContext";
+import useCurrentUser from "@hooks/useCurrentUser";
+import Logo from "./Logo";
 
 const MenuButton = ({ isMenuOpen, setIsMenuOpen }) => (
-    <button
-        type="button"
-        className={style.button}
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-        aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-        aria-expanded={isMenuOpen}
-    >
-        {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-    </button>
+  <button
+    type="button"
+    className={style.button}
+    onClick={() => setIsMenuOpen(!isMenuOpen)}
+    aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+    aria-expanded={isMenuOpen}
+  >
+    {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+  </button>
 );
 
 const NavLinks = ({ links, onLinkClick, className }) => (
-    <ul className={className}>
-        {links.map((link, idx) => (
-            <li key={idx}>
-                {link.external ? (
-                    <a
-                        href={link.to}
-                        onClick={onLinkClick}
-                        className={`${style.link} ${link.text === 'Sign-up' ? style.sign_up : ''}`}
-                    >
-                        {link.text}
-                    </a>
-                ) : (
-                    <Link
-                        to={link.to}
-                        onClick={onLinkClick}
-                        className={`${style.link} ${link.text === 'Sign-up' ? style.sign_up : ''}`}
-                    >
-                        {link.text}
-                    </Link>
-                )}
-            </li>
-        ))}
-    </ul>
+  <ul className={className}>
+    {links.map((link, idx) => (
+      <li key={idx}>
+        {link.external ? (
+          <a
+            href={link.to}
+            onClick={onLinkClick}
+            className={`${style.link} ${link.text === "Sign-up" ? style.sign_up : ""}`}
+          >
+            {link.text}
+          </a>
+        ) : (
+          <Link
+            to={link.to}
+            onClick={onLinkClick}
+            className={`${style.link} ${link.text === "Sign-up" ? style.sign_up : ""}`}
+          >
+            {link.text}
+          </Link>
+        )}
+      </li>
+    ))}
+  </ul>
 );
-
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -70,7 +69,8 @@ export default function Navbar() {
 
   /* ---- Lock body scroll when mobile menu is open (No layout shift) ---- */
   useEffect(() => {
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
 
     if (isMenuOpen) {
       document.body.style.overflow = "hidden";
@@ -94,8 +94,10 @@ export default function Navbar() {
   }, [isMenuOpen]);
 
   const mainLinks = [
-    { 
-      to: "#about", text: "About" },
+    {
+      to: "#about",
+      text: "About",
+    },
     { to: "#discover", text: "Discover" },
     { to: "#officials", text: "Officials" },
   ];
@@ -111,7 +113,6 @@ export default function Navbar() {
     <header className={style.header}>
       <nav className={`${style.nav} ${isScrolled ? style.scrolled : ""}`}>
         <div className={style.navContent}>
-          
           {/* LEFT */}
           <div className={style.leftSide}>
             <Logo />
@@ -139,10 +140,7 @@ export default function Navbar() {
           </div>
 
           {/* MOBILE MENU BUTTON */}
-          <MenuButton
-            isMenuOpen={isMenuOpen}
-            setIsMenuOpen={setIsMenuOpen}
-          />
+          <MenuButton isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
         </div>
 
         {/* MOBILE OVERLAY */}
@@ -180,8 +178,7 @@ export default function Navbar() {
   );
 }
 
-
-//For the Profile 
+//For the Profile
 const ProfileNavLinks = ({ links, mobile = false, onLinkClick }) => {
   const handleClick = (link) => {
     if (link.onClick) {
@@ -205,11 +202,13 @@ const ProfileNavLinks = ({ links, mobile = false, onLinkClick }) => {
               {link.text}
             </button>
           ) : (
-            <Link 
-              to={link.to} 
+            <Link
+              to={link.to}
               className={mobile ? style.mobileLink : style.link}
               onClick={() => onLinkClick && onLinkClick()}
-              aria-current={window.location.pathname === link.to ? "page" : undefined}
+              aria-current={
+                window.location.pathname === link.to ? "page" : undefined
+              }
             >
               {link.text}
             </Link>
@@ -222,11 +221,11 @@ const ProfileNavLinks = ({ links, mobile = false, onLinkClick }) => {
 
 export function ProfileNavbar() {
   const logout = useLogout();
-  const { authUser } = useAuthContext();
-  const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = useAuthContext();
+  const { authUser } = AuthContextProvider();
+  const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = AuthContextProvider();
   const canManage = isSkSuperAdmin || isSkNaturalAdmin || isSkYouth;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+
   // Use the useCurrentUser hook
   const { userData, profilePicture } = useCurrentUser();
 
@@ -254,16 +253,16 @@ export function ProfileNavbar() {
 
   useEffect(() => {
     if (isMobileMenuOpen) {
-      document.body.classList.add('mobile-menu-open');
+      document.body.classList.add("mobile-menu-open");
       document.body.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`;
     } else {
-      document.body.classList.remove('mobile-menu-open');
-      document.body.style.paddingRight = '';
+      document.body.classList.remove("mobile-menu-open");
+      document.body.style.paddingRight = "";
     }
 
     return () => {
-      document.body.classList.remove('mobile-menu-open');
-      document.body.style.paddingRight = '';
+      document.body.classList.remove("mobile-menu-open");
+      document.body.style.paddingRight = "";
     };
   }, [isMobileMenuOpen]);
 
@@ -274,12 +273,14 @@ export function ProfileNavbar() {
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
-  
 
   // Use data from useCurrentUser hook with fallbacks
-  const displayName = userData?.name || authUser?.name || 'User';
-  const displayEmail = userData?.email || authUser?.email || 'No email available';
-  const displayProfilePicture = profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=3b82f6&color=ffffff`;
+  const displayName = userData?.name || authUser?.name || "User";
+  const displayEmail =
+    userData?.email || authUser?.email || "No email available";
+  const displayProfilePicture =
+    profilePicture ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=3b82f6&color=ffffff`;
 
   return (
     <header className={style.profileHeader}>
@@ -287,7 +288,7 @@ export function ProfileNavbar() {
         <div className={style.logo}>
           <Logo />
         </div>
-        
+
         <div className={style.navContent}>
           <div className={style.userInfo}>
             <img
@@ -295,14 +296,12 @@ export function ProfileNavbar() {
               alt="User Avatar"
               className={style.avatar}
             />
-            <span className={style.userName}>
-              {displayName}
-            </span>
+            <span className={style.userName}>{displayName}</span>
           </div>
           <ProfileNavLinks links={links} />
         </div>
 
-        <button 
+        <button
           className={style.hamburgerMenu}
           onClick={toggleMobileMenu}
           aria-label="Toggle menu"
@@ -312,14 +311,11 @@ export function ProfileNavbar() {
         </button>
 
         {isMobileMenuOpen && (
-          <div 
-            className={style.mobileMenuOverlay}
-            onClick={closeMobileMenu}
-          />
+          <div className={style.mobileMenuOverlay} onClick={closeMobileMenu} />
         )}
 
-        <div 
-          className={`${style.mobileMenu} ${isMobileMenuOpen ? style.open : ''}`}
+        <div
+          className={`${style.mobileMenu} ${isMobileMenuOpen ? style.open : ""}`}
         >
           <div className={style.mobileMenuContent}>
             <div className={style.mobileMenuHeader}>
@@ -330,18 +326,14 @@ export function ProfileNavbar() {
                   className={style.mobileAvatar}
                 />
                 <div className={style.mobileUserDetails}>
-                  <div className={style.mobileUserName}>
-                    {displayName}
-                  </div>
-                  <div className={style.mobileUserEmail}>
-                    {displayEmail}
-                  </div>
+                  <div className={style.mobileUserName}>{displayName}</div>
+                  <div className={style.mobileUserEmail}>{displayEmail}</div>
                 </div>
               </div>
             </div>
 
-            <ProfileNavLinks 
-              links={links} 
+            <ProfileNavLinks
+              links={links}
               mobile={true}
               onLinkClick={closeMobileMenu}
             />

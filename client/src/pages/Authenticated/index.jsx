@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Outlet, Link, NavLink, useNavigate } from 'react-router-dom';
-import { useLogout } from '@hooks/useLogout';
-import { useAuthContext } from '@context/AuthContext';
-import { useNotifications } from '@context/NotificationContext';
-import useCurrentUser from '@hooks/useCurrentUser';
-import style from '@styles/authenticated.module.scss';
+import React, { useState, useEffect } from "react";
+import { Outlet, Link, NavLink, useNavigate } from "react-router-dom";
+import { useLogout } from "@hooks/useLogout";
+import { AuthContextProvider } from "@context/AuthContext";
+import { useNotifications } from "@context/NotificationContext";
+import useCurrentUser from "@hooks/useCurrentUser";
+import style from "@styles/authenticated.module.scss";
 import {
   MainContainer,
   MenuContainer,
@@ -15,8 +15,8 @@ import {
   UserContainer,
   Content,
   CreatePostLink,
-  LogoWrapper
-} from 'components/authenticatedLayout';
+  LogoWrapper,
+} from "components/authenticatedLayout";
 
 import {
   LayoutGrid,
@@ -31,46 +31,52 @@ import {
   Menu as MenuIcon,
   Bell,
   Megaphone,
-  Shield
-} from 'lucide-react';
+  Shield,
+} from "lucide-react";
 
-import Logo from '@components/Logo.jsx';
-import Menu from '@components/Menu.jsx';
+import Logo from "@components/Logo.jsx";
+import Menu from "@components/Menu.jsx";
 
 const Authenticated = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isNotifOpen, setNotifOpen] = useState(false);
   const [isProfileOpen, setProfileOpen] = useState(false);
-  
-  const {
-    userData, 
-    profilePicture, 
-    loading: userLoading 
-  } = useCurrentUser();
-  
+
+  const { userData, profilePicture, loading: userLoading } = useCurrentUser();
+
   const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
   const logout = useLogout();
-  const { authUser, isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = useAuthContext();
-  const { notifications, unreadCount, markAllRead, clear, clearRead, markRead } = useNotifications();
-  
+  const { authUser, isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } =
+    AuthContextProvider();
+  const {
+    notifications,
+    unreadCount,
+    markAllRead,
+    clear,
+    clearRead,
+    markRead,
+  } = useNotifications();
+
   const canManage = isSkSuperAdmin || isSkNaturalAdmin;
 
   // Handle notification click - redirect to post (and comment if applicable)
   const handleNotificationClick = (notification) => {
     if (notification.meta?.post_id || notification._apiData?.post_id) {
-      const postId = notification.meta?.post_id || notification._apiData?.post_id;
-      const commentId = notification.meta?.comment_id || notification._apiData?.comment_id;
-      
+      const postId =
+        notification.meta?.post_id || notification._apiData?.post_id;
+      const commentId =
+        notification.meta?.comment_id || notification._apiData?.comment_id;
+
       // Mark as read
       if (!notification.read) {
         markRead(notification.id);
       }
       // Close notification dropdown
       setNotifOpen(false);
-      
+
       // Navigate to feed with post focus and comment hash if it's a comment notification
-      if (commentId && notification.type === 'comment') {
+      if (commentId && notification.type === "comment") {
         navigate(`/feed?post=${postId}#comment-${commentId}`);
       } else {
         navigate(`/feed?post=${postId}`);
@@ -83,7 +89,7 @@ const Authenticated = () => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 1024;
       setIsMobile(mobile);
-      
+
       if (mobile) {
         setIsSidebarOpen(false);
       } else {
@@ -92,14 +98,17 @@ const Authenticated = () => {
     };
 
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (isNotifOpen && !event.target.closest(`.${style.notificationWrapper}`)) {
+      if (
+        isNotifOpen &&
+        !event.target.closest(`.${style.notificationWrapper}`)
+      ) {
         setNotifOpen(false);
       }
       if (isProfileOpen && !event.target.closest(`.${style.profileDropdown}`)) {
@@ -107,8 +116,8 @@ const Authenticated = () => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isNotifOpen, isProfileOpen]);
 
   // Close sidebar when route changes on mobile
@@ -122,29 +131,32 @@ const Authenticated = () => {
   const getUserDisplayInfo = () => {
     if (userLoading) {
       return {
-        name: 'Loading...',
-        role: 'Loading...',
-        avatar: `https://ui-avatars.com/api/?name=User&background=6366f1&color=ffffff&bold=true`
+        name: "Loading...",
+        role: "Loading...",
+        avatar: `https://ui-avatars.com/api/?name=User&background=6366f1&color=ffffff&bold=true`,
       };
     }
 
     if (userData) {
       return {
         name: userData.name,
-        role: userData.userType === 'official' 
-          ? userData.position || 'Official'
-          : userData.userType === 'youth'
-          ? 'Youth Member'
-          : 'User',
-        avatar: profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name)}&background=6366f1&color=ffffff&bold=true`
+        role:
+          userData.userType === "official"
+            ? userData.position || "Official"
+            : userData.userType === "youth"
+              ? "Youth Member"
+              : "User",
+        avatar:
+          profilePicture ||
+          `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name)}&background=6366f1&color=ffffff&bold=true`,
       };
     }
 
     // Fallback to authUser if userData is not available
     return {
-      name: authUser?.name || 'User',
-      role: 'User',
-      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(authUser?.name || 'User')}&background=6366f1&color=ffffff&bold=true`
+      name: authUser?.name || "User",
+      role: "User",
+      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(authUser?.name || "User")}&background=6366f1&color=ffffff&bold=true`,
     };
   };
 
@@ -156,39 +168,40 @@ const Authenticated = () => {
       path: "/dashboard",
       visible: true,
       icon: <LayoutGrid size={20} />,
-      badge: 3
+      badge: 3,
     },
     {
       title: "Youth",
       path: "/youth",
       visible: true,
-      icon: <User size={20} />
+      icon: <User size={20} />,
     },
     {
       title: "Purok",
       path: "/purok",
       visible: true,
-      icon: <MapPinned size={20} />
+      icon: <MapPinned size={20} />,
     },
     {
       title: "Inbox",
       path: "/inbox",
       visible: true,
       icon: <InboxIcon size={20} />,
-      badge: 12
+      badge: 12,
     },
     {
       title: "Verification",
       path: "/verification",
-      visible: userData?.userType === 'youth' || userData?.userType === 'official',
-      icon: <IdCard size={20} />
+      visible:
+        userData?.userType === "youth" || userData?.userType === "official",
+      icon: <IdCard size={20} />,
     },
     {
       title: "Officials",
       path: "/officials",
       visible: true,
-      icon: <Users size={20} />
-    }
+      icon: <Users size={20} />,
+    },
   ];
 
   const menusBottom = [
@@ -196,14 +209,14 @@ const Authenticated = () => {
       title: "Settings",
       path: "/account",
       visible: true,
-      icon: <SettingsIcon size={20} />
+      icon: <SettingsIcon size={20} />,
     },
     {
       title: "Logout",
       onClick: logout,
       visible: true,
-      icon: <LogOut size={20} />
-    }
+      icon: <LogOut size={20} />,
+    },
   ];
 
   return (
@@ -219,14 +232,16 @@ const Authenticated = () => {
         <div className={style.sidebarHeader}>
           <LogoWrapper>
             <Logo />
-            <h1 className={style.logoText}>
-              SKC:YouthHub
-            </h1>
+            <h1 className={style.logoText}>SKC:YouthHub</h1>
           </LogoWrapper>
         </div>
 
         {/* Create Post Button */}
-        <CreatePostLink to="/feed" title="Create Post" className={style.createPostBtn}>
+        <CreatePostLink
+          to="/feed"
+          title="Create Post"
+          className={style.createPostBtn}
+        >
           <div className={style.createPostIcon}>
             <Plus size={20} />
           </div>
@@ -236,12 +251,12 @@ const Authenticated = () => {
         {/* Navigation Menu */}
         <div className={style.navSection}>
           <h4 className={style.sectionTitle}>Menu</h4>
-          <Menu menus={menu.filter(item => item.visible)} />
+          <Menu menus={menu.filter((item) => item.visible)} />
         </div>
 
         {/* Bottom Navigation */}
         <div className={style.bottomNav}>
-          <Menu menus={menusBottom.filter(item => item.visible)} />
+          <Menu menus={menusBottom.filter((item) => item.visible)} />
         </div>
 
         {/* Mobile User Profile Section */}
@@ -265,12 +280,15 @@ const Authenticated = () => {
       </MenuContainer>
 
       {/* Main Content */}
-      <ContentContainer $sidebarOpen={isSidebarOpen} className={style.mainContent}>
+      <ContentContainer
+        $sidebarOpen={isSidebarOpen}
+        className={style.mainContent}
+      >
         {/* Top Navigation Bar */}
         <TopContainer className={style.topBar}>
           <div className={style.leftSection}>
-            <ToggleSidebarButton 
-              onClick={() => setIsSidebarOpen(prev => !prev)}
+            <ToggleSidebarButton
+              onClick={() => setIsSidebarOpen((prev) => !prev)}
               className={style.menuButton}
             >
               <MenuIcon size={20} />
@@ -280,7 +298,7 @@ const Authenticated = () => {
           <div className={style.rightSection}>
             {/* Notifications */}
             <div className={style.notificationWrapper}>
-              <button 
+              <button
                 className={style.iconButton}
                 onClick={() => {
                   setNotifOpen(!isNotifOpen);
@@ -290,13 +308,15 @@ const Authenticated = () => {
                 <Bell size={20} />
                 {unreadCount > 0 && (
                   <span className={style.notificationBadge}>
-                    {unreadCount > 99 ? '99+' : unreadCount}
+                    {unreadCount > 99 ? "99+" : unreadCount}
                   </span>
                 )}
               </button>
 
               {isNotifOpen && (
-                <div className={`${style.notificationDropdown} ${style.dropdown}`}>
+                <div
+                  className={`${style.notificationDropdown} ${style.dropdown}`}
+                >
                   <div className={style.dropdownHeader}>
                     <h4>Notifications</h4>
                     {notifications.length > 0 && (
@@ -317,13 +337,20 @@ const Authenticated = () => {
                           key={n.id}
                           className={`${style.notifItem} ${n.read ? "" : style.unread}`}
                           onClick={() => handleNotificationClick(n)}
-                          style={{ cursor: (n.meta?.post_id || n._apiData?.post_id) ? 'pointer' : 'default' }}
+                          style={{
+                            cursor:
+                              n.meta?.post_id || n._apiData?.post_id
+                                ? "pointer"
+                                : "default",
+                          }}
                         >
                           <div className={style.notifContent}>
                             <strong>{n.title}</strong>
                             <p>{n.message}</p>
                             <span className={style.timestamp}>
-                              {new Date(n.createdAt || n.created_at).toLocaleString()}
+                              {new Date(
+                                n.createdAt || n.created_at,
+                              ).toLocaleString()}
                             </span>
                           </div>
                         </div>
@@ -336,7 +363,7 @@ const Authenticated = () => {
 
             {/* User Menu */}
             <div className={style.profileDropdown}>
-              <UserContainer 
+              <UserContainer
                 className={style.userMenu}
                 onClick={() => {
                   setProfileOpen(!isProfileOpen);
@@ -362,7 +389,9 @@ const Authenticated = () => {
               </UserContainer>
 
               {isProfileOpen && (
-                <div className={`${style.profileDropdownMenu} ${style.dropdown}`}>
+                <div
+                  className={`${style.profileDropdownMenu} ${style.dropdown}`}
+                >
                   <div className={style.profileHeader}>
                     <div className={style.profileAvatar}>
                       <img
@@ -375,7 +404,7 @@ const Authenticated = () => {
                     </div>
                     <div className={style.profileDetails}>
                       <strong>{displayInfo.name}</strong>
-                      <small>{userData?.email || ''}</small>
+                      <small>{userData?.email || ""}</small>
                       <span className={style.userBadge}>
                         {displayInfo.role}
                       </span>
@@ -400,7 +429,10 @@ const Authenticated = () => {
                     )}
                     {canManage ? (
                       <li>
-                        <Link to="/official-profile" className={style.dropdownItem}>
+                        <Link
+                          to="/official-profile"
+                          className={style.dropdownItem}
+                        >
                           <User className={style.dropdownIcon} />
                           My Profile
                         </Link>
@@ -414,7 +446,10 @@ const Authenticated = () => {
                       </li>
                     )}
                     <li>
-                      <Link to={isSkYouth ? "/settings" : "/account"} className={style.dropdownItem}>
+                      <Link
+                        to={isSkYouth ? "/settings" : "/account"}
+                        className={style.dropdownItem}
+                      >
                         <SettingsIcon className={style.dropdownIcon} />
                         Settings
                       </Link>

@@ -27,28 +27,41 @@ const YouthProfile = () => {
 
   const { userData, profilePicture, updateProfilePicture } = useCurrentUser();
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [localSuccessMessage, setLocalSuccessMessage] = useState("");
+  const [localError, setLocalError] = useState("");
 
   // Use useCallback to prevent unnecessary recreations
   const handleProfilePictureUpdate = useCallback(
     (newPictureUrl) => {
       updateProfilePicture(newPictureUrl);
     },
-    [updateProfilePicture]
+    [updateProfilePicture],
   );
 
   // Handle profile update from the modal
   const handleProfileUpdate = useCallback(
     async (updateData) => {
       try {
-        await updateProfile(updateData);
-        // Modal will handle closing and any success/error messages
-        return true;
+        const result = await updateProfile(updateData);
+        if (result?.success) {
+          setLocalSuccessMessage(
+            result.message || "Profile updated successfully!",
+          );
+          setLocalError("");
+          return true;
+        } else {
+          setLocalError(result?.error || "Failed to update profile");
+          setLocalSuccessMessage("");
+          return false;
+        }
       } catch (err) {
         console.error("Profile update failed:", err);
+        setLocalError(err.message || "An error occurred during profile update");
+        setLocalSuccessMessage("");
         return false;
       }
     },
-    [updateProfile]
+    [updateProfile],
   );
 
   useEffect(() => {
@@ -69,6 +82,16 @@ const YouthProfile = () => {
     handleProfilePictureUpdate,
   ]);
 
+  // Clear success message after 5 seconds
+  useEffect(() => {
+    if (successMessage || localSuccessMessage) {
+      const timer = setTimeout(() => {
+        setLocalSuccessMessage("");
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage, localSuccessMessage]);
+
   const getStatusClass = (value) => {
     if (typeof value === "boolean") {
       return value ? style.statusYes : style.statusNo;
@@ -82,18 +105,26 @@ const YouthProfile = () => {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
+    if (!dateString || dateString === "N/A") return "N/A";
     try {
-      return new Date(dateString).toLocaleDateString("en-US", {
+      const date = new Date(dateString);
+      // Check if date is valid
+      if (isNaN(date.getTime())) return dateString;
+      return date.toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
       });
     } catch {
-      // Remove the error parameter since it's not used
       return dateString;
     }
   };
+
+  // Display error message from hook or local state
+  const displayError = error || updateError || localError;
+
+  // Display success message from hook or local state
+  const displaySuccess = successMessage || localSuccessMessage;
 
   if (loadingProfile) {
     return (
@@ -150,11 +181,11 @@ const YouthProfile = () => {
             </Button>
 
             {/* Success and Error Messages */}
-            {successMessage && (
-              <div className={style.successMessage}>✅ {successMessage}</div>
+            {displaySuccess && (
+              <div className={style.successMessage}>✅ {displaySuccess}</div>
             )}
-            {updateError && (
-              <div className={style.errorMessage}>⚠️ {updateError}</div>
+            {displayError && (
+              <div className={style.errorMessage}>⚠️ {displayError}</div>
             )}
           </div>
         </aside>
@@ -173,7 +204,9 @@ const YouthProfile = () => {
               <div className={style.infoItem}>
                 <span className={style.label}>Middle Name</span>
                 <span className={style.value}>
-                  {nameDetails?.middle_name || accountName?.middle_name || "N/A"}
+                  {nameDetails?.middle_name ||
+                    accountName?.middle_name ||
+                    "N/A"}
                 </span>
               </div>
               <div className={style.infoItem}>
@@ -219,9 +252,7 @@ const YouthProfile = () => {
             <div className={style.infoGrid}>
               <div className={style.infoItem}>
                 <span className={style.label}>Region</span>
-                <span className={style.value}>
-                  {location?.region || "N/A"}
-                </span>
+                <span className={style.value}>{location?.region || "N/A"}</span>
               </div>
               <div className={style.infoItem}>
                 <span className={style.label}>Province</span>
@@ -288,7 +319,7 @@ const YouthProfile = () => {
                 <span className={style.label}>Registered Voter (Barangay)</span>
                 <span
                   className={`${style.value} ${getStatusClass(
-                    demoSurvey?.registered_voter
+                    demoSurvey?.registered_voter,
                   )}`}
                 >
                   {demoSurvey?.registered_voter === true ||
@@ -296,40 +327,40 @@ const YouthProfile = () => {
                   String(demoSurvey?.registered_voter).toLowerCase() === "true"
                     ? "Yes"
                     : demoSurvey?.registered_voter === false ||
-                      demoSurvey?.registered_voter === "no" ||
-                      String(demoSurvey?.registered_voter).toLowerCase() ===
-                        "false"
-                    ? "No"
-                    : "N/A"}
+                        demoSurvey?.registered_voter === "no" ||
+                        String(demoSurvey?.registered_voter).toLowerCase() ===
+                          "false"
+                      ? "No"
+                      : "N/A"}
                 </span>
               </div>
               <div className={style.infoItem}>
                 <span className={style.label}>Registered National Voter</span>
                 <span
                   className={`${style.value} ${getStatusClass(
-                    demoSurvey?.registered_national_voter
+                    demoSurvey?.registered_national_voter,
                   )}`}
                 >
                   {demoSurvey?.registered_national_voter === true ||
                   demoSurvey?.registered_national_voter === "yes" ||
                   String(
-                    demoSurvey?.registered_national_voter
+                    demoSurvey?.registered_national_voter,
                   ).toLowerCase() === "true"
                     ? "Yes"
                     : demoSurvey?.registered_national_voter === false ||
-                      demoSurvey?.registered_national_voter === "no" ||
-                      String(
-                        demoSurvey?.registered_national_voter
-                      ).toLowerCase() === "false"
-                    ? "No"
-                    : "N/A"}
+                        demoSurvey?.registered_national_voter === "no" ||
+                        String(
+                          demoSurvey?.registered_national_voter,
+                        ).toLowerCase() === "false"
+                      ? "No"
+                      : "N/A"}
                 </span>
               </div>
               <div className={style.infoItem}>
                 <span className={style.label}>Voted Last Election</span>
                 <span
                   className={`${style.value} ${getStatusClass(
-                    demoSurvey?.vote_last_election
+                    demoSurvey?.vote_last_election,
                   )}`}
                 >
                   {demoSurvey?.vote_last_election === true ||
@@ -338,11 +369,11 @@ const YouthProfile = () => {
                     "true"
                     ? "Yes"
                     : demoSurvey?.vote_last_election === false ||
-                      demoSurvey?.vote_last_election === "no" ||
-                      String(demoSurvey?.vote_last_election).toLowerCase() ===
-                        "false"
-                    ? "No"
-                    : "N/A"}
+                        demoSurvey?.vote_last_election === "no" ||
+                        String(demoSurvey?.vote_last_election).toLowerCase() ===
+                          "false"
+                      ? "No"
+                      : "N/A"}
                 </span>
               </div>
             </div>
@@ -356,7 +387,7 @@ const YouthProfile = () => {
                 <span className={style.label}>Attended SK Meeting</span>
                 <span
                   className={`${style.value} ${getStatusClass(
-                    meetingHousehold?.attended
+                    meetingHousehold?.attended,
                   )}`}
                 >
                   {meetingHousehold?.attended ? "Yes" : "No"}
@@ -373,7 +404,9 @@ const YouthProfile = () => {
               {!meetingHousehold?.attended &&
                 meetingHousehold?.reason_not_attend && (
                   <div className={style.infoItem}>
-                    <span className={style.label}>Reason for Not Attending</span>
+                    <span className={style.label}>
+                      Reason for Not Attending
+                    </span>
                     <span className={style.value}>
                       {meetingHousehold?.reason_not_attend || "N/A"}
                     </span>
@@ -392,7 +425,12 @@ const YouthProfile = () => {
 
       <ProfileEditModal
         open={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
+        onClose={() => {
+          setEditModalOpen(false);
+          // Clear messages when closing modal
+          setLocalSuccessMessage("");
+          setLocalError("");
+        }}
         onUpdate={handleProfileUpdate}
         userType="youth"
         currentData={{

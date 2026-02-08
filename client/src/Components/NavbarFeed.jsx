@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import styles from '@styles/navbarFeed.module.scss'; // Changed import
-import Logo from '@images/logo.jpg';
-import { useAuthContext } from '@context/AuthContext';
-import { useNotifications } from '@context/NotificationContext';
-import { useLogout } from '@hooks/useLogout';
-import useCurrentUser from '@hooks/useCurrentUser';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import styles from "@styles/navbarFeed.module.scss"; // Changed import
+import Logo from "@images/logo.jpg";
+import { AuthContextProvider } from "@context/AuthContext";
+import { useNotifications } from "@context/NotificationContext";
+import { useLogout } from "@hooks/useLogout";
+import useCurrentUser from "@hooks/useCurrentUser";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Bell,
   House,
@@ -17,14 +17,14 @@ import {
   LogOut,
   Shield,
   Search,
-} from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+} from "lucide-react";
+import { NavLink } from "react-router-dom";
 
 export const Navbar = () => {
   const [isNotifOpen, setNotifOpen] = useState(false);
   const [isProfileOpen, setProfileOpen] = useState(false);
   const navigate = useNavigate();
-  const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = useAuthContext();
+  const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = AuthContextProvider();
   const { userData, profilePicture } = useCurrentUser();
   const logout = useLogout();
   const canManage = isSkSuperAdmin || isSkNaturalAdmin;
@@ -33,15 +33,17 @@ export const Navbar = () => {
   // Handle notification click
   const handleNotificationClick = (notification) => {
     if (notification.meta?.post_id || notification._apiData?.post_id) {
-      const postId = notification.meta?.post_id || notification._apiData?.post_id;
-      const commentId = notification.meta?.comment_id || notification._apiData?.comment_id;
-      
+      const postId =
+        notification.meta?.post_id || notification._apiData?.post_id;
+      const commentId =
+        notification.meta?.comment_id || notification._apiData?.comment_id;
+
       if (!notification.read) {
         markRead(notification.id);
       }
       setNotifOpen(false);
-      
-      if (commentId && notification.type === 'comment') {
+
+      if (commentId && notification.type === "comment") {
         navigate(`/feed?post=${postId}#comment-${commentId}`);
       } else {
         navigate(`/feed?post=${postId}`);
@@ -57,7 +59,7 @@ export const Navbar = () => {
           <NavLink to="/feed" className={styles.logo_link}>
             <img src={Logo} alt="SKC Youth Hub" className={styles.logo} />
           </NavLink>
-          
+
           <div className={styles.search_wrapper}>
             <Search className={styles.search_icon} />
             <input
@@ -75,7 +77,9 @@ export const Navbar = () => {
               <NavLink
                 to="/feed"
                 className={({ isActive }) =>
-                  isActive ? `${styles.nav_link} ${styles.active}` : styles.nav_link
+                  isActive
+                    ? `${styles.nav_link} ${styles.active}`
+                    : styles.nav_link
                 }
               >
                 <House className={styles.nav_icon} />
@@ -85,7 +89,9 @@ export const Navbar = () => {
               <NavLink
                 to="/feed/announcements"
                 className={({ isActive }) =>
-                  isActive ? `${styles.nav_link} ${styles.active}` : styles.nav_link
+                  isActive
+                    ? `${styles.nav_link} ${styles.active}`
+                    : styles.nav_link
                 }
               >
                 <Megaphone className={styles.nav_icon} />
@@ -95,7 +101,9 @@ export const Navbar = () => {
               <NavLink
                 to="/feed/activities"
                 className={({ isActive }) =>
-                  isActive ? `${styles.nav_link} ${styles.active}` : styles.nav_link
+                  isActive
+                    ? `${styles.nav_link} ${styles.active}`
+                    : styles.nav_link
                 }
               >
                 <CalendarRange className={styles.nav_icon} />
@@ -105,7 +113,9 @@ export const Navbar = () => {
               <NavLink
                 to="/feed/feedback"
                 className={({ isActive }) =>
-                  isActive ? `${styles.nav_link} ${styles.active}` : styles.nav_link
+                  isActive
+                    ? `${styles.nav_link} ${styles.active}`
+                    : styles.nav_link
                 }
               >
                 <MessageCircle className={styles.nav_icon} />
@@ -117,38 +127,47 @@ export const Navbar = () => {
         {/* Right Section - Actions and Profile */}
         <div className={styles.right_section}>
           <div className={styles.action_icons}>
-            <div 
+            <div
               className={styles.action_icon}
               onClick={() => setNotifOpen(!isNotifOpen)}
               role="button"
               tabIndex={0}
-              onKeyPress={(e) => e.key === 'Enter' && setNotifOpen(!isNotifOpen)}
+              onKeyPress={(e) =>
+                e.key === "Enter" && setNotifOpen(!isNotifOpen)
+              }
             >
               <Bell className={styles.icon} />
-              {unreadCount > 0 && <span className={styles.badge}>{unreadCount}</span>}
+              {unreadCount > 0 && (
+                <span className={styles.badge}>{unreadCount}</span>
+              )}
             </div>
           </div>
 
-          <div 
+          <div
             className={styles.profile_wrapper}
             onClick={() => setProfileOpen(!isProfileOpen)}
             role="button"
             tabIndex={0}
-            onKeyPress={(e) => e.key === 'Enter' && setProfileOpen(!isProfileOpen)}
+            onKeyPress={(e) =>
+              e.key === "Enter" && setProfileOpen(!isProfileOpen)
+            }
           >
             <img
-              src={profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                userData?.name || 'User'
-              )}&background=007bff&color=fff`}
+              src={
+                profilePicture ||
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                  userData?.name || "User",
+                )}&background=007bff&color=fff`
+              }
               alt="Profile"
               className={styles.avatar}
             />
-            <span className={styles.user_name}>{userData?.name || 'User'}</span>
+            <span className={styles.user_name}>{userData?.name || "User"}</span>
           </div>
 
           {/* Backdrop for mobile */}
           {(isNotifOpen || isProfileOpen) && (
-            <div 
+            <div
               className={styles.dropdown_backdrop}
               onClick={() => {
                 setNotifOpen(false);
@@ -168,24 +187,39 @@ export const Navbar = () => {
                   <div className={styles.dropdown_item}>
                     <div className={styles.item_content}>
                       <div className={styles.item_title}>No notifications</div>
-                      <div className={styles.item_description}>You're all caught up!</div>
+                      <div className={styles.item_description}>
+                        You're all caught up!
+                      </div>
                     </div>
                   </div>
                 ) : (
                   notifications.slice(0, 5).map((notification) => (
-                    <div 
-                      key={notification.id} 
+                    <div
+                      key={notification.id}
                       className={styles.dropdown_item}
                       onClick={() => handleNotificationClick(notification)}
                       role="button"
                       tabIndex={0}
-                      onKeyPress={(e) => e.key === 'Enter' && handleNotificationClick(notification)}
-                      style={{ cursor: (notification.meta?.post_id || notification._apiData?.post_id) ? 'pointer' : 'default' }}
+                      onKeyPress={(e) =>
+                        e.key === "Enter" &&
+                        handleNotificationClick(notification)
+                      }
+                      style={{
+                        cursor:
+                          notification.meta?.post_id ||
+                          notification._apiData?.post_id
+                            ? "pointer"
+                            : "default",
+                      }}
                     >
                       <Bell className={styles.item_icon} />
                       <div className={styles.item_content}>
-                        <div className={styles.item_title}>{notification.title}</div>
-                        <div className={styles.item_description}>{notification.message}</div>
+                        <div className={styles.item_title}>
+                          {notification.title}
+                        </div>
+                        <div className={styles.item_description}>
+                          {notification.message}
+                        </div>
                       </div>
                     </div>
                   ))
@@ -200,20 +234,27 @@ export const Navbar = () => {
               <div className={styles.profile_header}>
                 <div className={styles.profile_avatar}>
                   <img
-                    src={profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                      userData?.name || 'User'
-                    )}&background=007bff&color=fff`}
+                    src={
+                      profilePicture ||
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                        userData?.name || "User",
+                      )}&background=007bff&color=fff`
+                    }
                     alt="Profile"
                   />
                 </div>
                 <div className={styles.profile_info}>
-                  <div className={styles.profile_name}>{userData?.name || 'User'}</div>
+                  <div className={styles.profile_name}>
+                    {userData?.name || "User"}
+                  </div>
                   <div className={styles.profile_role}>
-                    {canManage ? (userData?.position || 'Official') : 'Youth Member'}
+                    {canManage
+                      ? userData?.position || "Official"
+                      : "Youth Member"}
                   </div>
                 </div>
               </div>
-              
+
               <div className={styles.dropdown_menu}>
                 {canManage && (
                   <Link to="/dashboard" className={styles.dropdown_item}>
@@ -221,19 +262,25 @@ export const Navbar = () => {
                     Admin Dashboard
                   </Link>
                 )}
-                
-                <Link to={canManage ? "/official-profile" : "/profile"} className={styles.dropdown_item}>
+
+                <Link
+                  to={canManage ? "/official-profile" : "/profile"}
+                  className={styles.dropdown_item}
+                >
                   <User className={styles.dropdown_icon} />
                   My Profile
                 </Link>
-                
-                <Link to={isSkYouth ? "/settings" : "/account"} className={styles.dropdown_item}>
+
+                <Link
+                  to={isSkYouth ? "/settings" : "/account"}
+                  className={styles.dropdown_item}
+                >
                   <Settings className={styles.dropdown_icon} />
                   Settings
                 </Link>
-                
+
                 <div className={styles.divider}></div>
-                
+
                 <button onClick={logout} className={styles.dropdown_item}>
                   <LogOut className={styles.dropdown_icon} />
                   Log Out
@@ -249,7 +296,9 @@ export const Navbar = () => {
             <NavLink
               to="/feed"
               className={({ isActive }) =>
-                isActive ? `${styles.mobile_nav_link} ${styles.active}` : styles.mobile_nav_link
+                isActive
+                  ? `${styles.mobile_nav_link} ${styles.active}`
+                  : styles.mobile_nav_link
               }
             >
               <House className={styles.mobile_nav_icon} />
@@ -260,7 +309,9 @@ export const Navbar = () => {
             <NavLink
               to="/feed/announcements"
               className={({ isActive }) =>
-                isActive ? `${styles.mobile_nav_link} ${styles.active}` : styles.mobile_nav_link
+                isActive
+                  ? `${styles.mobile_nav_link} ${styles.active}`
+                  : styles.mobile_nav_link
               }
             >
               <Megaphone className={styles.mobile_nav_icon} />
@@ -271,7 +322,9 @@ export const Navbar = () => {
             <NavLink
               to="/feed/activities"
               className={({ isActive }) =>
-                isActive ? `${styles.mobile_nav_link} ${styles.active}` : styles.mobile_nav_link
+                isActive
+                  ? `${styles.mobile_nav_link} ${styles.active}`
+                  : styles.mobile_nav_link
               }
             >
               <CalendarRange className={styles.mobile_nav_icon} />
@@ -282,7 +335,9 @@ export const Navbar = () => {
             <NavLink
               to="/feed/feedback"
               className={({ isActive }) =>
-                isActive ? `${styles.mobile_nav_link} ${styles.active}` : styles.mobile_nav_link
+                isActive
+                  ? `${styles.mobile_nav_link} ${styles.active}`
+                  : styles.mobile_nav_link
               }
             >
               <MessageCircle className={styles.mobile_nav_icon} />

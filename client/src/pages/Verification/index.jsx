@@ -1,16 +1,43 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, IconButton, Menu, MenuItem, Typography, CircularProgress,
-  TablePagination, TableSortLabel, Button, Box, Chip, Alert,
-  Card, CardContent, Grid, TextField, InputAdornment, Tooltip
-} from '@mui/material';
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Menu,
+  MenuItem,
+  Typography,
+  CircularProgress,
+  TablePagination,
+  TableSortLabel,
+  Button,
+  Box,
+  Chip,
+  Alert,
+  Card,
+  CardContent,
+  Grid,
+  TextField,
+  InputAdornment,
+  Tooltip,
+} from "@mui/material";
 import {
-  EllipsisVertical, Search, Eye, CheckCircle, Trash2, 
-  RefreshCw, Filter, UserCheck, UserX, Calendar
-} from 'lucide-react';
-import useVerification from '@hooks/useVerification';
-import YouthDetailModal from './components/detailModal';
+  EllipsisVertical,
+  Search,
+  Eye,
+  CheckCircle,
+  Trash2,
+  RefreshCw,
+  UserCheck,
+  UserX,
+  Calendar,
+} from "lucide-react";
+import useVerification from "@hooks/useVerification";
+import YouthDetailModal from "./components/detailModal";
 
 const Verification = () => {
   const {
@@ -22,20 +49,20 @@ const Verification = () => {
     fetchYouthDetails,
     verifyYouth,
     deleteSignup,
-    fetchDeletedYouths
+    fetchDeletedYouths,
   } = useVerification();
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuYouthId, setMenuYouthId] = useState(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [showDrafts, setShowDrafts] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [actionLoading, setActionLoading] = useState(null);
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [orderBy, setOrderBy] = useState('created_at');
-  const [order, setOrder] = useState('desc');
+  const [orderBy, setOrderBy] = useState("created_at");
+  const [order, setOrder] = useState("desc");
 
   useEffect(() => {
     showDrafts ? fetchDeletedYouths() : fetchUnverifiedYouths();
@@ -74,8 +101,8 @@ const Verification = () => {
   };
 
   const handleSort = (property) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
 
@@ -94,30 +121,29 @@ const Verification = () => {
 
   // Filter and sort data
   const filteredAndSortedData = youthData
-    .filter(youth => 
-      youth.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      youth.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      youth.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    .filter(
+      (youth) =>
+        youth.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        youth.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        youth.email?.toLowerCase().includes(searchTerm.toLowerCase()),
     )
     .sort((a, b) => {
       const aVal = a[orderBy];
       const bVal = b[orderBy];
-      if (order === 'asc') return aVal > bVal ? 1 : -1;
+      if (order === "asc") return aVal > bVal ? 1 : -1;
       return aVal < bVal ? 1 : -1;
     });
 
-  
-
   const getFullName = (youth) => {
-    return `${youth.suffix ? `${youth.suffix}. ` : ''}${youth.first_name} ${youth.middle_name || ''} ${youth.last_name}`.trim();
+    return `${youth.suffix ? `${youth.suffix}. ` : ""}${youth.first_name} ${youth.middle_name || ""} ${youth.last_name}`.trim();
   };
 
   const getTimeAgo = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'Just now';
+
+    if (diffInHours < 1) return "Just now";
     if (diffInHours < 24) return `${diffInHours}h ago`;
     if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
     return date.toLocaleDateString();
@@ -128,7 +154,15 @@ const Verification = () => {
       {/* Header Section */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: 2,
+            }}
+          >
             <Box>
               <Typography variant="h4" fontWeight="bold" gutterBottom>
                 Youth Verification
@@ -137,8 +171,8 @@ const Verification = () => {
                 Manage and verify youth registrations
               </Typography>
             </Box>
-            
-            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
               <Button
                 variant={showDrafts ? "outlined" : "contained"}
                 startIcon={<UserCheck size={20} />}
@@ -160,40 +194,40 @@ const Verification = () => {
 
       {/* Stats and Search Section */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-          <TextField
-            fullWidth
-            placeholder="Search by name or email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search size={20} />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <Box sx={{ display: 'flex', gap: 2, height: '100%' }}>
-            <Tooltip title="Refresh data">
-              {/* Wrapper span for disabled button */}
-              <span>
-                <Button
-                  variant="outlined"
-                  onClick={handleRefresh}
-                  disabled={loading}
-                  startIcon={<RefreshCw size={20} />}
-                  sx={{ flex: 1 }}
-                >
-                  Refresh
-                </Button>
-              </span>
-            </Tooltip>
-          </Box>
+        <TextField
+          fullWidth
+          placeholder="Search by name or email..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Search size={20} />
+              </InputAdornment>
+            ),
+          }}
+        />
+        <Box sx={{ display: "flex", gap: 2, height: "100%" }}>
+          <Tooltip title="Refresh data">
+            {/* Wrapper span for disabled button */}
+            <span>
+              <Button
+                variant="outlined"
+                onClick={handleRefresh}
+                disabled={loading}
+                startIcon={<RefreshCw size={20} />}
+                sx={{ flex: 1 }}
+              >
+                Refresh
+              </Button>
+            </span>
+          </Tooltip>
+        </Box>
       </Grid>
 
       {/* Loading and Error States */}
       {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
           <CircularProgress />
         </Box>
       )}
@@ -207,13 +241,15 @@ const Verification = () => {
       {/* Empty State */}
       {!loading && filteredAndSortedData.length === 0 && (
         <Card>
-          <CardContent sx={{ textAlign: 'center', py: 6 }}>
+          <CardContent sx={{ textAlign: "center", py: 6 }}>
             <UserX size={48} color="#ccc" />
             <Typography variant="h6" color="text.secondary" sx={{ mt: 2 }}>
-              No {showDrafts ? 'deleted' : 'unverified'} youth found
+              No {showDrafts ? "deleted" : "unverified"} youth found
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              {searchTerm ? 'Try adjusting your search terms' : 'All youth accounts are verified'}
+              {searchTerm
+                ? "Try adjusting your search terms"
+                : "All youth accounts are verified"}
             </Typography>
           </CardContent>
         </Card>
@@ -228,9 +264,9 @@ const Verification = () => {
                 <TableRow>
                   <TableCell>
                     <TableSortLabel
-                      active={orderBy === 'first_name'}
-                      direction={orderBy === 'first_name' ? order : 'asc'}
-                      onClick={() => handleSort('first_name')}
+                      active={orderBy === "first_name"}
+                      direction={orderBy === "first_name" ? order : "asc"}
+                      onClick={() => handleSort("first_name")}
                     >
                       Name
                     </TableSortLabel>
@@ -238,11 +274,13 @@ const Verification = () => {
                   <TableCell>Email</TableCell>
                   <TableCell>
                     <TableSortLabel
-                      active={orderBy === 'created_at'}
-                      direction={orderBy === 'created_at' ? order : 'asc'}
-                      onClick={() => handleSort('created_at')}
+                      active={orderBy === "created_at"}
+                      direction={orderBy === "created_at" ? order : "asc"}
+                      onClick={() => handleSort("created_at")}
                     >
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         <Calendar size={16} />
                         Joined
                       </Box>
@@ -255,29 +293,32 @@ const Verification = () => {
                 {filteredAndSortedData
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((youth) => (
-                    <TableRow 
+                    <TableRow
                       key={youth.youth_id}
-                      sx={{ 
-                        '&:hover': { 
-                          backgroundColor: 'action.hover',
-                          cursor: 'pointer'
-                        }
+                      sx={{
+                        "&:hover": {
+                          backgroundColor: "action.hover",
+                          cursor: "pointer",
+                        },
                       }}
                       onClick={() => handleView(youth.youth_id)}
                     >
                       <TableCell>
                         <Box>
                           <Typography variant="subtitle2" fontWeight="medium">
-                            {getFullName(youth).split(' ')
-                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                            .join(' ')
-                            }
+                            {getFullName(youth)
+                              .split(" ")
+                              .map(
+                                (word) =>
+                                  word.charAt(0).toUpperCase() + word.slice(1),
+                              )
+                              .join(" ")}
                           </Typography>
                           {showDrafts && (
-                            <Chip 
-                              label="Deleted" 
-                              size="small" 
-                              color="error" 
+                            <Chip
+                              label="Deleted"
+                              size="small"
+                              color="error"
                               variant="outlined"
                               sx={{ mt: 0.5 }}
                             />
@@ -300,7 +341,13 @@ const Verification = () => {
                         </Box>
                       </TableCell>
                       <TableCell align="right">
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            gap: 1,
+                          }}
+                        >
                           {!showDrafts && (
                             <Tooltip title="Verify">
                               {/* Wrapper span for disabled button */}
@@ -323,7 +370,7 @@ const Verification = () => {
                               </span>
                             </Tooltip>
                           )}
-                          
+
                           <Tooltip title="View details">
                             <IconButton
                               size="small"
@@ -363,7 +410,7 @@ const Verification = () => {
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
-            sx={{ borderTop: 1, borderColor: 'divider' }}
+            sx={{ borderTop: 1, borderColor: "divider" }}
           />
         </Card>
       )}
@@ -375,28 +422,33 @@ const Verification = () => {
         onClose={handleMenuClose}
         onClick={(e) => e.stopPropagation()}
       >
-        <MenuItem 
+        <MenuItem
           onClick={() => handleView(menuYouthId)}
-          sx={{ display: 'flex', alignItems: 'center', gap: 2 }}
+          sx={{ display: "flex", alignItems: "center", gap: 2 }}
         >
           <Eye size={16} />
           View Details
         </MenuItem>
         {!showDrafts && (
-          <MenuItem 
+          <MenuItem
             onClick={() => handleVerify(menuYouthId)}
-            sx={{ display: 'flex', alignItems: 'center', gap: 2 }}
+            sx={{ display: "flex", alignItems: "center", gap: 2 }}
           >
             <CheckCircle size={16} />
             Verify Account
           </MenuItem>
         )}
-        <MenuItem 
+        <MenuItem
           onClick={() => handleDelete(menuYouthId)}
-          sx={{ display: 'flex', alignItems: 'center', gap: 2, color: 'error.main' }}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            color: "error.main",
+          }}
         >
           <Trash2 size={16} />
-          {showDrafts ? 'Permanently Delete' : 'Move to Drafts'}
+          {showDrafts ? "Permanently Delete" : "Move to Drafts"}
         </MenuItem>
       </Menu>
 

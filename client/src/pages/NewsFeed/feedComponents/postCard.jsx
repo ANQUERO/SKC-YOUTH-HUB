@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import style from "@styles/newsFeed.module.scss";
 import axiosInstance from "@lib/axios";
-import { useAuthContext } from "@context/AuthContext";
+import { AuthContextProvider } from "@context/AuthContext";
 import CommentSystem from "@components/CommentSystem";
-import PostOptions from "@components/PostOptions"; 
+import PostOptions from "@components/PostOptions";
 import { MediaGallery } from "Components/MediaGallery";
 
 export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
-  const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth, authUser } = useAuthContext();
+  const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth, authUser } =
+    AuthContextProvider();
   const isSK = isSkSuperAdmin || isSkNaturalAdmin || isSkYouth;
   const [reactionsCount, setReactionsCount] = useState({
     like: 0,
@@ -21,8 +22,8 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
   const author = currentPost.author || currentPost.official || {};
   const authorName = author.name || "Unknown User";
   const authorRole = author.position || author.official_position || "Official";
-  const authorProfilePic = author.profile_picture 
-    ? author.profile_picture 
+  const authorProfilePic = author.profile_picture
+    ? author.profile_picture
     : `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=random&color=fff`;
 
   const mediaItems = currentPost.media || [];
@@ -85,16 +86,18 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
     const now = new Date();
     const diffInSeconds = Math.floor((now - date) / 1000);
 
-    if (diffInSeconds < 60) return 'just now';
+    if (diffInSeconds < 60) return "just now";
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`;
-    
+    if (diffInSeconds < 86400)
+      return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    if (diffInSeconds < 2592000)
+      return `${Math.floor(diffInSeconds / 86400)}d ago`;
+
     // Return full date for older posts
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      ...(date.getFullYear() !== now.getFullYear() && { year: 'numeric' })
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      ...(date.getFullYear() !== now.getFullYear() && { year: "numeric" }),
     });
   };
 
@@ -160,7 +163,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
             <p className={style.authorRole}>{authorRole}</p>
           </div>
         </div>
-        
+
         <div className={style.headerActions}>
           <div
             className={style.postTypeBadge}
@@ -181,7 +184,9 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
         </div>
       </div>
 
-      <p className={style.content}>{currentPost.description || currentPost.content}</p>
+      <p className={style.content}>
+        {currentPost.description || currentPost.content}
+      </p>
 
       {allMediaItems.length > 0 && <MediaGallery mediaItems={allMediaItems} />}
 
@@ -211,10 +216,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
         </div>
       </div>
 
-      <CommentSystem
-        postId={currentPost.post_id}
-        postAuthor={authorName}
-      />
+      <CommentSystem postId={currentPost.post_id} postAuthor={authorName} />
     </div>
   );
 };

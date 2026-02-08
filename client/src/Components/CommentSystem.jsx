@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import axiosInstance from "@lib/axios";
-import { useAuthContext } from "@context/AuthContext";
+import { AuthContextProvider } from "@context/AuthContext";
 import { useToast } from "@context/ToastContext";
 import style from "../styles/commentSystem.module.scss";
 
 const CommentSystem = ({ postId }) => {
-  const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
+  const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = AuthContextProvider();
   const { showSuccess, showError } = useToast();
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
@@ -16,86 +16,38 @@ const CommentSystem = ({ postId }) => {
   const [showOptions, setShowOptions] = useState({});
   const [commentReactions, setCommentReactions] = useState({});
   const [userReactions, setUserReactions] = useState({});
-  const [currentUserProfile, setCurrentUserProfile] = useState({
-    name: "",
-    avatar: null
-  });
   const commentInputRef = useRef(null);
 
   const isOfficial = isSkSuperAdmin || isSkNaturalAdmin;
   const canModerate = isOfficial;
 
-  // Fetch current user's profile info including avatar
-  const fetchCurrentUserProfile = useCallback(async () => {
-    if (!authUser) return;
-    
-    try {
-      const userId = authUser.userType === "official" 
-        ? authUser.official_id 
-        : authUser.youth_id;
-      
-      // First, get the user's name
-      let userName = "";
-      if (authUser.userType === "official") {
-        const nameResponse = await axiosInstance.get(`/official/${userId}/name`);
-        if (nameResponse.data.status === "Success") {
-          const nameData = nameResponse.data.data;
-          userName = `${nameData.first_name} ${nameData.last_name}`.trim();
-        }
-      } else {
-        const nameResponse = await axiosInstance.get(`/youth/${userId}/name`);
-        if (nameResponse.data.status === "Success") {
-          const nameData = nameResponse.data.data;
-          userName = `${nameData.first_name} ${nameData.last_name}`.trim();
-        }
-      }
-      
-      // Then, get the avatar
-      let userAvatar = null;
-      try {
-        const avatarResponse = await axiosInstance.get(`/profile/${authUser.userType}/${userId}/avatar`);
-        if (avatarResponse.data.status === "Success" && avatarResponse.data.data) {
-          userAvatar = avatarResponse.data.data.file_url;
-        }
-      } catch (avatarError) {
-        console.error("Error fetching avatar:", avatarError);
-        // Avatar might not exist, that's okay
-      }
-      
-      setCurrentUserProfile({
-        name: userName || authUser.name || "User",
-        avatar: userAvatar
-      });
-    } catch (error) {
-      console.error("Error fetching current user profile:", error);
-      setCurrentUserProfile({
-        name: authUser?.name || "User",
-        avatar: null
-      });
-    }
-  }, [authUser]);
+  // Get current user's name from auth context
+  const getCurrentUserName = () => {
+    if (!authUser) return "User";
 
-  // Alternative: If you have the user's name in authUser already
-  const fetchCurrentUserAvatar = useCallback(async () => {
-    if (!authUser) return;
-    
-    try {
-      const userId = authUser.userType === "official" 
-        ? authUser.official_id 
-        : authUser.youth_id;
-      
-      const response = await axiosInstance.get(`/profile/${authUser.userType}/${userId}/avatar`);
-      if (response.data.status === "Success" && response.data.data) {
-        setCurrentUserProfile(prev => ({
-          ...prev,
-          avatar: response.data.data.file_url
-        }));
+    // Try multiple possible name fields
+    const possibleFields = [
+      "name",
+      "username",
+      "user_name",
+      "first_name",
+      "display_name",
+      "full_name",
+    ];
+
+    for (const field of possibleFields) {
+      if (authUser[field]) {
+        return authUser[field];
       }
-    } catch (error) {
-      console.error("Error fetching current user avatar:", error);
-      // Avatar might not exist, that's okay
     }
-  }, [authUser]);
+
+    // If no name field found, create one from first and last name
+    if (authUser.first_name || authUser.last_name) {
+      return `${authUser.first_name || ""} ${authUser.last_name || ""}`.trim();
+    }
+
+    return "User";
+  };
 
   // Handle scrolling to specific comment from URL hash
   useEffect(() => {
@@ -105,7 +57,7 @@ const CommentSystem = ({ postId }) => {
       if (commentId && comments.length > 0) {
         setTimeout(() => {
           const commentElement = document.getElementById(
-            `comment-${commentId}`
+            `comment-${commentId}`,
           );
           if (commentElement) {
             commentElement.scrollIntoView({
@@ -122,42 +74,47 @@ const CommentSystem = ({ postId }) => {
     }
   }, [comments, postId]);
 
-  const fetchCommentReactions = useCallback(async (commentId) => {
-    try {
-      const response = await axiosInstance.get(`/comment/${commentId}/reactions`);
-      const reactions = response.data.data || [];
-
-      const counts = { like: 0, heart: 0, wow: 0 };
-      reactions.forEach((r) => {
-        counts[r.type] = (counts[r.type] || 0) + 1;
-      });
-
-      setCommentReactions((prev) => ({
-        ...prev,
-        [commentId]: counts,
-      }));
-
-      if (authUser) {
-        const userId =
-          authUser.userType === "official"
-            ? authUser.official_id
-            : authUser.youth_id;
-
-        const userReaction = reactions.find(
-          (r) => r.user_type === authUser.userType && r.user_id === userId
+  const fetchCommentReactions = useCallback(
+    async (commentId) => {
+      try {
+        const response = await axiosInstance.get(
+          `/comment/${commentId}/reactions`,
         );
+        const reactions = response.data.data || [];
 
-        if (userReaction) {
-          setUserReactions((prev) => ({
-            ...prev,
-            [commentId]: userReaction.type,
-          }));
+        const counts = { like: 0, heart: 0, wow: 0 };
+        reactions.forEach((r) => {
+          counts[r.type] = (counts[r.type] || 0) + 1;
+        });
+
+        setCommentReactions((prev) => ({
+          ...prev,
+          [commentId]: counts,
+        }));
+
+        if (authUser) {
+          const userId =
+            authUser.userType === "official"
+              ? authUser.official_id
+              : authUser.youth_id;
+
+          const userReaction = reactions.find(
+            (r) => r.user_type === authUser.userType && r.user_id === userId,
+          );
+
+          if (userReaction) {
+            setUserReactions((prev) => ({
+              ...prev,
+              [commentId]: userReaction.type,
+            }));
+          }
         }
+      } catch (error) {
+        console.error("Error fetching comment reactions:", error);
       }
-    } catch (error) {
-      console.error("Error fetching comment reactions:", error);
-    }
-  }, [authUser]);
+    },
+    [authUser],
+  );
 
   const fetchComments = useCallback(async () => {
     try {
@@ -217,7 +174,7 @@ const CommentSystem = ({ postId }) => {
           if (currentReaction) {
             updated[currentReaction] = Math.max(
               0,
-              (updated[currentReaction] || 0) - 1
+              (updated[currentReaction] || 0) - 1,
             );
           }
 
@@ -355,20 +312,23 @@ const CommentSystem = ({ postId }) => {
 
   // Get user initials for fallback
   const getUserInitials = (userName) => {
-    if (!userName) return "U";
-    const parts = userName.split(' ');
+    if (!userName || userName === "undefined") return "U";
+    const parts = userName.split(" ");
     if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+    return (
+      parts[0].charAt(0) + parts[parts.length - 1].charAt(0)
+    ).toUpperCase();
   };
 
-  // Fetch comments and current user profile on mount
+  // Get current user's initials
+  const getCurrentUserInitials = () => {
+    return getUserInitials(getCurrentUserName());
+  };
+
+  // Fetch comments on mount
   useEffect(() => {
     fetchComments();
-    if (authUser) {
-      fetchCurrentUserProfile();
-      fetchCurrentUserAvatar();
-    }
-  }, [fetchComments, fetchCurrentUserProfile, fetchCurrentUserAvatar, authUser]);
+  }, [fetchComments]);
 
   const CommentItem = ({ comment, depth = 0 }) => {
     const isOwner =
@@ -394,22 +354,26 @@ const CommentSystem = ({ postId }) => {
           <div className={style["user-info"]}>
             <div className={style.avatar}>
               {profileImage ? (
-                <img 
-                  src={profileImage} 
-                  alt={`${comment.user_name || 'User'}'s profile`}
+                <img
+                  src={profileImage}
+                  alt={`${comment.user_name || "User"}'s profile`}
                   className={style["avatar-image"]}
                   onError={(e) => {
                     // Fallback if image fails to load
-                    e.target.style.display = 'none';
-                    const fallback = e.target.parentElement.querySelector(`.${style["avatar-fallback"]}`);
+                    e.target.style.display = "none";
+                    const fallback = e.target.parentElement.querySelector(
+                      `.${style["avatar-fallback"]}`,
+                    );
                     if (fallback) {
-                      fallback.style.display = 'flex';
+                      fallback.style.display = "flex";
                     }
                   }}
                 />
               ) : null}
-              <div className={style["avatar-fallback"]} 
-                   style={{ display: profileImage ? 'none' : 'flex' }}>
+              <div
+                className={style["avatar-fallback"]}
+                style={{ display: profileImage ? "none" : "flex" }}
+              >
                 {getUserInitials(comment.user_name)}
               </div>
             </div>
@@ -418,7 +382,9 @@ const CommentSystem = ({ postId }) => {
                 {comment.user_name || "Unknown User"}
               </span>
               {comment.user_role && (
-                <span className={`${style["role-badge"]} ${style[comment.user_role]}`}>
+                <span
+                  className={`${style["role-badge"]} ${style[comment.user_role]}`}
+                >
                   {comment.user_role === "super_official"
                     ? "Super Official"
                     : "Official"}
@@ -489,7 +455,9 @@ const CommentSystem = ({ postId }) => {
         <div className={style["comment-content"]}>
           {comment.is_hidden ? (
             <div className={style["hidden-comment"]}>
-              <span className={style["hidden-text"]}>This comment has been hidden</span>
+              <span className={style["hidden-text"]}>
+                This comment has been hidden
+              </span>
               {comment.hidden_reason && (
                 <span className={style["hidden-reason"]}>
                   Reason: {comment.hidden_reason}
@@ -514,7 +482,9 @@ const CommentSystem = ({ postId }) => {
             </button>
             <button
               className={`${style["reaction-btn"]} ${
-                userReactions[comment.comment_id] === "heart" ? style.active : ""
+                userReactions[comment.comment_id] === "heart"
+                  ? style.active
+                  : ""
               }`}
               onClick={() => handleCommentReact(comment.comment_id, "heart")}
               title="Heart"
@@ -611,34 +581,13 @@ const CommentSystem = ({ postId }) => {
     );
   };
 
-  // Get current user's initials
-  const getCurrentUserInitials = () => {
-    return getUserInitials(currentUserProfile.name);
-  };
-
   return (
     <div className={style["comment-system"]}>
       <div className={style["comment-form"]}>
         <form onSubmit={handleSubmitComment}>
           <div className={style["comment-input-wrapper"]}>
             <div className={style["user-avatar"]}>
-              {currentUserProfile.avatar ? (
-                <img 
-                  src={currentUserProfile.avatar} 
-                  alt={`${currentUserProfile.name}'s profile`}
-                  className={style["avatar-image"]}
-                  onError={(e) => {
-                    // Fallback if image fails to load
-                    e.target.style.display = 'none';
-                    const fallback = e.target.parentElement.querySelector(`.${style["avatar-fallback"]}`);
-                    if (fallback) {
-                      fallback.style.display = 'flex';
-                    }
-                  }}
-                />
-              ) : null}
-              <div className={style["avatar-fallback"]} 
-                   style={{ display: currentUserProfile.avatar ? 'none' : 'flex' }}>
+              <div className={style["avatar-fallback"]}>
                 {getCurrentUserInitials()}
               </div>
             </div>

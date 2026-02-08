@@ -17,12 +17,12 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { Upload, X, Image as ImageIcon, Video } from "lucide-react";
-import { useAuthContext } from "@context/AuthContext";
+import { AuthContextProvider } from "@context/AuthContext";
 import axiosInstance from "@lib/axios";
 import styles from "../styles/EditPostModal.module.scss";
 
 const EditPostModal = ({ open, onClose, post, onUpdate }) => {
-  const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
+  const { isSkSuperAdmin, isSkNaturalAdmin } = AuthContextProvider();
   const isOfficial = isSkSuperAdmin || isSkNaturalAdmin;
 
   const [loading, setLoading] = useState(false);
@@ -64,7 +64,8 @@ const EditPostModal = ({ open, onClose, post, onUpdate }) => {
     if (files.length === 0) return;
 
     const validFiles = files.filter(
-      (file) => file.type.startsWith("image/") || file.type.startsWith("video/")
+      (file) =>
+        file.type.startsWith("image/") || file.type.startsWith("video/"),
     );
 
     if (validFiles.length !== files.length) {
@@ -117,7 +118,7 @@ const EditPostModal = ({ open, onClose, post, onUpdate }) => {
   const removeExistingMedia = useCallback((mediaId) => {
     setMediaToDelete((prev) => [...prev, mediaId]);
     setExistingMedia((prev) =>
-      prev.filter((media) => media.media_id !== mediaId)
+      prev.filter((media) => media.media_id !== mediaId),
     );
   }, []);
 
@@ -167,7 +168,7 @@ const EditPostModal = ({ open, onClose, post, onUpdate }) => {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
       // Clean up all preview URLs
@@ -411,8 +412,8 @@ const EditPostModal = ({ open, onClose, post, onUpdate }) => {
                   postType === "announcement"
                     ? "primary"
                     : postType === "activity"
-                    ? "warning"
-                    : "default"
+                      ? "warning"
+                      : "default"
                 }
                 size="small"
                 variant="outlined"

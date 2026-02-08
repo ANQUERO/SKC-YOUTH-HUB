@@ -1,6 +1,6 @@
-import style from '@styles/adminAuth.module.scss';
-import StepWrapper from './wrapper.jsx';
-import Logo from '@images/logo.jpg'
+import style from "@styles/adminAuth.module.scss";
+import StepWrapper from "./wrapper.jsx";
+import Logo from "@images/logo.jpg";
 
 const AdminAuth = () => {
   return (
@@ -16,7 +16,7 @@ const AdminAuth = () => {
         </div>
       </div>
 
-      {/* Right panel */} 
+      {/* Right panel */}
       <div className={style.right}>
         <div className={style.box}>
           <StepWrapper />

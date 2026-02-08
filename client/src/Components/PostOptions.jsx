@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axiosInstance from "@lib/axios";
-import { useAuthContext } from "@context/AuthContext";
+import { AuthContextProvider } from "@context/AuthContext";
 import { useToast } from "@context/ToastContext";
 import EditPostModal from "./EditPostModal";
 import styles from "@styles/postOptions.module.scss";
@@ -13,31 +13,31 @@ import {
   TextField,
   Box,
   Typography,
-  CircularProgress
+  CircularProgress,
 } from "@mui/material";
 import {
   Warning as WarningIcon,
   Delete as DeleteIcon,
   VisibilityOff as HideIcon,
   Visibility as UnhideIcon,
-  Block as BlockIcon
+  Block as BlockIcon,
 } from "@mui/icons-material";
 
 const PostOptions = ({ post, onPostDeleted, onPostHidden, onPostUpdated }) => {
-  const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
+  const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = AuthContextProvider();
   const { showSuccess, showError } = useToast();
-  
+
   // State for menus and modals
   const [showMenu, setShowMenu] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   // State for confirmation modals
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showHideModal, setShowHideModal] = useState(false);
   const [showUnhideModal, setShowUnhideModal] = useState(false);
   const [showBanModal, setShowBanModal] = useState(false);
-  
+
   // State for reason inputs
   const [hideReason, setHideReason] = useState("");
   const [banReason, setBanReason] = useState("");
@@ -53,55 +53,53 @@ const PostOptions = ({ post, onPostDeleted, onPostHidden, onPostUpdated }) => {
   const canHide = isOfficial;
 
   // Delete Handler
-const handleDelete = async () => {
-  console.log("Delete button clicked");
-  console.log("Post ID:", post.post_id);
-  console.log("Auth User:", authUser);
-  console.log("isSkSuperAdmin:", isSkSuperAdmin);
-  console.log("isSkNaturalAdmin:", isSkNaturalAdmin);
-  console.log("isOwner:", isOwner);
-  console.log("Post official ID:", post.official?.official_id);
-  
-  setLoading(true);
-  try {
-    console.log("Sending DELETE request to:", `/post/${post.post_id}`);
-    const response = await axiosInstance.delete(`/post/${post.post_id}`);
-    console.log("Delete response:", response.data);
-    
-    showSuccess("Post deleted successfully");
-    onPostDeleted && onPostDeleted();
-    
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000);
-    
-  } catch (error) {
-    console.error("Error deleting post:", error);
-    console.error("Error response:", error.response);
-    showError(error.response?.data?.message || "Failed to delete post");
-  } finally {
-    setLoading(false);
-    setShowDeleteModal(false);
-    setShowMenu(false);
-  }
-};
+  const handleDelete = async () => {
+    console.log("Delete button clicked");
+    console.log("Post ID:", post.post_id);
+    console.log("Auth User:", authUser);
+    console.log("isSkSuperAdmin:", isSkSuperAdmin);
+    console.log("isSkNaturalAdmin:", isSkNaturalAdmin);
+    console.log("isOwner:", isOwner);
+    console.log("Post official ID:", post.official?.official_id);
+
+    setLoading(true);
+    try {
+      console.log("Sending DELETE request to:", `/post/${post.post_id}`);
+      const response = await axiosInstance.delete(`/post/${post.post_id}`);
+      console.log("Delete response:", response.data);
+
+      showSuccess("Post deleted successfully");
+      onPostDeleted && onPostDeleted();
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      console.error("Error response:", error.response);
+      showError(error.response?.data?.message || "Failed to delete post");
+    } finally {
+      setLoading(false);
+      setShowDeleteModal(false);
+      setShowMenu(false);
+    }
+  };
 
   // Hide Handler
   const handleHide = async () => {
     setLoading(true);
     try {
-      await axiosInstance.put(`/post/${post.post_id}/hide`, { 
-        reason: hideReason || undefined 
+      await axiosInstance.put(`/post/${post.post_id}/hide`, {
+        reason: hideReason || undefined,
       });
       showSuccess("Post has been hidden from public view");
       onPostHidden && onPostHidden(true);
       setHideReason("");
-      
+
       // Auto refresh and navigate
       setTimeout(() => {
         window.location.reload();
       }, 1000);
-      
     } catch (error) {
       console.error("Error hiding post:", error);
       showError(error.response?.data?.message || "Failed to hide post");
@@ -119,12 +117,11 @@ const handleDelete = async () => {
       await axiosInstance.put(`/post/${post.post_id}/unhide`);
       showSuccess("Post has been made visible again");
       onPostHidden && onPostHidden(false);
-      
+
       // Auto refresh and navigate
       setTimeout(() => {
         window.location.reload();
       }, 1000);
-      
     } catch (error) {
       console.error("Error unhiding post:", error);
       showError(error.response?.data?.message || "Failed to unhide post");
@@ -144,7 +141,7 @@ const handleDelete = async () => {
   const handleUpdatePost = (updatedPost) => {
     showSuccess("Post updated successfully");
     onPostUpdated && onPostUpdated(updatedPost);
-    
+
     // Auto refresh
     setTimeout(() => {
       window.location.reload();
@@ -158,7 +155,7 @@ const handleDelete = async () => {
       setShowBanModal(false);
       return;
     }
-    
+
     const userType = "official";
     const userId = post.official?.official_id;
 
@@ -170,17 +167,16 @@ const handleDelete = async () => {
 
     setLoading(true);
     try {
-      await axiosInstance.put(`/post/ban/${userType}/${userId}`, { 
-        reason: banReason || undefined 
+      await axiosInstance.put(`/post/ban/${userType}/${userId}`, {
+        reason: banReason || undefined,
       });
       showSuccess(`${userType} has been banned from creating posts`);
       setBanReason("");
-      
+
       // Auto refresh
       setTimeout(() => {
         window.location.reload();
       }, 1000);
-      
     } catch (error) {
       console.error("Error banning user:", error);
       showError(error.response?.data?.message || "Failed to ban user");
@@ -221,9 +217,9 @@ const handleDelete = async () => {
 
         {showMenu && (
           <>
-            <div 
-              className={styles.backdrop} 
-              onClick={() => setShowMenu(false)} 
+            <div
+              className={styles.backdrop}
+              onClick={() => setShowMenu(false)}
               aria-hidden="true"
             />
             <div className={styles.options_menu}>
@@ -295,7 +291,7 @@ const handleDelete = async () => {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <WarningIcon color="error" />
           <Typography variant="h6" fontWeight="bold">
             Delete Post
@@ -303,10 +299,13 @@ const handleDelete = async () => {
         </DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete this post? This action cannot be undone.
+            Are you sure you want to delete this post? This action cannot be
+            undone.
           </Typography>
           {isOwner && isSkSuperAdmin && (
-            <Box sx={{ mt: 2, p: 1.5, bgcolor: 'warning.light', borderRadius: 1 }}>
+            <Box
+              sx={{ mt: 2, p: 1.5, bgcolor: "warning.light", borderRadius: 1 }}
+            >
               <Typography variant="body2" color="warning.dark">
                 ⚠️ You are about to delete your own post as a super admin.
               </Typography>
@@ -314,19 +313,21 @@ const handleDelete = async () => {
           )}
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button 
-            onClick={() => setShowDeleteModal(false)} 
+          <Button
+            onClick={() => setShowDeleteModal(false)}
             disabled={loading}
             variant="outlined"
           >
             Cancel
           </Button>
-          <Button 
-            onClick={handleDelete} 
+          <Button
+            onClick={handleDelete}
             disabled={loading}
-            variant="contained" 
+            variant="contained"
             color="error"
-            startIcon={loading ? <CircularProgress size={16} /> : <DeleteIcon />}
+            startIcon={
+              loading ? <CircularProgress size={16} /> : <DeleteIcon />
+            }
           >
             {loading ? "Deleting..." : "Delete"}
           </Button>
@@ -340,7 +341,7 @@ const handleDelete = async () => {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <HideIcon color="warning" />
           <Typography variant="h6" fontWeight="bold">
             Hide Post
@@ -348,10 +349,13 @@ const handleDelete = async () => {
         </DialogTitle>
         <DialogContent>
           <Typography gutterBottom>
-            This post will be hidden from public view. Only officials will be able to see it.
+            This post will be hidden from public view. Only officials will be
+            able to see it.
           </Typography>
           {isOwner && isSkSuperAdmin && (
-            <Box sx={{ mb: 2, p: 1.5, bgcolor: 'warning.light', borderRadius: 1 }}>
+            <Box
+              sx={{ mb: 2, p: 1.5, bgcolor: "warning.light", borderRadius: 1 }}
+            >
               <Typography variant="body2" color="warning.dark">
                 ⚠️ You are about to hide your own post as a super admin.
               </Typography>
@@ -371,17 +375,17 @@ const handleDelete = async () => {
           />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button 
-            onClick={() => setShowHideModal(false)} 
+          <Button
+            onClick={() => setShowHideModal(false)}
             disabled={loading}
             variant="outlined"
           >
             Cancel
           </Button>
-          <Button 
-            onClick={handleHide} 
+          <Button
+            onClick={handleHide}
             disabled={loading || (isOwner && isSkSuperAdmin && !hideReason)}
-            variant="contained" 
+            variant="contained"
             color="warning"
             startIcon={loading ? <CircularProgress size={16} /> : <HideIcon />}
           >
@@ -397,7 +401,7 @@ const handleDelete = async () => {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <UnhideIcon color="primary" />
           <Typography variant="h6" fontWeight="bold">
             Unhide Post
@@ -409,19 +413,21 @@ const handleDelete = async () => {
           </Typography>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button 
-            onClick={() => setShowUnhideModal(false)} 
+          <Button
+            onClick={() => setShowUnhideModal(false)}
             disabled={loading}
             variant="outlined"
           >
             Cancel
           </Button>
-          <Button 
-            onClick={handleUnhide} 
+          <Button
+            onClick={handleUnhide}
             disabled={loading}
-            variant="contained" 
+            variant="contained"
             color="primary"
-            startIcon={loading ? <CircularProgress size={16} /> : <UnhideIcon />}
+            startIcon={
+              loading ? <CircularProgress size={16} /> : <UnhideIcon />
+            }
           >
             {loading ? "Unhiding..." : "Unhide Post"}
           </Button>
@@ -435,7 +441,7 @@ const handleDelete = async () => {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <BlockIcon color="error" />
           <Typography variant="h6" fontWeight="bold">
             Ban User from Posting
@@ -443,12 +449,17 @@ const handleDelete = async () => {
         </DialogTitle>
         <DialogContent>
           <Typography gutterBottom>
-            This will prevent <strong>{post.official?.name || "the user"}</strong> from creating new posts.
+            This will prevent{" "}
+            <strong>{post.official?.name || "the user"}</strong> from creating
+            new posts.
           </Typography>
           {isOwner && isSkSuperAdmin && (
-            <Box sx={{ mb: 2, p: 1.5, bgcolor: 'error.light', borderRadius: 1 }}>
+            <Box
+              sx={{ mb: 2, p: 1.5, bgcolor: "error.light", borderRadius: 1 }}
+            >
               <Typography variant="body2" color="error.dark">
-                ⚠️ You are about to ban yourself from posting. This action can only be reversed by another super admin.
+                ⚠️ You are about to ban yourself from posting. This action can
+                only be reversed by another super admin.
               </Typography>
             </Box>
           )}
@@ -466,17 +477,17 @@ const handleDelete = async () => {
           />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button 
-            onClick={() => setShowBanModal(false)} 
+          <Button
+            onClick={() => setShowBanModal(false)}
             disabled={loading}
             variant="outlined"
           >
             Cancel
           </Button>
-          <Button 
-            onClick={handleBanUser} 
+          <Button
+            onClick={handleBanUser}
             disabled={loading}
-            variant="contained" 
+            variant="contained"
             color="error"
             startIcon={loading ? <CircularProgress size={16} /> : <BlockIcon />}
           >

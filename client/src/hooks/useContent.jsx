@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import axiosInstance from "@lib/axios";
-import { useAuthContext } from "@context/AuthContext";
+import { AuthContextProvider } from "@context/AuthContext";
 
 const useContent = () => {
-  const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
+  const { isSkSuperAdmin, isSkNaturalAdmin } = AuthContextProvider();
   const isAuthorized = isSkSuperAdmin || isSkNaturalAdmin;
 
   const [loading, setLoading] = useState(false);
@@ -21,25 +21,26 @@ const useContent = () => {
     setError(null);
 
     try {
-      let url = '/contents';
+      let url = "/contents";
       const params = new URLSearchParams();
-      
+
       if (content_id) {
-        params.append('content_id', content_id);
+        params.append("content_id", content_id);
       }
       if (official_id) {
-        params.append('official_id', official_id);
+        params.append("official_id", official_id);
       }
-      
+
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
-      
+
       const res = await axiosInstance.get(url);
       setSuccess("Contents fetched successfully");
       return res.data.data;
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Failed to fetch contents";
+      const errorMessage =
+        error.response?.data?.message || "Failed to fetch contents";
       setError(errorMessage);
       throw error;
     } finally {
@@ -62,7 +63,8 @@ const useContent = () => {
       setSuccess("Content fetched successfully");
       return res.data.data;
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Failed to fetch content";
+      const errorMessage =
+        error.response?.data?.message || "Failed to fetch content";
       setError(errorMessage);
       throw error;
     } finally {
@@ -95,11 +97,12 @@ const useContent = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      
+
       setSuccess("Content created successfully");
       return res.data.data;
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Failed to create content";
+      const errorMessage =
+        error.response?.data?.message || "Failed to create content";
       setError(errorMessage);
       throw error;
     } finally {
@@ -119,10 +122,14 @@ const useContent = () => {
 
     try {
       const formData = new FormData();
-      if (contentData.official_name) formData.append("official_name", contentData.official_name);
-      if (contentData.official_title) formData.append("official_title", contentData.official_title);
-      if (contentData.media_type) formData.append("media_type", contentData.media_type);
-      if (contentData.media_url) formData.append("media_url", contentData.media_url);
+      if (contentData.official_name)
+        formData.append("official_name", contentData.official_name);
+      if (contentData.official_title)
+        formData.append("official_title", contentData.official_title);
+      if (contentData.media_type)
+        formData.append("media_type", contentData.media_type);
+      if (contentData.media_url)
+        formData.append("media_url", contentData.media_url);
 
       if (contentData.media_file) {
         formData.append("media", contentData.media_file);
@@ -133,11 +140,12 @@ const useContent = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      
+
       setSuccess("Content updated successfully");
       return res.data.data;
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Failed to update content";
+      const errorMessage =
+        error.response?.data?.message || "Failed to update content";
       setError(errorMessage);
       throw error;
     } finally {
@@ -159,7 +167,8 @@ const useContent = () => {
       await axiosInstance.delete(`/contents/${content_id}`);
       setSuccess("Content deleted successfully");
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Failed to delete content";
+      const errorMessage =
+        error.response?.data?.message || "Failed to delete content";
       setError(errorMessage);
       throw error;
     } finally {
