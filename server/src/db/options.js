@@ -1,4 +1,8 @@
 export const createDatabaseConfig = (env = {}) => {
+  if (env.DATABASE_URL) {
+    return { connectionString: env.DATABASE_URL };
+  }
+
   const database = env.DB_DATABASE || env.DB_NAME;
   const rawPort = env.DB_PORT || env.DB_POR;
   const missing = [
