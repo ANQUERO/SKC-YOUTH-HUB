@@ -1,15 +1,21 @@
-import style from '@styles/adminAuth.module.scss';
-import { Link } from 'react-router-dom';
+import style from "@styles/adminAuth.module.scss";
+import { Link } from "react-router-dom";
 
 const PersonalDetails = ({ next, handleChange, data }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    if (!data.first_name || !data.last_name || !data.organization || !data.position || !data.role) {
+
+    if (
+      !data.first_name ||
+      !data.last_name ||
+      !data.organization ||
+      !data.position ||
+      !data.role
+    ) {
       alert("Please fill in all required fields");
       return;
     }
-    
+
     next();
   };
 
@@ -18,7 +24,7 @@ const PersonalDetails = ({ next, handleChange, data }) => {
       <h2 className={style.title}>Personal Details</h2>
 
       <div className={style.group1}>
-        <div className={style['form-group']}>
+        <div className={style["form-group"]}>
           <label htmlFor="first_name">First Name</label>
           <input
             type="text"
@@ -30,7 +36,7 @@ const PersonalDetails = ({ next, handleChange, data }) => {
           />
         </div>
 
-        <div className={style['form-group']}>
+        <div className={style["form-group"]}>
           <label htmlFor="last_name">Last Name</label>
           <input
             type="text"
@@ -44,7 +50,7 @@ const PersonalDetails = ({ next, handleChange, data }) => {
       </div>
 
       <div className={style.group2}>
-        <div className={style['form-group']}>
+        <div className={style["form-group"]}>
           <label htmlFor="organization">Organization</label>
           <input
             type="text"
@@ -56,7 +62,7 @@ const PersonalDetails = ({ next, handleChange, data }) => {
           />
         </div>
 
-        <div className={style['form-group']}>
+        <div className={style["form-group"]}>
           <label htmlFor="position">Position</label>
           <input
             type="text"
@@ -69,7 +75,7 @@ const PersonalDetails = ({ next, handleChange, data }) => {
         </div>
       </div>
 
-      <div className={style['form-group']}>
+      <div className={style["form-group"]}>
         <label htmlFor="role">Select Role</label>
         <select
           name="role"
@@ -88,7 +94,7 @@ const PersonalDetails = ({ next, handleChange, data }) => {
         Next
       </button>
 
-      <Link to='/signin' className={style.link}>
+      <Link to="/signin" className={style.link}>
         Already have an account? <span className={style.login}>Login</span>
       </Link>
     </form>

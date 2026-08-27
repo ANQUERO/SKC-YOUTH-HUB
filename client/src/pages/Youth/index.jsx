@@ -72,7 +72,7 @@ function YouthPage() {
 
   useEffect(() => {
     fetchYouths();
-  }, []);
+  }, [fetchYouths]);
 
   // FIX: youthData is now an array, not an object with .youth property
   const rows = useMemo(() => {

@@ -120,7 +120,6 @@ export const createReaction = async (req, res) => {
                 }
 
                 // Create notifications for all youth members
-                console.log(`Creating notifications for ${youthResult.rows.length} youth members`);
                 for (const youth of youthResult.rows) {
                     try {
                         await pool.query(
@@ -135,7 +134,6 @@ export const createReaction = async (req, res) => {
                         console.error(`Error creating notification for youth ${youth.youth_id}:`, insertError);
                     }
                 }
-                console.log(`Successfully created ${youthResult.rows.length} notifications for youth members`);
             } catch (notifError) {
                 // Log error but don't fail the reaction creation
                 console.error("Error creating notifications:", notifError);

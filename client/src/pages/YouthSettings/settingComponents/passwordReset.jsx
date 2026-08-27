@@ -80,7 +80,7 @@ const PasswordReset = () => {
                                     minLength={6}
                                     required
                                     className={styles.textField}
-                                    helperText="Must be at least 6 characters long"
+                                    helperText="Must be at least 8 characters with uppercase, lowercase, a number, and a symbol"
                                 />
                                 <TextField
                                     fullWidth
@@ -99,7 +99,7 @@ const PasswordReset = () => {
                             <Button
                                 type="submit"
                                 variant="contained"
-                                disabled={!currentPassword || !newPassword || !confirmPassword || newPassword.length < 6}
+                                disabled={!currentPassword || !newPassword || !confirmPassword || newPassword.length < 8}
                                 className={styles.submitButton}
                             >
                                 Update Password

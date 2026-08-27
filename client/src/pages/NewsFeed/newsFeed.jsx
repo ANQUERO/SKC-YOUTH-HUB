@@ -3,13 +3,13 @@ import { useSearchParams } from "react-router-dom";
 import style from "@styles/newsFeed.module.scss";
 import { usePostContext } from "@context/PostContext";
 import { CreatePost } from "./feedComponents/createPost";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 import { PostCard } from "./feedComponents/postCard";
 
 export const NewsFeed = () => {
   const [searchParams] = useSearchParams();
   const { posts, isLoading } = usePostContext();
-  const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = AuthContextProvider();
+  const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = useAuthContext();
   const canManage = isSkSuperAdmin || isSkNaturalAdmin;
   const canView = canManage || isSkYouth;
   const feed = posts;

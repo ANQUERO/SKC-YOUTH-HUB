@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import axiosInstance from "@lib/axios";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 
 const useOfficials = () => {
-  const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = AuthContextProvider();
+  const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
   const [officials, setOfficials] = useState([]);
   const [official, setOfficial] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -11,7 +11,7 @@ const useOfficials = () => {
   const isAuthorized = isSkNaturalAdmin || isSkSuperAdmin;
 
   // Fetch all officials (admins)
-  const fetchOfficials = async () => {
+  const fetchOfficials = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -37,7 +37,7 @@ const useOfficials = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const fetchOfficialById = async (official_id) => {
     setLoading(true);

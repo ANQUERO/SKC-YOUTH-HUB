@@ -7,7 +7,7 @@ import useCurrentUser from '@hooks/useCurrentUser';
 export const CreatePost = () => {
     const [description, setDescription] = useState("");
     const [files, setFiles] = useState([]);
-    const [fileType, setFileType] = useState(null);
+    const [, setFileType] = useState(null);
     const [filePreviews, setFilePreviews] = useState([]);
     const [type, setType] = useState("post");
     const { createPost } = usePostContext();

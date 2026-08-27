@@ -9,6 +9,26 @@ import React, {
 // Create the context
 const AuthContext = createContext(undefined);
 
+const normalizeAuthUser = (user) => {
+  if (!user) return null;
+
+  const userType = user.userType || user.user_type;
+  const roles = Array.isArray(user.role)
+    ? user.role
+    : user.role
+      ? [user.role]
+      : [];
+
+  return {
+    ...user,
+    userType,
+    youth_id: user.youth_id || (userType === "youth" ? user.id : null),
+    official_id:
+      user.official_id || (userType === "official" ? user.id : null),
+    role: roles,
+  };
+};
+
 // Custom hook for using the context
 export const useAuthContext = () => {
   const context = useContext(AuthContext);
@@ -24,7 +44,7 @@ export const useAuthContext = () => {
 const loadInitialAuthUser = () => {
   try {
     const stored = localStorage.getItem("auth-user");
-    return stored ? JSON.parse(stored) : null;
+    return stored ? normalizeAuthUser(JSON.parse(stored)) : null;
   } catch (error) {
     console.error("Error loading auth user:", error);
     localStorage.removeItem("auth-user");
@@ -104,8 +124,15 @@ export const AuthContextProvider = ({ children }) => {
   useEffect(() => {
     const handleStorageChange = (e) => {
       if (e.key === "auth-user") {
-        const newUser = e.newValue ? JSON.parse(e.newValue) : null;
-        setAuthUser(newUser);
+        try {
+          const newUser = e.newValue
+            ? normalizeAuthUser(JSON.parse(e.newValue))
+            : null;
+          setAuthUser(newUser);
+        } catch {
+          localStorage.removeItem("auth-user");
+          setAuthUser(null);
+        }
       }
 
       if (e.key === "active-role") {
@@ -120,24 +147,7 @@ export const AuthContextProvider = ({ children }) => {
   // Update functions
   const updateAuthUser = (user) => {
     // Ensure user has the expected structure
-    const processedUser = user
-      ? {
-          ...user,
-          // Ensure userType is set (handle both userType and user_type)
-          userType: user.userType || user.user_type,
-          // Ensure IDs are set correctly
-          youth_id:
-            user.youth_id || (user.userType === "youth" ? user.id : null),
-          official_id:
-            user.official_id || (user.userType === "official" ? user.id : null),
-          // Ensure role is always an array
-          role: Array.isArray(user.role)
-            ? user.role
-            : user.role
-              ? [user.role]
-              : [],
-        }
-      : null;
+    const processedUser = normalizeAuthUser(user);
 
     setAuthUser(processedUser);
 
@@ -165,18 +175,6 @@ export const AuthContextProvider = ({ children }) => {
     setActiveRoleState(role);
     localStorage.setItem("active-role", role);
   };
-
-  // Debug logging (remove in production)
-  useEffect(() => {
-    console.log("AuthContext State:", {
-      authUser,
-      activeRole,
-      loading,
-      hasUser: !!authUser,
-      userType: authUser?.userType,
-      roles: authUser?.role,
-    });
-  }, [authUser, activeRole, loading]);
 
   return (
     <AuthContext.Provider

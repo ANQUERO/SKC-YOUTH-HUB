@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import axiosInstance from "@lib/axios";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 
 const useProfile = () => {
-  const { isSkYouth } = AuthContextProvider();
+  const { isSkYouth } = useAuthContext();
   const isAuthorized = isSkYouth;
 
   // Profile states
@@ -20,7 +20,7 @@ const useProfile = () => {
   const [updateError, setUpdateError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     setLoadingProfile(true);
     setError(null);
     try {
@@ -41,14 +41,18 @@ const useProfile = () => {
       setLocation(location || null);
       setNameDetails(nameDetails || null);
     } catch (err) {
-      console.error("Fetch profile error:", err);
-      setError(err.response?.data?.message || "Failed to load profile");
+      setError(
+        err.response?.data?.message ||
+          (err.response?.status === 503
+            ? "Backend server is unavailable"
+            : "Failed to load profile"),
+      );
     } finally {
       setLoadingProfile(false);
     }
-  };
+  }, []);
 
-  const updateProfile = async (profileData) => {
+  const updateProfile = useCallback(async (profileData) => {
     setUpdatingProfile(true);
     setUpdateError(null);
     setSuccessMessage(null);
@@ -73,13 +77,13 @@ const useProfile = () => {
     } finally {
       setUpdatingProfile(false);
     }
-  };
+  }, [fetchProfile]);
 
-  const clearMessages = () => {
+  const clearMessages = useCallback(() => {
     setError(null);
     setUpdateError(null);
     setSuccessMessage(null);
-  };
+  }, []);
 
   return {
     isAuthorized,

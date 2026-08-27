@@ -126,12 +126,7 @@ export const routes = [
   },
   {
     path: "/admin",
-    element: (
-      <ProtectedRoute allowedRoles={["super_official", "natural_official"]}>
-        <Authenticated />
-      </ProtectedRoute>
-    ),
-    children: [{ index: true, element: <AdminAuth /> }],
+    element: <AdminAuth />,
   },
   {
     path: "/profile",

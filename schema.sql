@@ -1,277 +1,304 @@
-CREATE DATABASE skc_youth_hub;
-
+-- Run this schema against the database configured by DB_NAME or DB_DATABASE.
 -- Admin Table
-CREATE TABLE sk_official (
-    official_id SERIAL PRIMARY KEY,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    official_position VARCHAR(35),
-    role VARCHAR(55) CHECK (role IN ('super_official', 'natural_official')),
-    is_active BOOLEAN DEFAULT TRUE,
-    reset_token VARCHAR(255),
-    reset_token_expiry TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-);
+CREATE TABLE
+    sk_official (
+        official_id SERIAL PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        official_position VARCHAR(35),
+        role VARCHAR(55) CHECK (role IN ('super_official', 'natural_official')),
+        is_active BOOLEAN DEFAULT TRUE,
+        reset_token VARCHAR(255),
+        reset_token_expiry TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP NULL
+    );
 
-CREATE TABLE sk_official_name (
-    name_id SERIAL PRIMARY KEY,
-    official_id INTEGER REFERENCES sk_official(official_id),
-    first_name VARCHAR(55),
-    middle_name VARCHAR(20),
-    last_name VARCHAR(55),
-    suffix VARCHAR(20)
-);
+CREATE TABLE
+    sk_official_name (
+        name_id SERIAL PRIMARY KEY,
+        official_id INTEGER REFERENCES sk_official (official_id),
+        first_name VARCHAR(55),
+        middle_name VARCHAR(20),
+        last_name VARCHAR(55),
+        suffix VARCHAR(20)
+    );
 
-CREATE TABLE sk_official_info(
-    info_id SERIAL PRIMARY KEY,
-    official_id INTEGER REFERENCES sk_official(official_id),
-    contact_number VARCHAR(20),
-    gender VARCHAR(10),
-    age INTEGER
-);
+CREATE TABLE
+    sk_official_info (
+        info_id SERIAL PRIMARY KEY,
+        official_id INTEGER REFERENCES sk_official (official_id),
+        contact_number VARCHAR(20),
+        gender VARCHAR(10),
+        age INTEGER
+    );
 
-CREATE TABLE sk_official_avatar (
-    attachment_id SERIAL PRIMARY KEY NOT NULL,
-    official_id INTEGER REFERENCES sk_official(official_id),
-    file_name VARCHAR(255),
-    file_type VARCHAR(100),
-    file_url TEXT 
-);
+CREATE TABLE
+    sk_official_avatar (
+        attachment_id SERIAL PRIMARY KEY NOT NULL,
+        official_id INTEGER REFERENCES sk_official (official_id),
+        file_name VARCHAR(255),
+        file_type VARCHAR(100),
+        file_url TEXT
+    );
 
 -- End of Admin table
-
 -- Youth Account
-CREATE TABLE sk_youth (
-    youth_id SERIAL PRIMARY KEY,
-    email VARCHAR(55) UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    verified BOOLEAN DEFAULT false,
-    is_active BOOLEAN DEFAULT TRUE,
-    comment_status BOOLEAN DEFAULT TRUE,
-    reset_token VARCHAR(255),
-    reset_token_expiry TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-);
+CREATE TABLE
+    sk_youth (
+        youth_id SERIAL PRIMARY KEY,
+        email VARCHAR(55) UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        verified BOOLEAN DEFAULT false,
+        is_active BOOLEAN DEFAULT TRUE,
+        comment_status BOOLEAN DEFAULT TRUE,
+        reset_token VARCHAR(255),
+        reset_token_expiry TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP NULL
+    );
 
-CREATE TABLE sk_youth_avatar (
-    attachment_id SERIAL PRIMARY KEY NOT NULL,
-    youth_id INTEGER REFERENCES sk_youth(youth_id),
-    file_name VARCHAR(255),
-    file_type VARCHAR(100),
-    file_url TEXT
-);
+CREATE TABLE
+    sk_youth_avatar (
+        attachment_id SERIAL PRIMARY KEY NOT NULL,
+        youth_id INTEGER REFERENCES sk_youth (youth_id),
+        file_name VARCHAR(255),
+        file_type VARCHAR(100),
+        file_url TEXT
+    );
 
-CREATE TABLE sk_youth_name (
-    name_id SERIAL PRIMARY KEY NOT NULL,
-    youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
-    first_name VARCHAR(55),
-    middle_name VARCHAR(55),
-    last_name VARCHAR(55),
-    suffix VARCHAR(10) 
-);
+CREATE TABLE
+    sk_youth_name (
+        name_id SERIAL PRIMARY KEY NOT NULL,
+        youth_id INTEGER NOT NULL REFERENCES sk_youth (youth_id),
+        first_name VARCHAR(55),
+        middle_name VARCHAR(55),
+        last_name VARCHAR(55),
+        suffix VARCHAR(10)
+    );
 
-CREATE TABLE sk_youth_gender (
-    gender_id SERIAL PRIMARY KEY,
-    youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
-    gender VARCHAR(10)
-);
+CREATE TABLE
+    sk_youth_gender (
+        gender_id SERIAL PRIMARY KEY,
+        youth_id INTEGER NOT NULL REFERENCES sk_youth (youth_id),
+        gender VARCHAR(10)
+    );
 
-CREATE TABLE sk_youth_info (
-    info_id SERIAL PRIMARY KEY,
-    youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
-    age INTEGER,
-    contact_number VARCHAR(20),
-    birthday DATE
-);
+CREATE TABLE
+    sk_youth_info (
+        info_id SERIAL PRIMARY KEY,
+        youth_id INTEGER NOT NULL REFERENCES sk_youth (youth_id),
+        age INTEGER,
+        contact_number VARCHAR(20),
+        birthday DATE
+    );
 
-CREATE TABLE purok (
-    purok_id SERIAL PRIMARY KEY,
-    name VARCHAR(55) UNIQUE 
-);
+CREATE TABLE
+    purok (
+        purok_id SERIAL PRIMARY KEY,
+        name VARCHAR(55) UNIQUE
+    );
 
-CREATE TABLE sk_youth_location (
-    location_id SERIAL PRIMARY KEY,
-    youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
-    region VARCHAR(55) NOT NULL,
-    province VARCHAR(55) NOT NULL, 
-    municipality VARCHAR(55) NOT NULL,
-    barangay VARCHAR(55) NOT NULL,
-    purok_id INTEGER REFERENCES purok(purok_id)
-);
+CREATE TABLE
+    sk_youth_location (
+        location_id SERIAL PRIMARY KEY,
+        youth_id INTEGER NOT NULL REFERENCES sk_youth (youth_id),
+        region VARCHAR(55) NOT NULL,
+        province VARCHAR(55) NOT NULL,
+        municipality VARCHAR(55) NOT NULL,
+        barangay VARCHAR(55) NOT NULL,
+        purok_id INTEGER REFERENCES purok (purok_id)
+    );
 
-CREATE TABLE sk_youth_demographics (
-    demographics_id SERIAL PRIMARY KEY,
-    youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
-    civil_status VARCHAR(55),
-    youth_age_gap VARCHAR(55),
-    youth_classification VARCHAR(55),
-    educational_background VARCHAR(55),
-    work_status VARCHAR(55)
-);
+CREATE TABLE
+    sk_youth_demographics (
+        demographics_id SERIAL PRIMARY KEY,
+        youth_id INTEGER NOT NULL REFERENCES sk_youth (youth_id),
+        civil_status VARCHAR(55),
+        youth_age_gap VARCHAR(55),
+        youth_classification VARCHAR(55),
+        educational_background VARCHAR(55),
+        work_status VARCHAR(55)
+    );
 
-CREATE TABLE sk_youth_survey (
-    survey_id SERIAL PRIMARY KEY,
-    youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
-    registered_voter VARCHAR(45),
-    registered_national_voter VARCHAR(55),
-    vote_last_election VARCHAR(45)
-);
+CREATE TABLE
+    sk_youth_survey (
+        survey_id SERIAL PRIMARY KEY,
+        youth_id INTEGER NOT NULL REFERENCES sk_youth (youth_id),
+        registered_voter VARCHAR(45),
+        registered_national_voter VARCHAR(55),
+        vote_last_election VARCHAR(45)
+    );
 
-CREATE TABLE sk_youth_meeting_survey (
-    meeting_id SERIAL PRIMARY KEY,
-    youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
-    attended BOOLEAN NOT NULL,
-    times_attended INT,
-    reason_not_attend TEXT
-);
+CREATE TABLE
+    sk_youth_meeting_survey (
+        meeting_id SERIAL PRIMARY KEY,
+        youth_id INTEGER NOT NULL REFERENCES sk_youth (youth_id),
+        attended BOOLEAN NOT NULL,
+        times_attended INT,
+        reason_not_attend TEXT
+    );
 
-CREATE TABLE sk_youth_attachments (
-    attachment_id SERIAL PRIMARY KEY NOT NULL,
-    youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
-    file_name VARCHAR(255) NOT NULL,
-    file_type VARCHAR(100) NOT NULL,
-    file_url TEXT NOT NULL
-);
+CREATE TABLE
+    sk_youth_attachments (
+        attachment_id SERIAL PRIMARY KEY NOT NULL,
+        youth_id INTEGER NOT NULL REFERENCES sk_youth (youth_id),
+        file_name VARCHAR(255) NOT NULL,
+        file_type VARCHAR(100) NOT NULL,
+        file_url TEXT NOT NULL
+    );
 
-CREATE TABLE sk_youth_household (
-    household_id SERIAL PRIMARY KEY NOT NULL,
-    youth_id INTEGER NOT NULL REFERENCES sk_youth(youth_id),
-    household VARCHAR(55) NOT NULL
-);
+CREATE TABLE
+    sk_youth_household (
+        household_id SERIAL PRIMARY KEY NOT NULL,
+        youth_id INTEGER NOT NULL REFERENCES sk_youth (youth_id),
+        household VARCHAR(55) NOT NULL
+    );
 
-CREATE TABLE sk_youth_deleted (
-    deleted_id SERIAL PRIMARY KEY,
-    youth_id INTEGER,
-    email VARCHAR(55),
-    deleted_reason TEXT,
-    deleted_by INTEGER, 
-    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+CREATE TABLE
+    sk_youth_deleted (
+        deleted_id SERIAL PRIMARY KEY,
+        youth_id INTEGER,
+        email VARCHAR(55),
+        deleted_reason TEXT,
+        deleted_by INTEGER,
+        deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
 
 ---Posts table: supports image/video, description, title, and tracks posting admin
-CREATE TABLE posts (
-    post_id SERIAL PRIMARY KEY,
-    official_id INTEGER NOT NULL REFERENCES sk_official(official_id),
-    description TEXT NOT NULL,
-    post_type VARCHAR(20) CHECK (post_type IN ('post', 'announcement', 'activity')) DEFAULT 'post',
-    media_type VARCHAR(10) CHECK (media_type IN ('image', 'video')),
-    media_url TEXT,
-    is_hidden BOOLEAN DEFAULT FALSE,
-    hidden_by INTEGER REFERENCES sk_official(official_id),
-    hidden_reason VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+CREATE TABLE
+    posts (
+        post_id SERIAL PRIMARY KEY,
+        official_id INTEGER NOT NULL REFERENCES sk_official (official_id),
+        description TEXT NOT NULL,
+        post_type VARCHAR(20) CHECK (post_type IN ('post', 'announcement', 'activity')) DEFAULT 'post',
+        media_type VARCHAR(10) CHECK (media_type IN ('image', 'video')),
+        media_url TEXT,
+        is_hidden BOOLEAN DEFAULT FALSE,
+        hidden_by INTEGER REFERENCES sk_official (official_id),
+        hidden_reason VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP NULL
+    );
 
 -- Post Comments: admin and youth can comment
-CREATE TABLE post_comments (
-    comment_id SERIAL PRIMARY KEY,
-    parent_comment_id INTEGER REFERENCES post_comments(comment_id) ,
-    post_id INTEGER NOT NULL REFERENCES posts(post_id) ,
-    user_type VARCHAR(10) NOT NULL CHECK (user_type IN ('official', 'youth')),
-    user_id INTEGER NOT NULL,
-    content TEXT NOT NULL,
-    is_hidden BOOLEAN DEFAULT FALSE,
-    hidden_by INTEGER,
-    hidden_reason VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  
-
-);
+CREATE TABLE
+    post_comments (
+        comment_id SERIAL PRIMARY KEY,
+        parent_comment_id INTEGER REFERENCES post_comments (comment_id),
+        post_id INTEGER NOT NULL REFERENCES posts (post_id),
+        user_type VARCHAR(10) NOT NULL CHECK (user_type IN ('official', 'youth')),
+        user_id INTEGER NOT NULL,
+        content TEXT NOT NULL,
+        is_hidden BOOLEAN DEFAULT FALSE,
+        hidden_by INTEGER,
+        hidden_reason VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP NULL
+    );
 
 -- Post Reactions: admin and youth can react to posts
-CREATE TABLE post_reactions (
-    reaction_id SERIAL PRIMARY KEY,
-    post_id INTEGER NOT NULL REFERENCES posts(post_id) ,
-    user_type VARCHAR(10) NOT NULL CHECK (user_type IN ('official', 'youth')),
-    user_id INTEGER NOT NULL,
-    type VARCHAR(10) NOT NULL CHECK (type IN ('like', 'heart', 'wow')),
-    reacted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE
+    post_reactions (
+        reaction_id SERIAL PRIMARY KEY,
+        post_id INTEGER NOT NULL REFERENCES posts (post_id),
+        user_type VARCHAR(10) NOT NULL CHECK (user_type IN ('official', 'youth')),
+        user_id INTEGER NOT NULL,
+        type VARCHAR(10) NOT NULL CHECK (type IN ('like', 'heart', 'wow')),
+        reacted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP NULL
+    );
 
-);
+-- Form --
+CREATE TABLE
+    forms (
+        form_id SERIAL PRIMARY KEY,
+        official_id INT NOT NULL REFERENCES sk_official (official_id),
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        is_hidden BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP NULL
+    );
 
- -- Form -- 
-CREATE TABLE forms(
-    form_id SERIAL PRIMARY KEY,
-    official_id INT NOT NULL REFERENCES sk_official(official_id),
-    title VARCHAR(255) NOT NULL,
-    description TEXT,
-    is_hidden BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP NULL
-);
-
-CREATE TABLE replied_forms(
-    replied_id SERIAL PRIMARY KEY,
-    form_id INT NOT NULL REFERENCES forms(form_id),
-    youth_id INT NOT NULL REFERENCES sk_youth(youth_id),
-    response TEXT 
-);
+CREATE TABLE
+    replied_forms (
+        replied_id SERIAL PRIMARY KEY,
+        form_id INT NOT NULL REFERENCES forms (form_id),
+        youth_id INT NOT NULL REFERENCES sk_youth (youth_id),
+        response TEXT
+    );
 
 -- Official Landing Page Content --
-CREATE TABLE landing_page_content (
-    content_id SERIAL PRIMARY KEY,
-    official_id INT NOT NULL REFERENCES sk_official(official_id),
-    official_name VARCHAR(50) NOT NULL,
-    official_title VARCHAR(255) NOT NULL,
-    media_type VARCHAR(10) CHECK (media_type IN ('image')),
-    media_url TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+CREATE TABLE
+    landing_page_content (
+        content_id SERIAL PRIMARY KEY,
+        official_id INT NOT NULL REFERENCES sk_official (official_id),
+        official_name VARCHAR(50) NOT NULL,
+        official_title VARCHAR(255) NOT NULL,
+        media_type VARCHAR(10) CHECK (media_type IN ('image')),
+        media_url TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
 
 -- Notifications table: for post reactions and comments
-CREATE TABLE notifications (
-    notification_id SERIAL PRIMARY KEY,
-    recipient_type VARCHAR(10) NOT NULL CHECK (recipient_type IN ('official', 'youth')),
-    recipient_id INTEGER NOT NULL,
-    notification_type VARCHAR(20) NOT NULL CHECK (notification_type IN ('reaction', 'comment', 'post')),
-    post_id INTEGER NOT NULL REFERENCES posts(post_id),
-    comment_id INTEGER REFERENCES post_comments(comment_id),
-    actor_type VARCHAR(10) NOT NULL CHECK (actor_type IN ('official', 'youth')),
-    actor_id INTEGER NOT NULL,
-    actor_name VARCHAR(255),
-    is_read BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE
+    notifications (
+        notification_id SERIAL PRIMARY KEY,
+        recipient_type VARCHAR(10) NOT NULL CHECK (recipient_type IN ('official', 'youth')),
+        recipient_id INTEGER NOT NULL,
+        notification_type VARCHAR(20) NOT NULL CHECK (
+            notification_type IN ('reaction', 'comment', 'post')
+        ),
+        post_id INTEGER NOT NULL REFERENCES posts (post_id),
+        comment_id INTEGER REFERENCES post_comments (comment_id),
+        actor_type VARCHAR(10) NOT NULL CHECK (actor_type IN ('official', 'youth')),
+        actor_id INTEGER NOT NULL,
+        actor_name VARCHAR(255),
+        is_read BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP NULL
+    );
 
-);
+CREATE TABLE
+    comment_reactions (
+        reaction_id SERIAL PRIMARY KEY,
+        comment_id INTEGER NOT NULL REFERENCES post_comments (comment_id) ON DELETE CASCADE,
+        user_type VARCHAR(10) NOT NULL CHECK (user_type IN ('official', 'youth')),
+        user_id INTEGER NOT NULL,
+        type VARCHAR(10) NOT NULL CHECK (type IN ('like', 'heart', 'wow')),
+        reacted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE (comment_id, user_type, user_id),
+        deleted_at TIMESTAMP NULL
+    );
 
-CREATE TABLE comment_reactions (
-    reaction_id SERIAL PRIMARY KEY,
-    comment_id INTEGER NOT NULL REFERENCES post_comments(comment_id) ON DELETE CASCADE,
-    user_type VARCHAR(10) NOT NULL CHECK (user_type IN ('official', 'youth')),
-    user_id INTEGER NOT NULL,
-    type VARCHAR(10) NOT NULL CHECK (type IN ('like', 'heart', 'wow')),
-    reacted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(comment_id, user_type, user_id),
-    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+CREATE TABLE
+    post_media (
+        media_id SERIAL PRIMARY KEY,
+        post_id INTEGER NOT NULL REFERENCES posts (post_id) ON DELETE CASCADE,
+        media_url TEXT NOT NULL,
+        media_type VARCHAR(10) CHECK (media_type IN ('image', 'video')),
+        mimetype VARCHAR(100),
+        file_size INTEGER,
+        width INTEGER,
+        height INTEGER,
+        duration INTEGER,
+        thumbnail_url TEXT,
+        display_order INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP NULL
+    );
 
-CREATE TABLE post_media (
-    media_id SERIAL PRIMARY KEY,
-    post_id INTEGER NOT NULL REFERENCES posts(post_id) ON DELETE CASCADE,
-    media_url TEXT NOT NULL,
-    media_type VARCHAR(10) CHECK (media_type IN ('image', 'video')),
-    mimetype VARCHAR(100),
-    file_size INTEGER,
-    width INTEGER,
-    height INTEGER,
-    duration INTEGER, 
-    thumbnail_url TEXT,
-    display_order INTEGER DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+CREATE INDEX idx_post_media_post_id ON post_media (post_id);
 
-CREATE INDEX idx_post_media_post_id ON post_media(post_id);
-CREATE INDEX idx_post_media_display_order ON post_media(display_order);
-CREATE INDEX idx_post_media_media_type ON post_media(media_type);
+CREATE INDEX idx_post_media_display_order ON post_media (display_order);
+
+CREATE INDEX idx_post_media_media_type ON post_media (media_type);

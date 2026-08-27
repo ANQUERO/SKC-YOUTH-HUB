@@ -1,11 +1,11 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "@lib/axios.js";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 
 export const useLogout = () => {
   const navigate = useNavigate();
-  const { setAuthUser } = AuthContextProvider();
+  const { setAuthUser } = useAuthContext();
 
   const logout = useCallback(async () => {
     try {

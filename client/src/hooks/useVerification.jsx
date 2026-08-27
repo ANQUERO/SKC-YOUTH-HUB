@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import axiosInstance from "@lib/axios";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 
 const useYouthAdmin = () => {
-  const { isSkSuperAdmin, isSkNaturalAdmin } = AuthContextProvider();
+  const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
   const isAuthorized = isSkSuperAdmin || isSkNaturalAdmin;
 
   const [youthData, setYouthData] = useState([]);
@@ -12,7 +12,7 @@ const useYouthAdmin = () => {
   const [error, setError] = useState(null);
 
   // Fetch unverified youth signups
-  const fetchUnverifiedYouths = async () => {
+  const fetchUnverifiedYouths = useCallback(async () => {
     if (!isAuthorized) return setError("Unauthorized access");
 
     setLoading(true);
@@ -28,10 +28,10 @@ const useYouthAdmin = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAuthorized]);
 
   // Fetch deleted youth signups
-  const fetchDeletedYouths = async () => {
+  const fetchDeletedYouths = useCallback(async () => {
     if (!isAuthorized) return setError("Unauthorized access");
 
     setLoading(true);
@@ -45,7 +45,7 @@ const useYouthAdmin = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAuthorized]);
 
   const fetchYouthDetails = async (youth_id) => {
     if (!isAuthorized) return setError("Unauthorized access");

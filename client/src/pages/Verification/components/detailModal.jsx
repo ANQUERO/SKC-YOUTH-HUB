@@ -72,7 +72,7 @@ const YouthDetailModal = ({
     },
   };
 
-  const InfoCard = ({ icon: Icon, title, children, span = 1 }) => (
+  const InfoCard = ({ icon, title, children, span = 1 }) => (
     <Card 
       variant="outlined" 
       sx={{ 
@@ -82,7 +82,7 @@ const YouthDetailModal = ({
     >
       <CardContent sx={{ padding: 2, height: '100%' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, marginBottom: 2 }}>
-          <Icon size={18} color="#666" />
+          {React.createElement(icon, { size: 18, color: "#666" })}
           <Typography variant="subtitle2" fontWeight="600">
             {title}
           </Typography>

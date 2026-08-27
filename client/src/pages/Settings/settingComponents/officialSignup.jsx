@@ -13,11 +13,11 @@ import {
 } from "@mui/material";
 import { PersonAdd } from "@mui/icons-material";
 import axiosInstance from "@lib/axios";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 import styles from "@styles/officialSettings.module.scss";
 
 const OfficialSignup = () => {
-  const { isSkSuperAdmin } = AuthContextProvider();
+  const { isSkSuperAdmin } = useAuthContext();
 
   const [signupForm, setSignupForm] = useState({
     email: "",
@@ -54,17 +54,14 @@ const OfficialSignup = () => {
       return;
     }
 
-    if (signupForm.password.length < 6) {
-      setSignupStatus("Password must be at least 6 characters long");
+    if (signupForm.password.length < 8) {
+      setSignupStatus("Password must be at least 8 characters long");
       setSignupLoading(false);
       return;
     }
 
     try {
-      const { data } = await axiosInstance.post(
-        "/auth/adminSignup",
-        signupForm,
-      );
+      await axiosInstance.post("/auth/adminSignup", signupForm);
       setSignupStatus("Official registered successfully!");
       setSignupForm({
         email: "",

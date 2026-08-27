@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 import useFeedback from "@hooks/useFeedback";
 import { CreateFeedback } from "./feedComponents/CreateFeedback";
 import style from "@styles/newsFeed.module.scss";
 
 export const FeedBack = () => {
-  const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = AuthContextProvider();
+  const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = useAuthContext();
   const { feedbackForms, isLoading, canManage } = useFeedback();
   const [selectedForm, setSelectedForm] = useState(null);
   const [response, setResponse] = useState("");

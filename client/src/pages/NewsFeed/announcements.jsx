@@ -2,12 +2,12 @@ import React from "react";
 import { usePostContext } from "@context/PostContext";
 import { PostCard } from "./feedComponents/postCard";
 import { CreateAnnouncement } from "./feedComponents/CreateAnnouncement";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 import style from "@styles/newsFeed.module.scss";
 
 export const Announcement = () => {
   const { posts, isLoading } = usePostContext();
-  const { isSkSuperAdmin, isSkNaturalAdmin } = AuthContextProvider();
+  const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
   const canManage = isSkSuperAdmin || isSkNaturalAdmin;
   const announcements = posts.filter((p) => p.type === "announcement");
 

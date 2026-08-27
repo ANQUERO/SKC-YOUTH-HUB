@@ -6,8 +6,6 @@ export const MediaGallery = ({ mediaItems = [] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  if (!mediaItems || mediaItems.length === 0) return null;
-
   const handlePrevious = (e) => {
     e?.stopPropagation();
     setCurrentIndex((prev) => (prev === 0 ? mediaItems.length - 1 : prev - 1));
@@ -40,13 +38,17 @@ export const MediaGallery = ({ mediaItems = [] }) => {
       
       switch(e.key) {
         case 'ArrowLeft':
-          handlePrevious();
+          setCurrentIndex((prev) =>
+            prev === 0 ? mediaItems.length - 1 : prev - 1
+          );
           break;
         case 'ArrowRight':
-          handleNext();
+          setCurrentIndex((prev) =>
+            prev === mediaItems.length - 1 ? 0 : prev + 1
+          );
           break;
         case 'Escape':
-          closeFullscreen();
+          setIsFullscreen(false);
           break;
         default:
           break;
@@ -55,7 +57,9 @@ export const MediaGallery = ({ mediaItems = [] }) => {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isFullscreen, currentIndex, mediaItems.length]);
+  }, [isFullscreen, mediaItems.length]);
+
+  if (!mediaItems || mediaItems.length === 0) return null;
 
   // Single media item
   if (mediaItems.length === 1) {

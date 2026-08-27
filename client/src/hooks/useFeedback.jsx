@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@lib/axios";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 import { useToast } from "@context/ToastContext";
 
 const useFeedback = () => {
-  const { isSkYouth, isSkSuperAdmin, isSkNaturalAdmin } = AuthContextProvider();
+  const { isSkYouth, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
   const queryClient = useQueryClient();
   const { showSuccess, showError } = useToast();
 

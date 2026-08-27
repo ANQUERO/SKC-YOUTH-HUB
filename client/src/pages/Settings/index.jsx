@@ -1,14 +1,14 @@
 import React, { useState } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { Box, Typography, Tabs, Tab } from "@mui/material";
 import { Security, AdminPanelSettings, PersonAdd } from "@mui/icons-material";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 import PasswordReset from "./settingComponents/passwordReset";
 import OfficialSignup from "./settingComponents/officialSignup";
 import Officials from "./settingComponents/officials";
 
 const Settings = () => {
-  const { isSkSuperAdmin } = AuthContextProvider();
+  const { isSkSuperAdmin } = useAuthContext();
   const [activeTab, setActiveTab] = useState(0);
 
   return (

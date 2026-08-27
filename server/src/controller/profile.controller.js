@@ -21,7 +21,7 @@ export const showProfile = async (req, res) => {
         meetingHousehold,
         profilePicture,
         locationData,
-        nameData 
+        nameData,
       ] = await Promise.all([
         pool.query(
           `
@@ -30,7 +30,7 @@ export const showProfile = async (req, res) => {
                     LEFT JOIN sk_youth_name yn ON y.youth_id = yn.youth_id
                     WHERE y.youth_id = $1
                 `,
-          [youth_id]
+          [youth_id],
         ),
 
         pool.query(
@@ -41,7 +41,7 @@ export const showProfile = async (req, res) => {
                     LEFT JOIN sk_youth_info yi ON y.youth_id = yi.youth_id
                     WHERE y.youth_id = $1
                 `,
-          [youth_id]
+          [youth_id],
         ),
 
         pool.query(
@@ -54,7 +54,7 @@ export const showProfile = async (req, res) => {
                     LEFT JOIN sk_youth_survey ys ON y.youth_id = ys.youth_id
                     WHERE y.youth_id = $1
                 `,
-          [youth_id]
+          [youth_id],
         ),
 
         pool.query(
@@ -65,20 +65,20 @@ export const showProfile = async (req, res) => {
                     LEFT JOIN sk_youth_household yh ON y.youth_id = yh.youth_id
                     WHERE y.youth_id = $1
                 `,
-          [youth_id]
+          [youth_id],
         ),
 
         pool.query(
           `
                     SELECT file_url as profile_picture
-                    FROM sk_youth_attachments
+                    FROM sk_youth_avatar
                     WHERE youth_id = $1 AND file_type LIKE 'image%'
                     ORDER BY attachment_id DESC
                     LIMIT 1
                 `,
-          [youth_id]
+          [youth_id],
         ),
-        
+
         // Add location query
         pool.query(
           `
@@ -88,9 +88,9 @@ export const showProfile = async (req, res) => {
                     LEFT JOIN purok p ON yl.purok_id = p.purok_id
                     WHERE yl.youth_id = $1
                 `,
-          [youth_id]
+          [youth_id],
         ),
-        
+
         // Optional: separate name query if you need more control
         pool.query(
           `
@@ -98,15 +98,16 @@ export const showProfile = async (req, res) => {
                     FROM sk_youth_name
                     WHERE youth_id = $1
                 `,
-          [youth_id]
-        )
+          [youth_id],
+        ),
       ]);
 
       // Construct full name
       const name = nameData.rows[0] || accountName.rows[0];
       let fullName = "";
       if (name) {
-        fullName = `${name.first_name || ""} ${name.middle_name || ""} ${name.last_name || ""} ${name.suffix || ""}`.trim();
+        fullName =
+          `${name.first_name || ""} ${name.middle_name || ""} ${name.last_name || ""} ${name.suffix || ""}`.trim();
         // Clean up extra spaces
         fullName = fullName.replace(/\s+/g, " ");
       }
@@ -117,15 +118,16 @@ export const showProfile = async (req, res) => {
           accountName: accountName.rows[0]
             ? {
                 ...accountName.rows[0],
-                profile_picture: profilePicture.rows[0]?.profile_picture || null,
-                fullName: fullName // Add full name
+                profile_picture:
+                  profilePicture.rows[0]?.profile_picture || null,
+                fullName: fullName, // Add full name
               }
             : null,
           genderInfo: genderInfo.rows[0] || null,
           demoSurvey: demoSurvey.rows[0] || null,
           meetingHousehold: meetingHousehold.rows[0] || null,
           location: locationData.rows[0] || null, // Add location data
-          nameDetails: nameData.rows[0] || null // Add name details
+          nameDetails: nameData.rows[0] || null, // Add name details
         },
       });
     }
@@ -140,7 +142,7 @@ export const showProfile = async (req, res) => {
                     FROM sk_official
                     WHERE official_id = $1
                 `,
-          [official_id]
+          [official_id],
         ),
 
         pool.query(
@@ -149,7 +151,7 @@ export const showProfile = async (req, res) => {
                     FROM sk_official_name
                     WHERE official_id = $1
                 `,
-          [official_id]
+          [official_id],
         ),
 
         pool.query(
@@ -158,7 +160,7 @@ export const showProfile = async (req, res) => {
                     FROM sk_official_info
                     WHERE official_id = $1
                 `,
-          [official_id]
+          [official_id],
         ),
 
         pool.query(
@@ -169,7 +171,7 @@ export const showProfile = async (req, res) => {
                     ORDER BY attachment_id DESC
                     LIMIT 1
                 `,
-          [official_id]
+          [official_id],
         ),
       ]);
 
@@ -179,7 +181,8 @@ export const showProfile = async (req, res) => {
           account: account.rows[0]
             ? {
                 ...account.rows[0],
-                profile_picture: profilePicture.rows[0]?.profile_picture || null,
+                profile_picture:
+                  profilePicture.rows[0]?.profile_picture || null,
               }
             : null,
           name: name.rows[0] || null,
@@ -227,11 +230,11 @@ export const updateProfilePicture = async (req, res) => {
     if (user.userType === "youth") {
       const youth_id = user.youth_id;
 
-      // Insert profile picture into sk_youth_attachments table
+      // Keep avatars separate from registration/supporting attachments.
       await pool.query(
-        `INSERT INTO sk_youth_attachments (youth_id, file_name, file_type, file_url) 
+        `INSERT INTO sk_youth_avatar (youth_id, file_name, file_type, file_url)
                  VALUES ($1, $2, $3, $4)`,
-        [youth_id, fileName, fileType, profilePictureUrl]
+        [youth_id, fileName, fileType, profilePictureUrl],
       );
 
       return res.status(200).json({
@@ -248,7 +251,7 @@ export const updateProfilePicture = async (req, res) => {
       await pool.query(
         `INSERT INTO sk_official_avatar (official_id, file_name, file_type, file_url) 
                  VALUES ($1, $2, $3, $4)`,
-        [official_id, fileName, fileType, profilePictureUrl]
+        [official_id, fileName, fileType, profilePictureUrl],
       );
 
       return res.status(200).json({
@@ -304,7 +307,7 @@ export const updateProfile = async (req, res) => {
               updateData.name.last_name,
               updateData.name.suffix || null,
               youth_id,
-            ]
+            ],
           );
         }
 
@@ -340,7 +343,7 @@ export const updateProfile = async (req, res) => {
                             SET ${infoFields.join(", ")}
                             WHERE youth_id = $${infoParamCount}
                         `,
-              infoValues
+              infoValues,
             );
           }
         }
@@ -353,7 +356,7 @@ export const updateProfile = async (req, res) => {
                         SET gender = $1
                         WHERE youth_id = $2
                     `,
-            [updateData.gender.gender, youth_id]
+            [updateData.gender.gender, youth_id],
           );
         }
 
@@ -373,39 +376,51 @@ export const updateProfile = async (req, res) => {
               updateData.demographics.educational_background,
               updateData.demographics.work_status,
               youth_id,
-            ]
+            ],
           );
         }
 
         // Update survey if provided
-    if (updateData.survey) {
-    // Convert string values to proper booleans
-    const registeredVoter = updateData.survey.registered_voter;
-    const registeredNationalVoter = updateData.survey.registered_national_voter;
-    const voteLastElection = updateData.survey.vote_last_election;
-    
-    // Helper function to convert various inputs to boolean
-    const toBoolean = (value) => {
-        if (typeof value === "boolean") {return value;}
-        if (typeof value === "string") {
-            const lowerValue = value.toLowerCase().trim();
-            return lowerValue === "yes" || lowerValue === "true" || lowerValue === "1";
-        }
-        if (typeof value === "number") {return value === 1;}
-        return false;
-    };
-    
-    await client.query(`
+        if (updateData.survey) {
+          // Convert string values to proper booleans
+          const registeredVoter = updateData.survey.registered_voter;
+          const registeredNationalVoter =
+            updateData.survey.registered_national_voter;
+          const voteLastElection = updateData.survey.vote_last_election;
+
+          // Helper function to convert various inputs to boolean
+          const toBoolean = (value) => {
+            if (typeof value === "boolean") {
+              return value;
+            }
+            if (typeof value === "string") {
+              const lowerValue = value.toLowerCase().trim();
+              return (
+                lowerValue === "yes" ||
+                lowerValue === "true" ||
+                lowerValue === "1"
+              );
+            }
+            if (typeof value === "number") {
+              return value === 1;
+            }
+            return false;
+          };
+
+          await client.query(
+            `
         UPDATE sk_youth_survey 
         SET registered_voter = $1, registered_national_voter = $2, vote_last_election = $3
         WHERE youth_id = $4
-    `, [
-        toBoolean(registeredVoter),  // Convert to proper boolean
-        toBoolean(registeredNationalVoter),
-        toBoolean(voteLastElection),
-        youth_id
-    ]);
-}
+    `,
+            [
+              toBoolean(registeredVoter), // Convert to proper boolean
+              toBoolean(registeredNationalVoter),
+              toBoolean(voteLastElection),
+              youth_id,
+            ],
+          );
+        }
 
         // Update meeting survey if provided
         if (updateData.meetingSurvey) {
@@ -420,7 +435,7 @@ export const updateProfile = async (req, res) => {
               updateData.meetingSurvey.times_attended,
               updateData.meetingSurvey.reason_not_attend,
               youth_id,
-            ]
+            ],
           );
         }
 
@@ -441,6 +456,17 @@ export const updateProfile = async (req, res) => {
 
     if (user.userType === "official") {
       const official_id = user.official_id;
+
+      if (
+        updateData.account?.role &&
+        !user.role?.includes(updateData.account.role)
+      ) {
+        return res.status(403).json({
+          status: "Error",
+          message: "Officials cannot change their own authorization role",
+        });
+      }
+
       const client = await pool.connect();
 
       try {
@@ -460,7 +486,7 @@ export const updateProfile = async (req, res) => {
               updateData.name.last_name,
               updateData.name.suffix || null,
               official_id,
-            ]
+            ],
           );
         }
 
@@ -477,7 +503,7 @@ export const updateProfile = async (req, res) => {
               updateData.info.gender,
               updateData.info.age,
               official_id,
-            ]
+            ],
           );
         }
 
@@ -486,14 +512,14 @@ export const updateProfile = async (req, res) => {
           await client.query(
             `
                         UPDATE sk_official 
-                        SET official_position = $1, role = $2
+                        SET official_position = $1, role = COALESCE($2, role)
                         WHERE official_id = $3
                     `,
             [
               updateData.account.official_position,
               updateData.account.role,
               official_id,
-            ]
+            ],
           );
         }
 
@@ -556,7 +582,7 @@ export const getYouthActivity = async (req, res) => {
             ORDER BY pr.reacted_at DESC
             LIMIT 50
         `,
-      [youth_id]
+      [youth_id],
     );
 
     // Get comments (including replies)
@@ -581,7 +607,7 @@ export const getYouthActivity = async (req, res) => {
             ORDER BY pc.created_at DESC
             LIMIT 50
         `,
-      [youth_id]
+      [youth_id],
     );
 
     // Transform and combine activities
@@ -617,7 +643,7 @@ export const getYouthActivity = async (req, res) => {
         stats: {
           total_reactions: reactionsResult.rows.length,
           total_comments: commentsResult.rows.filter(
-            (c) => !c.parent_comment_id
+            (c) => !c.parent_comment_id,
           ).length,
           total_replies: commentsResult.rows.filter((c) => c.parent_comment_id)
             .length,
@@ -635,72 +661,66 @@ export const getYouthActivity = async (req, res) => {
 };
 
 export const getUserAvatar = async (req, res) => {
-    const { user_type, user_id } = req.params;
+  const { user_type, user_id } = req.params;
 
-    // Debug logging
-    console.log("getUserAvatar called with:", { user_type, user_id, typeof_user_id: typeof user_id });
+  // Validate user_id is a number
+  const userIdNum = parseInt(user_id);
+  if (isNaN(userIdNum)) {
+    console.error("Invalid user_id provided:", user_id);
+    return res.status(400).json({
+      status: "Error",
+      message: "Invalid user ID. User ID must be a number.",
+    });
+  }
 
-    // Validate user_id is a number
-    const userIdNum = parseInt(user_id);
-    if (isNaN(userIdNum)) {
-        console.error("Invalid user_id provided:", user_id);
-        return res.status(400).json({
-            status: "Error",
-            message: "Invalid user ID. User ID must be a number."
-        });
-    }
+  // Validate user_type
+  if (!["official", "youth"].includes(user_type)) {
+    return res.status(400).json({
+      status: "Error",
+      message: "Invalid user type. Must be 'official' or 'youth'",
+    });
+  }
 
-    // Validate user_type
-    if (!["official", "youth"].includes(user_type)) {
-        return res.status(400).json({
-            status: "Error",
-            message: "Invalid user type. Must be 'official' or 'youth'"
-        });
-    }
+  try {
+    let query;
+    let params = [userIdNum];
 
-    try {
-        let query;
-        let params = [userIdNum];
-
-        if (user_type === "official") {
-            query = `
+    if (user_type === "official") {
+      query = `
                 SELECT file_url, file_type, file_name
                 FROM sk_official_avatar
                 WHERE official_id = $1
                 ORDER BY attachment_id DESC
                 LIMIT 1
             `;
-        } else if (user_type === "youth") {
-            query = `
+    } else if (user_type === "youth") {
+      query = `
                 SELECT file_url, file_type, file_name
                 FROM sk_youth_avatar
                 WHERE youth_id = $1
                 ORDER BY attachment_id DESC
                 LIMIT 1
             `;
-        }
-
-        console.log("Executing query:", query, "with params:", params); // Debug log
-
-        const { rows } = await pool.query(query, params);
-
-        if (rows.length === 0) {
-            return res.status(404).json({
-                status: "Error",
-                message: "Profile image not found"
-            });
-        }
-
-        return res.status(200).json({
-            status: "Success",
-            data: rows[0]
-        });
-
-    } catch (error) {
-        console.error("Error fetching user avatar:", error);
-        return res.status(500).json({
-            status: "Error",
-            message: "Internal Server Error"
-        });
     }
+
+    const { rows } = await pool.query(query, params);
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        status: "Error",
+        message: "Profile image not found",
+      });
+    }
+
+    return res.status(200).json({
+      status: "Success",
+      data: rows[0],
+    });
+  } catch (error) {
+    console.error("Error fetching user avatar:", error);
+    return res.status(500).json({
+      status: "Error",
+      message: "Internal Server Error",
+    });
+  }
 };

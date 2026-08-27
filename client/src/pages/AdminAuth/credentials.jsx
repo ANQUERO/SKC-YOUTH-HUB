@@ -1,13 +1,21 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import style from '@styles/adminAuth.module.scss';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import style from "@styles/adminAuth.module.scss";
 
-const Credentials = ({ prev, handleChange, handleSubmit, data, loading, errors }) => {
+const Credentials = ({
+  prev,
+  handleChange,
+  handleSubmit,
+  data,
+  loading,
+  errors,
+}) => {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const navigate = useNavigate();
 
   // Check if passwords match and confirmPassword is not empty
-  const passwordsMatch = data.confirmPassword && data.password === data.confirmPassword;
+  const passwordsMatch =
+    data.confirmPassword && data.password === data.confirmPassword;
   const showPasswordError = data.confirmPassword && !passwordsMatch;
 
   const onSubmit = async (e) => {
@@ -25,7 +33,7 @@ const Credentials = ({ prev, handleChange, handleSubmit, data, loading, errors }
 
     const success = await handleSubmit();
     if (success) {
-      navigate('/login');
+      navigate("/login");
     }
   };
 

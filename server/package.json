@@ -4,14 +4,12 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "server": "nodemon index.js --ignore client",
-    "dev": "concurently \"npm run server\" \"npm run client\"",
-    "client": "npm start ",
+    "dev": "nodemon index.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test": "node --test",
+    "test:watch": "node --test --watch",
+    "test:coverage": "node --test --experimental-test-coverage"
   },
   "keywords": [],
   "author": "",
@@ -19,8 +17,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "bcrypt": "^5.1.1",
-    "body-parser": "^2.2.0",
+    "bcrypt": "^6.0.0",
     "cloudinary": "^2.7.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -31,15 +28,13 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.1",
-    "nodemailer": "^7.0.6",
-    "nodemon": "^3.1.10",
+    "nodemailer": "^9.0.5",
     "pg": "^8.16.3",
-    "pg-hstore": "^2.3.4",
     "streamifier": "^0.1.1"
   },
   "devDependencies": {
     "eslint": "^9.39.1",
     "globals": "^16.5.0",
-    "jest": "^30.2.0"
+    "nodemon": "^3.1.10"
   }
 }

@@ -7,7 +7,7 @@ import useCurrentUser from "@hooks/useCurrentUser";
 export const CreateActivity = () => {
   const [description, setDescription] = useState("");
   const [files, setFiles] = useState([]);
-  const [fileType, setFileType] = useState(null);
+  const [, setFileType] = useState(null);
   const [filePreviews, setFilePreviews] = useState([]); // Added missing state
   const { createPost } = usePostContext();
   const { userData, profilePicture, loading: userLoading } = useCurrentUser();

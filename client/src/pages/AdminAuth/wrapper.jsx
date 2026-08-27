@@ -30,12 +30,11 @@ const StepWrapper = () => {
   };
 
   const handleSubmit = async () => {
-    const { confirmPassword, role, ...rest } = formData;
-
     const submitData = {
-      ...rest,
-      role: [role],
+      ...formData,
+      role: formData.role,
     };
+    delete submitData.confirmPassword;
 
     try {
       const success = await signupAdmin(submitData);

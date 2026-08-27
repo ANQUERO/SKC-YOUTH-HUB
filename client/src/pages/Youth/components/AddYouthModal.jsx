@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -110,13 +110,6 @@ const AddYouthModal = ({ open, onClose, onSuccess }) => {
         }
     }, [open, fetchPuroks]);
 
-    useEffect(() => {
-        if (success) {
-            onSuccess();
-            handleClose();
-        }
-    }, [success, onSuccess]);
-
     const validateStep = (step) => {
         const errors = {};
         
@@ -125,7 +118,7 @@ const AddYouthModal = ({ open, onClose, onSuccess }) => {
                 if (!formData.email) errors.email = 'Email is required';
                 else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = 'Email is invalid';
                 if (!formData.password) errors.password = 'Password is required';
-                else if (formData.password.length < 6) errors.password = 'Password must be at least 6 characters';
+                else if (formData.password.length < 8) errors.password = 'Password must be at least 8 characters';
                 break;
             case 1: // Personal Details
                 if (!formData.name.first_name) errors.first_name = 'First name is required';
@@ -215,7 +208,7 @@ const AddYouthModal = ({ open, onClose, onSuccess }) => {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
     };
 
-    const handleClose = () => {
+    const handleClose = useCallback(() => {
         setFormData({
             email: '',
             password: '',
@@ -264,7 +257,14 @@ const AddYouthModal = ({ open, onClose, onSuccess }) => {
         setActiveStep(0);
         setShowPassword(false);
         onClose();
-    };
+    }, [onClose]);
+
+    useEffect(() => {
+        if (success) {
+            onSuccess();
+            handleClose();
+        }
+    }, [success, onSuccess, handleClose]);
 
     const renderStepContent = (step) => {
         switch (step) {
@@ -307,7 +307,7 @@ const AddYouthModal = ({ open, onClose, onSuccess }) => {
                                         helperText={formErrors.password}
                                         required
                                         variant="outlined"
-                                        placeholder="At least 6 characters"
+                                        placeholder="At least 8 characters"
                                         InputProps={{
                                             endAdornment: (
                                                 <InputAdornment position="end">

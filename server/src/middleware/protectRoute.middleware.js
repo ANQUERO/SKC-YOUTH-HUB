@@ -4,11 +4,14 @@ import { getSecretKey } from "../utils/jwt.js";
 const protectRoute = (options = {}) => {
     return (req, res, next) => {
         try {
-            const token =
-                req.cookies?.jwt ||
-                (req.headers.authorization && req.headers.authorization.replace("Bearer ", ""));
+            const authorization = req.headers.authorization;
+            const token = req.cookies?.jwt ||
+                (authorization?.match(/^Bearer\s+(.+)$/i)?.[1]);
 
             if (!token) {
+                if (options.optional) {
+                    return next();
+                }
                 return res.status(401).json({
                     message: "Unauthorized - No token provided"
                 });
@@ -24,14 +27,10 @@ const protectRoute = (options = {}) => {
             }
 
             // Normalize roles
-            let rawRoles = decoded.role;
-            if (!Array.isArray(rawRoles)) {rawRoles = [rawRoles];}
-
-            const roleMap = {
-                natural_official: "official",
-                super_official: "official",
-            };
-            const normalizedRoles = rawRoles.map(role => roleMap[role] || role);
+            const rawRoles = (Array.isArray(decoded.role)
+                ? decoded.role
+                : [decoded.role]
+            ).filter(Boolean);
 
             // Set req.user
             if (decoded.userType === "official") {
@@ -56,10 +55,8 @@ const protectRoute = (options = {}) => {
 
             // Role-based access check
             if (options.allowedRoles && Array.isArray(options.allowedRoles)) {
-                const hasAccess =
-                    req.user.userType === "official"
-                        ? normalizedRoles.some(role => options.allowedRoles.includes(role))
-                        : options.allowedRoles.includes("youth");
+                const hasAccess = options.allowedRoles.includes(req.user.userType) ||
+                    rawRoles.some((role) => options.allowedRoles.includes(role));
 
                 if (!hasAccess) {
                     return res.status(403).json({

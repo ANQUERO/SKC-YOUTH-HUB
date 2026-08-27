@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import axiosInstance from "@lib/axios";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 
 const useCurrentUser = () => {
-  const { authUser, activeRole } = AuthContextProvider();
+  const { authUser } = useAuthContext();
   const [userData, setUserData] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -24,8 +24,18 @@ const useCurrentUser = () => {
       if (response.data.status === "Success") {
         const data = response.data.data;
 
-        if (activeRole === "youth") {
-          const accountName = data.accountName || {};
+        if (authUser.userType === "youth") {
+          const accountName = data.accountName;
+
+          if (
+            !accountName ||
+            Number(accountName.youth_id) !== Number(authUser.youth_id)
+          ) {
+            throw new Error(
+              "Profile response does not match the authenticated youth account",
+            );
+          }
+
           const name =
             `${accountName.first_name || ""} ${accountName.middle_name || ""} ${accountName.last_name || ""}`.trim();
 
@@ -46,7 +56,18 @@ const useCurrentUser = () => {
           });
           setProfilePicture(accountName.profile_picture);
         } else {
-          const account = data.account || {};
+          const account = data.account;
+
+          if (
+            authUser.userType !== "official" ||
+            !account ||
+            Number(account.official_id) !== Number(authUser.official_id)
+          ) {
+            throw new Error(
+              "Profile response does not match the authenticated official account",
+            );
+          }
+
           const name = data.name || {};
           const fullName =
             `${name.first_name || ""} ${name.middle_name || ""} ${name.last_name || ""}`.trim();
@@ -72,11 +93,13 @@ const useCurrentUser = () => {
       }
     } catch (err) {
       console.error("Error fetching current user data:", err);
+      setUserData(null);
+      setProfilePicture(null);
       setError(err.response?.data?.message || "Failed to fetch user data");
     } finally {
       setLoading(false);
     }
-  }, [authUser, activeRole]);
+  }, [authUser]);
 
   useEffect(() => {
     fetchCurrentUserData();

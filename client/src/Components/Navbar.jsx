@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLogout } from "@hooks/useLogout";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 import useCurrentUser from "@hooks/useCurrentUser";
 import Logo from "./Logo";
 
@@ -221,8 +221,8 @@ const ProfileNavLinks = ({ links, mobile = false, onLinkClick }) => {
 
 export function ProfileNavbar() {
   const logout = useLogout();
-  const { authUser } = AuthContextProvider();
-  const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = AuthContextProvider();
+  const { authUser, isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } =
+    useAuthContext();
   const canManage = isSkSuperAdmin || isSkNaturalAdmin || isSkYouth;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 

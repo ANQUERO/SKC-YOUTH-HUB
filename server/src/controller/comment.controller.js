@@ -121,7 +121,6 @@ export const createComment = async (req, res) => {
             }
 
             // Create notifications for all youth members
-            console.log(`Creating notifications for ${youthResult.rows.length} youth members`);
             for (const youth of youthResult.rows) {
                 try {
                     await pool.query(
@@ -136,7 +135,6 @@ export const createComment = async (req, res) => {
                     console.error(`Error creating notification for youth ${youth.youth_id}:`, insertError);
                 }
             }
-            console.log(`Successfully created ${youthResult.rows.length} notifications for youth members`);
         } catch (notifError) {
             // Log error but don't fail the comment creation
             console.error("Error creating notifications:", notifError);
@@ -368,29 +366,11 @@ export const banUserFromCommenting = async (req, res) => {
         });
     }
 
-    // Check if current user has permission to ban
-    if (user.userType === "official") {
-        const currentUserRole = await pool.query(
-            "SELECT role FROM sk_official WHERE official_id = $1",
-            [user.official_id]
-        );
-
-        if (currentUserRole.rows.length === 0) {
-            return res.status(403).json({
-                status: "Error",
-                message: "User not found"
-            });
-        }
-
-        const currentRole = currentUserRole.rows[0].role;
-
-        // Super officials can ban anyone, natural officials can only ban youth
-        if (currentRole === "natural_official" && user_type === "official") {
-            return res.status(403).json({
-                status: "Error",
-                message: "Natural officials can only ban youth members"
-            });
-        }
+    if (user_type === "official" && !user.role?.includes("super_official")) {
+        return res.status(403).json({
+            status: "Error",
+            message: "Only super officials can disable official accounts"
+        });
     }
 
     try {
@@ -443,6 +423,13 @@ export const unbanUserFromCommenting = async (req, res) => {
         return res.status(403).json({
             status: "Error",
             message: "Forbidden - Only officials can unban users"
+        });
+    }
+
+    if (user_type === "official" && !user.role?.includes("super_official")) {
+        return res.status(403).json({
+            status: "Error",
+            message: "Only super officials can enable official accounts"
         });
     }
 

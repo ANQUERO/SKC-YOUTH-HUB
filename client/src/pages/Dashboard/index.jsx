@@ -139,7 +139,7 @@ const purokData = (dashboardData.purok_stats || []).map(p => ({
       case 'comment':
       case 'reply':
         return `${a.user_name} said: "${a.content?.substring(0, 50)}${a.content?.length > 50 ? '...' : ''}"`;
-      case 'reaction':
+      case 'reaction': {
         const emoji =
           a.reaction_type === 'like'
             ? '👍'
@@ -147,6 +147,7 @@ const purokData = (dashboardData.purok_stats || []).map(p => ({
               ? '❤️'
               : '😮';
         return `${a.user_name} reacted ${emoji}`;
+      }
       case 'signup':
         return `${a.user_name} joined the platform`;
       default:

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styles from "@styles/navbarFeed.module.scss"; // Changed import
 import Logo from "@images/logo.jpg";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 import { useNotifications } from "@context/NotificationContext";
 import { useLogout } from "@hooks/useLogout";
 import useCurrentUser from "@hooks/useCurrentUser";
@@ -24,7 +24,7 @@ export const Navbar = () => {
   const [isNotifOpen, setNotifOpen] = useState(false);
   const [isProfileOpen, setProfileOpen] = useState(false);
   const navigate = useNavigate();
-  const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = AuthContextProvider();
+  const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = useAuthContext();
   const { userData, profilePicture } = useCurrentUser();
   const logout = useLogout();
   const canManage = isSkSuperAdmin || isSkNaturalAdmin;
