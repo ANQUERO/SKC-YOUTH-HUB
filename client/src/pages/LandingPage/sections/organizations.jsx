@@ -43,11 +43,6 @@ const Organizations = () => {
     const handleMouseEnter = () => setIsPaused(true);
     const handleMouseLeave = () => setIsPaused(false);
 
-    const handleOrgClick = (org) => {
-        // You can add functionality here like opening a modal or navigating to details
-        console.log('Organization clicked:', org);
-    };
-
     return (
         <section className={style.organizations} id='organizations'>
             <div className={style.sectionHeader}>
@@ -71,7 +66,6 @@ const Organizations = () => {
                             <div
                                 key={index}
                                 className={style.orgCard}
-                                onClick={() => handleOrgClick(org)}
                             >
                                 <div className={style.orgLogo}>
                                     <span className={style.logoText}>

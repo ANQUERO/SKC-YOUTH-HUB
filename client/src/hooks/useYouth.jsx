@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import axiosInstance from "@lib/axios";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 
 const useYouth = () => {
-  const { isSkSuperAdmin, isSkNaturalAdmin } = AuthContextProvider();
+  const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
   const isAuthorized = isSkSuperAdmin || isSkNaturalAdmin;
 
   const [youthData, setYouthData] = useState([]); // Change to array
@@ -12,7 +12,7 @@ const useYouth = () => {
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState(null);
 
-  const fetchYouths = async () => {
+  const fetchYouths = useCallback(async () => {
     if (!isAuthorized) {
       setError("Unauthorized access");
       return;
@@ -23,8 +23,6 @@ const useYouth = () => {
 
     try {
       const res = await axiosInstance.get("/youth");
-      console.log("API Response:", res.data); // Debug log
-
       // The backend returns { youth: [...] }
       // Extract the array and set it directly
       setYouthData(res.data.youth || []);
@@ -34,7 +32,7 @@ const useYouth = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAuthorized]);
 
   const fetchYouth = async (youth_id) => {
     setLoading(true);

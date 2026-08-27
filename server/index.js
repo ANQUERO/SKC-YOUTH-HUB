@@ -2,36 +2,36 @@ import dotenv from "dotenv";
 import app from "./app.js";
 import { initDB } from "./src/db/config.js";
 
-console.log("Starting server initialization...");
-
 dotenv.config();
 
-console.log("Enviroment loaded, NODE_ENV:", process.env.NODE_EN);
+const PORT = Number.parseInt(process.env.PORT, 10);
 
-const PORT = process.env.PORT || 4300;
+if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) {
+  throw new Error("PORT must be a valid TCP port");
+}
 
 const startServer = () => {
-    console.log("Starting Server");
-    app.listen(PORT, () => {
-        console.log(`Server is running on port http://localhost:${PORT}`);
-    }).on("error", (error) => {
-        console.error("Error starting server:", error);
-        process.exit(1);
+  app
+    .listen(PORT, () => {
+      console.log(`Server is running at http://localhost:${PORT}`);
+    })
+    .on("error", (error) => {
+      console.error("Error starting server:", error);
+      process.exit(1);
     });
 };
 
 const init = async () => {
-    console.log("Initializing application...");
-    try {
-        await initDB();
-        startServer();
-    } catch (_) {
-        console.error("Failed to connect to the database");
-        process.exit(1);
-    }
+  try {
+    await initDB();
+    startServer();
+  } catch (error) {
+    console.error("Application initialization failed:", error.message);
+    process.exit(1);
+  }
 };
 
-init().catch(_ => {
-    console.error("Fatal error during initialization: ", _);
-    process.exit(1);
+init().catch((error) => {
+  console.error("Fatal error during initialization:", error.message);
+  process.exit(1);
 });

@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from "react";
 import axiosInstance from "@lib/axios";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 
 const useDashboard = () => {
-  const { isSkSuperAdmin, isSkNaturalAdmin } = AuthContextProvider();
+  const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
   const isAuthorized = isSkSuperAdmin || isSkNaturalAdmin;
 
   const [dashboardData, setDashboardData] = useState({});

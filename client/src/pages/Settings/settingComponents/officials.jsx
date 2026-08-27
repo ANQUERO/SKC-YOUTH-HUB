@@ -18,7 +18,7 @@ const Officials = () => {
 
     useEffect(() => {
         fetchOfficials();
-    }, []);
+    }, [fetchOfficials]);
 
     const handleSelectOfficial = async (official_id) => {
         try {
@@ -35,12 +35,9 @@ const Officials = () => {
         setSelectedId(null);
     };
 
-    // Enhanced debugging function
-    const getProfilePicture = (officialData, index = 'unknown') => {
-        if (!officialData) {
-            console.log(`No official data for index ${index}`);
-        }
-        // Check multiple possible locations for profile picture
+    const getProfilePicture = (officialData) => {
+        if (!officialData) return undefined;
+
         const picture = 
             officialData.profile_picture ||
             officialData.account?.profile_picture ||
@@ -138,9 +135,6 @@ const Officials = () => {
                                 onError={(e) => {
                                     e.target.src = '/default-avatar.png';
                                     e.target.onerror = null;
-                                }}
-                                onLoad={(e) => {
-                                    console.log(`Image loaded for ${fullName}:`, e.target.src);
                                 }}
                             />
                             <div className={styles.card_content}>

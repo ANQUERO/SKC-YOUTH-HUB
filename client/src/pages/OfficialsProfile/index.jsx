@@ -12,7 +12,7 @@ const OfficialsProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [account, setAccount] = useState(null);
-  const [name, setName] = useState(null);
+  const [, setName] = useState(null);
   const [info, setInfo] = useState(null);
   const { userData, profilePicture, updateProfilePicture } = useCurrentUser();
   const [editModalOpen, setEditModalOpen] = useState(false);

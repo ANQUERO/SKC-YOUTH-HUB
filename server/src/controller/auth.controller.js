@@ -1,22 +1,52 @@
 import bcrypt from "bcrypt";
+import nodemailer from "nodemailer";
 import { generateTokenAndSetCookies } from "../utils/jwt.js";
 import { validationErrors } from "../utils/validators.js";
+import { isPassword } from "../utils/custom.validators.js";
 import { validationResult } from "express-validator";
 import { pool } from "../db/config.js";
 import crypto from "crypto";
 
+const sendPasswordResetToken = async (email, token) => {
+  const required = ["SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASS"];
+  const missing = required.filter((key) => !process.env[key]);
+  if (missing.length > 0) {
+    throw new Error(`Missing email configuration: ${missing.join(", ")}`);
+  }
+
+  const port = Number.parseInt(process.env.SMTP_PORT, 10);
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port,
+    secure: port === 465,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+
+  await transporter.sendMail({
+    from: process.env.SMTP_USER,
+    to: email,
+    subject: "SKC Youth Hub password reset token",
+    text: `Your password reset token is: ${token}\n\nThis token expires in one hour.`,
+  });
+};
+
 export const signupAdmin = async (req, res) => {
+  const client = await pool.connect();
+
   try {
     const {
       email,
       password,
       official_position,
-      role,
+      role: requestedRole,
       first_name,
       middle_name,
       last_name,
       suffix,
-      contact_number_number,
+      contact_number,
       gender,
       age,
     } = req.body;
@@ -28,45 +58,87 @@ export const signupAdmin = async (req, res) => {
       });
     }
 
-    // Hash password
+    await client.query("BEGIN");
+    await client.query("LOCK TABLE sk_official IN EXCLUSIVE MODE");
+
+    const countResult = await client.query(
+      "SELECT COUNT(*)::integer AS count FROM sk_official",
+    );
+    const isBootstrap = countResult.rows[0].count === 0;
+    const requesterRoles = Array.isArray(req.user?.role) ? req.user.role : [];
+
+    if (
+      !isBootstrap &&
+      (req.user?.userType !== "official" ||
+        !requesterRoles.includes("super_official"))
+    ) {
+      await client.query("ROLLBACK");
+      return res.status(403).json({
+        error: "Only a super official can register another official",
+      });
+    }
+
+    const normalizedRole = isBootstrap
+      ? "super_official"
+      : Array.isArray(requestedRole)
+        ? requestedRole[0]
+        : requestedRole;
+
+    if (!["super_official", "natural_official"].includes(normalizedRole)) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({ error: "Invalid official role" });
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const result = await pool.query(
-      `
-            SELECT * FROM signup_official(
-            $1, $2, $3, $4,
-            $5, $6, $7, $8,
-            $9, $10, $11
-            )
-            `,
-      [
-        email,
-        hashedPassword,
-        official_position,
-        role,
-        first_name,
-        middle_name || "",
-        last_name,
-        suffix || "",
-        contact_number_number || "",
-        gender || "",
-        age,
-      ]
+    const officialResult = await client.query(
+      `INSERT INTO sk_official (email, password, official_position, role)
+       VALUES ($1, $2, $3, $4)
+       RETURNING official_id, email, official_position, role`,
+      [email, hashedPassword, official_position, normalizedRole],
     );
 
-    const official = result.rows[0];
+    const official = officialResult.rows[0];
 
-    generateTokenAndSetCookies(official, res, "official");
+    await client.query(
+      `INSERT INTO sk_official_name
+       (official_id, first_name, middle_name, last_name, suffix)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        official.official_id,
+        first_name,
+        middle_name || null,
+        last_name,
+        suffix || null,
+      ],
+    );
+
+    await client.query(
+      `INSERT INTO sk_official_info
+       (official_id, contact_number, gender, age)
+       VALUES ($1, $2, $3, $4)`,
+      [
+        official.official_id,
+        contact_number || null,
+        gender || null,
+        age || null,
+      ],
+    );
+
+    await client.query("COMMIT");
 
     return res.status(201).json({
-      message: "SK Official registered successfully",
+      message: isBootstrap
+        ? "Super official account initialized successfully"
+        : "SK Official registered successfully",
       official,
     });
   } catch (error) {
+    await client.query("ROLLBACK");
     console.error("Signup error:", error);
 
-    if (error.message.includes("Email already exists")) {
+    if (error.code === "23505") {
       return res.status(400).json({
         error: "Email already exists",
       });
@@ -75,6 +147,8 @@ export const signupAdmin = async (req, res) => {
     return res.status(500).json({
       error: "Server error",
     });
+  } finally {
+    client.release();
   }
 };
 
@@ -85,6 +159,13 @@ export const resetPassword = async (req, res) => {
 
     if (!user) {
       return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!isPassword(newPassword)) {
+      return res.status(400).json({
+        message:
+          "New password must be at least 8 characters and include uppercase, lowercase, a number, and a special character",
+      });
     }
 
     let table, idField;
@@ -100,7 +181,7 @@ export const resetPassword = async (req, res) => {
 
     const { rows } = await pool.query(
       `SELECT password FROM ${table} WHERE ${idField} = $1`,
-      [user[idField]]
+      [user[idField]],
     );
     if (rows.length === 0) {
       return res.status(404).json({ message: "User not found" });
@@ -115,7 +196,7 @@ export const resetPassword = async (req, res) => {
     const hashed = await bcrypt.hash(newPassword, salt);
     await pool.query(
       `UPDATE ${table} SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE ${idField} = $2`,
-      [hashed, user[idField]]
+      [hashed, user[idField]],
     );
 
     return res.status(200).json({ message: "Password updated successfully" });
@@ -170,16 +251,22 @@ export const signup = async (req, res) => {
 
       // Convert all numeric fields to proper values
       const convertToInt = (value) => {
-        if (value === "" || value === null || value === undefined) { return null; }
+        if (value === "" || value === null || value === undefined) {
+          return null;
+        }
         const num = parseInt(value, 10);
         return isNaN(num) ? null : num;
       };
 
       const convertToBoolean = (value) => {
-        if (value === "" || value === null || value === undefined) { return null; }
+        if (value === "" || value === null || value === undefined) {
+          return null;
+        }
 
         // If it's already boolean, return as-is
-        if (typeof value === "boolean") { return value; }
+        if (typeof value === "boolean") {
+          return value;
+        }
 
         // If it's a string, handle specific cases
         if (typeof value === "string") {
@@ -217,7 +304,7 @@ export const signup = async (req, res) => {
       // Convert boolean fields
       const registeredVoterBool = convertToBoolean(registered_voter);
       const registeredNationalVoterBool = convertToBoolean(
-        registered_national_voter
+        registered_national_voter,
       );
       const voteLastElectionBool = convertToBoolean(vote_last_election);
       const attendedBool = convertToBoolean(attended);
@@ -231,7 +318,7 @@ export const signup = async (req, res) => {
                 INSERT INTO sk_youth (email, password, verified, reset_token, reset_token_expiry)
                 VALUES ($1, $2, false, $3, NOW() + INTERVAL '24 hours') RETURNING youth_id;
             `,
-        [email, hashedPassword, verificationToken]
+        [email, hashedPassword, verificationToken],
       );
 
       const youth_id = youthResult.rows[0].youth_id;
@@ -242,7 +329,7 @@ export const signup = async (req, res) => {
                 INSERT INTO sk_youth_name (youth_id, first_name, middle_name, last_name, suffix)
                 VALUES ($1, $2, $3, $4, $5);
             `,
-        [youth_id, first_name, middle_name || "", last_name, suffix || ""]
+        [youth_id, first_name, middle_name || "", last_name, suffix || ""],
       );
 
       // Location - FIXED: Use converted purokIdNum
@@ -251,7 +338,7 @@ export const signup = async (req, res) => {
                 INSERT INTO sk_youth_location (youth_id, region, province, municipality, barangay, purok_id)
                 VALUES ($1, $2, $3, $4, $5, $6);
             `,
-        [youth_id, region, province, municipality, barangay, purokIdNum]
+        [youth_id, region, province, municipality, barangay, purokIdNum],
       );
 
       // Gender
@@ -260,7 +347,7 @@ export const signup = async (req, res) => {
                 INSERT INTO sk_youth_gender (youth_id, gender)
                 VALUES ($1, $2);
             `,
-        [youth_id, gender]
+        [youth_id, gender],
       );
 
       // Info
@@ -269,7 +356,7 @@ export const signup = async (req, res) => {
                 INSERT INTO sk_youth_info (youth_id, age, contact_number, birthday)
                 VALUES ($1, $2, $3, $4);
             `,
-        [youth_id, ageNum, contact_number || "", birthday || null]
+        [youth_id, ageNum, contact_number || "", birthday || null],
       );
 
       // Demographics
@@ -285,7 +372,7 @@ export const signup = async (req, res) => {
           youth_classification,
           educational_background,
           work_status,
-        ]
+        ],
       );
 
       // Voter survey - FIXED: Use converted booleans
@@ -299,7 +386,7 @@ export const signup = async (req, res) => {
           registeredVoterBool,
           registeredNationalVoterBool,
           voteLastElectionBool,
-        ]
+        ],
       );
 
       // Meeting attendance - FIXED: Use converted values
@@ -308,7 +395,7 @@ export const signup = async (req, res) => {
                 INSERT INTO sk_youth_meeting_survey (youth_id, attended, times_attended, reason_not_attend)
                 VALUES ($1, $2, $3, $4);
             `,
-        [youth_id, attendedBool, timesAttendedNum, reason_not_attend || ""]
+        [youth_id, attendedBool, timesAttendedNum, reason_not_attend || ""],
       );
 
       // Household
@@ -317,7 +404,7 @@ export const signup = async (req, res) => {
                 INSERT INTO sk_youth_household (youth_id, household)
                 VALUES ($1, $2);
             `,
-        [youth_id, household || ""]
+        [youth_id, household || ""],
       );
 
       // Attachment
@@ -334,7 +421,7 @@ export const signup = async (req, res) => {
             file ? file.originalname : "attachment",
             file ? file.mimetype : "application/octet-stream",
             fileUrl,
-          ]
+          ],
         );
       }
 
@@ -348,14 +435,6 @@ export const signup = async (req, res) => {
     } catch (error) {
       await client.query("ROLLBACK");
       console.error("Signup error:", error);
-
-      // Add detailed logging for debugging
-      console.log("Error details:", {
-        code: error.code,
-        detail: error.detail,
-        hint: error.hint,
-        where: error.where,
-      });
 
       if (error.message && error.message.includes("duplicate key")) {
         return res.status(400).json({
@@ -402,7 +481,7 @@ export const login = async (req, res) => {
     // Try admin table first
     let result = await pool.query(
       "SELECT * FROM sk_official WHERE email = $1",
-      [email]
+      [email],
     );
 
     let user = null;
@@ -415,10 +494,9 @@ export const login = async (req, res) => {
       idField = "official_id";
     } else {
       // Try youth table
-      result = await pool.query(
-        "SELECT * FROM sk_youth WHERE email = $1",
-        [email]
-      );
+      result = await pool.query("SELECT * FROM sk_youth WHERE email = $1", [
+        email,
+      ]);
 
       if (result.rows.length > 0) {
         user = result.rows[0];
@@ -428,15 +506,25 @@ export const login = async (req, res) => {
     }
 
     if (!user) {
-      console.log("Login failed: User not found for email:", email);
       return res.status(401).json({
         errors: { email: "Invalid credentials" },
       });
     }
 
+    if (user.is_active === false) {
+      return res.status(403).json({
+        errors: { email: "This account has been disabled" },
+      });
+    }
+
+    if (userType === "youth" && user.verified !== true) {
+      return res.status(403).json({
+        errors: { email: "This account is awaiting verification" },
+      });
+    }
+
     // Check if password exists
     if (!user.password) {
-      console.log("Login failed: No password found for user:", email);
       return res.status(401).json({
         errors: { password: "Invalid credentials" },
       });
@@ -444,7 +532,6 @@ export const login = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      console.log("Login failed: Password mismatch for email:", email);
       return res.status(401).json({
         errors: { password: "Invalid credentials" },
       });
@@ -514,7 +601,7 @@ export const forgotPassword = async (req, res) => {
     // Check official table first
     let result = await pool.query(
       "SELECT official_id, email FROM sk_official WHERE email = $1",
-      [email]
+      [email],
     );
 
     if (result.rows.length > 0) {
@@ -525,7 +612,7 @@ export const forgotPassword = async (req, res) => {
       // Check youth table
       result = await pool.query(
         "SELECT youth_id, email FROM sk_youth WHERE email = $1",
-        [email]
+        [email],
       );
 
       if (result.rows.length > 0) {
@@ -535,17 +622,21 @@ export const forgotPassword = async (req, res) => {
       }
     }
 
+    const genericResponse = {
+      status: "Success",
+      message:
+        "If an account exists for that email, reset instructions have been generated",
+    };
+
     if (!user) {
-      return res.status(404).json({
-        status: "Error",
-        message: "No account found with this email address",
-      });
+      return res.status(200).json(genericResponse);
     }
 
-    // Generate reset token (simple implementation - in production, use proper token generation)
-    const resetToken =
-      Math.random().toString(36).substring(2, 15) +
-      Math.random().toString(36).substring(2, 15);
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetTokenHash = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
     const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour from now
 
     // Store reset token in database
@@ -553,17 +644,14 @@ export const forgotPassword = async (req, res) => {
       `UPDATE ${userType === "official" ? "sk_official" : "sk_youth"} 
              SET reset_token = $1, reset_token_expiry = $2, updated_at = CURRENT_TIMESTAMP 
              WHERE ${idField} = $3`,
-      [resetToken, resetTokenExpiry, user[idField]]
+      [resetTokenHash, resetTokenExpiry, user[idField]],
     );
 
-    // In a real application, you would send an email here
-    // For now, we'll return the token (remove this in production)
+    await sendPasswordResetToken(user.email, resetToken);
+
     return res.status(200).json({
-      status: "Success",
-      message: "Password reset instructions have been sent to your email",
-      // Remove this in production - only for development
-      resetToken:
-        process.env.NODE_ENV === "development" ? resetToken : undefined,
+      ...genericResponse,
+      resetToken: process.env.NODE_ENV === "test" ? resetToken : undefined,
     });
   } catch (error) {
     console.error("Forgot password error:", error);
@@ -586,12 +674,15 @@ export const resetPasswordWithToken = async (req, res) => {
       });
     }
 
-    if (newPassword.length < 6) {
+    if (!isPassword(newPassword)) {
       return res.status(400).json({
         status: "Error",
-        message: "Password must be at least 6 characters long",
+        message:
+          "Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character",
       });
     }
+
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
     // Check if token exists and is valid in either table
     let user = null;
@@ -601,7 +692,7 @@ export const resetPasswordWithToken = async (req, res) => {
     // Check official table first
     let result = await pool.query(
       "SELECT official_id, reset_token_expiry FROM sk_official WHERE reset_token = $1",
-      [token]
+      [tokenHash],
     );
 
     if (result.rows.length > 0) {
@@ -612,7 +703,7 @@ export const resetPasswordWithToken = async (req, res) => {
       // Check youth table
       result = await pool.query(
         "SELECT youth_id, reset_token_expiry FROM sk_youth WHERE reset_token = $1",
-        [token]
+        [tokenHash],
       );
 
       if (result.rows.length > 0) {
@@ -646,7 +737,7 @@ export const resetPasswordWithToken = async (req, res) => {
       `UPDATE ${userType === "official" ? "sk_official" : "sk_youth"} 
              SET password = $1, reset_token = NULL, reset_token_expiry = NULL, updated_at = CURRENT_TIMESTAMP 
              WHERE ${idField} = $2`,
-      [hashedPassword, user[idField]]
+      [hashedPassword, user[idField]],
     );
 
     return res.status(200).json({

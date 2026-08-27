@@ -17,12 +17,12 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { Upload, X, Image as ImageIcon, Video } from "lucide-react";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 import axiosInstance from "@lib/axios";
 import styles from "../styles/EditPostModal.module.scss";
 
 const EditPostModal = ({ open, onClose, post, onUpdate }) => {
-  const { isSkSuperAdmin, isSkNaturalAdmin } = AuthContextProvider();
+  const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
   const isOfficial = isSkSuperAdmin || isSkNaturalAdmin;
 
   const [loading, setLoading] = useState(false);

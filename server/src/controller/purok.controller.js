@@ -12,7 +12,6 @@ export const index = async (req, res) => {
 
     try {
         const result = await pool.query("SELECT * FROM purok");
-        console.log("Puroks", result.rows);
         res.status(200).json({
             status: "Success",
             data: result.rows
@@ -29,7 +28,6 @@ export const index = async (req, res) => {
 export const publicIndex = async (req, res) => {
     try {
         const result = await pool.query("SELECT * FROM purok ORDER BY name");
-        console.log("Public Puroks", result.rows);
         res.status(200).json({
             status: "Success",
             data: result.rows
@@ -59,7 +57,6 @@ export const show = async (req, res) => {
             "SELECT * FROM purok WHERE purok_id = $1",
             [purok_id]
         );
-        console.log("Purok", result.rows);
 
         if (result.rows.length === 0) {
             return res.status(404).json({

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Outlet, Link, NavLink, useNavigate } from "react-router-dom";
 import { useLogout } from "@hooks/useLogout";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 import { useNotifications } from "@context/NotificationContext";
 import useCurrentUser from "@hooks/useCurrentUser";
 import style from "@styles/authenticated.module.scss";
@@ -48,7 +48,7 @@ const Authenticated = () => {
   const navigate = useNavigate();
   const logout = useLogout();
   const { authUser, isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } =
-    AuthContextProvider();
+    useAuthContext();
   const {
     notifications,
     unreadCount,

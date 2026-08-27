@@ -7,6 +7,22 @@ dotenv.config();
 
 export const upload = multer({
     storage: multer.memoryStorage(),
+    limits: {
+        files: 10,
+        fileSize: 25 * 1024 * 1024,
+        fields: 50,
+    },
+    fileFilter(req, file, callback) {
+        void req;
+        const allowed = file.mimetype.startsWith("image/") ||
+            file.mimetype.startsWith("video/") ||
+            file.mimetype === "application/pdf";
+
+        callback(
+            allowed ? null : new multer.MulterError("LIMIT_UNEXPECTED_FILE"),
+            allowed,
+        );
+    },
 }).any();
 
 cloudinary.config({

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Box, Paper, Table, TableBody, TableCell, TableContainer, TableRow,
   TablePagination, Checkbox, Typography, Button, Switch, FormControlLabel,
@@ -36,19 +36,19 @@ const Purok = () => {
   const [puroksWithResidents, setPuroksWithResidents] = useState([]);
   const [showResidents, setShowResidents] = useState(true);
 
-  useEffect(() => {
-    fetchPuroks();
-    loadPuroksWithResidents();
-  }, []);
-
-  const loadPuroksWithResidents = async () => {
+  const loadPuroksWithResidents = useCallback(async () => {
     try {
       const data = await fetchAllPuroksWithResidents();
       setPuroksWithResidents(data);
     } catch (error) {
       console.error('Failed to load puroks with residents:', error);
     }
-  };
+  }, [fetchAllPuroksWithResidents]);
+
+  useEffect(() => {
+    fetchPuroks();
+    loadPuroksWithResidents();
+  }, [fetchPuroks, loadPuroksWithResidents]);
 
   const dataToShow = showResidents ? puroksWithResidents : puroks;
   const visibleRows = dataToShow

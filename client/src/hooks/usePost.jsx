@@ -8,7 +8,6 @@ const usePosts = () => {
     isSkYouth,
     isSkSuperAdmin,
     isSkNaturalAdmin,
-    loading: authLoading,
   } = useAuthContext(); // FIXED: use hook instead of calling component
   const queryClient = useQueryClient();
   const { showSuccess } = useToast();
@@ -34,9 +33,15 @@ const usePosts = () => {
       });
       return data.data;
     },
-    onSuccess: () => {
+    onSuccess: (createdPost) => {
       showSuccess("Your post has been published successfully");
-      queryClient.invalidateQueries(["posts"]);
+      queryClient.setQueryData(["posts"], (currentPosts = []) => [
+        createdPost,
+        ...currentPosts.filter(
+          (post) => post.post_id !== createdPost.post_id,
+        ),
+      ]);
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
     },
   });
 
@@ -48,7 +53,7 @@ const usePosts = () => {
     },
     onSuccess: () => {
       showSuccess("Your post has been updated successfully");
-      queryClient.invalidateQueries(["posts"]);
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
     },
   });
 
@@ -60,7 +65,7 @@ const usePosts = () => {
     },
     onSuccess: () => {
       showSuccess("Your post has been deleted successfully");
-      queryClient.invalidateQueries(["posts"]);
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
     },
   });
 

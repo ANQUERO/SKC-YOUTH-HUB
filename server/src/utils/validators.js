@@ -36,7 +36,7 @@ export const signupAdminValidator = [
         .custom(isEmail).withMessage("Invalid email address"),
     body("password")
         .custom(isPassword).withMessage(
-            "Password must be exactly 8 characters, include at least 1 number, 1 special character, and at least 6 letters"
+            "Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character"
         ),
     body("role")
         .custom(isRole).withMessage(
@@ -48,7 +48,7 @@ export const signupYouthValidator = [
     body("email")
         .custom(isEmail).withMessage("Invalid Email"),
     body("password")
-        .custom(isPassword).withMessage("Password must be exactly 8 characters, include at least 1 number, 1 special character, and at least 6 letters"),
+        .custom(isPassword).withMessage("Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character"),
     body("first_name")
         .custom(isFirstName).withMessage("Invalid First Name"),
     body("last_name")

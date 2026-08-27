@@ -1,43 +1,44 @@
 import { useState } from "react";
-import validate from "validate.js";
 import axiosInstance from "@lib/axios.js";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 
-const constraints = {
-  email: {
-    presence: {
-      allowEmpty: false,
-      message: "^A valid Email address is required",
-    },
-    email: { message: "^Please enter a valid email address" },
-  },
-  password: {
-    presence: { allowEmpty: false, message: "^Password is required" },
-    length: {
-      minimum: 8,
-      message: "^Password must be at least 8 characters",
-    },
-    format: {
-      pattern:
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-      message:
-        "^Password must include uppercase, lowercase, number, and special character",
-    },
-  },
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const passwordPattern =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+const validateCredentials = ({ email, password }) => {
+  const validationErrors = {};
+
+  if (!String(email || "").trim()) {
+    validationErrors.email = "A valid email address is required";
+  } else if (!emailPattern.test(email)) {
+    validationErrors.email = "Please enter a valid email address";
+  }
+
+  if (!password) {
+    validationErrors.password = "Password is required";
+  } else if (password.length < 8) {
+    validationErrors.password = "Password must be at least 8 characters";
+  } else if (!passwordPattern.test(password)) {
+    validationErrors.password =
+      "Password must include uppercase, lowercase, number, and special character";
+  }
+
+  return validationErrors;
 };
 
 const useLogin = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const { setAuthUser, setActiveRole } = AuthContextProvider();
+  const { setAuthUser, setActiveRole } = useAuthContext();
 
   const validateField = (fieldName, value) => {
-    const result = validate(
-      { [fieldName]: value },
-      { [fieldName]: constraints[fieldName] },
-    );
-    if (result) {
-      setErrors((prev) => ({ ...prev, [fieldName]: result[fieldName][0] }));
+    const result = validateCredentials({
+      email: fieldName === "email" ? value : "valid@example.com",
+      password: fieldName === "password" ? value : "Valid1!x",
+    });
+    if (result[fieldName]) {
+      setErrors((prev) => ({ ...prev, [fieldName]: result[fieldName] }));
     } else {
       setErrors((prev) => {
         const updated = { ...prev };
@@ -48,16 +49,10 @@ const useLogin = () => {
   };
 
   const login = async (email, password) => {
-    const validationErrors = validate({ email, password }, constraints);
+    const validationErrors = validateCredentials({ email, password });
 
-    if (validationErrors) {
-      const formattedErrors = Object.fromEntries(
-        Object.entries(validationErrors).map(([field, messages]) => [
-          field,
-          messages[0],
-        ]),
-      );
-      setErrors(formattedErrors);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return { success: false, user: null };
     }
 
@@ -84,11 +79,14 @@ const useLogin = () => {
 
       return { success: true, user: loggedInUser };
     } catch (err) {
-      console.error("Login error:", err);
-      if (err.response?.status === 400 || err.response?.status === 401) {
-        setErrors(
-          err.response.data.errors || { general: "Invalid credentials" },
-        );
+      if ([400, 401, 403].includes(err.response?.status)) {
+        const responseData = err.response?.data || {};
+        setErrors(responseData.errors || {
+          general:
+            responseData.error ||
+            responseData.message ||
+            "Invalid credentials",
+        });
       } else {
         setErrors({ general: "Something went wrong. Please try again." });
       }

@@ -1,16 +1,16 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import axiosInstance from "@lib/axios";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 
 const usePurok = () => {
-  const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = AuthContextProvider();
+  const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
   const [puroks, setPuroks] = useState([]);
   const [purok, setPurok] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const isAuthorized = isSkSuperAdmin || isSkNaturalAdmin;
 
-  const fetchPuroks = async () => {
+  const fetchPuroks = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -26,7 +26,7 @@ const usePurok = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAuthorized]);
 
   const fetchPurok = async (purok_id) => {
     if (!isAuthorized) {
@@ -143,7 +143,7 @@ const usePurok = () => {
     }
   };
 
-  const fetchAllPuroksWithResidents = async () => {
+  const fetchAllPuroksWithResidents = useCallback(async () => {
     if (!isAuthorized) {
       setError("Unauthorized access");
       return;
@@ -164,7 +164,7 @@ const usePurok = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAuthorized]);
 
   return {
     authUser,

@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import axiosInstance from "@lib/axios";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 import { useToast } from "@context/ToastContext";
 import style from "../styles/commentSystem.module.scss";
 
 const CommentSystem = ({ postId }) => {
-  const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = AuthContextProvider();
+  const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
   const { showSuccess, showError } = useToast();
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");

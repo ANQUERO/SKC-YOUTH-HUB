@@ -1,25 +1,25 @@
 import { pool } from "../db/config.js";
 
 export const getTotalVoters = async (req, res) => {
-    const user = req.user;
+  const user = req.user;
 
-    if (!user || user.userType !== "official") {
-        return res.status(403).json({
-            status: "Error",
-            message: "Forbidden - Only admins can access this resource"
-        });
-    }
+  if (!user || user.userType !== "official") {
+    return res.status(403).json({
+      status: "Error",
+      message: "Forbidden - Only admins can access this resource",
+    });
+  }
 
-    try {
-        const result = await pool.query(`
+  try {
+    const result = await pool.query(`
             SELECT
                 SUM(CASE 
-                    WHEN LOWER(registered_voter) = 'yes' 
+                    WHEN LOWER(registered_voter) IN ('yes', 'true', '1', 't')
                     THEN 1 
                     ELSE 0 
                 END) AS registered_voters,
                 SUM(CASE 
-                    WHEN LOWER(registered_voter) = 'no' 
+                    WHEN LOWER(registered_voter) IN ('no', 'false', '0', 'f')
                     THEN 1 
                     ELSE 0 
                 END) AS unregistered_voters,
@@ -29,34 +29,33 @@ export const getTotalVoters = async (req, res) => {
             WHERE y.deleted_at IS NULL
         `);
 
-        res.status(200).json({
-            status: "Success",
-            registered_voters: parseInt(result.rows[0].registered_voters) || 0,
-            unregistered_voters: parseInt(result.rows[0].unregistered_voters) || 0,
-            total_youths: parseInt(result.rows[0].total_youths) || 0
-        });
-
-    } catch (error) {
-        console.error("Database query failed", error);
-        res.status(500).json({
-            status: "Error",
-            message: "Internal server error"
-        });
-    }
+    res.status(200).json({
+      status: "Success",
+      registered_voters: parseInt(result.rows[0].registered_voters) || 0,
+      unregistered_voters: parseInt(result.rows[0].unregistered_voters) || 0,
+      total_youths: parseInt(result.rows[0].total_youths) || 0,
+    });
+  } catch (error) {
+    console.error("Database query failed", error);
+    res.status(500).json({
+      status: "Error",
+      message: "Internal server error",
+    });
+  }
 };
 
 export const getTotalGender = async (req, res) => {
-    const user = req.user;
+  const user = req.user;
 
-    if (!user || user.userType !== "official") {
-        return res.status(404).json({
-            status: "Error",
-            message: "Forbidden - Only admins can access this resource"
-        });
-    }
+  if (!user || user.userType !== "official") {
+    return res.status(403).json({
+      status: "Error",
+      message: "Forbidden - Only admins can access this resource",
+    });
+  }
 
-    try {
-        const result = await pool.query(`
+  try {
+    const result = await pool.query(`
             SELECT 
                 g.gender, 
                 COUNT(*) AS total
@@ -67,37 +66,36 @@ export const getTotalGender = async (req, res) => {
             ORDER BY g.gender
         `);
 
-        res.status(200).json({
-            status: "Success",
-            data: result.rows
-        });
-
-    } catch (error) {
-        console.error("Database query failed", error);
-        res.status(500).json({
-            status: "Error",
-            message: "Internal server error"
-        });
-    }
+    res.status(200).json({
+      status: "Success",
+      data: result.rows,
+    });
+  } catch (error) {
+    console.error("Database query failed", error);
+    res.status(500).json({
+      status: "Error",
+      message: "Internal server error",
+    });
+  }
 };
 
 export const getResidentsPerPurok = async (req, res) => {
-    const user = req.user;
+  const user = req.user;
 
-    if (!user || user.userType !== "official") {
-        return res.status(403).json({
-            status: "Error",
-            message: "Forbidden - Only admins can access this resource"
-        });
-    }
+  if (!user || user.userType !== "official") {
+    return res.status(403).json({
+      status: "Error",
+      message: "Forbidden - Only admins can access this resource",
+    });
+  }
 
-    try {
-        const result = await pool.query(`
+  try {
+    const result = await pool.query(`
             SELECT 
                 COALESCE(p.name, 'No Purok') AS purok,
                 COUNT(DISTINCT yl.youth_id) AS total_residents,
                 COUNT(DISTINCT CASE 
-                    WHEN LOWER(sys.registered_voter) = 'yes' 
+                    WHEN LOWER(sys.registered_voter) IN ('yes', 'true', '1', 't')
                     THEN yl.youth_id 
                 END) AS registered_voters
             FROM sk_youth_location yl
@@ -111,36 +109,36 @@ export const getResidentsPerPurok = async (req, res) => {
                 p.name
         `);
 
-        res.status(200).json({
-            status: "Success",
-            data: result.rows
-        });
-
-    } catch (error) {
-        console.error("Database query failed", error);
-        res.status(500).json({
-            status: "Error",
-            message: "Internal server error"
-        });
-    }
+    res.status(200).json({
+      status: "Success",
+      data: result.rows,
+    });
+  } catch (error) {
+    console.error("Database query failed", error);
+    res.status(500).json({
+      status: "Error",
+      message: "Internal server error",
+    });
+  }
 };
 
 // Get recent activity history (comments, replies, reactions, signups)
 export const getRecentActivity = async (req, res) => {
-    const user = req.user;
+  const user = req.user;
 
-    if (!user || user.userType !== "official") {
-        return res.status(403).json({
-            status: "Error",
-            message: "Forbidden - Only admins can access this resource"
-        });
-    }
+  if (!user || user.userType !== "official") {
+    return res.status(403).json({
+      status: "Error",
+      message: "Forbidden - Only admins can access this resource",
+    });
+  }
 
-    try {
-        const limit = parseInt(req.query.limit) || 20;
+  try {
+    const limit = parseInt(req.query.limit) || 20;
 
-        // Get recent comments (excluding replies)
-        const commentsResult = await pool.query(`
+    // Get recent comments (excluding replies)
+    const commentsResult = await pool.query(
+      `
             SELECT 
                 pc.comment_id,
                 pc.post_id,
@@ -160,10 +158,13 @@ export const getRecentActivity = async (req, res) => {
             WHERE pc.parent_comment_id IS NULL
             ORDER BY pc.created_at DESC
             LIMIT $1
-        `, [limit]);
+        `,
+      [limit],
+    );
 
-        // Get recent replies
-        const repliesResult = await pool.query(`
+    // Get recent replies
+    const repliesResult = await pool.query(
+      `
             SELECT 
                 pc.comment_id,
                 pc.post_id,
@@ -184,10 +185,13 @@ export const getRecentActivity = async (req, res) => {
             WHERE pc.parent_comment_id IS NOT NULL
             ORDER BY pc.created_at DESC
             LIMIT $1
-        `, [limit]);
+        `,
+      [limit],
+    );
 
-        // Get recent reactions
-        const reactionsResult = await pool.query(`
+    // Get recent reactions
+    const reactionsResult = await pool.query(
+      `
             SELECT 
                 pr.reaction_id,
                 pr.post_id,
@@ -206,10 +210,13 @@ export const getRecentActivity = async (req, res) => {
             INNER JOIN posts p ON pr.post_id = p.post_id
             ORDER BY pr.reacted_at DESC
             LIMIT $1
-        `, [limit]);
+        `,
+      [limit],
+    );
 
-        // Get recent youth signups
-        const signupsResult = await pool.query(`
+    // Get recent youth signups
+    const signupsResult = await pool.query(
+      `
             SELECT 
                 y.youth_id,
                 y.email,
@@ -220,65 +227,68 @@ export const getRecentActivity = async (req, res) => {
             WHERE y.deleted_at IS NULL
             ORDER BY y.created_at DESC
             LIMIT $1
-        `, [limit]);
+        `,
+      [limit],
+    );
 
-        // Combine and sort all activities
-        const activities = [
-            ...commentsResult.rows.map(c => ({
-                id: `comment-${c.comment_id}`,
-                type: "comment",
-                activity_type: "Commented",
-                user_name: c.user_name || "Unknown",
-                user_type: c.user_type,
-                content: c.content,
-                post_id: c.post_id,
-                post_description: c.post_description,
-                created_at: c.created_at
-            })),
-            ...repliesResult.rows.map(r => ({
-                id: `reply-${r.comment_id}`,
-                type: "reply",
-                activity_type: "Replied to a comment",
-                user_name: r.user_name || "Unknown",
-                user_type: r.user_type,
-                content: r.content,
-                post_id: r.post_id,
-                post_description: r.post_description,
-                parent_comment_id: r.parent_comment_id,
-                created_at: r.created_at
-            })),
-            ...reactionsResult.rows.map(re => ({
-                id: `reaction-${re.reaction_id}`,
-                type: "reaction",
-                activity_type: `Reacted ${re.type === "like" ? "👍" : re.type === "heart" ? "❤️" : "😮"}`,
-                user_name: re.user_name || "Unknown",
-                user_type: re.user_type,
-                reaction_type: re.type,
-                post_id: re.post_id,
-                post_description: re.post_description,
-                created_at: re.reacted_at
-            })),
-            ...signupsResult.rows.map(s => ({
-                id: `signup-${s.youth_id}`,
-                type: "signup",
-                activity_type: "Signed up",
-                user_name: s.user_name || "Unknown",
-                user_type: "youth",
-                email: s.email,
-                created_at: s.created_at
-            }))
-        ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, limit);
+    // Combine and sort all activities
+    const activities = [
+      ...commentsResult.rows.map((c) => ({
+        id: `comment-${c.comment_id}`,
+        type: "comment",
+        activity_type: "Commented",
+        user_name: c.user_name || "Unknown",
+        user_type: c.user_type,
+        content: c.content,
+        post_id: c.post_id,
+        post_description: c.post_description,
+        created_at: c.created_at,
+      })),
+      ...repliesResult.rows.map((r) => ({
+        id: `reply-${r.comment_id}`,
+        type: "reply",
+        activity_type: "Replied to a comment",
+        user_name: r.user_name || "Unknown",
+        user_type: r.user_type,
+        content: r.content,
+        post_id: r.post_id,
+        post_description: r.post_description,
+        parent_comment_id: r.parent_comment_id,
+        created_at: r.created_at,
+      })),
+      ...reactionsResult.rows.map((re) => ({
+        id: `reaction-${re.reaction_id}`,
+        type: "reaction",
+        activity_type: `Reacted ${re.type === "like" ? "👍" : re.type === "heart" ? "❤️" : "😮"}`,
+        user_name: re.user_name || "Unknown",
+        user_type: re.user_type,
+        reaction_type: re.type,
+        post_id: re.post_id,
+        post_description: re.post_description,
+        created_at: re.reacted_at,
+      })),
+      ...signupsResult.rows.map((s) => ({
+        id: `signup-${s.youth_id}`,
+        type: "signup",
+        activity_type: "Signed up",
+        user_name: s.user_name || "Unknown",
+        user_type: "youth",
+        email: s.email,
+        created_at: s.created_at,
+      })),
+    ]
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      .slice(0, limit);
 
-        res.status(200).json({
-            status: "Success",
-            data: activities
-        });
-
-    } catch (error) {
-        console.error("Error fetching recent activity:", error);
-        res.status(500).json({
-            status: "Error",
-            message: "Internal server error"
-        });
-    }
+    res.status(200).json({
+      status: "Success",
+      data: activities,
+    });
+  } catch (error) {
+    console.error("Error fetching recent activity:", error);
+    res.status(500).json({
+      status: "Error",
+      message: "Internal server error",
+    });
+  }
 };

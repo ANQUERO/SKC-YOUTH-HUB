@@ -99,7 +99,7 @@ const PasswordReset = () => {
                             <Button
                                 type="submit"
                                 variant="contained"
-                                disabled={!currentPassword || !newPassword || !confirmPassword || newPassword.length < 6}
+                                disabled={!currentPassword || !newPassword || !confirmPassword || newPassword.length < 8}
                                 className={styles.submitButton}
                             >
                                 Update Password

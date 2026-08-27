@@ -66,7 +66,7 @@ const Verification = () => {
 
   useEffect(() => {
     showDrafts ? fetchDeletedYouths() : fetchUnverifiedYouths();
-  }, [showDrafts]);
+  }, [showDrafts, fetchDeletedYouths, fetchUnverifiedYouths]);
 
   const handleMenuOpen = (event, id) => {
     setAnchorEl(event.currentTarget);

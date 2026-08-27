@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
 import style from "@styles/newsFeed.module.scss";
 import axiosInstance from "@lib/axios";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 import CommentSystem from "@components/CommentSystem";
 import PostOptions from "@components/PostOptions";
 import { MediaGallery } from "Components/MediaGallery";
 
 export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
-  const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth, authUser } =
-    AuthContextProvider();
+  const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = useAuthContext();
   const isSK = isSkSuperAdmin || isSkNaturalAdmin || isSkYouth;
   const [reactionsCount, setReactionsCount] = useState({
     like: 0,
@@ -101,6 +100,19 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
     });
   };
 
+  useEffect(() => {
+    axiosInstance
+      .get(`/post/${currentPost.post_id}/reactions`)
+      .then(({ data }) => {
+        const counts = { like: 0, heart: 0, wow: 0 };
+        (data.data || []).forEach((reaction) => {
+          counts[reaction.type] = (counts[reaction.type] || 0) + 1;
+        });
+        setReactionsCount(counts);
+      })
+      .catch(() => {});
+  }, [currentPost.post_id]);
+
   if (postHidden) {
     return (
       <div className={style.card}>
@@ -131,19 +143,6 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
   };
 
   const postTypeInfo = getPostTypeInfo(currentPost.type);
-
-  useEffect(() => {
-    axiosInstance
-      .get(`/post/${currentPost.post_id}/reactions`)
-      .then(({ data }) => {
-        const counts = { like: 0, heart: 0, wow: 0 };
-        (data.data || []).forEach((r) => {
-          counts[r.type] = (counts[r.type] || 0) + 1;
-        });
-        setReactionsCount(counts);
-      })
-      .catch(() => {});
-  }, [currentPost.post_id, isSK]);
 
   return (
     <div className={style.card} id={`post-${currentPost.post_id}`}>

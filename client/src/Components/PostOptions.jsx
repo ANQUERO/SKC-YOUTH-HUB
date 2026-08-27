@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axiosInstance from "@lib/axios";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 import { useToast } from "@context/ToastContext";
 import EditPostModal from "./EditPostModal";
 import styles from "@styles/postOptions.module.scss";
@@ -24,7 +24,7 @@ import {
 } from "@mui/icons-material";
 
 const PostOptions = ({ post, onPostDeleted, onPostHidden, onPostUpdated }) => {
-  const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = AuthContextProvider();
+  const { authUser, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
   const { showSuccess, showError } = useToast();
 
   // State for menus and modals
@@ -54,19 +54,9 @@ const PostOptions = ({ post, onPostDeleted, onPostHidden, onPostUpdated }) => {
 
   // Delete Handler
   const handleDelete = async () => {
-    console.log("Delete button clicked");
-    console.log("Post ID:", post.post_id);
-    console.log("Auth User:", authUser);
-    console.log("isSkSuperAdmin:", isSkSuperAdmin);
-    console.log("isSkNaturalAdmin:", isSkNaturalAdmin);
-    console.log("isOwner:", isOwner);
-    console.log("Post official ID:", post.official?.official_id);
-
     setLoading(true);
     try {
-      console.log("Sending DELETE request to:", `/post/${post.post_id}`);
-      const response = await axiosInstance.delete(`/post/${post.post_id}`);
-      console.log("Delete response:", response.data);
+      await axiosInstance.delete(`/post/${post.post_id}`);
 
       showSuccess("Post deleted successfully");
       onPostDeleted && onPostDeleted();
@@ -185,16 +175,6 @@ const PostOptions = ({ post, onPostDeleted, onPostHidden, onPostUpdated }) => {
       setShowBanModal(false);
       setShowMenu(false);
     }
-  };
-
-  // Close all modals
-  const closeAllModals = () => {
-    setShowDeleteModal(false);
-    setShowHideModal(false);
-    setShowUnhideModal(false);
-    setShowBanModal(false);
-    setHideReason("");
-    setBanReason("");
   };
 
   if (!canEdit && !canDelete && !canHide) {

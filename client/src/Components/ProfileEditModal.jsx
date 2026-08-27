@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -48,13 +48,13 @@ const ProfileEditModal = ({
     const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     // Define all possible values to avoid out-of-range errors
-    const youthAgeGapOptions = [
+    const youthAgeGapOptions = useMemo(() => [
         'Child Youth (16-17 years old)',
         'Core Youth (18-24 years old)', 
         'Young Adult (25-30 years old)'
-    ];
+    ], []);
 
-    const youthClassificationOptions = [
+    const youthClassificationOptions = useMemo(() => [
         'In school youth',
         'Out of school youth',
         'Working school youth',
@@ -62,9 +62,9 @@ const ProfileEditModal = ({
         'Person w/ Disability',
         'Children in Conflict w/ Law',
         'Indigenous people'
-    ];
+    ], []);
 
-    const educationalBackgroundOptions = [
+    const educationalBackgroundOptions = useMemo(() => [
         'Elementary Level',
         'Elementary Graduate',
         'High School Level',
@@ -76,17 +76,17 @@ const ProfileEditModal = ({
         'Master\'s Graduate',
         'Doctorate Level',
         'Doctorate Graduate'
-    ];
+    ], []);
 
-    const workStatusOptions = [
+    const workStatusOptions = useMemo(() => [
         'Employed',
         'Unemployed',
         'Self-Employed',
         'Currently looking for a job',
         'Not interested looking for a job'
-    ];
+    ], []);
 
-    const civilStatusOptions = [
+    const civilStatusOptions = useMemo(() => [
         'Single',
         'Married',
         'Widowed',
@@ -95,13 +95,13 @@ const ProfileEditModal = ({
         'Annulled',
         'Live-in',
         'Unknown'
-    ];
+    ], []);
 
-    const genderOptions = [
+    const genderOptions = useMemo(() => [
         'male',
         'female',
         'other'
-    ];
+    ], []);
 
     const youthSteps = [
         { label: 'Basic Info', icon: <Person />, description: 'Personal information' },
@@ -181,7 +181,17 @@ const ProfileEditModal = ({
             setUpdateSuccess(null);
             setActiveStep(0);
         }
-    }, [open, currentData, userType]);
+    }, [
+        open,
+        currentData,
+        userType,
+        civilStatusOptions,
+        educationalBackgroundOptions,
+        genderOptions,
+        workStatusOptions,
+        youthAgeGapOptions,
+        youthClassificationOptions,
+    ]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;

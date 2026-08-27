@@ -1,51 +1,42 @@
 import express from "express";
 import {
-    signupAdmin,
-    signup,
-    login,
-    logout,
-    resetPassword,
-    forgotPassword,
-    resetPasswordWithToken
+  signupAdmin,
+  signup,
+  login,
+  logout,
+  resetPassword,
+  forgotPassword,
+  resetPasswordWithToken,
 } from "../controller/auth.controller.js";
 import ProtectRoute from "../middleware/protectRoute.middleware.js";
 import {
-    signupYouthValidator,
-    signupAdminValidator,
-    loginValidator
+  signupYouthValidator,
+  signupAdminValidator,
+  loginValidator,
 } from "../utils/validators.js";
-import {
-    upload,
-    uploadCloudinary
-} from "../middleware/upload.middleware.js";
+import { upload, uploadCloudinary } from "../middleware/upload.middleware.js";
 
 const router = express.Router();
 
 // Youth signup
-router.post("/signup",
-    upload,
-    uploadCloudinary,
-    signupYouthValidator,
-    signup
-);
+router.post("/signup", upload, uploadCloudinary, signupYouthValidator, signup);
 
 // Admin signup (moved to settings)
-router.post("/adminSignup",
-    signupAdminValidator,
-    signupAdmin
+router.post(
+  "/adminSignup",
+  ProtectRoute({ optional: true }),
+  signupAdminValidator,
+  signupAdmin,
 );
 
 // Login
-router.post("/login",
-    loginValidator,
-    login
-);
+router.post("/login", loginValidator, login);
 
 // Logout
 router.post("/logout", logout);
 
 // Password reset (authenticated)
-router.post("/reset-password", ProtectRoute(), (req, res, next) => next(), resetPassword);
+router.post("/reset-password", ProtectRoute(), resetPassword);
 
 // Forgot password (public)
 router.post("/forgot-password", forgotPassword);

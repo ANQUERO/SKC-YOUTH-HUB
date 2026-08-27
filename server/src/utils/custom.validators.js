@@ -1,21 +1,16 @@
-export const isFirstName = value => {
-    return /^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$/.test(value);
-};
+const isPersonName = (value) =>
+    typeof value === "string" && /^[\p{L}' -]+$/u.test(value);
 
-export const isLastName = value => {
-    return /^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$/.test(value);
-};
-
-export const isMiddleName = value => {
-    return /^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$/.test(value);
-};
+export const isFirstName = isPersonName;
+export const isLastName = isPersonName;
+export const isMiddleName = isPersonName;
 
 export const isEmail = value => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 };
 
 export const isSuffix = value => {
-    return /\b(Jr\.|Sr\.|I{2,4}|IV|V|VI{0,3}|X)\b/.test(value);
+    return /^(Jr\.|Sr\.|II|III|IV|V|VI|VII|VIII|IX|X)$/i.test(value);
 };
 
 export const isGender = value => {
@@ -24,7 +19,8 @@ export const isGender = value => {
 };
 
 export const isRole = value => {
-    const val = String(value).toLowerCase();
+    const normalizedValue = Array.isArray(value) ? value[0] : value;
+    const val = String(normalizedValue).toLowerCase();
     return val === "super_official" || val === "natural_official";
 };
 
@@ -39,21 +35,20 @@ export const isBarangay = value => {
     return normalized === "catarman" || normalized.startsWith("catarman");
 };
 
-// Password: 8 characters, at least 1 number, 1 special character, rest letters
 export const isPassword = value => {
-    const has8Chars = value.length === 8;
-    const hasOneNumber = /[0-9]/.test(value);
-    const hasOneSpecial = /[^A-Za-z0-9]/.test(value);
-    const onlyValidChars = /^[A-Za-z0-9\W]{8}$/.test(value);
-    return has8Chars && hasOneNumber && hasOneSpecial && onlyValidChars;
+    return typeof value === "string" &&
+        value.length >= 8 &&
+        /[a-z]/.test(value) &&
+        /[A-Z]/.test(value) &&
+        /[0-9]/.test(value) &&
+        /[^A-Za-z0-9]/.test(value);
 };
 
 export const isContact = value => {
-    return /^(\+63|63|0)9\d{9}$/.text(value);
+    return /^(\+63|63|0)9\d{9}$/.test(value);
 };
 
 export const isAge = value => {
     const age = Number(value);
     return Number.isInteger(age) && age >= 16 && age <= 30;
 };
-

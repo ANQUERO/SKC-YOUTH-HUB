@@ -1,5 +1,5 @@
 import useContent from "@hooks/useContent";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styles from '@styles/content.module.scss';
 
 const LandingPageContent = () => {
@@ -25,11 +25,6 @@ const LandingPageContent = () => {
     media_file: null
   });
 
-  // Fetch all contents on component mount
-  useEffect(() => {
-    loadContents();
-  }, []);
-
   // Clear messages after 3 seconds
   useEffect(() => {
     if (success || error) {
@@ -40,14 +35,18 @@ const LandingPageContent = () => {
     }
   }, [success, error, clearMessages]);
 
-  const loadContents = async () => {
+  const loadContents = useCallback(async () => {
     try {
       const data = await fetchContents();
       setContents(data || []);
     } catch (error) {
       console.error("Failed to load contents:", error);
     }
-  };
+  }, [fetchContents]);
+
+  useEffect(() => {
+    loadContents();
+  }, [loadContents]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

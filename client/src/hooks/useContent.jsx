@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import axiosInstance from "@lib/axios";
-import { AuthContextProvider } from "@context/AuthContext";
+import { useAuthContext } from "@context/AuthContext";
 
 const useContent = () => {
-  const { isSkSuperAdmin, isSkNaturalAdmin } = AuthContextProvider();
+  const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
   const isAuthorized = isSkSuperAdmin || isSkNaturalAdmin;
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState(null);
 
-  const fetchContents = async (content_id = null, official_id = null) => {
+  const fetchContents = useCallback(async (content_id = null, official_id = null) => {
     if (!isAuthorized) {
       setError("Unauthorized access");
       return;
@@ -46,7 +46,7 @@ const useContent = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAuthorized]);
 
   const fetchContent = async (content_id) => {
     if (!isAuthorized) {
@@ -176,10 +176,10 @@ const useContent = () => {
     }
   };
 
-  const clearMessages = () => {
+  const clearMessages = useCallback(() => {
     setSuccess(null);
     setError(null);
-  };
+  }, []);
 
   return {
     loading,
