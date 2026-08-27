@@ -19,6 +19,17 @@ test("supports the documented database environment names", () => {
   });
 });
 
+test("supports a managed PostgreSQL connection URL", () => {
+  assert.deepEqual(
+    createDatabaseConfig({
+      DATABASE_URL: "postgresql://app_user:secret@db.example.com/skc",
+    }),
+    {
+      connectionString: "postgresql://app_user:secret@db.example.com/skc",
+    },
+  );
+});
+
 test("prefers standard names while keeping legacy aliases compatible", () => {
   const config = createDatabaseConfig({
     ...baseEnvironment,
