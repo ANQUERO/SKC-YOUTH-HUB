@@ -57,16 +57,19 @@ axiosInstance.interceptors.response.use(
       });
 
       localStorage.removeItem("auth-user");
+      localStorage.removeItem("active-role");
       sessionStorage.removeItem("auth-user");
+      sessionStorage.removeItem("active-role");
+      window.dispatchEvent(new Event("auth:unauthorized"));
 
       return Promise.reject(error);
     }
 
     console.error("Axios Error Details", {
-      config: error.config,
       status: error.response?.status,
       data: error.response?.data,
       message: error.message,
+      method: error.config?.method,
       baseURL: error.config?.baseURL,
       url: error.config?.url,
     });

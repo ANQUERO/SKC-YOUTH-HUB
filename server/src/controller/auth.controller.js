@@ -1,6 +1,9 @@
 import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
-import { generateTokenAndSetCookies } from "../utils/jwt.js";
+import {
+  generateTokenAndSetCookies,
+  getAuthCookieOptions,
+} from "../utils/jwt.js";
 import { validationErrors } from "../utils/validators.js";
 import { isPassword } from "../utils/custom.validators.js";
 import { validationResult } from "express-validator";
@@ -538,7 +541,7 @@ export const login = async (req, res) => {
     }
 
     // Sign token and set cookie
-    generateTokenAndSetCookies(user, res, userType);
+    const token = generateTokenAndSetCookies(user, res, userType);
 
     // Return user data (safe)
     const responseUser = {
@@ -561,6 +564,7 @@ export const login = async (req, res) => {
     return res.status(200).json({
       message: "Login successful",
       user: responseUser,
+      token,
     });
   } catch (error) {
     console.error("Login error:", error);
@@ -569,12 +573,7 @@ export const login = async (req, res) => {
 };
 
 export const logout = (req, res) => {
-  res.clearCookie("jwt", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-  });
+  res.clearCookie("jwt", getAuthCookieOptions());
 
   return res.status(200).json({
     message: "Logged out successfully",

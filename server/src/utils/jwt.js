@@ -11,6 +11,17 @@ export const getSecretKey = () => {
     return secret;
 };
 
+export const getAuthCookieOptions = (nodeEnvironment = process.env.NODE_ENV) => {
+    const isProduction = nodeEnvironment === "production";
+
+    return {
+        httpOnly: true,
+        sameSite: isProduction ? "none" : "lax",
+        secure: isProduction,
+        path: "/"
+    };
+};
+
 export const generateTokenAndSetCookies = (user, res, userType) => {
     const secret = getSecretKey();
 
@@ -34,14 +45,9 @@ export const generateTokenAndSetCookies = (user, res, userType) => {
         expiresIn: "15d"
     });
 
-    const isDevMode = process.env.NODE_ENV === "development";
-
     res.cookie("jwt", token, {
-        maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
-        httpOnly: true,
-        sameSite: "lax",
-        secure: !isDevMode,
-        path: "/"
+        ...getAuthCookieOptions(),
+        maxAge: 15 * 24 * 60 * 60 * 1000 // 15 days
     });
 
     return token;

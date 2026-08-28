@@ -144,6 +144,18 @@ export const AuthContextProvider = ({ children }) => {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      setAuthUser(null);
+      setActiveRoleState(null);
+      setLoading(false);
+    };
+
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+    return () =>
+      window.removeEventListener("auth:unauthorized", handleUnauthorized);
+  }, []);
+
   // Update functions
   const updateAuthUser = (user) => {
     // Ensure user has the expected structure

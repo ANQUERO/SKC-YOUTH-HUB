@@ -60,7 +60,10 @@ const useLogin = () => {
     setErrors({});
     try {
       const res = await axiosInstance.post("/auth/login", { email, password });
-      const loggedInUser = res.data.user;
+      const loggedInUser = {
+        ...res.data.user,
+        ...(res.data.token ? { token: res.data.token } : {}),
+      };
 
       // Ensure role is always an array
       const roles = Array.isArray(loggedInUser.role)
