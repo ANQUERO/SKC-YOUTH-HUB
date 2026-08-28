@@ -19,7 +19,7 @@ import {
 import { Upload, X, Image as ImageIcon, Video } from "lucide-react";
 import { useAuthContext } from "@context/AuthContext";
 import axiosInstance from "@lib/axios";
-import styles from "../styles/EditPostModal.module.scss";
+import styles from "../styles/editPostModal.module.scss";
 
 const EditPostModal = ({ open, onClose, post, onUpdate }) => {
   const { isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();

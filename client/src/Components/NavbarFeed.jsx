@@ -5,7 +5,7 @@ import { useAuthContext } from "@context/AuthContext";
 import { useNotifications } from "@context/NotificationContext";
 import { useLogout } from "@hooks/useLogout";
 import useCurrentUser from "@hooks/useCurrentUser";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   Bell,
   House,
@@ -18,8 +18,6 @@ import {
   Shield,
   Search,
 } from "lucide-react";
-import { NavLink } from "react-router-dom";
-
 export const Navbar = () => {
   const [isNotifOpen, setNotifOpen] = useState(false);
   const [isProfileOpen, setProfileOpen] = useState(false);
