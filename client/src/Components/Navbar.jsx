@@ -223,7 +223,7 @@ export function ProfileNavbar() {
   const logout = useLogout();
   const { authUser, isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } =
     useAuthContext();
-  const canManage = isSkSuperAdmin || isSkNaturalAdmin || isSkYouth;
+  const canManage = isSkSuperAdmin || isSkNaturalAdmin;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Use the useCurrentUser hook
