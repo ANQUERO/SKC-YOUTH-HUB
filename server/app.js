@@ -24,8 +24,8 @@ const app = express();
 
 app.use(helmet());
 
-export const normalizeOrigins = (value) =>
-  String(value || "http://localhost:5173")
+const normalizeOrigins = (value = "") =>
+  value
     .split(",")
     .map((origin) => origin.trim().replace(/\/$/, ""))
     .filter(Boolean);
@@ -37,6 +37,7 @@ app.use(
   cors({
     origin(origin, callback) {
       const normalizedOrigin = origin?.replace(/\/$/, "");
+
       if (
         !origin ||
         allowedOrigins.includes(normalizedOrigin) ||
@@ -44,10 +45,21 @@ app.use(
       ) {
         return callback(null, true);
       }
+
+      console.error("CORS blocked origin:", {
+        origin,
+        normalizedOrigin,
+        allowedOrigins,
+        nodeEnv: process.env.NODE_ENV,
+      });
+
       return callback(new Error("Origin is not allowed by CORS"));
     },
+
     credentials: true,
+
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+
     allowedHeaders: [
       "Content-Type",
       "Authorization",
@@ -86,10 +98,6 @@ app.use("/api/inbox", inbox);
 
 app.use((req, res) => {
   res.status(404).json({ error: "Not Found" });
-});
-
-app.use((req, res) => {
-  res.status(200).json({ message: "Hello World" });
 });
 
 app.use((err, req, res, next) => {
