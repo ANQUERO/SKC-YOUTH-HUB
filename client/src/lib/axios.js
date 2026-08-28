@@ -46,10 +46,7 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     const isLoginAttempt = error.config?.url?.includes("auth/login");
-    if (
-      isLoginAttempt &&
-      [400, 401, 403].includes(error.response?.status)
-    ) {
+    if (isLoginAttempt && [400, 401, 403].includes(error.response?.status)) {
       return Promise.reject(error);
     }
 

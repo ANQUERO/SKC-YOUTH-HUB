@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Outlet, Link, NavLink, useNavigate } from "react-router-dom";
+import { Outlet, Link, useNavigate } from "react-router-dom";
 import { useLogout } from "@hooks/useLogout";
 import { useAuthContext } from "@context/AuthContext";
 import { useNotifications } from "@context/NotificationContext";
@@ -16,7 +16,7 @@ import {
   Content,
   CreatePostLink,
   LogoWrapper,
-} from "components/authenticatedLayout";
+} from "@components/authenticatedLayout";
 
 import {
   LayoutGrid,

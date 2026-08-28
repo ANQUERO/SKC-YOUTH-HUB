@@ -1,16 +1,16 @@
-import styled from 'styled-components';
-import { NavLink } from 'react-router-dom';
+import styled from "styled-components";
+import { NavLink } from "react-router-dom";
 
 export const MainContainer = styled.div`
   display: flex;
   min-height: 100vh;
   overflow: hidden;
-  background-color: #FBFCFA;
+  background-color: #fbfcfa;
 `;
 
 export const MenuContainer = styled.div`
   padding: 2rem 1.25rem;
-  background-color: #31578B;
+  background-color: #31578b;
   overflow: hidden;
   position: fixed;
   height: 100vh;
@@ -22,7 +22,8 @@ export const MenuContainer = styled.div`
   display: flex;
   left: 0;
   top: 0;
-  transform: ${props => props.$open ? 'translateX(0)' : 'translateX(-100%)'};
+  transform: ${(props) =>
+    props.$open ? "translateX(0)" : "translateX(-100%)"};
 
   @media (min-width: 1024px) {
     transform: translateX(0);
@@ -64,7 +65,7 @@ export const ContentContainer = styled.div`
 `;
 
 export const TopContainer = styled.div`
-  background-color: #FBFCFA;
+  background-color: #fbfcfa;
   display: flex;
   justify-content: space-between;
   align-items: center;
