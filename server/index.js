@@ -10,10 +10,6 @@ if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) {
   throw new Error("PORT must be a valid TCP port");
 }
 
-app.listen("/", () => {
-  console.log("Hello Novelyn");
-});
-
 const startServer = () => {
   app
     .listen(PORT, () => {

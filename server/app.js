@@ -88,6 +88,10 @@ app.use((req, res) => {
   res.status(404).json({ error: "Not Found" });
 });
 
+app.use((req, res) => {
+  res.status(200).json({ message: "Hello World" });
+});
+
 app.use((err, req, res, next) => {
   void req;
   void next;
