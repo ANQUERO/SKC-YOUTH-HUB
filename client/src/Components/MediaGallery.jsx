@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import style from "@styles/newsFeed.module.scss";
-import { ChevronLeft, ChevronRight, X, Maximize2, Play, Image as ImageIcon } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Maximize2,
+  Play,
+  Image as ImageIcon,
+} from "lucide-react";
 
 export const MediaGallery = ({ mediaItems = [] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -27,27 +35,29 @@ export const MediaGallery = ({ mediaItems = [] }) => {
   };
 
   const currentMedia = mediaItems[currentIndex];
-  const isVideo = currentMedia?.type === 'video' || 
-                  currentMedia?.url?.match(/\.(mp4|webm|mov|m4v|avi|mkv)$/i) ||
-                  currentMedia?.mimetype?.includes('video');
+  const currentMediaUrl = currentMedia?.url || currentMedia;
+  const isVideo =
+    currentMedia?.type === "video" ||
+    currentMedia?.url?.match(/\.(mp4|webm|mov|m4v|avi|mkv)$/i) ||
+    currentMedia?.mimetype?.includes("video");
 
   // Keyboard navigation for fullscreen mode
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!isFullscreen) return;
-      
-      switch(e.key) {
-        case 'ArrowLeft':
+
+      switch (e.key) {
+        case "ArrowLeft":
           setCurrentIndex((prev) =>
-            prev === 0 ? mediaItems.length - 1 : prev - 1
+            prev === 0 ? mediaItems.length - 1 : prev - 1,
           );
           break;
-        case 'ArrowRight':
+        case "ArrowRight":
           setCurrentIndex((prev) =>
-            prev === mediaItems.length - 1 ? 0 : prev + 1
+            prev === mediaItems.length - 1 ? 0 : prev + 1,
           );
           break;
-        case 'Escape':
+        case "Escape":
           setIsFullscreen(false);
           break;
         default:
@@ -55,40 +65,133 @@ export const MediaGallery = ({ mediaItems = [] }) => {
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isFullscreen, mediaItems.length]);
 
+  useEffect(() => {
+    if (!isFullscreen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isFullscreen]);
+
   if (!mediaItems || mediaItems.length === 0) return null;
+
+  const fullscreenViewer = isFullscreen
+    ? createPortal(
+        <div
+          className={style.fullscreenModal}
+          onClick={closeFullscreen}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Post media viewer"
+        >
+          <button
+            className={style.closeFullscreen}
+            onClick={closeFullscreen}
+            aria-label="Close fullscreen"
+          >
+            <X size={30} />
+          </button>
+
+          <div
+            className={style.fullscreenContent}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {isVideo ? (
+              <video
+                src={currentMediaUrl}
+                className={style.fullscreenVideo}
+                controls
+              />
+            ) : (
+              <img
+                src={currentMediaUrl}
+                alt="Fullscreen post media"
+                className={style.fullscreenImage}
+              />
+            )}
+
+            {mediaItems.length > 1 && (
+              <>
+                <button
+                  className={style.fullscreenNav}
+                  onClick={handlePrevious}
+                  style={{ left: "20px" }}
+                  aria-label="Previous media"
+                >
+                  <ChevronLeft size={40} />
+                </button>
+                <button
+                  className={style.fullscreenNav}
+                  onClick={handleNext}
+                  style={{ right: "20px" }}
+                  aria-label="Next media"
+                >
+                  <ChevronRight size={40} />
+                </button>
+
+                <div className={style.fullscreenIndicators}>
+                  {mediaItems.map((_, index) => (
+                    <button
+                      key={index}
+                      className={`${style.fullscreenDot} ${index === currentIndex ? style.active : ""}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCurrentIndex(index);
+                      }}
+                      aria-label={`Go to media ${index + 1}`}
+                    />
+                  ))}
+                </div>
+
+                <div className={style.fullscreenCounter}>
+                  {currentIndex + 1} / {mediaItems.length}
+                </div>
+              </>
+            )}
+          </div>
+        </div>,
+        document.body,
+      )
+    : null;
 
   // Single media item
   if (mediaItems.length === 1) {
     return (
-      <div className={style.mediaSingle}>
-        {isVideo ? (
-          <video 
-            src={currentMedia.url || currentMedia} 
-            controls 
-            className={style.mediaSingleItem}
-          />
-        ) : (
-          <img 
-            src={currentMedia.url || currentMedia} 
-            alt="Post media" 
-            className={style.mediaSingleItem}
-            onClick={toggleFullscreen}
-            loading="lazy"
-          />
-        )}
-        {!isVideo && (
-          <button 
+      <>
+        <div className={style.mediaSingle}>
+          {isVideo ? (
+            <video
+              src={currentMediaUrl}
+              controls
+              className={style.mediaSingleItem}
+            />
+          ) : (
+            <img
+              src={currentMediaUrl}
+              alt="Post media"
+              className={style.mediaSingleItem}
+              onClick={toggleFullscreen}
+              loading="lazy"
+            />
+          )}
+          <button
             className={style.fullscreenBtn}
             onClick={toggleFullscreen}
+            aria-label={`Enlarge ${isVideo ? "video" : "image"}`}
+            title="Enlarge media"
           >
             <Maximize2 size={20} />
           </button>
-        )}
-      </div>
+        </div>
+        {fullscreenViewer}
+      </>
     );
   }
 
@@ -97,14 +200,14 @@ export const MediaGallery = ({ mediaItems = [] }) => {
     <>
       <div className={style.mediaGallery}>
         {isVideo ? (
-          <video 
-            src={currentMedia.url || currentMedia} 
-            controls 
+          <video
+            src={currentMediaUrl}
+            controls
             className={style.galleryCurrent}
           />
         ) : (
-          <img 
-            src={currentMedia.url || currentMedia} 
+          <img
+            src={currentMediaUrl}
             alt={`Gallery ${currentIndex + 1}`}
             className={style.galleryCurrent}
             onClick={toggleFullscreen}
@@ -120,15 +223,15 @@ export const MediaGallery = ({ mediaItems = [] }) => {
         {/* Navigation arrows */}
         {mediaItems.length > 1 && (
           <>
-            <button 
-              className={style.galleryNav} 
+            <button
+              className={style.galleryNav}
               onClick={handlePrevious}
               style={{ left: "10px" }}
             >
               <ChevronLeft size={24} />
             </button>
-            <button 
-              className={style.galleryNav} 
+            <button
+              className={style.galleryNav}
               onClick={handleNext}
               style={{ right: "10px" }}
             >
@@ -147,86 +250,26 @@ export const MediaGallery = ({ mediaItems = [] }) => {
                 e.stopPropagation();
                 setCurrentIndex(index);
               }}
-              aria-label={`Go to image ${index + 1}`}
+              aria-label={`Go to media ${index + 1}`}
             />
           ))}
         </div>
 
-        {/* Fullscreen button (only for images) */}
-        {!isVideo && (
-          <button 
-            className={style.galleryFullscreen}
-            onClick={toggleFullscreen}
-          >
-            <Maximize2 size={20} />
-          </button>
-        )}
+        <button
+          className={style.galleryFullscreen}
+          onClick={toggleFullscreen}
+          aria-label={`Enlarge ${isVideo ? "video" : "image"}`}
+          title="Enlarge media"
+        >
+          <Maximize2 size={20} />
+        </button>
 
         {/* Counter */}
         <div className={style.galleryCounter}>
           {currentIndex + 1} / {mediaItems.length}
         </div>
       </div>
-
-      {/* Fullscreen modal (only for images) */}
-      {isFullscreen && !isVideo && (
-        <div className={style.fullscreenModal} onClick={closeFullscreen}>
-          <button 
-            className={style.closeFullscreen} 
-            onClick={closeFullscreen}
-            aria-label="Close fullscreen"
-          >
-            <X size={30} />
-          </button>
-          
-          <div className={style.fullscreenContent} onClick={(e) => e.stopPropagation()}>
-            <img 
-              src={currentMedia.url || currentMedia} 
-              alt="Fullscreen view"
-              className={style.fullscreenImage}
-            />
-
-            {mediaItems.length > 1 && (
-              <>
-                <button 
-                  className={style.fullscreenNav} 
-                  onClick={handlePrevious}
-                  style={{ left: "20px" }}
-                  aria-label="Previous image"
-                >
-                  <ChevronLeft size={40} />
-                </button>
-                <button 
-                  className={style.fullscreenNav} 
-                  onClick={handleNext}
-                  style={{ right: "20px" }}
-                  aria-label="Next image"
-                >
-                  <ChevronRight size={40} />
-                </button>
-
-                <div className={style.fullscreenIndicators}>
-                  {mediaItems.map((_, index) => (
-                    <button
-                      key={index}
-                      className={`${style.fullscreenDot} ${index === currentIndex ? style.active : ""}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCurrentIndex(index);
-                      }}
-                      aria-label={`Go to image ${index + 1}`}
-                    />
-                  ))}
-                </div>
-
-                <div className={style.fullscreenCounter}>
-                  {currentIndex + 1} / {mediaItems.length}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+      {fullscreenViewer}
     </>
   );
 };

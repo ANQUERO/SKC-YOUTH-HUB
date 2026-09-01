@@ -5,6 +5,7 @@ import { useAuthContext } from "@context/AuthContext";
 import CommentSystem from "@components/CommentSystem";
 import PostOptions from "@components/PostOptions";
 import { MediaGallery } from "Components/MediaGallery";
+import { normalizePostMedia } from "@lib/postMedia";
 
 export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
   const { isSkSuperAdmin, isSkNaturalAdmin, isSkYouth } = useAuthContext();
@@ -25,12 +26,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
     ? author.profile_picture
     : `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=random&color=fff`;
 
-  const mediaItems = currentPost.media || [];
-
-  const allMediaItems = mediaItems.map((item) => ({
-    url: item.url,
-    type: item.type || (item.mimetype?.includes("image") ? "image" : "video"),
-  }));
+  const allMediaItems = normalizePostMedia(currentPost.media);
 
   const handleReact = async (type) => {
     if (!isSK) return;
@@ -99,6 +95,11 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
       ...(date.getFullYear() !== now.getFullYear() && { year: "numeric" }),
     });
   };
+
+  useEffect(() => {
+    setCurrentPost(post);
+    setPostHidden(post.is_hidden || false);
+  }, [post]);
 
   useEffect(() => {
     axiosInstance

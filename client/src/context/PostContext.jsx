@@ -10,6 +10,7 @@ export const PostProvider = ({ children }) => {
     const {
         postsQuery,
         createPost,
+        createPostUpload,
         updatePost,
         deletePost
     } = usePosts();
@@ -20,6 +21,7 @@ export const PostProvider = ({ children }) => {
                 posts: postsQuery.data || [],
                 isLoading: postsQuery.isLoading,
                 createPost,
+                createPostUpload,
                 updatePost,
                 deletePost,
             }}

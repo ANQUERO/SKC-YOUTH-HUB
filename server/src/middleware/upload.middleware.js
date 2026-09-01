@@ -2,15 +2,18 @@ import dotenv from "dotenv";
 import multer from "multer";
 import streamifier from "streamifier";
 import { v2 as cloudinary } from "cloudinary";
+import { UPLOAD_LIMITS } from "../utils/uploadLimits.js";
 
 dotenv.config();
 
 export const upload = multer({
     storage: multer.memoryStorage(),
     limits: {
-        files: 10,
-        fileSize: 25 * 1024 * 1024,
-        fields: 50,
+        files: UPLOAD_LIMITS.maxFiles,
+        // Busboy emits its limit event at equality, so add one byte to keep
+        // the advertised maximum inclusive.
+        fileSize: UPLOAD_LIMITS.multerFileSizeLimitBytes,
+        fields: UPLOAD_LIMITS.maxFields,
     },
     fileFilter(req, file, callback) {
         void req;
@@ -32,8 +35,6 @@ cloudinary.config({
 });
 
 export const uploadCloudinary = async (req, res, next) => {
-    const urls = [];
-
     if (req.files && req.files.length > 0) {
         const uploadPromises = req.files.map((file) => {
             return new Promise((resolve, reject) => {
@@ -43,8 +44,7 @@ export const uploadCloudinary = async (req, res, next) => {
                     },
                     (error, result) => {
                         if (error) {return reject(error);}
-                        urls.push(result.secure_url);
-                        resolve();
+                        resolve(result.secure_url);
                     }
                 );
 
@@ -53,7 +53,9 @@ export const uploadCloudinary = async (req, res, next) => {
         });
 
         try {
-            await Promise.all(uploadPromises);
+            // Promise.all preserves input order even when uploads finish in a
+            // different order, keeping each URL paired with its original file.
+            const urls = await Promise.all(uploadPromises);
             res.locals.uploaded_images = urls;
             next();
         } catch (err) {
