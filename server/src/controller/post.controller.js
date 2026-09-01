@@ -1,8 +1,15 @@
 // controller/post.controller.js
 import { pool } from "../db/config.js";
 
-const inferMediaType = (url) => {
+export const inferMediaType = (url, mimetype = "") => {
   try {
+    if (mimetype.startsWith("video/")) {
+      return "video";
+    }
+    if (mimetype.startsWith("image/")) {
+      return "image";
+    }
+
     const u = String(url).toLowerCase();
 
     // Check for video extensions
@@ -15,11 +22,12 @@ const inferMediaType = (url) => {
       return "image";
     }
 
-    // Check Cloudinary URL patterns
-    if (u.includes("/video/") || u.includes("/upload/v")) {
+    // Check unambiguous Cloudinary resource paths. Cloudinary version segments
+    // also start with `/v`, so `/upload/v` alone cannot identify a video.
+    if (u.includes("/video/upload/")) {
       return "video";
     }
-    if (u.includes("/image/") || u.includes("/upload/i")) {
+    if (u.includes("/image/upload/")) {
       return "image";
     }
   } catch (error) {
@@ -79,36 +87,48 @@ export const index = async (req, res) => {
                 n.middle_name,
                 n.last_name,
                 n.suffix,
-                -- Get only non-deleted media
+                -- Aggregate media independently so comments/reactions cannot
+                -- multiply the same attachment in the JSON array.
                 COALESCE(
-                    json_agg(
-                        json_build_object(
-                            'media_id', pm.media_id,
-                            'url', pm.media_url,
-                            'type', pm.media_type,
-                            'mimetype', pm.mimetype,
-                            'file_size', pm.file_size,
-                            'display_order', pm.display_order
-                        ) ORDER BY pm.display_order ASC
-                    ) FILTER (WHERE pm.media_id IS NOT NULL AND pm.deleted_at IS NULL),
+                    (
+                        SELECT json_agg(
+                            json_build_object(
+                                'media_id', pm.media_id,
+                                'url', pm.media_url,
+                                'type', pm.media_type,
+                                'mimetype', pm.mimetype,
+                                'file_size', pm.file_size,
+                                'display_order', pm.display_order
+                            ) ORDER BY pm.display_order ASC, pm.media_id ASC
+                        )
+                        FROM post_media pm
+                        WHERE pm.post_id = p.post_id
+                          AND pm.deleted_at IS NULL
+                    ),
                     '[]'::json
                 ) as media,
-                -- Count only non-deleted comments
-                COUNT(DISTINCT c.comment_id) FILTER (WHERE c.deleted_at IS NULL) AS comments_count,
-                -- Count only non-deleted reactions
-                COUNT(DISTINCT r.reaction_id) FILTER (WHERE r.deleted_at IS NULL) AS reactions_count
+                (
+                    SELECT COUNT(*)
+                    FROM post_comments c
+                    WHERE c.post_id = p.post_id AND c.deleted_at IS NULL
+                ) AS comments_count,
+                (
+                    SELECT COUNT(*)
+                    FROM post_reactions r
+                    WHERE r.post_id = p.post_id AND r.deleted_at IS NULL
+                ) AS reactions_count
             FROM posts p
             INNER JOIN sk_official o ON p.official_id = o.official_id AND o.deleted_at IS NULL
             LEFT JOIN sk_official_name n ON o.official_id = n.official_id
-            LEFT JOIN sk_official_avatar a ON o.official_id = a.official_id
-            LEFT JOIN post_media pm ON p.post_id = pm.post_id
-            LEFT JOIN post_comments c ON p.post_id = c.post_id
-            LEFT JOIN post_reactions r ON p.post_id = r.post_id
+            LEFT JOIN LATERAL (
+                SELECT avatar.file_url
+                FROM sk_official_avatar avatar
+                WHERE avatar.official_id = o.official_id
+                  AND avatar.file_type LIKE 'image%'
+                ORDER BY avatar.attachment_id DESC
+                LIMIT 1
+            ) a ON TRUE
             ${whereClause}
-            GROUP BY 
-                p.post_id, o.official_id, o.official_position,
-                a.file_url,
-                n.first_name, n.middle_name, n.last_name, n.suffix
             ORDER BY p.created_at DESC
             `,
     );
@@ -389,18 +409,24 @@ export const getPost = async (req, res) => {
     const query = `
             SELECT 
                 p.*,
-                -- Only get non-deleted media
+                -- Aggregate media independently so comments/reactions cannot
+                -- multiply the same attachment in the JSON array.
                 COALESCE(
-                    json_agg(
-                        json_build_object(
-                            'media_id', pm.media_id,
-                            'url', pm.media_url,
-                            'type', pm.media_type,
-                            'mimetype', pm.mimetype,
-                            'file_size', pm.file_size,
-                            'display_order', pm.display_order
-                        ) ORDER BY pm.display_order ASC
-                    ) FILTER (WHERE pm.media_id IS NOT NULL AND pm.deleted_at IS NULL),
+                    (
+                        SELECT json_agg(
+                            json_build_object(
+                                'media_id', pm.media_id,
+                                'url', pm.media_url,
+                                'type', pm.media_type,
+                                'mimetype', pm.mimetype,
+                                'file_size', pm.file_size,
+                                'display_order', pm.display_order
+                            ) ORDER BY pm.display_order ASC, pm.media_id ASC
+                        )
+                        FROM post_media pm
+                        WHERE pm.post_id = p.post_id
+                          AND pm.deleted_at IS NULL
+                    ),
                     '[]'::json
                 ) as media,
                 o.official_id,
@@ -409,20 +435,20 @@ export const getPost = async (req, res) => {
                 n.middle_name,
                 n.last_name,
                 n.suffix,
-                -- Count only non-deleted comments
-                COUNT(DISTINCT c.comment_id) FILTER (WHERE c.deleted_at IS NULL) AS comments_count,
-                -- Count only non-deleted reactions
-                COUNT(DISTINCT r.reaction_id) FILTER (WHERE r.deleted_at IS NULL) AS reactions_count
+                (
+                    SELECT COUNT(*)
+                    FROM post_comments c
+                    WHERE c.post_id = p.post_id AND c.deleted_at IS NULL
+                ) AS comments_count,
+                (
+                    SELECT COUNT(*)
+                    FROM post_reactions r
+                    WHERE r.post_id = p.post_id AND r.deleted_at IS NULL
+                ) AS reactions_count
             FROM posts p
             INNER JOIN sk_official o ON p.official_id = o.official_id AND o.deleted_at IS NULL
             LEFT JOIN sk_official_name n ON o.official_id = n.official_id
-            LEFT JOIN post_media pm ON p.post_id = pm.post_id
-            LEFT JOIN post_comments c ON p.post_id = c.post_id
-            LEFT JOIN post_reactions r ON p.post_id = r.post_id
             WHERE ${whereConditions.join(" AND ")}
-            GROUP BY 
-                p.post_id, o.official_id, o.official_position,
-                n.first_name, n.middle_name, n.last_name, n.suffix
         `;
 
     const result = await pool.query(query, [post_id]);

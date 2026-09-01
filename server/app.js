@@ -17,6 +17,7 @@ import notification from "./src/routes/notification.route.js";
 import feedback from "./src/routes/feedback.route.js";
 import inbox from "./src/routes/inbox.route.js";
 import { isLocalDevelopmentOrigin } from "./src/utils/cors.js";
+import { getUploadErrorResponse } from "./src/utils/uploadLimits.js";
 
 dotenv.config();
 
@@ -104,8 +105,16 @@ app.use((err, req, res, next) => {
   void req;
   void next;
 
-  if (err.code?.startsWith("LIMIT_")) {
-    return res.status(413).json({ error: "Upload exceeds the allowed limits" });
+  const uploadError = getUploadErrorResponse(err);
+  if (uploadError) {
+    return res.status(uploadError.status).json(uploadError.body);
+  }
+
+  if (err.type === "entity.too.large") {
+    return res.status(413).json({
+      error: "Request body is too large",
+      message: "The request body exceeds the allowed size.",
+    });
   }
 
   if (err.type === "entity.parse.failed") {

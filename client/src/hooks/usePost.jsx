@@ -1,16 +1,18 @@
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@lib/axios";
 import { useToast } from "@context/ToastContext";
-import { useAuthContext } from "@context/AuthContext"; // FIXED IMPORT
+import { useAuthContext } from "@context/AuthContext";
+import { validatePostMediaFiles } from "@lib/postUploadLimits";
 
 const usePosts = () => {
-  const {
-    isSkYouth,
-    isSkSuperAdmin,
-    isSkNaturalAdmin,
-  } = useAuthContext(); // FIXED: use hook instead of calling component
+  const { isSkYouth, isSkSuperAdmin, isSkNaturalAdmin } = useAuthContext();
   const queryClient = useQueryClient();
-  const { showSuccess } = useToast();
+  const { showSuccess, showError } = useToast();
+  const [createPostUpload, setCreatePostUpload] = useState({
+    progress: 0,
+    hasMedia: false,
+  });
 
   const managePosts = isSkSuperAdmin || isSkNaturalAdmin;
   const viewPosts = isSkYouth || managePosts;
@@ -27,21 +29,67 @@ const usePosts = () => {
 
   // --- Create post ---
   const createPost = useMutation({
-    mutationFn: async (newPostFormData) => {
-      const { data } = await axiosInstance.post("/post", newPostFormData, {
+    mutationFn: async (postPayload) => {
+      const isFormData = postPayload instanceof FormData;
+      const formData = isFormData ? postPayload : postPayload.formData;
+      const onUploadProgress = isFormData
+        ? undefined
+        : postPayload.onUploadProgress;
+      const validationMessage = validatePostMediaFiles(
+        formData.getAll("media"),
+      );
+
+      if (validationMessage) {
+        const validationError = new Error(validationMessage);
+        validationError.code = "POST_MEDIA_VALIDATION";
+        throw validationError;
+      }
+
+      const { data } = await axiosInstance.post("/post", formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        onUploadProgress: (progressEvent) => {
+          const progress = progressEvent.total
+            ? progressEvent.loaded / progressEvent.total
+            : progressEvent.progress;
+
+          if (typeof progress === "number") {
+            setCreatePostUpload((current) => ({
+              ...current,
+              progress: Math.min(100, Math.round(progress * 100)),
+            }));
+          }
+
+          onUploadProgress?.(progressEvent);
+        },
       });
       return data.data;
+    },
+    onMutate: (postPayload) => {
+      const formData =
+        postPayload instanceof FormData ? postPayload : postPayload.formData;
+      setCreatePostUpload({
+        progress: 0,
+        hasMedia: formData.getAll("media").length > 0,
+      });
     },
     onSuccess: (createdPost) => {
       showSuccess("Your post has been published successfully");
       queryClient.setQueryData(["posts"], (currentPosts = []) => [
         createdPost,
-        ...currentPosts.filter(
-          (post) => post.post_id !== createdPost.post_id,
-        ),
+        ...currentPosts.filter((post) => post.post_id !== createdPost.post_id),
       ]);
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+    onError: (error) => {
+      showError(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          error.message ||
+          "Failed to publish your post",
+      );
+    },
+    onSettled: () => {
+      setCreatePostUpload({ progress: 0, hasMedia: false });
     },
   });
 
@@ -74,6 +122,7 @@ const usePosts = () => {
     managePosts,
     postsQuery,
     createPost,
+    createPostUpload,
     updatePost,
     deletePost,
   };
