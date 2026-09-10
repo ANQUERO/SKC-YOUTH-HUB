@@ -1,28 +1,25 @@
-import React from "react";
+import React, { lazy } from "react";
 
-import LandingPage from "@pages/LandingPage";
-import PrivacyPolicy from "@pages/LandingPage/privacy/policy";
-import TermsConditions from "@pages/LandingPage/privacy/terms";
-
-import Signin from "@pages/Signin";
-import YouthSignup from "@pages/YouthSignup";
-import ForgotPassword from "@pages/ForgotPasword";
-import AdminAuth from "@pages/AdminAuth";
-
-import NewsFeed from "@pages/NewsFeed";
-import Authenticated from "@pages/Authenticated";
-import Dashboard from "@pages/Dashboard";
-import Youth from "@pages/Youth";
-import Purok from "@pages/Purok";
-import Verification from "@pages/Verification";
-import Officials from "@pages/Officials";
-import Settings from "@pages/Settings";
-import NotFound from "@pages/NotFound";
-import Inbox from "@pages/Inbox";
-import YouthSettings from "@pages/YouthSettings";
-
-import YouthProfile from "@pages/YouthProfile";
-import OfficialsProfile from "@pages/OfficialsProfile";
+const LandingPage = lazy(() => import("@pages/LandingPage"));
+const PrivacyPolicy = lazy(() => import("@pages/LandingPage/privacy/policy"));
+const TermsConditions = lazy(() => import("@pages/LandingPage/privacy/terms"));
+const Signin = lazy(() => import("@pages/Signin"));
+const YouthSignup = lazy(() => import("@pages/YouthSignup"));
+const ForgotPassword = lazy(() => import("@pages/ForgotPasword"));
+const AdminAuth = lazy(() => import("@pages/AdminAuth"));
+const NewsFeed = lazy(() => import("@pages/NewsFeed"));
+const Authenticated = lazy(() => import("@pages/Authenticated"));
+const Dashboard = lazy(() => import("@pages/Dashboard"));
+const Youth = lazy(() => import("@pages/Youth"));
+const Purok = lazy(() => import("@pages/Purok"));
+const Verification = lazy(() => import("@pages/Verification"));
+const Officials = lazy(() => import("@pages/Officials"));
+const Settings = lazy(() => import("@pages/Settings"));
+const NotFound = lazy(() => import("@pages/NotFound"));
+const Inbox = lazy(() => import("@pages/Inbox"));
+const YouthSettings = lazy(() => import("@pages/YouthSettings"));
+const YouthProfile = lazy(() => import("@pages/YouthProfile"));
+const OfficialsProfile = lazy(() => import("@pages/OfficialsProfile"));
 
 import { ProtectedRoute } from "@lib/ProtectedRoute";
 
