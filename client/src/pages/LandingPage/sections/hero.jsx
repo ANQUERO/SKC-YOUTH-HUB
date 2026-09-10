@@ -1,53 +1,32 @@
 import React from 'react';
 import style from '@styles/landingpage.module.scss';
-import Card1 from '@images/postCard1.png'
 import Card2 from '@images/postCard2.png'
 import { Link } from 'react-router-dom';
-
-const Taglines = ({ text1, text2, paragraph }) => {
-    return (
-        <>
-            < h1 className={style.title} >
-                {text1}
-            </h1 >
-            <h1 className={style.title}>
-                {text2}
-            </h1 >
-            <p className={style.paragraph}>
-                {paragraph}
-            </p>
-        </>
-    )
-};
 
 const Hero = () => {
     return (
         <section id="home" className={style.home}>
 
             <div className={style.hero}>
+                <p className={style.eyebrow}>SK Catarman Youth Hub</p>
+                <h1 className={style.title}>Your voice can shape Catarman&apos;s future.</h1>
+                <p className={style.paragraph}>
+                    Join a safer, simpler space to follow youth initiatives, discover opportunities,
+                    and take part in your community.
+                </p>
 
-                <Taglines
-                    text1="Empowered youth strengthen democracy"
-                    text2="and build brighter futures."
-                    paragraph=" Know your rights, demand transparent leadership."
-                />
+                <div className={style.heroActions}>
+                    <Link to='/signup' className={style.cta}>
+                        Join the community
+                    </Link>
+                    <a href="#about" className={style.secondaryCta}>Explore how it works</a>
+                </div>
 
-                <Link to='/signup' className={style.cta}>
-                    Get Invloved
-                </Link>
-
-
-                <div className={style.cards}>
-                    <div className={style.card}>
-                        <img src={Card2} alt="Card 1" />
-
-                    </div>
-                    <div className={style.card}>
-                        <img src={Card1} alt="Card " />
-
-                    </div>
-                    <div className={style.card}>
-                        <img src={Card2} alt="Card 3" />
+                <div className={style.heroPreview} aria-label="Community update preview">
+                    <img src={Card2} alt="A youth community activity" fetchPriority="high" />
+                    <div>
+                        <span>Stay in the loop</span>
+                        <strong>Updates, projects, and opportunities in one place.</strong>
                     </div>
                 </div>
             </div>

@@ -85,6 +85,9 @@
   font-weight: 500;
   transition: color 0.2s ease;
   padding: 0.5rem 1rem;
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
   border-radius: 6px;
   
   &:hover {

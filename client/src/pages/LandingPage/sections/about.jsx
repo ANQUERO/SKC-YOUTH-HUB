@@ -3,34 +3,18 @@ import style from '@styles/landingpage.module.scss';
 import AboutIMage from '@images/about.png'
 import { Link } from 'react-router-dom'
 
-const Taglines = ({ text1, text2, paragraph }) => {
-    return (
-        <>
-            <h1 className={style.title}>
-                {text1}
-            </h1>
-            <h1 className={style.title}>
-                {text2}
-            </h1>
-            <p className={style.paragraph}>
-                {paragraph}
-            </p>
-        </>
-    )
-}
-
 const features = [
     {
-        title: "Transparency",
-        description: "Real-time access to government activities and decisions."
+        title: "Know what is happening",
+        description: "Find community news, announcements, and youth activities without chasing updates across channels."
     },
     {
-        title: "News Feed",
-        description: "Stay updated with the latest community news and announcements."
+        title: "Take part with confidence",
+        description: "Discover projects and opportunities that make it easier to contribute where your voice matters."
     },
     {
-        title: "Tracker",
-        description: "Monitor project progress and government initiatives."
+        title: "See public work clearly",
+        description: "Follow initiatives and keep youth leadership accountable through accessible community information."
     },
 ]
 
@@ -42,17 +26,16 @@ const AboutUs = () => {
                 {/**Left Side */}
                 <div className={style.content}>
                     
-                    <Taglines
-                        text1="Know your right demand"
-                        text2="transparent leadership."
-                        paragraph="When empowered with knowledge and opportunities,
-                         young people drive a stronger, more inclusive democracy 
-                         fueled by passion and innovation."
-                    />
+                    <p className={style.eyebrow}>Built around your participation</p>
+                    <h2 className={style.title}>More clarity. More ways to contribute.</h2>
+                    <p className={style.paragraph}>
+                        SK Catarman Youth Hub brings the information and connections young people need
+                        to participate in a stronger, more inclusive community.
+                    </p>
 
                     <article className={style.buttonGroup}>
-                        <button className={style.primaryButton}>Get to know us</button>
-                        <button className={style.secondaryButton}>See Features</button>
+                        <a href="#officials" className={style.primaryButton}>Meet the officials</a>
+                        <a href="#features" className={style.secondaryButton}>See the benefits</a>
                     </article>
 
                 </div>
@@ -63,6 +46,8 @@ const AboutUs = () => {
                         src={AboutIMage}
                         alt="About our platform"
                         className={style.aboutImage}
+                        loading="lazy"
+                        decoding="async"
                     />
                 </div>
 

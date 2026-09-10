@@ -1127,3 +1127,236 @@
         #68A1E1 37%,
         #FFFFFF 99%);
   }
+
+  // Conversion-focused landing page refinements
+  .landing_page {
+    overflow: clip;
+
+    :is(a, button):focus-visible {
+      outline: 3px solid #fbbf24;
+      outline-offset: 3px;
+    }
+  }
+
+  .eyebrow {
+    color: inherit;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    margin: 0 0 0.8rem;
+    text-transform: uppercase;
+  }
+
+  .home {
+    min-height: min(780px, calc(100svh - 72px));
+    padding: clamp(3.5rem, 8vw, 7rem) 1rem clamp(3rem, 6vw, 5rem);
+
+    .hero {
+      gap: 0;
+      max-width: 780px;
+
+      .title {
+        font-size: clamp(2.45rem, 7vw, 5.4rem);
+        letter-spacing: -0.045em;
+        line-height: 0.98;
+        max-width: 760px;
+      }
+
+      .paragraph {
+        font-size: clamp(1rem, 2.2vw, 1.3rem);
+        letter-spacing: 0;
+        line-height: 1.6;
+        margin: 1.25rem auto 0;
+        max-width: 650px;
+      }
+    }
+  }
+
+  .heroActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+
+  .cta,
+  .secondaryCta,
+  .primaryButton,
+  .secondaryButton {
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0.75rem 1.25rem;
+    text-decoration: none;
+  }
+
+  .home .hero .cta {
+    margin-top: 0;
+    min-width: 190px;
+  }
+
+  .secondaryCta {
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 99px;
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .heroPreview {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.13);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 1rem;
+    display: flex;
+    gap: 1rem;
+    margin-top: clamp(2.5rem, 7vw, 4.5rem);
+    max-width: 520px;
+    padding: 0.65rem;
+    text-align: left;
+    width: 100%;
+
+    img {
+      border-radius: 0.7rem;
+      height: 76px;
+      object-fit: cover;
+      width: 96px;
+    }
+
+    span {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+      opacity: 0.84;
+      text-transform: uppercase;
+    }
+
+    strong {
+      color: #fff;
+      font-size: 0.98rem;
+      line-height: 1.35;
+    }
+  }
+
+  .about {
+    min-height: auto;
+    padding: clamp(4rem, 8vw, 7rem) 1rem;
+
+    .container {
+      gap: clamp(2rem, 6vw, 5rem);
+      margin-bottom: clamp(2.5rem, 5vw, 4rem);
+
+      .content .title {
+        font-size: clamp(2.2rem, 4.7vw, 4rem);
+        letter-spacing: -0.035em;
+      }
+
+      .content .paragraph {
+        letter-spacing: 0;
+        line-height: 1.65;
+        max-width: 570px;
+      }
+
+      .buttonGroup {
+        flex-wrap: wrap;
+
+        .primaryButton,
+        .secondaryButton {
+          border-radius: 0.65rem;
+        }
+      }
+    }
+
+    .features {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+
+      .featureCard {
+        min-height: 172px;
+      }
+    }
+  }
+
+  .trust {
+    color: #fff;
+    margin: 0 auto;
+    max-width: 1220px;
+    padding: clamp(4rem, 8vw, 7rem) 1rem;
+  }
+
+  .sectionIntro {
+    margin: 0 auto 2rem;
+    max-width: 680px;
+    text-align: center;
+
+    h2 {
+      font-size: clamp(2rem, 4vw, 3.3rem);
+      letter-spacing: -0.035em;
+      line-height: 1.08;
+    }
+  }
+
+  .trustGrid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .trustCard {
+    background: rgba(255, 255, 255, 0.13);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 1rem;
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+
+    svg { color: #fbbf24; }
+    h3 { font-size: 1.15rem; margin: 1rem 0 0.5rem; }
+    p { line-height: 1.55; opacity: 0.92; }
+  }
+
+  .finalCta {
+    align-items: center;
+    background: #174a85;
+    border-radius: 1.25rem;
+    color: #fff;
+    display: flex;
+    gap: 2rem;
+    justify-content: space-between;
+    margin: clamp(2rem, 6vw, 5rem) auto;
+    max-width: 1180px;
+    padding: clamp(2rem, 5vw, 4rem);
+    width: calc(100% - 2rem);
+
+    h2 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      letter-spacing: -0.035em;
+      line-height: 1.05;
+      max-width: 640px;
+    }
+
+    p:not(.eyebrow) { line-height: 1.55; margin-top: 1rem; max-width: 620px; }
+
+    .cta {
+      background: #fff;
+      color: #174a85;
+      flex: 0 0 auto;
+      font-weight: 800;
+      min-width: 190px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .about .container { grid-template-columns: 1fr; }
+    .about .features, .trustGrid { grid-template-columns: 1fr; }
+    .finalCta { align-items: flex-start; flex-direction: column; }
+  }
+
+  @media (max-width: 480px) {
+    .heroActions { align-items: stretch; flex-direction: column; width: 100%; }
+    .home .hero .cta, .secondaryCta { width: 100%; }
+    .heroPreview { align-items: flex-start; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+  }

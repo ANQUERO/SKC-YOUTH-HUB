@@ -19,7 +19,7 @@ const Taglines = ({ title, paragraphs }) => {
 const DiscoverCard = ({ image, title, date, isWide = false }) => {
     return (
         <div className={`${styles.card} ${isWide ? styles.wide : ''}`}>
-            <img src={image} alt={title} />
+            <img src={image} alt={title} loading="lazy" decoding="async" />
             <div className={styles.cardContent}>
                 <h3>{title}</h3>
                 <div className={styles.date}>{date}</div>
